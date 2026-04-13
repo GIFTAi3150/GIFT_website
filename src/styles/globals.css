@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --font-mincho: "游明朝","Yu Mincho","Hiragino Mincho ProN W3","ヒラギノ明朝 ProN W3",serif;
+}
+
+html,
+body {
+  background: #121212;
+  color: #ffffff;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  line-height: 1.8;
+  scroll-behavior: smooth;
+}

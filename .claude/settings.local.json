@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "WebFetch(domain:gift-inc.org)",
+      "Bash(curl -L -o c:/Users/owner/Desktop/GIFT_website/public/fonts/Poppins-Bold.ttf \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Bold.ttf\" --create-dirs)",
+      "Bash(npm install:*)",
+      "Bash(node -e ':*)",
+      "Bash(ls -lh c:/Users/owner/Desktop/GIFT_website/public/textures/Rusty*)",
+      "Bash(curl -L -o c:/Users/owner/Desktop/GIFT_website/public/fonts/Poppins-Bold.ttf \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Bold.ttf\")"
+    ]
+  }
+}

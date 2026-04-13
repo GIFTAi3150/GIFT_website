@@ -1,7 +1,23 @@
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import Hero from '@/components/sections/Hero';
+import PhotoCarousel from '@/components/sections/PhotoCarousel';
+import ServicesGrid from '@/components/sections/ServicesGrid';
+import CompanySnapshot from '@/components/sections/CompanySnapshot';
+import CtaBand from '@/components/sections/CtaBand';
+
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-8">
-      <h1 className="text-3xl font-bold">GIFT Inc. — Homepage</h1>
-    </main>
+    <>
+      <Header />
+      <main>
+        <Hero />
+        <PhotoCarousel />
+        <ServicesGrid />
+        <CompanySnapshot />
+        <CtaBand />
+      </main>
+      <Footer />
+    </>
   );
 }
