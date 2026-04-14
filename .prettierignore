@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+build
+dist
+public
+scratchpad
+*.min.js
+*.min.css
+package-lock.json

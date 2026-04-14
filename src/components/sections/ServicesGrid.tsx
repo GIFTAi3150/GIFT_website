@@ -4,10 +4,9 @@ import services from '@/data/services.json';
 export default function ServicesGrid() {
   return (
     <section className="w-full bg-gift-near-black py-s-80">
-      <div className="max-w-container mx-auto px-4 md:px-6 lg:px-8">
-
-        <div className="flex flex-col gap-2 mb-16">
-          <p className="font-display font-bold text-gift-green tracking-widest uppercase text-small">
+      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        <div className="mb-16 flex flex-col gap-2">
+          <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
             WORKS
           </p>
           <h2
@@ -22,44 +21,41 @@ export default function ServicesGrid() {
           {services.map((service) => (
             <div
               key={service.id}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center"
+              className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-16"
             >
               <div className={service.imageLeft ? '' : 'lg:order-2'}>
-                <div
-                  className="w-full overflow-hidden"
-                  style={{ aspectRatio: '4/3' }}
-                >
+                <div className="w-full overflow-hidden" style={{ aspectRatio: '4/3' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={service.image}
                     alt={service.title}
-                    className="w-full h-full object-cover brightness-95 hover:brightness-100 transition-[filter] duration-300"
+                    className="h-full w-full object-cover brightness-95 transition-[filter] duration-300 hover:brightness-100"
                   />
                 </div>
               </div>
 
               <div className={service.imageLeft ? '' : 'lg:order-1'}>
                 <h3
-                  className="font-display font-bold text-white leading-tight"
+                  className="font-display font-bold leading-tight text-white"
                   style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
                 >
                   {service.titleEn}
                 </h3>
-                <p className="font-sans font-medium text-medium text-gift-green-mid mt-1">
+                <p className="mt-1 font-sans text-medium font-medium text-gift-green-mid">
                   {service.title}
                 </p>
 
-                <div className="w-12 h-0.5 bg-gift-green my-6" />
+                <div className="my-6 h-0.5 w-12 bg-gift-green" />
 
                 <p
-                  className="font-sans font-light text-normal text-gift-silver"
+                  className="font-sans text-normal font-light text-gift-silver"
                   style={{ lineHeight: '1.9' }}
                 >
                   {service.body}
                 </p>
 
                 {service.extra && (
-                  <p className="font-sans font-normal text-normal text-white mt-3">
+                  <p className="mt-3 font-sans text-normal font-normal text-white">
                     {service.extra}
                   </p>
                 )}
@@ -67,7 +63,7 @@ export default function ServicesGrid() {
                 {service.href && (
                   <Link
                     href={service.href}
-                    className="group mt-8 inline-flex items-center gap-2 font-sans font-medium text-normal text-gift-green hover:text-gift-green-mid transition-colors duration-150"
+                    className="group mt-8 inline-flex items-center gap-2 font-sans text-normal font-medium text-gift-green transition-colors duration-150 hover:text-gift-green-mid"
                   >
                     詳しく見る
                     <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">
@@ -79,7 +75,6 @@ export default function ServicesGrid() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

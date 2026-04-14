@@ -17,14 +17,14 @@
 
 ### Primary Palette
 
-| Role             | Color     | Hex       | Usage                              |
-| ---------------- | --------- | --------- | ---------------------------------- |
-| Primary          | Mid Green | `#357b49` | Buttons, accents, CTAs             |
-| Dark             | Charcoal  | `#32373c` | Button backgrounds, dark text      |
-| Text             | Black     | `#000000` | Body text, headings                |
-| Background       | White     | `#ffffff` | Page background, card backgrounds  |
-| Background Alt   | Light Grey| `#f6f7f7` | Section backgrounds, subtle fills  |
-| Text on Dark     | White     | `#ffffff` | Text on dark/green backgrounds     |
+| Role           | Color      | Hex       | Usage                             |
+| -------------- | ---------- | --------- | --------------------------------- |
+| Primary        | Mid Green  | `#357b49` | Buttons, accents, CTAs            |
+| Dark           | Charcoal   | `#32373c` | Button backgrounds, dark text     |
+| Text           | Black      | `#000000` | Body text, headings               |
+| Background     | White      | `#ffffff` | Page background, card backgrounds |
+| Background Alt | Light Grey | `#f6f7f7` | Section backgrounds, subtle fills |
+| Text on Dark   | White      | `#ffffff` | Text on dark/green backgrounds    |
 
 ### Accent / Secondary Colors (WordPress Block Palette)
 
@@ -50,41 +50,42 @@
 ### Font Stack
 
 ```css
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-             'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+font-family:
+  -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell',
+  'Helvetica Neue', sans-serif;
 ```
 
 ### Font Sizes
 
-| Token    | Size   | Usage                  |
-| -------- | ------ | ---------------------- |
-| Small    | `13px` | Captions, fine print   |
-| Normal   | `16px` | Body text              |
-| Medium   | `20px` | Subheadings, lead text |
-| Large    | `36px` | Section headings       |
-| X-Large  | `42px` | Hero headings          |
+| Token   | Size   | Usage                  |
+| ------- | ------ | ---------------------- |
+| Small   | `13px` | Captions, fine print   |
+| Normal  | `16px` | Body text              |
+| Medium  | `20px` | Subheadings, lead text |
+| Large   | `36px` | Section headings       |
+| X-Large | `42px` | Hero headings          |
 
 ### Font Weights
 
-| Weight | Value | Usage                    |
-| ------ | ----- | ------------------------ |
-| Regular| `400` | Body text                |
-| Medium | `500` | Links, buttons, nav      |
-| Bold   | `600` | Strong text, emphasis    |
+| Weight  | Value | Usage                 |
+| ------- | ----- | --------------------- |
+| Regular | `400` | Body text             |
+| Medium  | `500` | Links, buttons, nav   |
+| Bold    | `600` | Strong text, emphasis |
 
 ---
 
 ## Spacing Scale
 
-| Token | Value      | Rem     |
-| ----- | ---------- | ------- |
-| 20    | `0.44rem`  | ~7px   |
-| 30    | `0.67rem`  | ~11px  |
-| 40    | `1rem`     | 16px   |
-| 50    | `1.5rem`   | 24px   |
-| 60    | `2.25rem`  | 36px   |
-| 70    | `3.38rem`  | 54px   |
-| 80    | `5.06rem`  | 81px   |
+| Token | Value     | Rem   |
+| ----- | --------- | ----- |
+| 20    | `0.44rem` | ~7px  |
+| 30    | `0.67rem` | ~11px |
+| 40    | `1rem`    | 16px  |
+| 50    | `1.5rem`  | 24px  |
+| 60    | `2.25rem` | 36px  |
+| 70    | `3.38rem` | 54px  |
+| 80    | `5.06rem` | 81px  |
 
 ---
 
@@ -95,7 +96,7 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
 ```css
 background-color: #32373c;
 color: #ffffff;
-border-radius: 9999px;        /* fully rounded / pill shape */
+border-radius: 9999px; /* fully rounded / pill shape */
 font-size: 1.125em;
 font-weight: 500;
 padding: calc(0.667em + 2px) calc(1.333em + 2px);
@@ -114,23 +115,25 @@ transition: all 0.2s ease;
 ```
 
 **Hover state:**
+
 ```css
 filter: brightness(110%);
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
-            0 0 2px rgba(0, 0, 0, 0.16);
+box-shadow:
+  0 4px 12px rgba(0, 0, 0, 0.06),
+  0 0 2px rgba(0, 0, 0, 0.16);
 ```
 
 ---
 
 ## Shadows
 
-| Name     | Value                                                                      |
-| -------- | -------------------------------------------------------------------------- |
-| Natural  | `6px 6px 9px rgba(0, 0, 0, 0.2)`                                          |
-| Deep     | `12px 12px 50px rgba(0, 0, 0, 0.4)`                                       |
-| Sharp    | `6px 6px 0px rgba(0, 0, 0, 0.2)`                                          |
-| Outlined | `6px 6px 0px -3px #fff, 6px 6px #000`                                     |
-| Crisp    | `6px 6px 0px #000`                                                         |
+| Name     | Value                                 |
+| -------- | ------------------------------------- |
+| Natural  | `6px 6px 9px rgba(0, 0, 0, 0.2)`      |
+| Deep     | `12px 12px 50px rgba(0, 0, 0, 0.4)`   |
+| Sharp    | `6px 6px 0px rgba(0, 0, 0, 0.2)`      |
+| Outlined | `6px 6px 0px -3px #fff, 6px 6px #000` |
+| Crisp    | `6px 6px 0px #000`                    |
 
 ---
 
@@ -147,12 +150,12 @@ box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
 
 ## Animations
 
-| Effect        | Detail                                    |
-| ------------- | ----------------------------------------- |
+| Effect        | Detail                                           |
+| ------------- | ------------------------------------------------ |
 | ScrollReveal  | Origin: bottom, duration: 1000ms, distance: 50px |
-| Smooth Scroll | `scroll-behavior: smooth`                |
-| Carousel      | CSS `transform: translateX()`             |
-| Hover Trans.  | `transition: all 0.2s ease`              |
+| Smooth Scroll | `scroll-behavior: smooth`                        |
+| Carousel      | CSS `transform: translateX()`                    |
+| Hover Trans.  | `transition: all 0.2s ease`                      |
 
 ---
 

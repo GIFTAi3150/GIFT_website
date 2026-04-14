@@ -3,7 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --font-mincho: "游明朝","Yu Mincho","Hiragino Mincho ProN W3","ヒラギノ明朝 ProN W3",serif;
+  --font-mincho: '游明朝', 'Yu Mincho', 'Hiragino Mincho ProN W3', 'ヒラギノ明朝 ProN W3', serif;
+  color-scheme: dark;
+}
+
+html {
+  background-color: #121212;
 }
 
 html,
@@ -14,4 +19,57 @@ body {
   font-weight: 300;
   line-height: 1.8;
   scroll-behavior: smooth;
+}
+
+/* Prevent orphan characters in headings (esp. Japanese).
+   text-wrap: balance  → evenly distributes words/chars across lines.
+   word-break: keep-all → don't split inside Japanese "words"; break at 、。etc.
+   overflow-wrap: anywhere → safety net for very long English tokens. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* Scatter-in text animation — used by ScatterText component.
+   Each char starts offset + rotated + invisible, settles to (0,0,0) + opaque. */
+@keyframes scatter-settle {
+  0% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+}
+.scatter-char {
+  display: inline-block;
+  opacity: 0;
+  animation: scatter-settle 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+/* Navbar reveal — fades down into place on mount. Stagger is driven by
+   --reveal-delay set inline per element. */
+@keyframes nav-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.nav-reveal {
+  opacity: 0;
+  animation: nav-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -42,8 +42,8 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
 
     // Add a couple of subtle dents on the front and back faces
     const dents = [
-      { cx: 350, cy: 320, r: 40, strength: -1.2 },  // front dent 1
-      { cx: 520, cy: 500, r: 30, strength: -0.8 },   // front dent 2
+      { cx: 350, cy: 320, r: 40, strength: -1.2 }, // front dent 1
+      { cx: 520, cy: 500, r: 30, strength: -0.8 }, // front dent 2
     ];
     const frontZ = depth;
     const backZ = 0;
@@ -70,7 +70,7 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < dent.r) {
           // Smooth falloff from center of dent
-          const t = 1 - (dist / dent.r);
+          const t = 1 - dist / dent.r;
           const push = t * t * dent.strength * dir;
           pos.setZ(i, z + push);
         }
@@ -123,7 +123,7 @@ function useHalfShadowMaterial(
 
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <common>',
-        '#include <common>\nuniform sampler2D uColorMap;'
+        '#include <common>\nuniform sampler2D uColorMap;',
       );
 
       shader.fragmentShader = shader.fragmentShader.replace(
@@ -134,7 +134,7 @@ function useHalfShadowMaterial(
         gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * texColor, 0.1);
 
         #include <dithering_fragment>
-        `
+        `,
       );
     };
 
@@ -161,15 +161,22 @@ function OrbitingRocks({ count = 6 }: { count?: number }) {
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    if (t < 4) return;
+    const BURST = 1.9; // metals burst out at the impact peak
+    if (t < BURST) return;
+
+    const since = t - BURST;
+    // Ease radius out from 0 to full over ~0.7s
+    const radiusEase = Math.min(since / 0.7, 1);
+    const r = 1 - Math.pow(1 - radiusEase, 3);
 
     rocks.forEach((rock, i) => {
       const mesh = meshRefs.current[i];
       if (!mesh) return;
-      const angle = rock.angle + (t - 4) * rock.speed;
-      mesh.position.x = Math.cos(angle) * rock.radius;
-      mesh.position.y = rock.y + Math.sin(t * 0.5 + i) * 0.1;
-      mesh.position.z = Math.sin(angle) * rock.radius;
+      const angle = rock.angle + since * rock.speed;
+      const radius = rock.radius * r;
+      mesh.position.x = Math.cos(angle) * radius;
+      mesh.position.y = rock.y * r + Math.sin(t * 0.5 + i) * 0.1 * r;
+      mesh.position.z = Math.sin(angle) * radius;
       mesh.rotation.x = t * rock.spinSpeed;
       mesh.rotation.z = t * rock.spinSpeed * 0.7;
       mesh.visible = true;
@@ -181,7 +188,9 @@ function OrbitingRocks({ count = 6 }: { count?: number }) {
       {rocks.map((rock, i) => (
         <mesh
           key={i}
-          ref={(el) => { meshRefs.current[i] = el; }}
+          ref={(el) => {
+            meshRefs.current[i] = el;
+          }}
           visible={false}
         >
           <icosahedronGeometry args={[rock.size, 0]} />
@@ -203,11 +212,14 @@ function ShieldScene() {
   const groupRef = useRef<THREE.Group>(null);
 
   // Parse SVG shapes
-  const { shieldShapes, g1Shapes, g2Shapes } = useMemo(() => ({
-    shieldShapes: parsePath(SHIELD_PATH),
-    g1Shapes: parsePath(G_PATH_1),
-    g2Shapes: parsePath(G_PATH_2),
-  }), []);
+  const { shieldShapes, g1Shapes, g2Shapes } = useMemo(
+    () => ({
+      shieldShapes: parsePath(SHIELD_PATH),
+      g1Shapes: parsePath(G_PATH_1),
+      g2Shapes: parsePath(G_PATH_2),
+    }),
+    [],
+  );
 
   // Build geometry
   const shieldGeos = useMemo(() => buildGeometry(shieldShapes, 30), [shieldShapes]);
@@ -231,7 +243,15 @@ function ShieldScene() {
   }, [normalMap, roughnessMap, colorMap]);
 
   // Create materials — base: Metal056B, clearcoat scratches: PaintedMetal002
-  const shieldMat = useHalfShadowMaterial(BRAND_GREEN, 0.75, 0.35, normalMap, roughnessMap, colorMap, 1.5);
+  const shieldMat = useHalfShadowMaterial(
+    BRAND_GREEN,
+    0.75,
+    0.35,
+    normalMap,
+    roughnessMap,
+    colorMap,
+    1.5,
+  );
   const goldMat = useHalfShadowMaterial(GOLD, 0.85, 0.25, normalMap, roughnessMap, colorMap, 1.0);
 
   const textMatRef = useRef<THREE.MeshStandardMaterial>(null);
@@ -246,17 +266,37 @@ function ShieldScene() {
     // Phase 2 (2-4s): Logo slides left, "ift Inc." fades in
     // Phase 3 (4s+): Gentle rock animation
 
-    if (t < 2) {
-      // Spin in — fast 360° rotation while scaling up
-      const s = Math.min(t / 1.8, 1);
-      const eased = 1 - Math.pow(1 - s, 3); // ease out cubic
+    if (t < 1.6) {
+      // Spin in — fast 360° rotation while scaling up to 1.0
+      const s = Math.min(t / 1.6, 1);
+      const eased = 1 - Math.pow(1 - s, 3);
       wholeGroupRef.current.scale.setScalar(eased);
       wholeGroupRef.current.position.x = 0;
       textMatRef.current.opacity = 0;
-      groupRef.current.rotation.y = (1 - eased) * Math.PI * 2; // full 360° spin
+      groupRef.current.rotation.y = (1 - eased) * Math.PI * 2;
+    } else if (t < 1.9) {
+      // HARD PUNCH — zoom in fast to 1.28
+      const p = (t - 1.6) / 0.3;
+      const eased = 1 - Math.pow(1 - p, 2);
+      wholeGroupRef.current.scale.setScalar(1 + eased * 0.28);
+      wholeGroupRef.current.position.x = 0;
+      textMatRef.current.opacity = 0;
+      groupRef.current.rotation.y = 0;
+    } else if (t < 2.3) {
+      // SETTLE — snap back to 1.0 with a tiny overshoot bounce
+      const p = (t - 1.9) / 0.4;
+      // damped oscillation from 1.28 down to 1.0
+      const decay = Math.exp(-4 * p);
+      const osc = Math.cos(p * Math.PI * 2.2);
+      const s = 1 + 0.28 * decay * osc;
+      wholeGroupRef.current.scale.setScalar(s);
+      wholeGroupRef.current.position.x = 0;
+      textMatRef.current.opacity = 0;
+      groupRef.current.rotation.y = 0;
     } else if (t < 4) {
       // Slide left + fade in text
-      const p = (t - 2) / 2;
+      wholeGroupRef.current.scale.setScalar(1);
+      const p = (t - 2.3) / 1.7;
       const eased = 1 - Math.pow(1 - p, 3);
       wholeGroupRef.current.position.x = eased * -0.8;
       textMatRef.current.opacity = eased * 0.9;
@@ -269,10 +309,14 @@ function ShieldScene() {
     }
   });
 
-  const cx = 414, cy = 400, scale = 0.003;
+  const cx = 414,
+    cy = 400,
+    scale = 0.003;
 
   return (
     <>
+      {/* Scene background — guarantees no white flash between canvas init and first render */}
+      <color attach="background" args={['#141414']} />
       <group ref={wholeGroupRef}>
         <group ref={groupRef}>
           <group scale={[scale, -scale, scale]}>
@@ -326,20 +370,50 @@ function ShieldScene() {
 }
 
 // --------------- EXPORT ---------------
-interface Props { className?: string }
+interface Props {
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
 
-export default function GiftLogo3D_PremiumBadge({ className }: Props) {
+const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
+  sm: 'h-[260px] sm:h-[320px] lg:h-[400px]',
+  md: 'h-[320px] sm:h-[400px] lg:h-[500px]',
+  lg: 'h-[360px] sm:h-[460px] lg:h-[640px]',
+};
+
+export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Props) {
+  const [ready, setReady] = useState(false);
+
   return (
-    <div className={className} style={{ width: '100%', height: '400px' }}>
+    <div
+      className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
+      style={{ width: '100%', backgroundColor: '#141414' }}
+    >
+      {/* Dark cover above the canvas — fades away once we know three.js has painted.
+          Protects against any initial white flash during WebGL context creation. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-500"
+        style={{
+          backgroundColor: '#141414',
+          opacity: ready ? 0 : 1,
+        }}
+      />
       <Canvas
         camera={{ position: [0, 0, 6], fov: 40 }}
         gl={{
           antialias: true,
-          alpha: true,
+          alpha: false,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.5,
         }}
-        style={{ background: 'transparent' }}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#141414', 1);
+          // Wait 2 animation frames to guarantee at least one scene paint
+          // has landed before we reveal the canvas.
+          requestAnimationFrame(() => requestAnimationFrame(() => setReady(true)));
+        }}
+        style={{ background: '#141414' }}
       >
         {/* Light hitting the surface at an angle — this is what makes textures visible */}
         {/* Cinematic three-point lighting */}
