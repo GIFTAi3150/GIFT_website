@@ -9,7 +9,7 @@ export default function ServicesCards() {
           SERVICE
         </p>
         <h2
-          className="font-sans font-extrabold text-white"
+          className="font-sans font-extrabold text-gift-ink"
           style={{ fontSize: '36px', lineHeight: '1.25' }}
         >
           事業内容
@@ -23,7 +23,7 @@ export default function ServicesCards() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {services.map((s, idx) => {
             const CardInner = (
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/5 bg-gift-mid-dark transition-all duration-500 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_20px_50px_-15px_rgba(0,86,51,0.55)]">
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-gift-border bg-gift-mid-dark transition-all duration-500 hover:-translate-y-1 hover:border-gift-hover/40 hover:shadow-[0_20px_50px_-15px_rgba(0,86,51,0.55)]">
                 {/* Image with gradient scrim */}
                 <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -41,13 +41,13 @@ export default function ServicesCards() {
 
                   {/* Arrow badge, top-right */}
                   {s.href && (
-                    <span className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white backdrop-blur-sm transition-all duration-300 group-hover:border-gift-green group-hover:bg-gift-green group-hover:rotate-[-45deg]">
+                    <span className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-gift-border bg-black/30 text-gift-ink backdrop-blur-sm transition-all duration-300 group-hover:border-gift-hover group-hover:bg-gift-hover group-hover:rotate-[-45deg]">
                       →
                     </span>
                   )}
 
                   {/* English title overlaid on image */}
-                  <h3 className="absolute bottom-4 left-5 right-5 font-display text-medium font-bold leading-tight text-white">
+                  <h3 className="absolute bottom-4 left-5 right-5 font-display text-medium font-bold leading-tight text-gift-ink">
                     {s.titleEn}
                   </h3>
                 </div>
@@ -59,7 +59,7 @@ export default function ServicesCards() {
                     {s.body.length > 90 ? s.body.slice(0, 90) + '…' : s.body}
                   </p>
                   {s.href && (
-                    <span className="mt-5 inline-flex items-center gap-2 font-sans text-small font-medium text-gift-green transition-colors group-hover:text-white">
+                    <span className="mt-5 inline-flex items-center gap-2 font-sans text-small font-medium text-gift-green transition-colors group-hover:text-gift-ink">
                       詳しく見る
                       <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
                         →

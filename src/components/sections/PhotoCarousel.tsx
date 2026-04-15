@@ -40,10 +40,10 @@ export default function PhotoCarousel({ showCta = false }: { showCta?: boolean }
           MEMBERS
         </p>
         <h2
-          className="mb-2 font-sans font-extrabold text-white"
+          className="mb-2 font-sans font-extrabold text-gift-ink"
           style={{ fontSize: '36px', lineHeight: '1.25' }}
         >
-          GIFTのチーム
+          GIFTのメンバー
         </h2>
         <p className="font-sans text-normal font-light text-gift-silver">
           一人ひとりが、GIFTをつくっている。
@@ -78,10 +78,10 @@ export default function PhotoCarousel({ showCta = false }: { showCta?: boolean }
                 }}
               />
               <div className="absolute bottom-4 left-4 right-4">
-                <p className="font-display text-normal uppercase leading-tight tracking-widest text-white">
+                <p className="font-display text-normal uppercase leading-tight tracking-widest text-gift-ink">
                   {member.name}
                 </p>
-                <p className="font-sans text-small font-light leading-snug text-white/80">
+                <p className="font-sans text-small font-light leading-snug text-gift-ink/80">
                   {member.role}
                 </p>
               </div>
@@ -94,7 +94,7 @@ export default function PhotoCarousel({ showCta = false }: { showCta?: boolean }
       <div className="mt-12 flex justify-center px-4">
         <Link
           href="/member"
-          className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-10 py-4 font-sans text-normal font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green hover:bg-gift-green hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-green active:bg-gift-green"
+          className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-10 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
         >
           チームを見る
           <span className="inline-block transition-transform group-hover:translate-x-1">→</span>

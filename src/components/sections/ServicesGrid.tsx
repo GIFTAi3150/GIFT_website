@@ -10,7 +10,7 @@ export default function ServicesGrid() {
             WORKS
           </p>
           <h2
-            className="font-sans font-extrabold text-white"
+            className="font-sans font-extrabold text-gift-ink"
             style={{ fontSize: '38px', lineHeight: '1.25' }}
           >
             事業内容
@@ -36,7 +36,7 @@ export default function ServicesGrid() {
 
               <div className={service.imageLeft ? '' : 'lg:order-1'}>
                 <h3
-                  className="font-display font-bold leading-tight text-white"
+                  className="font-display font-bold leading-tight text-gift-ink"
                   style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
                 >
                   {service.titleEn}
@@ -55,7 +55,7 @@ export default function ServicesGrid() {
                 </p>
 
                 {service.extra && (
-                  <p className="mt-3 font-sans text-normal font-normal text-white">
+                  <p className="mt-3 font-sans text-normal font-normal text-gift-ink">
                     {service.extra}
                   </p>
                 )}
@@ -63,7 +63,7 @@ export default function ServicesGrid() {
                 {service.href && (
                   <Link
                     href={service.href}
-                    className="group mt-8 inline-flex items-center gap-2 font-sans text-normal font-medium text-gift-green transition-colors duration-150 hover:text-gift-green-mid"
+                    className="group mt-8 inline-flex items-center gap-2 font-sans text-normal font-medium text-gift-green transition-colors duration-150 hover:text-gift-hover"
                   >
                     詳しく見る
                     <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">

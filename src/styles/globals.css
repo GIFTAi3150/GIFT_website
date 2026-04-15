@@ -4,23 +4,22 @@
 
 :root {
   --font-mincho: '游明朝', 'Yu Mincho', 'Hiragino Mincho ProN W3', 'ヒラギノ明朝 ProN W3', serif;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
-  background-color: #121212;
+  background-color: #D7DDD9;
 }
 
-/* Canvas elements default to transparent/white during WebGL layer creation.
-   Force a dark bg so they never flash white before the first clear. */
+/* Canvas bg transparent so the hero shows through — no visible walls. */
 canvas {
-  background-color: #141414;
+  background-color: transparent;
 }
 
 html,
 body {
-  background: #121212;
-  color: #ffffff;
+  background: #D7DDD9;
+  color: #111827;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   line-height: 1.8;

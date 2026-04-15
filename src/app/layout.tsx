@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#121212',
-  colorScheme: 'dark',
+  themeColor: '#D7DDD9',
+  colorScheme: 'light',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,11 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="ja"
       className={`${notoSansJP.variable} ${poppins.variable}`}
-      style={{ backgroundColor: '#121212', colorScheme: 'dark' }}
+      style={{ backgroundColor: '#D7DDD9', colorScheme: 'light' }}
     >
-      <head>
-        <meta name="color-scheme" content="dark" />
-        <meta name="theme-color" content="#121212" />
+      <body style={{ backgroundColor: '#D7DDD9' }}>
+        {/* Font preload — Next.js allows <link> inside body */}
         <link
           rel="preload"
           href="/fonts/Poppins-Bold.ttf"
@@ -29,8 +28,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="font/ttf"
           crossOrigin="anonymous"
         />
-      </head>
-      <body style={{ backgroundColor: '#121212' }}>
         {/* SSR-rendered dark cover. Present in the very first HTML byte the
             browser receives, so it can paint before any React/JS runs.
             Inline script fades it out once the page is ready. */}
@@ -41,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            backgroundColor: '#121212',
+            backgroundColor: '#D7DDD9',
             pointerEvents: 'none',
             transition: 'opacity 500ms ease-out',
           }}

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function WhoWeAre() {
   return (
-    <section className="relative w-full overflow-hidden border-t border-white/5 bg-gift-near-black py-s-80">
+    <section className="relative w-full overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
       {/* Bob Marley lyrics drifting across the background */}
       <div
         aria-hidden
@@ -12,7 +12,7 @@ export default function WhoWeAre() {
           {Array.from({ length: 4 }).map((_, i) => (
             <span
               key={`a${i}`}
-              className="select-none font-display italic text-white/[0.07]"
+              className="select-none font-display italic text-gift-ink/[0.07]"
               style={{ fontSize: 'clamp(60px, 10vw, 140px)', letterSpacing: '0.02em' }}
             >
               One Love. One Heart.
@@ -26,7 +26,7 @@ export default function WhoWeAre() {
           {Array.from({ length: 4 }).map((_, i) => (
             <span
               key={`b${i}`}
-              className="select-none font-display italic text-white/[0.07]"
+              className="select-none font-display italic text-gift-ink/[0.07]"
               style={{ fontSize: 'clamp(55px, 9vw, 130px)', letterSpacing: '0.02em' }}
             >
               Let&apos;s get together and feel all right.
@@ -42,7 +42,7 @@ export default function WhoWeAre() {
           </p>
 
           <h2
-            className="mb-8 font-sans font-extrabold leading-tight text-white"
+            className="mb-8 font-sans font-extrabold leading-tight text-gift-ink"
             style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
           >
             キッカケで、世界が変わる。
@@ -69,7 +69,7 @@ export default function WhoWeAre() {
 
           <Link
             href="/company"
-            className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-8 py-4 font-sans text-normal font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green hover:bg-gift-green hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-green active:bg-gift-green"
+            className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-8 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
           >
             GIFTについて
             <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">

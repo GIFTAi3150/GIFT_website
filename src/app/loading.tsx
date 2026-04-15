@@ -2,14 +2,14 @@
 // Shown during route transitions & server data fetching.
 
 const Block = ({ className = '', style }: { className?: string; style?: React.CSSProperties }) => (
-  <div className={`animate-pulse bg-white/5 ${className}`} style={style} />
+  <div className={`animate-pulse bg-white ${className}`} style={style} />
 );
 
 export default function Loading() {
   return (
-    <div style={{ backgroundColor: '#141414' }} className="min-h-screen">
+    <div style={{ backgroundColor: '#D7DDD9' }} className="min-h-screen">
       {/* Header */}
-      <div className="w-full border-b border-white/5">
+      <div className="w-full border-b border-gift-border">
         <div className="mx-auto flex h-16 max-w-container items-center justify-between px-4 md:px-6 lg:px-8">
           <Block className="h-6 w-24" />
           <div className="hidden gap-6 md:flex">
@@ -35,7 +35,7 @@ export default function Loading() {
       </section>
 
       {/* Who We Are */}
-      <section className="border-t border-white/5 py-s-80">
+      <section className="border-t border-gift-border py-s-80">
         <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-5">
             <Block className="h-3 w-24" />
@@ -108,13 +108,13 @@ export default function Loading() {
       </section>
 
       {/* Clients */}
-      <section className="border-t border-white/5 py-s-80">
+      <section className="border-t border-gift-border py-s-80">
         <div className="mx-auto mb-10 max-w-container space-y-3 px-4 md:px-6 lg:px-8">
           <Block className="h-3 w-24" />
           <Block className="h-8 w-52" />
         </div>
         <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-px bg-white sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {Array.from({ length: 12 }).map((_, i) => (
               <Block key={i} className="h-24" />
             ))}
@@ -123,7 +123,7 @@ export default function Loading() {
       </section>
 
       {/* Social Links */}
-      <section className="border-t border-white/5 py-s-80">
+      <section className="border-t border-gift-border py-s-80">
         <div className="mx-auto flex max-w-container flex-col items-center gap-8 px-4 md:px-6 lg:px-8">
           <Block className="h-3 w-24" />
           <Block className="h-7 w-64" />
@@ -136,7 +136,7 @@ export default function Loading() {
       </section>
 
       {/* Column / News */}
-      <section className="border-t border-white/5 py-s-80">
+      <section className="border-t border-gift-border py-s-80">
         <div className="mx-auto mb-12 max-w-container space-y-3 px-4 md:px-6 lg:px-8">
           <Block className="h-3 w-28" />
           <Block className="h-8 w-52" />
@@ -156,7 +156,7 @@ export default function Loading() {
       </section>
 
       {/* Footer */}
-      <div className="border-t border-white/5">
+      <div className="border-t border-gift-border">
         <div className="mx-auto grid max-w-container grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4 md:px-6 lg:px-8">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="flex flex-col gap-3">
