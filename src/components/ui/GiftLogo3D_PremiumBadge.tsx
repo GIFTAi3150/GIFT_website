@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, Suspense } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -208,7 +208,18 @@ function OrbitingRocks({ count = 6 }: { count?: number }) {
 }
 
 // --------------- MAIN SCENE ---------------
-function ShieldScene() {
+function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
+  const frameCountRef = useRef(0);
+  const firedRef = useRef(false);
+  useFrame(() => {
+    if (firedRef.current) return;
+    frameCountRef.current += 1;
+    // Wait for 3 painted frames to guarantee the scene is on-screen
+    if (frameCountRef.current >= 3) {
+      firedRef.current = true;
+      onFirstFrame?.();
+    }
+  });
   const groupRef = useRef<THREE.Group>(null);
 
   // Parse SVG shapes
@@ -345,6 +356,7 @@ function ShieldScene() {
         </group>
 
         {/* "ift Inc." text that appears to the right of the logo */}
+        <Suspense fallback={null}>
         <Text
           position={[1.05, 0, 0]}
           fontSize={0.42}
@@ -363,6 +375,7 @@ function ShieldScene() {
             opacity={0}
           />
         </Text>
+        </Suspense>
       </group>
       <OrbitingRocks />
     </>
@@ -381,8 +394,21 @@ const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
   lg: 'h-[360px] sm:h-[460px] lg:h-[640px]',
 };
 
+function LogoFallback() {
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <svg width="140" height="150" viewBox="0 0 828 800" style={{ opacity: 0.5 }}>
+        <path fill="#2d6b3f" d={SHIELD_PATH} />
+        <path fill="#eeebe3" d={G_PATH_1} />
+        <path fill="#eeebe3" d={G_PATH_2} />
+      </svg>
+    </div>
+  );
+}
+
 export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Props) {
   const [ready, setReady] = useState(false);
+  const [contextLost, setContextLost] = useState(false);
 
   return (
     <div
@@ -393,12 +419,17 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
           Protects against any initial white flash during WebGL context creation. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-500"
+        className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
         style={{
           backgroundColor: '#141414',
-          opacity: ready ? 0 : 1,
+          opacity: ready && !contextLost ? 0 : 1,
         }}
       />
+      {contextLost && (
+        <div className="pointer-events-none absolute inset-0 z-40">
+          <LogoFallback />
+        </div>
+      )}
       <Canvas
         camera={{ position: [0, 0, 6], fov: 40 }}
         gl={{
@@ -406,14 +437,32 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
           alpha: false,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.5,
+          powerPreference: 'high-performance',
         }}
         onCreated={({ gl }) => {
           gl.setClearColor('#141414', 1);
-          // Wait 2 animation frames to guarantee at least one scene paint
-          // has landed before we reveal the canvas.
-          requestAnimationFrame(() => requestAnimationFrame(() => setReady(true)));
+          const canvas = gl.domElement;
+          canvas.addEventListener(
+            'webglcontextlost',
+            (e) => {
+              e.preventDefault();
+              setContextLost(true);
+            },
+            false,
+          );
+          canvas.addEventListener(
+            'webglcontextrestored',
+            () => {
+              setContextLost(false);
+            },
+            false,
+          );
         }}
-        style={{ background: '#141414' }}
+        style={{
+          background: '#141414',
+          opacity: ready && !contextLost ? 1 : 0,
+          transition: 'opacity 400ms ease-out',
+        }}
       >
         {/* Light hitting the surface at an angle — this is what makes textures visible */}
         {/* Cinematic three-point lighting */}
@@ -429,7 +478,16 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
         {/* RIM — behind the object, edge separation */}
         <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
 
-        <ShieldScene />
+        <ShieldScene
+          onFirstFrame={() => {
+            setTimeout(() => {
+              setReady(true);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('gift:logo-ready'));
+              }
+            }, 250);
+          }}
+        />
       </Canvas>
     </div>
   );

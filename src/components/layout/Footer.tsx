@@ -5,7 +5,7 @@ import company from '@/data/company.json';
 const footerNav = [
   { href: '/company', ja: '会社概要' },
   { href: '/achievements', ja: '実績' },
-  { href: '/team', ja: 'チーム' },
+  { href: '/member', ja: 'メンバー' },
   { href: '/recruit', ja: '採用情報' },
   { href: '/news', ja: 'お知らせ' },
   { href: '/contact', ja: 'お問い合わせ' },

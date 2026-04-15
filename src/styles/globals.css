@@ -11,6 +11,12 @@ html {
   background-color: #121212;
 }
 
+/* Canvas elements default to transparent/white during WebGL layer creation.
+   Force a dark bg so they never flash white before the first clear. */
+canvas {
+  background-color: #141414;
+}
+
 html,
 body {
   background: #121212;

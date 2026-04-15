@@ -39,8 +39,16 @@ export default function Hero() {
           </div>
 
           {/* Logo — right on desktop, below text on mobile */}
-          <div className="order-1 flex items-center justify-center lg:order-2 lg:col-span-3">
-            <HeroLogoDelayed className="w-full max-w-3xl" />
+          <div
+            className="order-1 flex items-center justify-center lg:order-2 lg:col-span-3"
+            style={{ backgroundColor: '#141414' }}
+          >
+            <div
+              className="relative h-[360px] w-full max-w-3xl sm:h-[460px] lg:h-[640px]"
+              style={{ backgroundColor: '#141414' }}
+            >
+              <HeroLogoDelayed className="absolute inset-0" />
+            </div>
           </div>
         </div>
       </div>

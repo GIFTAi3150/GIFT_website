@@ -17,8 +17,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="ja"
       className={`${notoSansJP.variable} ${poppins.variable}`}
-      style={{ backgroundColor: '#121212' }}
+      style={{ backgroundColor: '#121212', colorScheme: 'dark' }}
     >
+      <head>
+        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#121212" />
+        <link
+          rel="preload"
+          href="/fonts/Poppins-Bold.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body style={{ backgroundColor: '#121212' }}>
         {/* SSR-rendered dark cover. Present in the very first HTML byte the
             browser receives, so it can paint before any React/JS runs.
@@ -41,16 +52,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function () {
                 var cover = document.getElementById('page-cover');
                 if (!cover) return;
+                var hidden = false;
                 var hide = function () {
+                  if (hidden) return;
+                  hidden = true;
                   cover.style.opacity = '0';
                   setTimeout(function () { cover.remove(); }, 600);
                 };
-                // Fade out once window has loaded (all resources ready).
-                if (document.readyState === 'complete') {
-                  setTimeout(hide, 400);
+                var windowLoaded = document.readyState === 'complete';
+                var logoReady = false;
+                var tryHide = function () {
+                  if (windowLoaded && logoReady) hide();
+                };
+                window.addEventListener('gift:logo-ready', function () {
+                  logoReady = true;
+                  tryHide();
+                });
+                if (windowLoaded) {
+                  // already loaded
                 } else {
-                  window.addEventListener('load', function () { setTimeout(hide, 400); });
+                  window.addEventListener('load', function () {
+                    windowLoaded = true;
+                    tryHide();
+                  });
                 }
+                // Safety fallback: if the logo never signals (error, no 3D on page),
+                // force-hide after 4s so the site is never stuck behind the cover.
+                setTimeout(hide, 4000);
               })();
             `,
           }}

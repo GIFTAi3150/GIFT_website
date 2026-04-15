@@ -142,7 +142,7 @@ export default function CaseStudy() {
               <Link
                 key={c.id}
                 href="#"
-                className="group block shrink-0 overflow-hidden bg-gift-mid-dark transition-colors duration-200 hover:bg-gift-green/10"
+                className="group block shrink-0 overflow-hidden rounded-2xl bg-gift-mid-dark transition-colors duration-200 hover:bg-gift-green/10"
                 style={{ width: cardW }}
               >
                 <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>

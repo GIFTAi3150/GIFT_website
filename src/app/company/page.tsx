@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
+import PhotoCarousel from '@/components/sections/PhotoCarousel';
 
 const infoRows = [
   { label: '会社名', value: `${company.name} / ${company.nameEn}` },
@@ -183,6 +184,11 @@ export default function CompanyPage() {
               </div>
             </div>
           </section>
+        </Reveal>
+
+        {/* TeamPhotoCarousel*/}
+        <Reveal>
+          <PhotoCarousel showCta />
         </Reveal>
 
         {/* Company Info Table */}

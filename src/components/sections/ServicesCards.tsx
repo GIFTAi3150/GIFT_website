@@ -20,43 +20,66 @@ export default function ServicesCards() {
       </div>
 
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-          {services.map((s) => (
-            <div
-              key={s.id}
-              className="group flex flex-col overflow-hidden bg-gift-mid-dark transition-colors duration-200 hover:bg-gift-green/10"
-            >
-              <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={s.image}
-                  alt={s.title}
-                  className="h-full w-full object-cover brightness-90 transition-all duration-500 group-hover:scale-[1.03] group-hover:brightness-100"
-                />
-              </div>
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="font-display text-medium font-bold leading-tight text-white">
-                  {s.titleEn}
-                </h3>
-                <p className="mt-1 font-sans text-small text-gift-green-mid">{s.title}</p>
-                <div className="my-4 h-0.5 w-10 bg-gift-green" />
-                <p className="flex-1 font-sans text-small font-light leading-relaxed text-gift-silver">
-                  {s.body.length > 90 ? s.body.slice(0, 90) + '…' : s.body}
-                </p>
-                {s.href && (
-                  <Link
-                    href={s.href}
-                    className="mt-5 inline-flex items-center gap-2 font-sans text-small text-gift-green transition-colors hover:text-gift-green-mid"
-                  >
-                    詳しく見る
-                    <span className="inline-block transition-transform group-hover:translate-x-1">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          {services.map((s, idx) => {
+            const CardInner = (
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/5 bg-gift-mid-dark transition-all duration-500 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_20px_50px_-15px_rgba(0,86,51,0.55)]">
+                {/* Image with gradient scrim */}
+                <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={s.image}
+                    alt={s.title}
+                    className="h-full w-full object-cover brightness-75 transition-all duration-700 group-hover:scale-[1.06] group-hover:brightness-100"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-gift-mid-dark via-gift-mid-dark/40 to-transparent" />
+
+                  {/* Index number, top-left */}
+                  <span className="absolute left-5 top-4 font-display text-small font-bold tracking-widest text-gift-green">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+
+                  {/* Arrow badge, top-right */}
+                  {s.href && (
+                    <span className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white backdrop-blur-sm transition-all duration-300 group-hover:border-gift-green group-hover:bg-gift-green group-hover:rotate-[-45deg]">
                       →
                     </span>
-                  </Link>
-                )}
+                  )}
+
+                  {/* English title overlaid on image */}
+                  <h3 className="absolute bottom-4 left-5 right-5 font-display text-medium font-bold leading-tight text-white">
+                    {s.titleEn}
+                  </h3>
+                </div>
+
+                {/* Body */}
+                <div className="flex flex-1 flex-col p-6">
+                  <p className="font-sans text-small font-medium text-gift-green-mid">{s.title}</p>
+                  <p className="mt-3 flex-1 font-sans text-small font-light leading-relaxed text-gift-silver">
+                    {s.body.length > 90 ? s.body.slice(0, 90) + '…' : s.body}
+                  </p>
+                  {s.href && (
+                    <span className="mt-5 inline-flex items-center gap-2 font-sans text-small font-medium text-gift-green transition-colors group-hover:text-white">
+                      詳しく見る
+                      <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+                        →
+                      </span>
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+
+            return s.href ? (
+              <Link key={s.id} href={s.href} className="block h-full">
+                {CardInner}
+              </Link>
+            ) : (
+              <div key={s.id} className="h-full">
+                {CardInner}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

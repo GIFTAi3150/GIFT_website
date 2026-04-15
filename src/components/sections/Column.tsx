@@ -79,7 +79,7 @@ export default function Column() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((p) => (
             <Link key={p.id} href={p.href} className="group block">
-              <div className="relative mb-4 overflow-hidden" style={{ aspectRatio: '16/10' }}>
+              <div className="relative mb-4 overflow-hidden rounded-2xl" style={{ aspectRatio: '16/10' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.image}

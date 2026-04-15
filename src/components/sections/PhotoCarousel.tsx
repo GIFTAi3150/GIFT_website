@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 
 // TODO: swap src + name + role with real team data
@@ -18,7 +19,7 @@ const team = [
 // which is exactly one copy of the list.
 const marquee = [...team, ...team];
 
-export default function PhotoCarousel() {
+export default function PhotoCarousel({ showCta = false }: { showCta?: boolean }) {
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
@@ -36,13 +37,13 @@ export default function PhotoCarousel() {
     <section className="overflow-hidden bg-gift-near-black py-s-80">
       <div className="mx-auto mb-10 max-w-container px-4">
         <p className="mb-3 font-display text-small uppercase tracking-widest text-gift-green">
-          OUR TEAM
+          MEMBERS
         </p>
         <h2
           className="mb-2 font-sans font-extrabold text-white"
           style={{ fontSize: '36px', lineHeight: '1.25' }}
         >
-          GIFTの仲間たち
+          GIFTのチーム
         </h2>
         <p className="font-sans text-normal font-light text-gift-silver">
           一人ひとりが、GIFTをつくっている。
@@ -57,7 +58,7 @@ export default function PhotoCarousel() {
           {marquee.map((member, i) => (
             <div
               key={`${member.src}-${i}`}
-              className="relative shrink-0 overflow-hidden"
+              className="relative shrink-0 overflow-hidden rounded-2xl"
               style={{
                 width: 'min(60vw, 480px)',
                 aspectRatio: '4 / 3',
@@ -88,6 +89,18 @@ export default function PhotoCarousel() {
           ))}
         </div>
       </div>
+
+      {showCta && (
+      <div className="mt-12 flex justify-center px-4">
+        <Link
+          href="/member"
+          className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-10 py-4 font-sans text-normal font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green hover:bg-gift-green hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-green active:bg-gift-green"
+        >
+          チームを見る
+          <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+        </Link>
+      </div>
+      )}
     </section>
   );
 }

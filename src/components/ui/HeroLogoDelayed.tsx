@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 
 const GiftLogo3D = dynamic(() => import('@/components/ui/GiftLogo3D_PremiumBadge'), {
   ssr: false,
@@ -43,6 +44,22 @@ function LogoPlaceholder() {
   );
 }
 
+const MOUNT_DELAY_MS = 1500;
+
 export default function HeroLogoDelayed({ className }: { className?: string }) {
+  const [mountCanvas, setMountCanvas] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMountCanvas(true), MOUNT_DELAY_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!mountCanvas) {
+    return (
+      <div className={className}>
+        <LogoPlaceholder />
+      </div>
+    );
+  }
   return <GiftLogo3D className={className} />;
 }
