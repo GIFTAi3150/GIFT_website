@@ -47,14 +47,14 @@ function Icon({ name }: { name: string }) {
 
 export default function SocialLinks() {
   return (
-    <section className="w-full border-t border-white/5 bg-gift-near-black py-s-80">
+    <section className="w-full border-t border-gift-border bg-gift-near-black py-s-80">
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
         <div className="mb-10 flex flex-col items-center text-center">
           <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
             FOLLOW US
           </p>
           <h2
-            className="font-sans font-extrabold text-white"
+            className="font-sans font-extrabold text-gift-ink"
             style={{ fontSize: '30px', lineHeight: '1.25' }}
           >
             SNSで最新情報を
@@ -69,14 +69,14 @@ export default function SocialLinks() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.name}
-              className="group flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-5 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green hover:bg-gift-green hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-green active:bg-gift-green"
+              className="group flex items-center gap-3 rounded-full border border-gift-border bg-white px-5 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
             >
-              <span className="text-white/80 transition-colors group-hover:text-white group-active:text-white">
+              <span className="text-gift-ink/80 transition-colors group-hover:text-gift-ink group-active:text-gift-ink">
                 <Icon name={s.icon} />
               </span>
               <span className="flex flex-col text-left">
-                <span className="font-display text-small leading-none text-white">{s.name}</span>
-                <span className="mt-1 font-sans text-small font-light leading-none text-gift-silver transition-colors group-hover:text-white/80 group-active:text-white/80">
+                <span className="font-display text-small leading-none text-gift-ink">{s.name}</span>
+                <span className="mt-1 font-sans text-small font-light leading-none text-gift-silver transition-colors group-hover:text-gift-ink/80 group-active:text-gift-ink/80">
                   {s.handle}
                 </span>
               </span>

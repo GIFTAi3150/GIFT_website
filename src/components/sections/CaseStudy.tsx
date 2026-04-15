@@ -76,21 +76,21 @@ export default function CaseStudy() {
   const arrowClass = (enabled: boolean) =>
     `absolute top-[calc(37.5%)] -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-lg ${
       enabled
-        ? 'bg-white hover:bg-gift-green text-gift-near-black hover:text-white cursor-pointer'
+        ? 'bg-white hover:bg-gift-hover text-gift-near-black hover:text-gift-ink cursor-pointer'
         : 'bg-white/40 text-gift-near-black/40 cursor-not-allowed'
     }`;
 
   return (
-    <section className="w-full bg-gift-near-black py-s-80">
+    <section className="w-full bg-gift-bg-alt py-s-80">
       <div className="mx-auto mb-12 max-w-container px-4 md:px-6 lg:px-8">
         <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-          CASE STUDY
+          WORKS
         </p>
         <h2
-          className="font-sans font-extrabold text-white"
+          className="font-sans font-extrabold text-gift-ink"
           style={{ fontSize: '36px', lineHeight: '1.25' }}
         >
-          支援事例
+          実績
         </h2>
         <p className="mt-2 font-sans text-normal font-light text-gift-silver">
           クライアントと共に積み上げてきた実績。
@@ -142,7 +142,7 @@ export default function CaseStudy() {
               <Link
                 key={c.id}
                 href="#"
-                className="group block shrink-0 overflow-hidden rounded-2xl bg-gift-mid-dark transition-colors duration-200 hover:bg-gift-green/10"
+                className="group block shrink-0 overflow-hidden rounded-2xl bg-gift-mid-dark transition-colors duration-200 hover:bg-gift-hover/10"
                 style={{ width: cardW }}
               >
                 <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
@@ -157,7 +157,7 @@ export default function CaseStudy() {
                   <p className="mb-2 font-display text-small uppercase tracking-widest text-gift-green">
                     {c.industry}
                   </p>
-                  <h3 className="mb-3 font-sans text-normal font-semibold leading-snug text-white">
+                  <h3 className="mb-3 font-sans text-normal font-semibold leading-snug text-gift-ink">
                     {c.title}
                   </h3>
                   <div className="flex flex-wrap gap-2">

@@ -54,14 +54,14 @@ const posts = [
 
 export default function Column() {
   return (
-    <section className="w-full border-t border-white/5 bg-gift-near-black py-s-80">
+    <section className="w-full border-t border-gift-border bg-gift-bg-alt py-s-80">
       <div className="mx-auto mb-12 flex max-w-container items-end justify-between px-4 md:px-6 lg:px-8">
         <div>
           <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
             COLUMN / NEWS
           </p>
           <h2
-            className="font-sans font-extrabold text-white"
+            className="font-sans font-extrabold text-gift-ink"
             style={{ fontSize: '36px', lineHeight: '1.25' }}
           >
             コラム・お知らせ
@@ -69,7 +69,7 @@ export default function Column() {
         </div>
         <Link
           href="#"
-          className="hidden items-center gap-2 font-sans text-small text-gift-green transition-colors hover:text-gift-green-mid sm:inline-flex"
+          className="hidden items-center gap-2 font-sans text-small text-gift-green transition-colors hover:text-gift-hover sm:inline-flex"
         >
           一覧を見る <span>→</span>
         </Link>
@@ -93,7 +93,7 @@ export default function Column() {
                   {p.category}
                 </span>
               </div>
-              <h3 className="font-sans text-normal font-semibold leading-snug text-white transition-colors group-hover:text-gift-green-mid">
+              <h3 className="font-sans text-normal font-semibold leading-snug text-gift-ink transition-colors group-hover:text-gift-hover">
                 {p.title}
               </h3>
             </Link>

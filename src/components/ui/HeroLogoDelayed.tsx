@@ -12,7 +12,7 @@ function LogoPlaceholder() {
   return (
     <div
       className="flex h-[360px] w-full items-center justify-center sm:h-[460px] lg:h-[640px]"
-      style={{ backgroundColor: '#141414' }}
+      style={{ backgroundColor: '#EDF2EE' }}
     >
       <div className="relative">
         <svg

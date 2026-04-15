@@ -3,12 +3,12 @@ import Link from 'next/link';
 import company from '@/data/company.json';
 
 const footerNav = [
-  { href: '/company', ja: '会社概要' },
-  { href: '/achievements', ja: '実績' },
-  { href: '/member', ja: 'メンバー' },
-  { href: '/recruit', ja: '採用情報' },
-  { href: '/news', ja: 'お知らせ' },
-  { href: '/contact', ja: 'お問い合わせ' },
+  { href: '/company', en: 'ABOUT', ja: '会社概要' },
+  { href: '/achievements', en: 'WORKS', ja: '実績' },
+  { href: '/member', en: 'MEMBER', ja: 'メンバー' },
+  { href: '/recruit', en: 'RECRUIT', ja: '採用情報' },
+  { href: '/news', en: 'NEWS', ja: 'お知らせ' },
+  { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
 ];
 
 // TODO: replace href values with real GIFT social URLs
@@ -60,7 +60,7 @@ function Icon({ name }: { name: string }) {
 
 export default function Footer() {
   return (
-    <footer className="bg-gift-bg-2 text-white/80">
+    <footer className="bg-gift-bg-2 text-gift-ink/80">
       <div className="mx-auto max-w-container px-4 py-s-80 md:px-6 lg:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-4">
@@ -77,10 +77,10 @@ export default function Footer() {
                 className="h-10 w-auto"
               />
             </Link>
-            <p className="font-sans text-normal text-white/60" style={{ lineHeight: '1.8' }}>
+            <p className="font-sans text-normal text-gift-ink/60" style={{ lineHeight: '1.8' }}>
               {company.address}
             </p>
-            <p className="font-sans text-normal text-white/60">TEL: {company.phone}</p>
+            <p className="font-sans text-normal text-gift-ink/60">TEL: {company.phone}</p>
 
             {/* Socials */}
             <div className="mt-4 flex items-center gap-3">
@@ -91,7 +91,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.name}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green hover:bg-gift-green hover:text-white hover:shadow-[0_8px_20px_rgba(0,86,51,0.4)] active:scale-95 active:border-gift-green active:bg-gift-green"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gift-border bg-white text-gift-ink/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:text-gift-ink hover:shadow-[0_8px_20px_rgba(0,86,51,0.4)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
                 >
                   <Icon name={s.icon} />
                 </a>
@@ -99,21 +99,27 @@ export default function Footer() {
             </div>
           </div>
 
-          <nav aria-label="フッターナビゲーション" className="flex flex-col gap-3">
+          <nav aria-label="フッターナビゲーション" className="flex flex-col gap-4">
             {footerNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="whitespace-nowrap font-sans text-normal text-white/70 transition-colors duration-150 hover:text-gift-green-mid"
+                className="group flex items-center gap-3 whitespace-nowrap leading-none"
               >
-                {item.ja}
+                <span className="w-20 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink transition-colors duration-150 group-hover:text-gift-hover">
+                  {item.en}
+                </span>
+                <span aria-hidden className="h-4 w-px bg-white/20" />
+                <span className="font-sans text-small font-light text-gift-silver transition-colors duration-150 group-hover:text-gift-hover">
+                  {item.ja}
+                </span>
               </Link>
             ))}
           </nav>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6">
-          <p className="font-sans text-small text-white/40">
+        <div className="mt-10 border-t border-gift-border pt-6">
+          <p className="font-sans text-small text-gift-ink/40">
             &copy; Copyright 2024 GIFT inc. All Rights Reserved.
           </p>
         </div>

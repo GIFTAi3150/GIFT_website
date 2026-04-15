@@ -29,13 +29,13 @@ export default function CompanyPage() {
       <Header />
       <main className="bg-gift-near-black">
         {/* Page header */}
-        <section className="border-b border-white/5 py-s-80">
+        <section className="border-b border-gift-border py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
               COMPANY
             </p>
             <h1
-              className="font-sans font-extrabold text-white"
+              className="font-sans font-extrabold text-gift-ink"
               style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: '1.1' }}
             >
               会社概要
@@ -83,7 +83,7 @@ export default function CompanyPage() {
                 MISSION
               </p>
               <p
-                className="mb-10 font-display font-bold text-white"
+                className="mb-10 font-display font-bold text-gift-ink"
                 style={{ fontSize: 'clamp(36px, 6vw, 72px)', lineHeight: '1.05' }}
               >
                 Gift an
@@ -116,7 +116,7 @@ export default function CompanyPage() {
               <p className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
                 そんな会社を目指し、今日も私たちは前進する。
               </p>
-              <p className="mt-8 font-sans text-normal text-white">
+              <p className="mt-8 font-sans text-normal text-gift-ink">
                 株式会社GIFT 代表取締役
                 <br />
                 <span className="font-semibold">{company.ceo}</span>
@@ -127,7 +127,7 @@ export default function CompanyPage() {
 
         {/* Vision */}
         <Reveal>
-          <section className="border-t border-white/5 py-s-80">
+          <section className="border-t border-gift-border py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
@@ -135,7 +135,7 @@ export default function CompanyPage() {
                     VISION
                   </p>
                   <h2
-                    className="font-sans font-extrabold text-white"
+                    className="font-sans font-extrabold text-gift-ink"
                     style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                   >
                     展望
@@ -157,7 +157,7 @@ export default function CompanyPage() {
 
         {/* Values */}
         <Reveal>
-          <section className="border-t border-white/5 py-s-80">
+          <section className="border-t border-gift-border py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
@@ -165,7 +165,7 @@ export default function CompanyPage() {
                     VALUES
                   </p>
                   <h2
-                    className="font-sans font-extrabold text-white"
+                    className="font-sans font-extrabold text-gift-ink"
                     style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                   >
                     価値観
@@ -193,30 +193,30 @@ export default function CompanyPage() {
 
         {/* Company Info Table */}
         <Reveal>
-          <section className="border-t border-white/5 py-s-80">
+          <section className="border-t border-gift-border py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-12">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                   COMPANY INFORMATION
                 </p>
                 <h2
-                  className="font-sans font-extrabold text-white"
+                  className="font-sans font-extrabold text-gift-ink"
                   style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                 >
                   会社概要
                 </h2>
               </div>
 
-              <dl className="border-t border-white/10">
+              <dl className="border-t border-gift-border">
                 {infoRows.map((row) => (
                   <div
                     key={row.label}
-                    className="grid grid-cols-1 border-b border-white/10 py-5 sm:grid-cols-4 sm:gap-6"
+                    className="grid grid-cols-1 border-b border-gift-border py-5 sm:grid-cols-4 sm:gap-6"
                   >
                     <dt className="mb-1 font-display text-small uppercase tracking-widest text-gift-green sm:mb-0 sm:col-span-1">
                       {row.label}
                     </dt>
-                    <dd className="font-sans text-normal font-light text-white sm:col-span-3">
+                    <dd className="font-sans text-normal font-light text-gift-ink sm:col-span-3">
                       {row.value}
                     </dd>
                   </div>
@@ -228,21 +228,21 @@ export default function CompanyPage() {
 
         {/* History */}
         <Reveal>
-          <section className="border-t border-white/5 py-s-80">
+          <section className="border-t border-gift-border py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-12">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                   HISTORY
                 </p>
                 <h2
-                  className="font-sans font-extrabold text-white"
+                  className="font-sans font-extrabold text-gift-ink"
                   style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                 >
                   沿革
                 </h2>
               </div>
 
-              <ol className="relative border-l border-white/15 pl-6 sm:pl-10">
+              <ol className="relative border-l border-gift-border pl-6 sm:pl-10">
                 {history.map((item, i) => (
                   <li key={i} className="mb-10 last:mb-0">
                     <span className="absolute -left-[7px] mt-2 h-3 w-3 rounded-full bg-gift-green" />
@@ -259,14 +259,14 @@ export default function CompanyPage() {
 
         {/* Access */}
         <Reveal>
-          <section className="border-t border-white/5 py-s-80">
+          <section className="border-t border-gift-border py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-10">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                   ACCESS
                 </p>
                 <h2
-                  className="font-sans font-extrabold text-white"
+                  className="font-sans font-extrabold text-gift-ink"
                   style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                 >
                   アクセス
@@ -275,7 +275,7 @@ export default function CompanyPage() {
 
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-12">
                 <div className="lg:col-span-2">
-                  <p className="mb-2 font-sans text-normal text-white">{company.name}</p>
+                  <p className="mb-2 font-sans text-normal text-gift-ink">{company.name}</p>
                   <p className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
                     {company.address}
                   </p>
@@ -284,13 +284,13 @@ export default function CompanyPage() {
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-6 inline-flex items-center gap-2 font-sans text-small text-gift-green transition-colors hover:text-gift-green-mid"
+                    className="mt-6 inline-flex items-center gap-2 font-sans text-small text-gift-green transition-colors hover:text-gift-hover"
                   >
                     Google Mapsで開く <span>→</span>
                   </a>
                 </div>
                 <div className="lg:col-span-3">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/10">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden border border-gift-border">
                     <iframe
                       src={`https://www.google.com/maps?q=${encodeURIComponent(company.address)}&output=embed`}
                       loading="lazy"
@@ -307,17 +307,17 @@ export default function CompanyPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-white/5 py-s-80">
+          <section className="border-t border-gift-border py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
-                className="mb-8 font-sans font-extrabold text-white"
+                className="mb-8 font-sans font-extrabold text-gift-ink"
                 style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
               >
                 お気軽にお問い合わせください
               </h2>
               <Link
                 href="/contact"
-                className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-10 py-4 font-sans text-normal font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green hover:bg-gift-green hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-green active:bg-gift-green"
+                className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-10 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
               >
                 お問い合わせ
                 <span className="inline-block transition-transform group-hover:translate-x-1">→</span>

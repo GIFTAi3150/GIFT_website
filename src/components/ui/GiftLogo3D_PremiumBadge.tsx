@@ -326,8 +326,7 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 
   return (
     <>
-      {/* Scene background — guarantees no white flash between canvas init and first render */}
-      <color attach="background" args={['#141414']} />
+      {/* No scene background — canvas is transparent so hero bg shows through */}
       <group ref={wholeGroupRef}>
         <group ref={groupRef}>
           <group scale={[scale, -scale, scale]}>
@@ -368,7 +367,7 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
           IFT INC.
           <meshStandardMaterial
             ref={textMatRef}
-            color={'#e8e4de'}
+            color={'#064E3B'}
             metalness={0.6}
             roughness={0.3}
             transparent
@@ -413,7 +412,7 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
   return (
     <div
       className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
-      style={{ width: '100%', backgroundColor: '#141414' }}
+      style={{ width: '100%', backgroundColor: '#EDF2EE' }}
     >
       {/* Dark cover above the canvas — fades away once we know three.js has painted.
           Protects against any initial white flash during WebGL context creation. */}
@@ -421,7 +420,7 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
         aria-hidden
         className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
         style={{
-          backgroundColor: '#141414',
+          backgroundColor: '#EDF2EE',
           opacity: ready && !contextLost ? 0 : 1,
         }}
       />
@@ -434,13 +433,13 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
         camera={{ position: [0, 0, 6], fov: 40 }}
         gl={{
           antialias: true,
-          alpha: false,
+          alpha: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.5,
+          toneMappingExposure: 1.9,
           powerPreference: 'high-performance',
         }}
         onCreated={({ gl }) => {
-          gl.setClearColor('#141414', 1);
+          gl.setClearColor('#000000', 0);
           const canvas = gl.domElement;
           canvas.addEventListener(
             'webglcontextlost',
@@ -459,7 +458,7 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
           );
         }}
         style={{
-          background: '#141414',
+          background: 'transparent',
           opacity: ready && !contextLost ? 1 : 0,
           transition: 'opacity 400ms ease-out',
         }}
@@ -467,7 +466,7 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
         {/* Light hitting the surface at an angle — this is what makes textures visible */}
         {/* Cinematic three-point lighting */}
 
-        <ambientLight intensity={0.15} />
+        <ambientLight intensity={0.4} />
 
         {/* KEY — main light, warm, from upper-left */}
         <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
