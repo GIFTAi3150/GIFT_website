@@ -1,42 +1,32 @@
 [
   {
     "id": "callcenter",
-    "titleEn": "Telemarketing",
+    "titleEn": "Call Center",
     "title": "コールセンター事業",
     "imageLeft": true,
-    "href": null,
+    "href": "/services/callcenter",
     "image": "/img/5.jpg",
-    "body": "お客様の声を大切にし、質の高い対応を心がけるコールセンターを運営しております。最新の通信技術と研修を受けたスタッフによって、様々なご要望やお問い合わせに迅速・丁寧に対応いたします。お客様のビジネスをサポートする信頼のパートナーとして努めて参ります。",
-    "extra": null
+    "body": "アウトバウンド特化のコールセンターを自社運営。光回線（通信キャリア2次代理店）と法人営業（SaaS会社1次代理店）を扱い、通信分野だけで総従業員約300名。教育制度を中枢に据え、品質と組織の拡大を両立させています。",
+    "extra": "自社運営 / アウトバウンド特化 / 約300名体制"
   },
   {
-    "id": "line",
-    "titleEn": "LINE Account Operation",
-    "title": "LINE公式アカウント運用事業",
+    "id": "dx-consulting",
+    "titleEn": "DX Consulting",
+    "title": "DXコンサル事業",
     "imageLeft": false,
-    "href": "/lstep",
+    "href": "/services/dx-consulting",
     "image": "/img/7.jpg",
-    "body": "当社のLINE公式アカウント運用事業では、Lステップ(LINE公式アカウントMAツール)を使いLINEを通じた集客・売上UP・業務効率化を実現します。お客様のビジネスに合わせたLINE公式アカウントを設計し、ターゲットユーザーとの関係構築をサポートします。",
-    "extra": "運用アカウント：モバイル総合サポート"
+    "body": "LINE公式・Lステップ構築/運用、RPA・業務自動化、AI導入・生成AI活用支援、SaaS導入・CRM構築支援までワンストップで提供。AIを業務に深く組み込み、フル活用している点が独自の強みです。",
+    "extra": "Lステップ公式認定パートナー"
   },
   {
-    "id": "rpa",
-    "titleEn": "Robotic Process Automation",
-    "title": "RPA事業",
+    "id": "finance-consulting",
+    "titleEn": "Financial Consulting",
+    "title": "財務コンサル事業",
     "imageLeft": true,
-    "href": "/lsteprpa",
+    "href": "/services/finance-consulting",
     "image": "/img/8.jpg",
-    "body": "当社のRPA事業では、お使いのCRMシステムとLステップの連携を低コストで実現させます！RPAを活用することにより、CRMシステムとLステップ間のデータ転送、更新、同期の自動化が可能となり、手作業による時間とコストを削減します。また、Lステップのみならず様々な業務の自動化もサポートいたします。",
-    "extra": null
-  },
-  {
-    "id": "realestate",
-    "titleEn": "Real Estate",
-    "title": "不動産事業",
-    "imageLeft": false,
-    "href": null,
-    "image": "/img/3.jpg",
-    "body": "物件売買・仲介から地域に根ざした不動産ソリューションまで、お客様のあらゆる不動産ニーズにお応えします。豊富な地域情報と専門知識を持つスタッフが、最適な物件選びと取引をトータルでサポートいたします。",
-    "extra": null
+    "body": "融資支援・資金調達サポートから、財務戦略・KPI設計まで、経営者に寄り添う伴走型の財務コンサルティング。外部専門家とのアライアンス体制で、成長期の中小企業を資金面から支えます。",
+    "extra": "融資実行実績多数 / アライアンス型"
   }
 ]

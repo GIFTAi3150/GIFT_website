@@ -18,7 +18,7 @@ export default function CompanySnapshot() {
             Company
           </p>
           <h2
-            className="font-sans font-extrabold text-gift-green-dark"
+            className="font-sans font-extrabold text-gift-ink"
             style={{ fontSize: '36px', lineHeight: '1.25' }}
           >
             会社概要
@@ -45,7 +45,7 @@ export default function CompanySnapshot() {
                   {row.label}
                 </dt>
                 <dd
-                  className="font-sans text-gift-green-dark"
+                  className="font-sans text-gift-ink"
                   style={{ fontSize: '16px', lineHeight: '1.8' }}
                 >
                   {row.value}

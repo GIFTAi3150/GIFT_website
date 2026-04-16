@@ -11,16 +11,15 @@ const infoRows = [
   { label: '代表取締役', value: company.ceo },
   { label: '所在地', value: company.address },
   { label: 'TEL', value: company.phone },
-  { label: '事業内容', value: 'コールセンター事業 / LINE公式アカウント運用 / RPA / 不動産事業' },
+  { label: '事業内容', value: 'コールセンター事業 / DXコンサル事業 / 財務コンサル事業' },
   { label: 'インボイス番号', value: company.invoiceNumber },
 ];
 
 const history = [
-  { year: '2018', event: '株式会社GIFTを北海道札幌市にて設立' },
-  { year: '2020', event: 'LINE公式アカウント運用事業を開始' },
-  { year: '2022', event: 'RPA事業・不動産事業を立ち上げ' },
-  { year: '2024', event: '現オフィス（サントービル3階）へ移転' },
-  { year: '2026', event: '新コーポレートサイトをローンチ' },
+  { year: '2018', event: '株式会社GIFTを北海道札幌市にて設立。コールセンター事業を開始。' },
+  { year: '2020', event: 'DXコンサル事業を開始（LINE公式・Lステップ構築/運用など）。' },
+  { year: '2024', event: '財務コンサル事業を開始（予定・確認中）。' },
+  { year: '2026', event: '新コーポレートサイトをローンチ。' },
 ];
 
 export default function CompanyPage() {
@@ -88,7 +87,7 @@ export default function CompanyPage() {
               >
                 Gift an
                 <br />
-                opportunity.
+                <span className="text-gift-green">opportunity.</span>
               </p>
 
               <p
@@ -284,19 +283,25 @@ export default function CompanyPage() {
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-6 inline-flex items-center gap-2 font-sans text-small text-gift-green transition-colors hover:text-gift-hover"
+                    className="animated-button mt-6"
                   >
-                    Google Mapsで開く <span>→</span>
+                    <span className="text">Google Mapsで開く</span>
+                    <span className="circle" />
+                    <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
+                    </svg>
                   </a>
                 </div>
                 <div className="lg:col-span-3">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden border border-gift-border">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-gift-border">
                     <iframe
-                      src={`https://www.google.com/maps?q=${encodeURIComponent(company.address)}&output=embed`}
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent('北海道札幌市中央区南一条西7丁目21番地1 サントービル')}&t=&z=17&ie=UTF8&iwloc=&output=embed`}
                       loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
                       className="absolute inset-0 h-full w-full"
-                      style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(95%)' }}
+                      style={{ border: 0 }}
                       title="GIFT office map"
+                      allowFullScreen
                     />
                   </div>
                 </div>
@@ -315,12 +320,8 @@ export default function CompanyPage() {
               >
                 お気軽にお問い合わせください
               </h2>
-              <Link
-                href="/contact"
-                className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-10 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
-              >
-                お問い合わせ
-                <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+              <Link href="/contact" className="cta-btn">
+                <span>お問い合わせ →</span>
               </Link>
             </div>
           </section>

@@ -92,12 +92,8 @@ export default function PhotoCarousel({ showCta = false }: { showCta?: boolean }
 
       {showCta && (
       <div className="mt-12 flex justify-center px-4">
-        <Link
-          href="/member"
-          className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-10 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
-        >
-          チームを見る
-          <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+        <Link href="/member" className="cta-btn">
+          <span>チームを見る →</span>
         </Link>
       </div>
       )}

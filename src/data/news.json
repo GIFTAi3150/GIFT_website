@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "lstep-5-patterns",
+    "date": "2026.04.10",
+    "category": "DX",
+    "title": "Lステップで売上を伸ばす5つの運用パターン",
+    "excerpt": "LINE公式アカウントとLステップを組み合わせた運用で、売上を伸ばすための5つの代表的なパターンをまとめました。",
+    "image": "/img/7.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+  },
+  {
+    "slug": "rpa-intro-steps",
+    "date": "2026.04.02",
+    "category": "DX",
+    "title": "中小企業のためのRPA導入ステップ",
+    "excerpt": "RPA導入をこれから検討する中小企業向けに、失敗しない導入ステップを4段階で整理しました。",
+    "image": "/img/8.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  {
+    "slug": "callcenter-training",
+    "date": "2026.03.25",
+    "category": "コールセンター",
+    "title": "コールセンター品質を上げる研修設計",
+    "excerpt": "300名規模のコールセンター運営で培った、品質を底上げする研修設計の勘どころをご紹介します。",
+    "image": "/img/5.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  {
+    "slug": "ai-in-business",
+    "date": "2026.03.18",
+    "category": "AI",
+    "title": "生成AIをビジネス現場で使い倒すために",
+    "excerpt": "社内での生成AI活用を本格化させるための組織設計、ツール選定、教育ポイントをまとめました。",
+    "image": "/img/6.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  {
+    "slug": "finance-strategy",
+    "date": "2026.03.11",
+    "category": "財務",
+    "title": "成長期の中小企業に必要な財務戦略",
+    "excerpt": "融資・資金調達を視野に入れた、成長期スタートアップ・中小企業のための財務戦略の基本。",
+    "image": "/img/4.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  {
+    "slug": "new-site-launch",
+    "date": "2026.03.01",
+    "category": "お知らせ",
+    "title": "新コーポレートサイトを公開いたしました",
+    "excerpt": "株式会社GIFTの新コーポレートサイトを本日公開しました。今後も情報発信を強化してまいります。",
+    "image": "/img/3.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  {
+    "slug": "press-finance-launch",
+    "date": "2026.02.15",
+    "category": "プレスリリース",
+    "title": "財務コンサル事業の開始について",
+    "excerpt": "株式会社GIFTは、新たに財務コンサル事業を開始したことをお知らせいたします。",
+    "image": "/img/1.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  {
+    "slug": "dx-trend-2026",
+    "date": "2026.02.05",
+    "category": "DX",
+    "title": "2026年のDXトレンドと中小企業が押さえる3つの視点",
+    "excerpt": "2026年に中小企業が押さえておくべきDXのトレンドと、すぐに動ける3つの視点を解説します。",
+    "image": "/img/2.jpg",
+    "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  }
+]

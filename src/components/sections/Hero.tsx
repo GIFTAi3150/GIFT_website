@@ -1,5 +1,5 @@
 import HeroLogoDelayed from '@/components/ui/HeroLogoDelayed';
-import ScatterText from '@/components/ui/ScatterText';
+import FadeUpText from '@/components/ui/FadeUpText';
 
 export default function Hero() {
   return (
@@ -15,12 +15,12 @@ export default function Hero() {
               className="font-display font-semibold leading-[1.05] tracking-tight text-gift-ink"
               style={{ fontSize: 'clamp(36px, 4.2vw, 56px)' }}
             >
-              <ScatterText text="Where " />
+              <FadeUpText text="Where" />{' '}
               <span className="text-gift-green">
-                <ScatterText text="opportunity" />
+                <FadeUpText text="opportunity" delayMs={220} />
               </span>
               <br />
-              <ScatterText text="begins." />
+              <FadeUpText text="begins." delayMs={400} />
             </h1>
             <p
               className="nav-reveal font-mincho font-medium text-gift-ink"
@@ -36,13 +36,10 @@ export default function Hero() {
             </p>
             <a
               href="/contact"
-              className="nav-reveal group mt-2 inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-gift-border bg-white px-10 py-4 font-sans text-normal font-medium text-gift-ink shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:text-white hover:shadow-[0_12px_36px_-8px_rgba(37,99,235,0.5)] active:scale-95"
+              className="cta-btn nav-reveal mt-2"
               style={{ ['--reveal-delay' as string]: '1350ms' }}
             >
-              お問い合わせ
-              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
+              <span>お問い合わせ</span>
             </a>
           </div>
 

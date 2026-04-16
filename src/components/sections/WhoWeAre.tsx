@@ -15,13 +15,14 @@ export default function WhoWeAre() {
               className="select-none font-display italic text-gift-ink/[0.07]"
               style={{ fontSize: 'clamp(60px, 10vw, 140px)', letterSpacing: '0.02em' }}
             >
-              One Love. One Heart.
+              One Love! One Heart! Let's get together and feel all right. Hear the children cryin'
+              (One Love!);
             </span>
           ))}
         </div>
         <div
           className="flex w-max gap-16 whitespace-nowrap"
-          style={{ animation: 'marquee 80s linear infinite reverse' }}
+          style={{ animation: 'marquee 200s linear infinite reverse' }}
         >
           {Array.from({ length: 4 }).map((_, i) => (
             <span
@@ -29,7 +30,8 @@ export default function WhoWeAre() {
               className="select-none font-display italic text-gift-ink/[0.07]"
               style={{ fontSize: 'clamp(55px, 9vw, 130px)', letterSpacing: '0.02em' }}
             >
-              Let&apos;s get together and feel all right.
+              Hear the children cryin' (One Heart!), Sayin': give thanks and praise to the Lord and
+              I will feel all right; Sayin': let's get together and feel all right. Wo wo-wo wo-wo!
             </span>
           ))}
         </div>
@@ -67,14 +69,8 @@ export default function WhoWeAre() {
             それが私たちGIFTの使命です。
           </p>
 
-          <Link
-            href="/company"
-            className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-8 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
-          >
-            GIFTについて
-            <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">
-              →
-            </span>
+          <Link href="/company" className="cta-btn">
+            <span>GIFTについて</span>
           </Link>
         </div>
       </div>

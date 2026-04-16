@@ -35,9 +35,9 @@ export default function AchievementsPage() {
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:gap-12">
                 {cases.map((c) => (
-                  <article key={c.id} className="group cursor-pointer">
+                  <article key={c.id} className="works-card group">
                     <div
-                      className="mb-5 overflow-hidden rounded-2xl"
+                      className="overflow-hidden rounded-t-[18px]"
                       style={{ aspectRatio: '16/10' }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -48,27 +48,29 @@ export default function AchievementsPage() {
                       />
                     </div>
 
-                    <p className="mb-2 font-sans text-normal font-bold text-gift-ink transition-colors group-hover:text-gift-hover">
-                      {c.client}
-                    </p>
+                    <div className="p-6">
+                      <p className="works-card-title mb-2 font-sans text-normal font-bold">
+                        {c.client}
+                      </p>
 
-                    <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                      {c.industry}
-                    </p>
+                      <p className="works-card-industry mb-3 font-display text-small font-bold uppercase tracking-widest">
+                        {c.industry}
+                      </p>
 
-                    <h3 className="mb-4 font-sans text-medium font-semibold leading-snug text-gift-ink">
-                      {c.title}
-                    </h3>
+                      <h3 className="works-card-title mb-4 font-sans text-medium font-semibold leading-snug">
+                        {c.title}
+                      </h3>
 
-                    <div className="flex flex-wrap gap-2">
-                      {c.services.map((s) => (
-                        <span
-                          key={s}
-                          className="rounded-full border border-gift-silver/30 px-3 py-1 font-sans text-small text-gift-silver"
-                        >
-                          {s}
-                        </span>
-                      ))}
+                      <div className="flex flex-wrap gap-2">
+                        {c.services.map((s) => (
+                          <span
+                            key={s}
+                            className="works-card-tag rounded-full border px-3 py-1 font-sans text-small"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -87,12 +89,8 @@ export default function AchievementsPage() {
               >
                 あなたの事業についても、ご相談ください。
               </h2>
-              <Link
-                href="/contact"
-                className="group inline-flex items-center gap-3 rounded-full border border-gift-border bg-white px-10 py-4 font-sans text-normal font-medium text-gift-ink transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:shadow-[0_10px_30px_rgba(0,86,51,0.45)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
-              >
-                お問い合わせ
-                <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+              <Link href="/contact" className="cta-btn">
+                <span>お問い合わせ →</span>
               </Link>
             </div>
           </section>

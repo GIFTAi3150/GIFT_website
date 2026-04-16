@@ -6,35 +6,50 @@ export default {
     extend: {
       colors: {
         gift: {
-          // Green-family B2B palette — logo-aligned, light/bright
-          'near-black': '#D7DDD9',
-          bg: '#D7DDD9',
-          'bg-alt': '#CFD5D1',
-          'bg-bright': '#E0E5E1',
+          // WhatsApp-inspired palette — extracted from whatsapp.com production CSS 2026-04-16
+          // Two greens (bright #25D366 + deep teal #128C7E). Monochrome neutrals.
+          'near-black': '#F0F4F9',
+          bg: '#F0F4F9',
+          'bg-alt': '#F7F9FC',
+          'bg-bright': '#FFFFFF',
           surface: '#FFFFFF',
-          'bg-2': '#CFD5D1',
+          'bg-2': '#F7F9FC',
           'mid-dark': '#FFFFFF',
-          'bg-3': '#CFD5D1',
+          'bg-3': '#F0F4F9',
           panel: '#FFFFFF',
-          ink: '#111827',
-          silver: '#4B5563',
-          'grey-body': '#4B5563',
-          'grey-light': '#94A3B8',
-          green: '#047857',
-          'green-dark': '#064E3B',
-          'green-mid': '#10B981',
-          'green-teal': '#0D9488',
-          'green-sage': '#8A9A85',
-          'green-pale-1': '#E4EEE9',
-          'green-pale-2': '#EEF4F0',
-          'green-pale-3': '#ECF5ED',
-          accent: '#0D9488', // soft teal — small secondary details
-          hover: '#2563EB', // cobalt blue — hover pop
-          'hover-dark': '#1D4ED8', // active/pressed cobalt
-          border: '#E2E8E2',
+          ink: '#111B21',
+          silver: '#5E5E5E',
+          'grey-body': '#5E5E5E',
+          'grey-light': '#CDD0D5',
+          green: '#25D366',        // WA bright — primary CTA
+          'green-dark': '#075E54', // WA deepest teal — footer / deep bands
+          'green-mid': '#1EBE5B',  // WA bright darker — hover on primary
+          'green-teal': '#128C7E', // WA deep teal — secondary surfaces, dark CTA panels
+          'green-sage': '#8FD9A4', // soft tint of WA green for backgrounds
+          'green-pale-1': '#E6FFDA', // from WA CSS — light bubble bg
+          'green-pale-2': '#F0FAF4',
+          'green-pale-3': '#F5FCF7',
+          accent: '#128C7E',       // deep teal — secondary details
+          hover: '#1EBE5B',        // green hover (was cobalt blue)
+          'hover-dark': '#075E54', // deepest teal — active/pressed
+          border: '#CDD0D5',
           negative: '#E05362',
           warning: '#D98B1F',
-          announcement: '#3A82D1',
+          announcement: '#128C7E',
+        },
+        // WhatsApp-inspired palette — extracted from whatsapp.com production CSS 2026-04-16
+        // Discipline: two greens (bright + deep teal). No third color.
+        line: {
+          green: '#25D366',         // WA bright — primary CTA, links
+          'green-hover': '#1EBE5B', // hover state (darker bright)
+          'green-deep': '#128C7E',  // WA deep teal — dark bands, secondary surfaces
+          'green-deeper': '#075E54', // deepest — footer accent strips
+          ink: '#111B21',           // all headings + body
+          grey: '#5E5E5E',          // secondary text
+          'grey-mute': '#CDD0D5',   // borders, hairlines, disabled
+          'bg-alt': '#F0F4F9',      // section band bg
+          'bg-alt-2': '#F7F9FC',    // alternating band bg
+          paper: '#FFFFFF',
         },
       },
       fontFamily: {
@@ -80,7 +95,7 @@ export default {
         },
       },
       animation: {
-        marquee: 'marquee 40s linear infinite',
+        marquee: 'marquee 120s linear infinite',
       },
     },
   },

@@ -367,7 +367,7 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
           IFT INC.
           <meshStandardMaterial
             ref={textMatRef}
-            color={'#064E3B'}
+            color={'#111B21'}
             metalness={0.6}
             roughness={0.3}
             transparent
@@ -412,7 +412,7 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
   return (
     <div
       className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
-      style={{ width: '100%', backgroundColor: '#EDF2EE' }}
+      style={{ width: '100%', backgroundColor: 'transparent' }}
     >
       {/* Dark cover above the canvas — fades away once we know three.js has painted.
           Protects against any initial white flash during WebGL context creation. */}
@@ -420,7 +420,7 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
         aria-hidden
         className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
         style={{
-          backgroundColor: '#EDF2EE',
+          backgroundColor: 'transparent',
           opacity: ready && !contextLost ? 0 : 1,
         }}
       />
