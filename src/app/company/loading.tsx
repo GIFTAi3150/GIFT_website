@@ -6,7 +6,7 @@ const Block = ({ className = '', style }: { className?: string; style?: React.CS
 
 export default function CompanyLoading() {
   return (
-    <div style={{ backgroundColor: '#D7DDD9' }} className="min-h-screen">
+    <div style={{ backgroundColor: '#F0F4F9' }} className="min-h-screen">
       {/* Header */}
       <div className="w-full border-b border-gift-border">
         <div className="mx-auto flex h-16 max-w-container items-center justify-between px-4 md:px-6 lg:px-8">

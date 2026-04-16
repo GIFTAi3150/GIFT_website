@@ -142,29 +142,29 @@ export default function CaseStudy() {
               <Link
                 key={c.id}
                 href="#"
-                className="group block shrink-0 overflow-hidden rounded-2xl bg-gift-mid-dark transition-colors duration-200 hover:bg-gift-hover/10"
+                className="works-card group block shrink-0"
                 style={{ width: cardW }}
               >
-                <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                <div className="relative overflow-hidden rounded-t-[18px]" style={{ aspectRatio: '4/3' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={c.image}
                     alt={c.title}
-                    className="h-full w-full object-cover brightness-90 transition-all duration-500 group-hover:scale-[1.03] group-hover:brightness-100"
+                    className="h-full w-full object-cover transition-all duration-500 group-hover:scale-[1.03]"
                   />
                 </div>
                 <div className="p-5">
-                  <p className="mb-2 font-display text-small uppercase tracking-widest text-gift-green">
+                  <p className="works-card-industry mb-2 font-display text-small uppercase tracking-widest">
                     {c.industry}
                   </p>
-                  <h3 className="mb-3 font-sans text-normal font-semibold leading-snug text-gift-ink">
+                  <h3 className="works-card-title mb-3 font-sans text-normal font-semibold leading-snug">
                     {c.title}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {c.tags.map((t) => (
                       <span
                         key={t}
-                        className="border border-gift-silver/30 px-2 py-0.5 font-sans text-small text-gift-silver"
+                        className="works-card-tag border px-2 py-0.5 font-sans text-small"
                       >
                         {t}
                       </span>

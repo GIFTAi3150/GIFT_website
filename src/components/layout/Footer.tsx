@@ -11,13 +11,12 @@ const footerNav = [
   { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
 ];
 
-// TODO: replace href values with real GIFT social URLs
+// TODO: add real hrefs for X (Twitter) and LINE (採用用) when shared
 const socials = [
-  { name: 'Instagram', href: '#', icon: 'instagram' },
+  { name: 'Instagram', href: 'https://www.instagram.com/gift_with_you_', icon: 'instagram' },
   { name: 'X', href: '#', icon: 'x' },
-  { name: 'YouTube', href: '#', icon: 'youtube' },
   { name: 'LINE', href: '#', icon: 'line' },
-  { name: 'TikTok', href: '#', icon: 'tiktok' },
+  { name: 'TikTok', href: 'https://www.tiktok.com/@gift_with_you_', icon: 'tiktok' },
 ];
 
 function Icon({ name }: { name: string }) {
@@ -44,7 +43,7 @@ function Icon({ name }: { name: string }) {
     case 'line':
       return (
         <svg {...common}>
-          <path d="M12 2C6 2 1 6 1 11c0 4.4 4 8.2 9.4 9 .4.1.9.3 1 .7.1.4 0 1-.1 1.4l-.2.7c0 .2-.2.8.7.4.9-.4 5.2-3.1 7.1-5.3 1.3-1.5 2.1-3 2.1-5 0-5-5-9-9-9zm-4 11H6V8h1v4h1v1zm2 0H9V8h1v5zm5 0h-1l-2-3v3h-1V8h1l2 3V8h1v5zm3-4h-2v1h2v1h-2v1h2v1h-3V8h3v1z" />
+          <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
         </svg>
       );
     case 'tiktok':
@@ -91,7 +90,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.name}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gift-border bg-white text-gift-ink/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-hover hover:bg-gift-hover hover:text-gift-ink hover:shadow-[0_8px_20px_rgba(0,86,51,0.4)] active:scale-95 active:border-gift-hover-dark active:bg-gift-hover-dark"
+                  className="cta-btn h-10 w-10 !p-0"
                 >
                   <Icon name={s.icon} />
                 </a>
@@ -118,10 +117,16 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-10 border-t border-gift-border pt-6">
+        <div className="mt-10 flex flex-col gap-3 border-t border-gift-border pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-sans text-small text-gift-ink/40">
-            &copy; Copyright 2024 GIFT inc. All Rights Reserved.
+            &copy; Copyright 2026 GIFT inc. All Rights Reserved.
           </p>
+          <Link
+            href="/privacy"
+            className="font-sans text-small text-gift-silver transition-colors hover:text-gift-ink"
+          >
+            プライバシーポリシー
+          </Link>
         </div>
       </div>
     </footer>

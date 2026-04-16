@@ -35,6 +35,12 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
   // If the mobile menu is open, always show the header
   const isHidden = hidden && !open;
 

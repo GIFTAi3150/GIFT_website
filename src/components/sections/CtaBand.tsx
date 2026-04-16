@@ -18,17 +18,11 @@ export default function CtaBand() {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <Link
-            href="/contact"
-            className="inline-block whitespace-nowrap bg-white px-8 py-4 font-sans text-normal font-medium text-gift-green transition-colors duration-200 hover:bg-gift-hover-pale-1"
-          >
-            お問い合わせ
+          <Link href="/contact" className="cta-btn cta-btn--on-green">
+            <span>お問い合わせ</span>
           </Link>
-          <Link
-            href="/services/telemarketing"
-            className="inline-block whitespace-nowrap border border-white/40 bg-transparent px-8 py-4 font-sans text-normal font-medium text-gift-ink transition-colors duration-200 hover:bg-white"
-          >
-            サービス一覧
+          <Link href="/services/callcenter" className="cta-btn cta-btn--on-green">
+            <span>事業紹介</span>
           </Link>
         </div>
       </div>

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#D7DDD9',
+  themeColor: '#F0F4F9',
   colorScheme: 'light',
 };
 
@@ -17,9 +17,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="ja"
       className={`${notoSansJP.variable} ${poppins.variable}`}
-      style={{ backgroundColor: '#D7DDD9', colorScheme: 'light' }}
+      style={{ backgroundColor: '#F0F4F9', colorScheme: 'light' }}
     >
-      <body style={{ backgroundColor: '#D7DDD9' }}>
+      <body style={{ backgroundColor: '#F0F4F9' }}>
         {/* Font preload — Next.js allows <link> inside body */}
         <link
           rel="preload"
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            backgroundColor: '#D7DDD9',
+            backgroundColor: '#F0F4F9',
             pointerEvents: 'none',
             transition: 'opacity 500ms ease-out',
           }}

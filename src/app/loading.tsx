@@ -7,7 +7,7 @@ const Block = ({ className = '', style }: { className?: string; style?: React.CS
 
 export default function Loading() {
   return (
-    <div style={{ backgroundColor: '#D7DDD9' }} className="min-h-screen">
+    <div style={{ backgroundColor: '#F0F4F9' }} className="min-h-screen">
       {/* Header */}
       <div className="w-full border-b border-gift-border">
         <div className="mx-auto flex h-16 max-w-container items-center justify-between px-4 md:px-6 lg:px-8">
@@ -66,7 +66,7 @@ export default function Loading() {
         </div>
       </section>
 
-      {/* Case Study */}
+      {/* Case Study — mirrors gift-card carousel */}
       <section className="py-s-80">
         <div className="mx-auto mb-12 max-w-container space-y-3 px-4 md:px-6 lg:px-8">
           <Block className="h-3 w-28" />
@@ -74,33 +74,45 @@ export default function Loading() {
           <Block className="h-4 w-64" />
         </div>
         <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          <div className="flex gap-4 overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-3">
-                <Block className="aspect-[4/3]" />
-                <Block className="h-3 w-20" />
-                <Block className="h-4 w-full" />
-                <Block className="h-4 w-3/4" />
+              <div
+                key={i}
+                className="shrink-0 overflow-hidden rounded-[20px] border-2 border-gift-border bg-white"
+                style={{ width: 'min(60vw, 340px)' }}
+              >
+                <Block className="!rounded-none" style={{ aspectRatio: '4/3' }} />
+                <div className="space-y-3 p-5">
+                  <Block className="h-3 w-20" />
+                  <Block className="h-4 w-full" />
+                  <div className="flex gap-2">
+                    <Block className="h-5 w-12" />
+                    <Block className="h-5 w-14" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Services */}
+      {/* Services — mirrors gift-card grid */}
       <section className="py-s-80">
         <div className="mx-auto mb-12 max-w-container space-y-3 px-4 md:px-6 lg:px-8">
           <Block className="h-3 w-24" />
           <Block className="h-8 w-36" />
+          <Block className="h-4 w-48" />
         </div>
         <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-3">
-                <Block className="aspect-[4/3]" />
-                <Block className="h-4 w-4/5" />
-                <Block className="h-3 w-1/2" />
-                <Block className="h-3 w-full" />
+              <div key={i} className="overflow-hidden rounded-[20px] border-2 border-gift-border bg-white">
+                <Block className="!rounded-none" style={{ aspectRatio: '4/3' }} />
+                <div className="space-y-3 p-6">
+                  <Block className="h-4 w-4/5" />
+                  <Block className="h-3 w-full" />
+                  <Block className="h-3 w-3/4" />
+                </div>
               </div>
             ))}
           </div>
@@ -135,7 +147,7 @@ export default function Loading() {
         </div>
       </section>
 
-      {/* Column / News */}
+      {/* Column / News — mirrors news-card glass style */}
       <section className="border-t border-gift-border py-s-80">
         <div className="mx-auto mb-12 max-w-container space-y-3 px-4 md:px-6 lg:px-8">
           <Block className="h-3 w-28" />
@@ -144,11 +156,20 @@ export default function Loading() {
         <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-3">
-                <Block className="aspect-[16/10]" />
-                <Block className="h-3 w-24" />
-                <Block className="h-4 w-full" />
-                <Block className="h-4 w-5/6" />
+              <div
+                key={i}
+                className="overflow-hidden rounded-[17px] border border-white bg-white/60"
+                style={{ boxShadow: '12px 17px 51px rgba(0,0,0,0.08)' }}
+              >
+                <Block className="!rounded-none" style={{ aspectRatio: '16/10' }} />
+                <div className="space-y-3 p-5">
+                  <div className="flex gap-3">
+                    <Block className="h-3 w-16" />
+                    <Block className="h-3 w-20" />
+                  </div>
+                  <Block className="h-4 w-full" />
+                  <Block className="h-4 w-5/6" />
+                </div>
               </div>
             ))}
           </div>
