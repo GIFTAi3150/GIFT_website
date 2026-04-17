@@ -1,68 +1,37 @@
 {
-  "cases": [
+  "stats": {
+    "totalClients": "500",
+    "industries": "6",
+    "since": "2018"
+  },
+  "businessLines": [
     {
-      "id": 1,
-      "client": "株式会社リクルート 様",
-      "industry": "IT・ソフトウェア",
-      "title": "モバイル総合サポート LINE公式アカウント運用",
-      "image": "/img/2.jpg",
-      "services": ["LINE公式運用", "Lステップ構築"]
+      "id": "callcenter",
+      "title": "コールセンター事業",
+      "titleEn": "Call Center",
+      "since": "2018年〜",
+      "description": "アウトバウンド特化の自社運営コールセンター。通信キャリア・SaaS企業を中心に、約300名体制で高品質なセールス支援を提供。組織運営と教育制度を強みに、安定した成果を実現しています。",
+      "industries": ["通信キャリア", "SaaS企業", "小売・EC"],
+      "services": ["アウトバウンドコール", "研修設計", "KPI運用", "クラウドPBX + CRM"]
     },
     {
-      "id": 2,
-      "client": "株式会社みずほフィナンシャル 様",
-      "industry": "金融・保険",
-      "title": "CRM × Lステップ連携による業務自動化",
-      "image": "/img/4.jpg",
-      "services": ["RPA導入", "業務自動化", "CRM連携"]
+      "id": "dx-consulting",
+      "title": "DXコンサル事業",
+      "titleEn": "DX Consulting",
+      "since": "2020年〜",
+      "description": "LINE公式・Lステップ構築から、RPA・業務自動化、AI導入、SaaS・CRM構築支援まで、中小企業・スタートアップのDX推進をワンストップで支援。Lステップ公式認定パートナー。",
+      "industries": ["中小企業", "スタートアップ", "飲食・サービス", "教育・人材", "医療・ヘルスケア"],
+      "services": ["LINE公式・Lステップ", "RPA・業務自動化", "AI導入・生成AI活用", "SaaS導入・CRM構築"],
+      "badge": "Lステップ公式認定パートナー"
     },
     {
-      "id": 3,
-      "client": "北海道ハウジング 様",
-      "industry": "不動産",
-      "title": "地域密着型の物件仲介サポート導入",
-      "image": "/img/6.jpg",
-      "services": ["集客支援", "内覧予約自動化"]
-    },
-    {
-      "id": 4,
-      "client": "全国チェーン小売A社 様",
-      "industry": "小売・EC",
-      "title": "コールセンター立ち上げから定着までの伴走支援",
-      "image": "/img/1.jpg",
-      "services": ["コールセンター構築", "研修設計", "KPI運用"]
-    },
-    {
-      "id": 5,
-      "client": "飲食チェーンB社 様",
-      "industry": "飲食・サービス",
-      "title": "LINE会員プログラム導入によるリピート施策",
-      "image": "/img/5.jpg",
-      "services": ["LINE公式運用", "CRM連携"]
-    },
-    {
-      "id": 6,
-      "client": "教育サービスC社 様",
-      "industry": "教育・人材",
-      "title": "資料請求〜クロージングの自動ナーチャリング",
-      "image": "/img/8.jpg",
-      "services": ["Lステップ構築", "ステップ配信設計"]
-    },
-    {
-      "id": 7,
-      "client": "医療法人D会 様",
-      "industry": "医療・ヘルスケア",
-      "title": "予約管理と受付業務のRPA化",
-      "image": "/img/7.jpg",
-      "services": ["RPA導入", "業務自動化"]
-    },
-    {
-      "id": 8,
-      "client": "地方自治体E 様",
-      "industry": "官公庁・自治体",
-      "title": "住民向けコールセンター受託運用",
-      "image": "/img/3.jpg",
-      "services": ["コールセンター運用", "KPI運用"]
+      "id": "finance-consulting",
+      "title": "財務コンサル事業",
+      "titleEn": "Financial Consulting",
+      "since": "2024年〜",
+      "description": "融資支援・資金調達サポートから財務戦略・KPI設計まで、成長期の中小企業経営者に寄り添う伴走型コンサルティング。外部専門家とのアライアンス体制で幅広くサポート。",
+      "industries": ["中小企業経営者", "成長期企業"],
+      "services": ["融資支援・資金調達", "財務戦略・KPI設計", "経営コンサル"]
     }
   ]
 }

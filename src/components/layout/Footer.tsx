@@ -11,11 +11,16 @@ const footerNav = [
   { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
 ];
 
+const footerServices = [
+  { href: '/services/callcenter', label: 'コールセンター事業' },
+  { href: '/services/dx-consulting', label: 'DXコンサル事業' },
+  { href: '/services/finance-consulting', label: '財務コンサル事業' },
+];
+
 // TODO: add real hrefs for X (Twitter) and LINE (採用用) when shared
 const socials = [
   { name: 'Instagram', href: 'https://www.instagram.com/gift_with_you_', icon: 'instagram' },
   { name: 'X', href: '#', icon: 'x' },
-  { name: 'LINE', href: '#', icon: 'line' },
   { name: 'TikTok', href: 'https://www.tiktok.com/@gift_with_you_', icon: 'tiktok' },
 ];
 
@@ -98,23 +103,40 @@ export default function Footer() {
             </div>
           </div>
 
-          <nav aria-label="フッターナビゲーション" className="flex flex-col gap-4">
-            {footerNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="group flex items-center gap-3 whitespace-nowrap leading-none"
-              >
-                <span className="w-20 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink transition-colors duration-150 group-hover:text-gift-hover">
-                  {item.en}
-                </span>
-                <span aria-hidden className="h-4 w-px bg-white/20" />
-                <span className="font-sans text-small font-light text-gift-silver transition-colors duration-150 group-hover:text-gift-hover">
-                  {item.ja}
-                </span>
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-col gap-10 sm:flex-row sm:gap-16">
+            <nav aria-label="フッターナビゲーション" className="flex flex-col gap-4">
+              {footerNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group flex items-center gap-3 whitespace-nowrap leading-none"
+                >
+                  <span className="w-20 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink transition-colors duration-150 group-hover:text-gift-hover">
+                    {item.en}
+                  </span>
+                  <span aria-hidden className="h-4 w-px bg-white/20" />
+                  <span className="font-sans text-small font-light text-gift-silver transition-colors duration-150 group-hover:text-gift-hover">
+                    {item.ja}
+                  </span>
+                </Link>
+              ))}
+            </nav>
+
+            <nav aria-label="事業内容ナビゲーション" className="flex flex-col gap-3">
+              <span className="font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink">
+                SERVICE
+              </span>
+              {footerServices.map((s) => (
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  className="font-sans text-small font-light text-gift-silver transition-colors duration-150 hover:text-gift-hover"
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
 
         <div className="mt-10 flex flex-col gap-3 border-t border-gift-border pt-6 sm:flex-row sm:items-center sm:justify-between">

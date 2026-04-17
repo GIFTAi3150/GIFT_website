@@ -3,7 +3,8 @@ import { TrendingUp, Shuffle, Sparkles, GraduationCap } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
-import positions from '@/data/positions.json';
+import { getPublishedPositions } from '@/lib/notion';
+import staticPositions from '@/data/positions.json';
 
 const values = [
   {
@@ -42,7 +43,21 @@ const flow = [
   { step: '04', title: 'ご入社', body: '研修と伴走支援を経てスムーズに立ち上がっていただきます。' },
 ];
 
-export default function RecruitPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function RecruitPage() {
+  let positions: { id: string; title: string; type: string; department: string; summary: string; tags: string[] }[] = [];
+
+  try {
+    const notionPositions = await getPublishedPositions();
+    if (notionPositions.length > 0) {
+      positions = notionPositions;
+    } else {
+      positions = staticPositions;
+    }
+  } catch {
+    positions = staticPositions;
+  }
   return (
     <>
       <Header />
