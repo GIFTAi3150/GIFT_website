@@ -3,18 +3,25 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
-import news from '@/data/news.json';
+import { getPublishedArticles, getArticleBySlug } from '@/lib/notion';
 
-export function generateStaticParams() {
-  return news.map((n) => ({ slug: n.slug }));
-}
+export const dynamic = 'force-dynamic';
 
-export default function NewsDetailPage({ params }: { params: { slug: string } }) {
-  const index = news.findIndex((n) => n.slug === params.slug);
-  if (index === -1) notFound();
+export default async function NewsDetailPage({ params }: { params: { slug: string } }) {
+  const article = await getArticleBySlug(params.slug);
+  if (!article) notFound();
 
-  const article = news[index];
-  const related = news.filter((n) => n.slug !== article.slug).slice(0, 3);
+  // Get related articles (same category, exclude current)
+  let related: { slug: string; title: string; date: string; category: string }[] = [];
+  try {
+    const all = await getPublishedArticles();
+    related = all
+      .filter((a) => a.slug !== article.slug)
+      .slice(0, 3)
+      .map((a) => ({ slug: a.slug, title: a.title, date: a.date, category: a.category }));
+  } catch {
+    // ignore
+  }
 
   return (
     <>
@@ -36,11 +43,16 @@ export default function NewsDetailPage({ params }: { params: { slug: string } })
         <Reveal>
           <section className="py-s-80">
             <div className="mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
-              <div className="mb-6 flex items-center gap-4">
-                <span className="font-display text-small uppercase tracking-widest text-gift-green">
-                  {article.category}
-                </span>
+              <div className="mb-6 flex flex-wrap items-center gap-4">
+                {article.category && (
+                  <span className="rounded-full bg-gift-green/10 px-3 py-1 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                    {article.category}
+                  </span>
+                )}
                 <span className="font-sans text-small text-gift-silver">{article.date}</span>
+                {article.author && (
+                  <span className="font-sans text-small text-gift-silver">by {article.author}</span>
+                )}
               </div>
               <h1
                 className="font-sans font-extrabold text-gift-ink"
@@ -52,91 +64,111 @@ export default function NewsDetailPage({ params }: { params: { slug: string } })
           </section>
         </Reveal>
 
-        {/* Hero image */}
-        <Reveal delay={100}>
-          <div className="mx-auto max-w-5xl px-4 md:px-6 lg:px-8">
-            <div
-              className="relative overflow-hidden rounded-2xl"
-              style={{ aspectRatio: '16/9' }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={article.image}
-                alt={article.title}
-                className="h-full w-full object-cover"
-              />
+        {/* Cover image */}
+        {article.cover && (
+          <Reveal delay={80}>
+            <div className="mx-auto max-w-5xl px-4 md:px-6 lg:px-8">
+              <div className="relative overflow-hidden rounded-2xl" style={{ aspectRatio: '16/9' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={article.cover}
+                  alt={article.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        )}
 
         {/* Body */}
-        <Reveal delay={150}>
-          <section className="py-s-80">
+        <Reveal delay={100}>
+          <section className="pb-s-80">
             <div className="mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
-              <p
-                className="mb-8 font-sans font-medium text-gift-ink"
-                style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '1.8' }}
-              >
-                {article.excerpt}
-              </p>
               <div
                 className="font-sans font-light text-gift-silver"
-                style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
+                style={{ fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '2' }}
               >
-                {article.body.split('\n').map((para, i) => (
-                  <p key={i} className="mb-6">
-                    {para}
-                  </p>
-                ))}
+                {article.body.split('\n').map((line, i) => {
+                  if (line.startsWith('### ')) {
+                    return (
+                      <h3 key={i} className="mb-4 mt-8 font-sans text-[20px] font-bold text-gift-ink">
+                        {line.replace('### ', '')}
+                      </h3>
+                    );
+                  }
+                  if (line.startsWith('## ')) {
+                    return (
+                      <h2 key={i} className="mb-4 mt-10 font-sans text-[24px] font-extrabold text-gift-ink">
+                        {line.replace('## ', '')}
+                      </h2>
+                    );
+                  }
+                  if (line.startsWith('# ')) {
+                    return (
+                      <h1 key={i} className="mb-4 mt-10 font-sans text-[28px] font-extrabold text-gift-ink">
+                        {line.replace('# ', '')}
+                      </h1>
+                    );
+                  }
+                  if (line.startsWith('- ')) {
+                    return (
+                      <li key={i} className="mb-2 ml-6 list-disc">
+                        {line.replace('- ', '')}
+                      </li>
+                    );
+                  }
+                  if (line.startsWith('1. ')) {
+                    return (
+                      <li key={i} className="mb-2 ml-6 list-decimal">
+                        {line.replace(/^\d+\.\s/, '')}
+                      </li>
+                    );
+                  }
+                  if (line.trim() === '') return <div key={i} className="h-4" />;
+                  return <p key={i} className="mb-4">{line}</p>;
+                })}
               </div>
             </div>
           </section>
         </Reveal>
 
         {/* Related articles */}
-        <Reveal>
-          <section className="border-t border-gift-border py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                RELATED
-              </p>
-              <h2
-                className="mb-10 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(24px, 3vw, 32px)', lineHeight: '1.25' }}
-              >
-                関連記事
-              </h2>
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
-                {related.map((n) => (
-                  <Link key={n.slug} href={`/news/${n.slug}`} className="news-card group block">
-                    <div
-                      className="relative overflow-hidden rounded-t-[16px]"
-                      style={{ aspectRatio: '16/10' }}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={n.image}
-                        alt={n.title}
-                        className="h-full w-full object-cover brightness-90 transition-all duration-500 group-hover:brightness-100"
-                      />
-                    </div>
-                    <div className="p-5">
-                      <div className="mb-2 flex items-center gap-3">
-                        <span className="font-sans text-small text-gift-silver">{n.date}</span>
-                        <span className="font-display text-small uppercase tracking-widest text-gift-green">
-                          {n.category}
-                        </span>
+        {related.length > 0 && (
+          <Reveal>
+            <section className="border-t border-gift-border py-s-80">
+              <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                  RELATED
+                </p>
+                <h2
+                  className="mb-10 font-sans font-extrabold text-gift-ink"
+                  style={{ fontSize: 'clamp(24px, 3vw, 32px)', lineHeight: '1.25' }}
+                >
+                  関連記事
+                </h2>
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
+                  {related.map((n) => (
+                    <Link key={n.slug} href={`/news/${n.slug}`} className="news-card group block">
+                      <div className="p-5">
+                        <div className="mb-2 flex items-center gap-3">
+                          <span className="font-sans text-small text-gift-silver">{n.date}</span>
+                          {n.category && (
+                            <span className="font-display text-small uppercase tracking-widest text-gift-green">
+                              {n.category}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-sans text-normal font-semibold leading-snug text-gift-ink">
+                          {n.title}
+                        </h3>
                       </div>
-                      <h3 className="font-sans text-normal font-semibold leading-snug text-gift-ink">
-                        {n.title}
-                      </h3>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        </Reveal>
+            </section>
+          </Reveal>
+        )}
       </main>
       <Footer />
     </>

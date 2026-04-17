@@ -12,7 +12,7 @@ export default function WhoWeAre() {
           {Array.from({ length: 4 }).map((_, i) => (
             <span
               key={`a${i}`}
-              className="select-none font-display italic text-gift-ink/[0.07]"
+              className="select-none font-display italic text-gift-ink/[0.035]"
               style={{ fontSize: 'clamp(60px, 10vw, 140px)', letterSpacing: '0.02em' }}
             >
               One Love! One Heart! Let's get together and feel all right. Hear the children cryin'
@@ -27,7 +27,7 @@ export default function WhoWeAre() {
           {Array.from({ length: 4 }).map((_, i) => (
             <span
               key={`b${i}`}
-              className="select-none font-display italic text-gift-ink/[0.07]"
+              className="select-none font-display italic text-gift-ink/[0.035]"
               style={{ fontSize: 'clamp(55px, 9vw, 130px)', letterSpacing: '0.02em' }}
             >
               Hear the children cryin' (One Heart!), Sayin': give thanks and praise to the Lord and
@@ -54,7 +54,7 @@ export default function WhoWeAre() {
 
           <p
             className="mb-6 font-sans font-light text-gift-silver"
-            style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
+            style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '2' }}
           >
             企業が本来持つ力を、最大限に引き出すために。 GIFTは、豊富な実績と多角的な知見を持つ
             プロフェッショナルの集合体。 戦略の立案から実行まで、
@@ -63,7 +63,7 @@ export default function WhoWeAre() {
 
           <p
             className="mb-10 font-sans font-light text-gift-silver"
-            style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
+            style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '2' }}
           >
             一人ひとりの挑戦を支え、地域と社会に新しいキッカケを届ける。
             それが私たちGIFTの使命です。

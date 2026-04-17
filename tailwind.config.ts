@@ -18,8 +18,8 @@ export default {
           'bg-3': '#F0F4F9',
           panel: '#FFFFFF',
           ink: '#111B21',
-          silver: '#5E5E5E',
-          'grey-body': '#5E5E5E',
+          silver: '#3A3A3A',
+          'grey-body': '#3A3A3A',
           'grey-light': '#CDD0D5',
           green: '#25D366',        // WA bright — primary CTA
           'green-dark': '#075E54', // WA deepest teal — footer / deep bands

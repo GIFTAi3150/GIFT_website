@@ -5,7 +5,7 @@ import Reveal from '@/components/ui/Reveal';
 import achievements from '@/data/achievements.json';
 
 export default function AchievementsPage() {
-  const { cases } = achievements;
+  const { stats, businessLines } = achievements;
 
   return (
     <>
@@ -21,63 +21,126 @@ export default function AchievementsPage() {
               className="font-sans font-extrabold text-gift-ink"
               style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: '1.1' }}
             >
-              実績
+              実績・強み
             </h1>
             <p className="mt-4 max-w-2xl font-sans text-normal font-light text-gift-silver">
-              クライアントと共に積み上げてきた実績をご紹介します。
+              GIFTは3つの事業を軸に、幅広い業種のお客様を支援してきました。
+              各事業の概要と対応業種をご紹介します。
             </p>
           </div>
         </section>
 
-        {/* Case grid */}
+        {/* Stats band */}
         <Reveal>
-          <section className="py-s-80">
+          <section className="border-b border-gift-border bg-gift-bg-alt py-s-70">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:gap-12">
-                {cases.map((c) => (
-                  <article key={c.id} className="works-card group">
-                    <div
-                      className="overflow-hidden rounded-t-[18px]"
-                      style={{ aspectRatio: '16/10' }}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={c.image}
-                        alt={c.title}
-                        className="h-full w-full object-cover brightness-90 transition-all duration-700 group-hover:scale-[1.04] group-hover:brightness-100"
-                      />
-                    </div>
-
-                    <div className="p-6">
-                      <p className="works-card-title mb-2 font-sans text-normal font-bold">
-                        {c.client}
-                      </p>
-
-                      <p className="works-card-industry mb-3 font-display text-small font-bold uppercase tracking-widest">
-                        {c.industry}
-                      </p>
-
-                      <h3 className="works-card-title mb-4 font-sans text-medium font-semibold leading-snug">
-                        {c.title}
-                      </h3>
-
-                      <div className="flex flex-wrap gap-2">
-                        {c.services.map((s) => (
-                          <span
-                            key={s}
-                            className="works-card-tag rounded-full border px-3 py-1 font-sans text-small"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </article>
-                ))}
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+                <div className="text-center">
+                  <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
+                    {stats.totalClients}<span className="text-[28px]">社+</span>
+                  </p>
+                  <p className="mt-2 font-sans text-[14px] text-gift-silver">累計支援企業</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
+                    {stats.industries}<span className="text-[28px]">+</span>
+                  </p>
+                  <p className="mt-2 font-sans text-[14px] text-gift-silver">対応業種</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
+                    {stats.since}<span className="text-[28px]">年〜</span>
+                  </p>
+                  <p className="mt-2 font-sans text-[14px] text-gift-silver">運営開始</p>
+                </div>
               </div>
             </div>
           </section>
         </Reveal>
+
+        {/* Business lines */}
+        <section className="py-s-80">
+          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+            <div className="flex flex-col gap-16">
+              {businessLines.map((bl, idx) => (
+                <Reveal key={bl.id} delay={idx * 100}>
+                  <div className="overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-500 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]">
+                    {/* Header bar */}
+                    <div className="flex flex-col gap-4 border-b border-gift-border bg-gift-bg-alt px-6 py-6 sm:flex-row sm:items-center sm:justify-between md:px-10">
+                      <div>
+                        <p className="font-display text-[12px] font-bold uppercase tracking-widest text-gift-green">
+                          {String(idx + 1).padStart(2, '0')} — {bl.titleEn}
+                        </p>
+                        <h2 className="mt-1 font-sans text-[24px] font-extrabold text-gift-ink md:text-[28px]">
+                          {bl.title}
+                        </h2>
+                      </div>
+                      <span className="inline-block shrink-0 rounded-full bg-gift-green/10 px-4 py-1.5 font-display text-[12px] font-bold text-gift-green-teal">
+                        {bl.since}
+                      </span>
+                    </div>
+
+                    <div className="px-6 py-8 md:px-10">
+                      {/* Description */}
+                      <p className="max-w-3xl font-sans text-[16px] leading-relaxed text-gift-silver">
+                        {bl.description}
+                      </p>
+
+                      {/* Badge if exists */}
+                      {bl.badge && (
+                        <div className="mt-6 inline-flex items-center gap-3 rounded-xl border border-gift-border bg-gift-bg-alt px-5 py-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#06C755] font-display text-sm font-bold text-white">
+                            L
+                          </div>
+                          <p className="font-sans text-[14px] font-semibold text-gift-ink">
+                            {bl.badge}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Two columns: industries + services */}
+                      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+                        {/* Industries */}
+                        <div>
+                          <p className="mb-3 font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
+                            対応業種
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {bl.industries.map((ind) => (
+                              <span
+                                key={ind}
+                                className="rounded-full border border-gift-border bg-gift-bg-alt px-4 py-1.5 font-sans text-[13px] text-gift-ink"
+                              >
+                                {ind}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Services */}
+                        <div>
+                          <p className="mb-3 font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
+                            提供サービス
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {bl.services.map((svc) => (
+                              <span
+                                key={svc}
+                                className="rounded-full border border-gift-green/30 bg-gift-green/5 px-4 py-1.5 font-sans text-[13px] text-gift-green-teal"
+                              >
+                                {svc}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* CTA */}
         <Reveal>

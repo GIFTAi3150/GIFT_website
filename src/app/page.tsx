@@ -9,8 +9,26 @@ import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
 import Reveal from '@/components/ui/Reveal';
+import { getPublishedArticles } from '@/lib/notion';
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  let articles: { slug: string; title: string; date: string; category: string; cover?: string }[] = [];
+
+  try {
+    const notionArticles = await getPublishedArticles();
+    articles = notionArticles.map((a) => ({
+      slug: a.slug,
+      title: a.title,
+      date: a.date,
+      category: a.category,
+      cover: a.cover,
+    }));
+  } catch {
+    // Notion unavailable — show empty state
+  }
+
   return (
     <>
       <Header />
@@ -35,7 +53,7 @@ export default function HomePage() {
           <SocialLinks />
         </Reveal>
         <Reveal>
-          <Column />
+          <Column articles={articles} />
         </Reveal>
       </main>
       <Footer />

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global paragraph readability — larger text + darker color */
+@layer base {
+  p {
+    font-size: clamp(16px, 1.2vw, 18px);
+    color: #333333;
+    line-height: 1.9;
+  }
+}
+
 /* Card — border glow + slide-up button on hover (Uiverse/alexruix).
    Usage: <div class="gift-card"> content... <span class="gift-card-btn">Label</span> </div>
    The card-btn is optional; without it you get border glow + shadow only. */
@@ -462,7 +471,7 @@
 /* Social strip — brand-color panels that expand on hover.
    Desktop: horizontal row, hovered panel grows. Mobile: tight row of 3, icon + name only. */
 .social-strip {
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: row;
 }
@@ -471,7 +480,7 @@
   position: relative;
   min-height: 80px;
   padding: 1rem 0.75rem;
-  overflow: hidden;
+  overflow: visible;
   text-decoration: none;
   background: transparent;
   color: #111B21;
@@ -571,13 +580,12 @@
   }
 }
 .social-panel-handle {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   opacity: 0.9;
   margin-top: 2px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 @media (min-width: 768px) {
   .social-panel-handle {

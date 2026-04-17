@@ -23,15 +23,6 @@ const socials = [
     textColor: '#ffffff',
   },
   {
-    name: 'LINE',
-    handle: '採用用LINE',
-    href: '#',
-    icon: 'line',
-    tagline: '採用情報のご案内はこちら',
-    background: '#06C755',
-    textColor: '#ffffff',
-  },
-  {
     name: 'TikTok',
     handle: '@gift_with_you_',
     href: 'https://www.tiktok.com/@gift_with_you_',
@@ -107,7 +98,7 @@ export default function SocialLinks() {
                 <span className="social-panel-icon">
                   <Icon name={s.icon} />
                 </span>
-                <div className="social-panel-handle">{s.handle}</div>
+                <div className="social-panel-handle">{s.name}</div>
               </div>
             </a>
             {i < socials.length - 1 && <span className="social-divider" aria-hidden />}

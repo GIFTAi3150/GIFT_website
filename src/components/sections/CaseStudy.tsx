@@ -3,44 +3,34 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-// TODO: swap with real case studies
 const cases = [
   {
     id: 1,
-    industry: 'TELECOM',
-    title: 'モバイル総合サポート LINE公式アカウント運用',
-    tags: ['LINE', 'Lステップ'],
-    image: '/img/2.jpg',
+    industry: 'CALL CENTER',
+    title: 'アウトバウンド特化・自社運営で約300名体制',
+    tags: ['通信キャリア', 'SaaS企業', '教育制度'],
+    image: '/img/5.jpg',
   },
   {
     id: 2,
-    industry: 'FINANCE',
-    title: 'CRM × Lステップ連携による業務自動化',
-    tags: ['RPA', '自動化'],
-    image: '/img/4.jpg',
+    industry: 'DX CONSULTING',
+    title: 'LINE・RPA・AI導入をワンストップで支援',
+    tags: ['Lステップ認定', 'RPA', 'AI活用'],
+    image: '/img/7.jpg',
   },
   {
     id: 3,
-    industry: 'REAL ESTATE',
-    title: '地域密着型の物件仲介サポート',
-    tags: ['不動産'],
-    image: '/img/6.jpg',
-  },
-  {
-    id: 4,
-    industry: 'RETAIL',
-    title: 'コールセンター立ち上げ支援',
-    tags: ['CS', 'オペレーション'],
-    image: '/img/1.jpg',
+    industry: 'FINANCIAL CONSULTING',
+    title: '融資支援から財務戦略まで伴走型サポート',
+    tags: ['融資支援', '資金調達', 'KPI設計'],
+    image: '/img/8.jpg',
   },
 ];
 
-// How many cards fit on screen at each breakpoint.
-// Tweak these if you change the card width.
 function getVisibleCount(width: number) {
-  if (width >= 1024) return 3; // lg
-  if (width >= 640) return 2; // sm
-  return 1; // mobile
+  if (width >= 1024) return 3;
+  if (width >= 640) return 2;
+  return 1;
 }
 
 export default function CaseStudy() {
@@ -57,8 +47,6 @@ export default function CaseStudy() {
   const total = cases.length;
   const maxIndex = Math.max(0, total - visible);
 
-  // Card width + left peek must match the number of visible cards,
-  // or the last card slides off-screen at maxIndex.
   const sizeConfig: Record<number, { card: string; peek: string }> = {
     1: { card: 'min(82vw, 440px)', peek: 'min(6vw, 32px)' },
     2: { card: 'calc(50vw - 28px)', peek: '16px' },
@@ -90,10 +78,10 @@ export default function CaseStudy() {
           className="font-sans font-extrabold text-gift-ink"
           style={{ fontSize: '36px', lineHeight: '1.25' }}
         >
-          実績
+          実績・強み
         </h2>
         <p className="mt-2 font-sans text-normal font-light text-gift-silver">
-          クライアントと共に積み上げてきた実績。
+          3つの事業を軸に、累計500社以上を支援。
         </p>
       </div>
 
@@ -141,7 +129,7 @@ export default function CaseStudy() {
             {cases.map((c) => (
               <Link
                 key={c.id}
-                href="#"
+                href="/achievements"
                 className="works-card group block shrink-0"
                 style={{ width: cardW }}
               >

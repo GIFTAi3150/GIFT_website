@@ -18,15 +18,42 @@ const inquiryTypes = [
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    // TODO: wire up real form submission (email endpoint / API route)
-    setTimeout(() => {
-      setLoading(false);
+    setError('');
+
+    const form = e.currentTarget;
+    const data = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      company: (form.elements.namedItem('company') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
+      inquiryType: (form.elements.namedItem('inquiryType') as HTMLSelectElement).value,
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+      privacy: (form.elements.namedItem('privacy') as HTMLInputElement).checked,
+    };
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || '送信に失敗しました。');
+      }
+
       setSubmitted(true);
-    }, 800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '送信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -101,7 +128,7 @@ export default function ContactPage() {
                       </div>
 
                       <Field label="お問い合わせ種別" required>
-                        <select name="type" required className="contact-input" defaultValue="">
+                        <select name="inquiryType" required className="contact-input" defaultValue="">
                           <option value="" disabled>選択してください</option>
                           {inquiryTypes.map((t) => (
                             <option key={t.value} value={t.value}>{t.label}</option>
@@ -120,12 +147,18 @@ export default function ContactPage() {
                       </Field>
 
                       <label className="flex items-start gap-3 font-sans text-small font-light text-gift-silver">
-                        <input type="checkbox" required className="mt-1 h-4 w-4 accent-gift-green" />
+                        <input type="checkbox" name="privacy" required className="mt-1 h-4 w-4 accent-gift-green" />
                         <span>
                           <a href="/privacy" className="text-gift-green underline underline-offset-2">プライバシーポリシー</a>
                           に同意の上、送信してください。
                         </span>
                       </label>
+
+                      {error && (
+                        <p className="mt-2 rounded-lg bg-red-50 px-4 py-3 font-sans text-[14px] text-red-600">
+                          {error}
+                        </p>
+                      )}
 
                       <button
                         type="submit"
