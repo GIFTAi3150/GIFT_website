@@ -232,7 +232,7 @@ function ContactRow({
   label,
   children,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
   label: string;
   children: React.ReactNode;
 }) {

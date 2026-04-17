@@ -34,7 +34,7 @@ export default function AchievementsLoading() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="overflow-hidden rounded-[20px] border-2 border-gift-border bg-white">
                 {/* Image placeholder */}
-                <Block className="!rounded-none" style={{ aspectRatio: '16/10' }} />
+                <Block className="!rounded-none aspect-[16/10]" />
                 {/* Text area */}
                 <div className="space-y-3 p-6">
                   <Block className="h-4 w-40" />
