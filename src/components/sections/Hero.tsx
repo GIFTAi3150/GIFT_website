@@ -4,9 +4,15 @@ import FadeUpText from '@/components/ui/FadeUpText';
 export default function Hero() {
   return (
     <section
-      className="relative flex w-full items-center justify-center"
-      style={{ minHeight: '100vh', backgroundColor: '#EDF2EE' }}
+      className="relative flex w-full items-center justify-center overflow-hidden"
+      style={{ minHeight: '100vh', backgroundColor: '#F8FAF8' }}
     >
+      {/* Decorative drifting blobs — adds depth behind the hero content */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="hero-blob hero-blob-1" />
+        <div className="hero-blob hero-blob-2" />
+        <div className="hero-blob hero-blob-3" />
+      </div>
       <div className="relative z-10 mx-auto w-full max-w-container px-4 py-16 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
           {/* Text — left on desktop, top on mobile */}

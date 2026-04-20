@@ -11,8 +11,7 @@ const GiftLogo3D = dynamic(() => import('@/components/ui/GiftLogo3D_PremiumBadge
 function LogoPlaceholder() {
   return (
     <div
-      className="flex h-[360px] w-full items-center justify-center sm:h-[460px] lg:h-[640px]"
-      style={{ backgroundColor: '#EDF2EE' }}
+      className="flex h-[360px] w-full items-center justify-center bg-transparent sm:h-[460px] lg:h-[640px]"
     >
       <div className="relative">
         <svg

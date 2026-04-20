@@ -8,8 +8,8 @@ export default {
         gift: {
           // WhatsApp-inspired palette — extracted from whatsapp.com production CSS 2026-04-16
           // Two greens (bright #25D366 + deep teal #128C7E). Monochrome neutrals.
-          'near-black': '#F0F4F9',
-          bg: '#F0F4F9',
+          'near-black': '#EBEEF3',
+          bg: '#EBEEF3',
           'bg-alt': '#F7F9FC',
           'bg-bright': '#FFFFFF',
           surface: '#FFFFFF',

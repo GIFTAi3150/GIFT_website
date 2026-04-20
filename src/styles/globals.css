@@ -8,6 +8,9 @@
     font-size: clamp(16px, 1.2vw, 18px);
     color: #333333;
     line-height: 1.9;
+    /* Break long URLs / tokens instead of overflowing the viewport */
+    overflow-wrap: anywhere;
+    word-break: keep-all;
   }
 }
 
@@ -888,7 +891,7 @@
 }
 
 html {
-  background-color: #F0F4F9;
+  background-color: #EBEEF3;
 }
 
 /* Canvas bg transparent so the hero shows through — no visible walls. */
@@ -898,7 +901,7 @@ canvas {
 
 html,
 body {
-  background: #F0F4F9;
+  background: #EBEEF3;
   color: #111B21;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
@@ -939,6 +942,73 @@ h6 {
   animation: scatter-settle 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: var(--reveal-delay, 0ms);
   will-change: transform, opacity;
+}
+
+/* Pixel robot antenna — subtle bob so the mascot feels alive. */
+@keyframes robotBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
+}
+.robot-antenna {
+  transform-origin: center bottom;
+  animation: robotBob 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .robot-antenna { animation: none; }
+}
+
+/* Hero background — slow drifting blurred blobs for depth.
+   Three blobs in the brand green scale, each with its own drift timing.
+   Pure CSS, low cost. Use inside an overflow-hidden container. */
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+.hero-blob-1 {
+  top: -12%;
+  right: -8%;
+  width: 520px;
+  height: 520px;
+  background: rgba(37, 211, 102, 0.06);
+  filter: blur(90px);
+  animation: blobDrift1 22s ease-in-out infinite;
+}
+.hero-blob-2 {
+  bottom: -18%;
+  left: -12%;
+  width: 620px;
+  height: 620px;
+  background: rgba(143, 217, 164, 0.12);
+  filter: blur(110px);
+  animation: blobDrift2 28s ease-in-out infinite;
+}
+.hero-blob-3 {
+  top: 38%;
+  left: 28%;
+  width: 320px;
+  height: 320px;
+  background: rgba(230, 255, 218, 0.15);
+  filter: blur(70px);
+  animation: blobDrift3 18s ease-in-out infinite;
+}
+@keyframes blobDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -20px) scale(1.05); }
+  66%      { transform: translate(-20px, 30px) scale(0.95); }
+}
+@keyframes blobDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-40px, 25px) scale(1.08); }
+}
+@keyframes blobDrift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%      { transform: translate(20px, 40px) scale(0.92); }
+  80%      { transform: translate(-30px, -15px) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob-1, .hero-blob-2, .hero-blob-3 { animation: none; }
 }
 
 /* Navbar reveal — fades down into place on mount. Stagger is driven by

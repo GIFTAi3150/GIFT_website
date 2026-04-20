@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import services from '@/data/services.json';
+import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 
 export default function ServicesCards() {
   return (
@@ -22,6 +23,7 @@ export default function ServicesCards() {
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {services.map((s, idx) => {
+            const Icon = SERVICE_ICON_BY_ID[s.id];
             const CardInner = (
               <div className="gift-card group relative flex h-full flex-col overflow-hidden !p-0">
                 <div className="relative overflow-hidden rounded-t-[18px]" style={{ aspectRatio: '4/3' }}>
@@ -43,8 +45,15 @@ export default function ServicesCards() {
                 </div>
 
                 <div className="flex flex-1 flex-col p-6">
-                  <p className="font-sans text-small font-medium text-gift-green-mid">{s.title}</p>
-                  <p className="mt-3 flex-1 font-sans text-small font-light leading-relaxed text-gift-silver">
+                  <div className="mb-3 flex items-center gap-3">
+                    {Icon && (
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green group-hover:text-white">
+                        <Icon className="h-6 w-6" />
+                      </span>
+                    )}
+                    <p className="font-sans text-small font-medium text-gift-green-mid">{s.title}</p>
+                  </div>
+                  <p className="mt-1 flex-1 font-sans text-small font-light leading-relaxed text-gift-silver">
                     {s.body.length > 90 ? s.body.slice(0, 90) + '…' : s.body}
                   </p>
                 </div>

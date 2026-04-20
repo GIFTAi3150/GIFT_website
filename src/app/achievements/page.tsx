@@ -2,6 +2,9 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
+import CountUp from '@/components/ui/CountUp';
+import ProcessFlow from '@/components/sections/ProcessFlow';
+import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 import achievements from '@/data/achievements.json';
 
 export default function AchievementsPage() {
@@ -11,9 +14,15 @@ export default function AchievementsPage() {
     <>
       <Header />
       <main className="bg-gift-near-black">
-        {/* Page header */}
-        <section className="border-b border-gift-border py-s-80">
-          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        {/* Page header — decorative drifting blobs behind the title */}
+        <section className="relative overflow-hidden border-b border-gift-border py-s-80">
+          {/* Floating blurred blobs for atmospheric depth */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="hero-blob hero-blob-1" />
+            <div className="hero-blob hero-blob-2" />
+            <div className="hero-blob hero-blob-3" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
               WORKS
             </p>
@@ -37,19 +46,22 @@ export default function AchievementsPage() {
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
                 <div className="text-center">
                   <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
-                    {stats.totalClients}<span className="text-[28px]">社+</span>
+                    <CountUp end={Number(stats.totalClients)} />
+                    <span className="text-[28px]">社+</span>
                   </p>
                   <p className="mt-2 font-sans text-[14px] text-gift-silver">累計支援企業</p>
                 </div>
                 <div className="text-center">
                   <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
-                    {stats.industries}<span className="text-[28px]">+</span>
+                    <CountUp end={Number(stats.industries)} />
+                    <span className="text-[28px]">+</span>
                   </p>
                   <p className="mt-2 font-sans text-[14px] text-gift-silver">対応業種</p>
                 </div>
                 <div className="text-center">
                   <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
-                    {stats.since}<span className="text-[28px]">年〜</span>
+                    {stats.since}
+                    <span className="text-[28px]">年〜</span>
                   </p>
                   <p className="mt-2 font-sans text-[14px] text-gift-silver">運営開始</p>
                 </div>
@@ -62,18 +74,27 @@ export default function AchievementsPage() {
         <section className="py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <div className="flex flex-col gap-16">
-              {businessLines.map((bl, idx) => (
+              {businessLines.map((bl, idx) => {
+                const Icon = SERVICE_ICON_BY_ID[bl.id];
+                return (
                 <Reveal key={bl.id} delay={idx * 100}>
-                  <div className="overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-500 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]">
+                  <div className="group overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-500 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]">
                     {/* Header bar */}
                     <div className="flex flex-col gap-4 border-b border-gift-border bg-gift-bg-alt px-6 py-6 sm:flex-row sm:items-center sm:justify-between md:px-10">
-                      <div>
-                        <p className="font-display text-[12px] font-bold uppercase tracking-widest text-gift-green">
-                          {String(idx + 1).padStart(2, '0')} — {bl.titleEn}
-                        </p>
-                        <h2 className="mt-1 font-sans text-[24px] font-extrabold text-gift-ink md:text-[28px]">
-                          {bl.title}
-                        </h2>
+                      <div className="flex items-center gap-5">
+                        {Icon && (
+                          <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-500 group-hover:bg-gift-green group-hover:text-white md:h-16 md:w-16">
+                            <Icon className="h-8 w-8 md:h-10 md:w-10" />
+                          </span>
+                        )}
+                        <div>
+                          <p className="font-display text-[12px] font-bold uppercase tracking-widest text-gift-green">
+                            {String(idx + 1).padStart(2, '0')} — {bl.titleEn}
+                          </p>
+                          <h2 className="mt-1 font-sans text-[24px] font-extrabold text-gift-ink md:text-[28px]">
+                            {bl.title}
+                          </h2>
+                        </div>
                       </div>
                       <span className="inline-block shrink-0 rounded-full bg-gift-green/10 px-4 py-1.5 font-display text-[12px] font-bold text-gift-green-teal">
                         {bl.since}
@@ -137,10 +158,16 @@ export default function AchievementsPage() {
                     </div>
                   </div>
                 </Reveal>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
+
+        {/* How we work — universal 4-step process */}
+        <Reveal>
+          <ProcessFlow />
+        </Reveal>
 
         {/* CTA */}
         <Reveal>
