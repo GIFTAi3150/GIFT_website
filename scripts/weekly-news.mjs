@@ -128,6 +128,33 @@ function slugify(url, date) {
   return `${date}-${stem || 'news'}`;
 }
 
+// --- Relevance scoring — higher = more aligned with GIFT's audience (SMBs, DX, AI). ---
+const KEYWORDS_HIGH = [
+  'AI', '生成AI', 'ChatGPT', 'Claude', 'Copilot', 'Gemini', 'エージェント',
+  'DX', 'デジタル', 'デジタル化', '中小企業', 'スタートアップ',
+  '業務', '業務効率', '業務改革', '経営', '経営者', '生産性',
+  '自動化', 'RPA', 'ノーコード', 'ローコード',
+  'LINE', 'Lステップ', 'コンサル',
+];
+const KEYWORDS_MEDIUM = [
+  'セキュリティ', 'サイバー', 'テレワーク', 'リモート',
+  '融資', '資金調達', '財務', 'データ分析', '効率化',
+  'クラウド', 'SaaS', 'マーケティング',
+];
+const KEYWORDS_NEGATIVE = [
+  'ロボット', 'マラソン', 'ゲーム', 'エンタメ', 'スポーツ',
+  '漫画', 'アニメ', '芸能', '映画', '音楽',
+];
+
+function scoreItem(item) {
+  const text = `${item.title} ${item.description}`;
+  let score = 0;
+  for (const kw of KEYWORDS_HIGH)     if (text.includes(kw)) score += 3;
+  for (const kw of KEYWORDS_MEDIUM)   if (text.includes(kw)) score += 1;
+  for (const kw of KEYWORDS_NEGATIVE) if (text.includes(kw)) score -= 5;
+  return score;
+}
+
 // --- Main ---
 async function main() {
   console.log('Fetching feeds...');
@@ -149,9 +176,18 @@ async function main() {
     return;
   }
 
-  // Pick the first fresh item. Ordering is source-first, which means
-  // AI+ takes precedence if available — good default.
-  const chosen = fresh[0];
+  // Score each fresh item for relevance to GIFT's audience (SMBs, DX, AI).
+  // Pick the highest-scoring item. On ties, earliest feed wins (stable sort).
+  const ranked = fresh
+    .map((item, idx) => ({ item, score: scoreItem(item), idx }))
+    .sort((a, b) => b.score - a.score || a.idx - b.idx);
+
+  console.log('\nTop 3 candidates:');
+  for (const r of ranked.slice(0, 3)) {
+    console.log(`  [score=${r.score}] ${r.item.title.slice(0, 60)}`);
+  }
+
+  const chosen = ranked[0].item;
   const today = new Date().toISOString().slice(0, 10);
   const slug = slugify(chosen.link, today);
   const cover = COVER_BY_CATEGORY[chosen.category] || COVER_BY_CATEGORY['DXコンサル'];
