@@ -120,6 +120,7 @@ export interface JobPosition {
   department: string;
   summary: string;
   tags: string[];
+  url: string;
 }
 
 export async function getPublishedPositions(): Promise<JobPosition[]> {
@@ -171,8 +172,13 @@ export async function getPublishedPositions(): Promise<JobPosition[]> {
         ? props.Tags.multi_select.map((t: { name: string }) => t.name)
         : [];
 
+    const url =
+      props.URL?.type === 'url'
+        ? props.URL.url || ''
+        : '';
+
     if (title && slug) {
-      positions.push({ id: page.id, title, slug, type, department, summary, tags });
+      positions.push({ id: page.id, title, slug, type, department, summary, tags, url });
     }
   }
 

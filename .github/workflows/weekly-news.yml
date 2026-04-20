@@ -1,0 +1,29 @@
+name: Weekly News Draft
+
+on:
+  schedule:
+    # Every Monday 08:30 JST = Sunday 23:30 UTC
+    - cron: '30 23 * * 0'
+  # Allow manual run from the Actions tab — use this to verify after setup
+  workflow_dispatch:
+
+jobs:
+  create-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create weekly news draft in Notion
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: node scripts/weekly-news.mjs
