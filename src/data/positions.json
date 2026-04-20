@@ -1,42 +1,20 @@
 [
   {
-    "id": "call-operator",
-    "title": "コールオペレーター",
+    "id": "it",
+    "title": "ITエンジニア",
+    "type": "正社員",
+    "department": "IT",
+    "summary": "社内システム・自社プロダクトの開発、AI活用・DX推進を担うポジション。LINE公式応募後、担当者よりご案内します。",
+    "tags": ["AI活用", "DX推進", "自社開発"],
+    "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=VxQDVD&liff_id=2007127169-4a6eZq1z"
+  },
+  {
+    "id": "call-center",
+    "title": "コールセンタースタッフ",
     "type": "正社員 / アルバイト・パート",
     "department": "コールセンター",
-    "summary": "光回線・法人営業のアウトバウンド業務。研修制度が充実しているため未経験歓迎です。",
-    "tags": ["未経験歓迎", "研修あり", "シフト相談可"]
-  },
-  {
-    "id": "call-sv",
-    "title": "SV（スーパーバイザー）",
-    "type": "正社員",
-    "department": "コールセンター",
-    "summary": "コールセンター運営のマネジメント。チームビルディング・教育設計を担う中核ポジション。",
-    "tags": ["マネジメント", "キャリアアップ"]
-  },
-  {
-    "id": "dx-consultant",
-    "title": "DXコンサルタント",
-    "type": "正社員",
-    "department": "DXコンサル",
-    "summary": "LINE公式・Lステップ構築運用、RPA・AI導入など、幅広いDX支援を担当いただきます。",
-    "tags": ["AI活用", "Lステップ", "上流から下流まで"]
-  },
-  {
-    "id": "finance-consultant",
-    "title": "財務コンサルタント",
-    "type": "正社員",
-    "department": "財務コンサル",
-    "summary": "融資支援・資金調達サポート、経営者と並走する財務戦略・KPI設計を担当。",
-    "tags": ["経営者と並走", "アライアンス"]
-  },
-  {
-    "id": "new-grad",
-    "title": "新卒採用",
-    "type": "新卒",
-    "department": "全社",
-    "summary": "コール→SV→DX→財務と、事業をまたぐキャリアを歩める新卒ポジション。配属は適性と希望を考慮します。",
-    "tags": ["横断キャリア", "成長機会"]
+    "summary": "光回線・法人営業のアウトバウンド業務。研修制度が充実しているため未経験歓迎です。LINE公式応募後、担当者よりご案内します。",
+    "tags": ["未経験歓迎", "研修あり", "シフト相談可"],
+    "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=5PKgQN&liff_id=2007127169-4a6eZq1z"
   }
 ]

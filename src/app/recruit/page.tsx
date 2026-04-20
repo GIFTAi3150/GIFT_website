@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { TrendingUp, Shuffle, Sparkles, GraduationCap } from 'lucide-react';
+import { TrendingUp, Shuffle, Sparkles, GraduationCap, ArrowUpRight } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
@@ -37,8 +37,8 @@ const path = [
 ];
 
 const flow = [
-  { step: '01', title: 'サイトフォームから応募', body: '当サイトの応募フォームよりご連絡ください。Indeed等の外部プラットフォームからのご応募もこちらに統一しています。' },
-  { step: '02', title: 'LINE求人アカウントへご案内', body: '初回連絡後、採用専用のLINE求人アカウントをお伝えします。以降のやり取りはLINE中心で進めます。' },
+  { step: '01', title: '募集ポジションから応募', body: '本ページの募集ポジションから希望の職種をタップし、LINE求人アカウントへお進みください。' },
+  { step: '02', title: 'LINEで応募情報を入力', body: 'LINE上のフォームに必要事項をご入力ください。以降のやり取りもLINEを中心に進めます。' },
   { step: '03', title: '面談・選考', body: '部署ごとの採用フローに合わせて面談・選考を進めます。' },
   { step: '04', title: 'ご入社', body: '研修と伴走支援を経てスムーズに立ち上がっていただきます。' },
 ];
@@ -46,18 +46,15 @@ const flow = [
 export const dynamic = 'force-dynamic';
 
 export default async function RecruitPage() {
-  let positions: { id: string; title: string; type: string; department: string; summary: string; tags: string[] }[] = [];
+  let positions: { id: string; title: string; type: string; department: string; summary: string; tags: string[]; url: string }[] = [];
 
   try {
     const notionPositions = await getPublishedPositions();
-    if (notionPositions.length > 0) {
-      positions = notionPositions;
-    } else {
-      positions = staticPositions;
-    }
+    positions = notionPositions.length > 0 ? notionPositions : staticPositions;
   } catch {
     positions = staticPositions;
   }
+
   return (
     <>
       <Header />
@@ -87,7 +84,7 @@ export default async function RecruitPage() {
               <Link href="#positions" className="cta-btn">
                 <span>募集ポジションを見る</span>
               </Link>
-              <Link href="/contact" className="cta-btn cta-btn--deep">
+              <Link href="#positions" className="cta-btn cta-btn--deep">
                 <span>応募する</span>
               </Link>
             </div>
@@ -175,59 +172,9 @@ export default async function RecruitPage() {
           </section>
         </Reveal>
 
-        {/* Positions */}
-        <Reveal>
-          <section id="positions" className="py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                OPEN POSITIONS
-              </p>
-              <h2
-                className="mb-12 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-              >
-                募集中のポジション
-              </h2>
-
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {positions.map((p, i) => (
-                  <Reveal key={p.id} delay={(i % 2) * 100}>
-                    <div className="gift-card !p-7">
-                      <div className="mb-4 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-gift-green px-3 py-1 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                          {p.department}
-                        </span>
-                        <span className="rounded-full bg-gift-bg-alt px-3 py-1 font-sans text-small font-medium text-gift-silver">
-                          {p.type}
-                        </span>
-                      </div>
-                      <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
-                        {p.title}
-                      </h3>
-                      <p className="mb-5 font-sans text-small font-light leading-relaxed text-gift-silver">
-                        {p.summary}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {p.tags.map((t) => (
-                          <span
-                            key={t}
-                            className="rounded-full border border-gift-silver/30 px-3 py-0.5 font-sans text-small text-gift-silver"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
-          </section>
-        </Reveal>
-
         {/* Application flow */}
         <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section className="py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 HOW TO APPLY
@@ -242,12 +189,12 @@ export default async function RecruitPage() {
                 className="mb-14 max-w-2xl font-sans font-light text-gift-silver"
                 style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
               >
-                ご応募は当サイトのフォームから統一窓口でお受けしています。その後、採用専用のLINEアカウントでスムーズにやり取りを進めます。
+                ご応募は各募集ポジションからLINE求人アカウントへ直接お進みいただけます。以降のやり取りはLINEを中心にスムーズに進めます。
               </p>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {flow.map((f) => (
-                  <div key={f.step} className="relative rounded-2xl bg-white p-6">
+                  <div key={f.step} className="relative rounded-2xl bg-gift-bg-alt p-6">
                     <p className="mb-3 font-display text-small font-bold text-gift-green">
                       STEP {f.step}
                     </p>
@@ -258,6 +205,65 @@ export default async function RecruitPage() {
                       {f.body}
                     </p>
                   </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </Reveal>
+
+        {/* Positions */}
+        <Reveal>
+          <section id="positions" className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                OPEN POSITIONS
+              </p>
+              <h2
+                className="mb-12 font-sans font-extrabold text-gift-ink"
+                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+              >
+                募集中のポジション
+              </h2>
+
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                {positions.map((p, i) => (
+                  <Reveal key={p.id} delay={(i % 2) * 100}>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gift-card group relative block !p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                    >
+                      <div className="mb-4 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-gift-green px-3 py-1 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                          {p.department}
+                        </span>
+                        <span className="rounded-full bg-white px-3 py-1 font-sans text-small font-medium text-gift-silver">
+                          {p.type}
+                        </span>
+                      </div>
+                      <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
+                        {p.title}
+                      </h3>
+                      <p className="mb-5 font-sans text-small font-light leading-relaxed text-gift-silver">
+                        {p.summary}
+                      </p>
+                      <div className="mb-6 flex flex-wrap gap-2">
+                        {p.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full border border-gift-silver/30 px-3 py-0.5 font-sans text-small text-gift-silver"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                        <span>LINEから応募する</span>
+                        <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
+                      </div>
+                    </a>
+                  </Reveal>
                 ))}
               </div>
             </div>

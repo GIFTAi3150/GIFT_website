@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "news:draft": "node scripts/weekly-news.mjs"
   },
   "dependencies": {
     "@notionhq/client": "^2.3.0",
