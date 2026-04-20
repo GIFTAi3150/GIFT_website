@@ -26,7 +26,7 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
   return (
     <>
       <Header />
-      <main className="bg-gift-near-black">
+      <main className="overflow-x-hidden bg-gift-near-black">
         {/* Back link */}
         <div className="border-b border-gift-border py-4">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">

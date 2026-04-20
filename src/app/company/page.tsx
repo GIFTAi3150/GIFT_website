@@ -22,14 +22,82 @@ const history = [
   { year: '2026', event: '新コーポレートサイトをローンチ。' },
 ];
 
+// Pixel icons for the 3 VALUES cards
+function SupportIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
+      {/* Left person */}
+      <rect x="4" y="5" width="4" height="4" />
+      <rect x="3" y="10" width="6" height="6" />
+      <rect x="2" y="14" width="2" height="6" />
+      <rect x="8" y="14" width="2" height="6" />
+      {/* Right person */}
+      <rect x="16" y="5" width="4" height="4" />
+      <rect x="15" y="10" width="6" height="6" />
+      <rect x="14" y="14" width="2" height="6" />
+      <rect x="20" y="14" width="2" height="6" />
+      {/* Connecting hands between them */}
+      <rect x="10" y="12" width="4" height="2" />
+    </svg>
+  );
+}
+
+function HeartIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
+      {/* Top of lobes — two small bumps */}
+      <rect x="6" y="6" width="4" height="1" />
+      <rect x="14" y="6" width="4" height="1" />
+      {/* Lobes expanding */}
+      <rect x="5" y="7" width="6" height="2" />
+      <rect x="13" y="7" width="6" height="2" />
+      {/* Lobes merging — widest part */}
+      <rect x="4" y="9" width="16" height="2" />
+      {/* Tapering toward point */}
+      <rect x="5" y="11" width="14" height="1" />
+      <rect x="6" y="12" width="12" height="1" />
+      <rect x="7" y="13" width="10" height="1" />
+      <rect x="8" y="14" width="8" height="1" />
+      <rect x="9" y="15" width="6" height="1" />
+      <rect x="10" y="16" width="4" height="1" />
+      <rect x="11" y="17" width="2" height="1" />
+    </svg>
+  );
+}
+
+function ArrowForwardIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
+      {/* Horizontal shaft */}
+      <rect x="3" y="10" width="14" height="4" />
+      {/* Arrowhead pixel steps */}
+      <rect x="15" y="8" width="2" height="8" />
+      <rect x="17" y="6" width="2" height="12" />
+      <rect x="19" y="9" width="2" height="6" />
+      <rect x="17" y="9" width="4" height="6" />
+    </svg>
+  );
+}
+
+const valueCards = [
+  { title: '挑戦を、支え合う。', body: 'チームで挑む姿勢を大切に。困ったときはお互いに手を差し伸べます。', Icon: SupportIcon },
+  { title: '一人ひとりを、尊重する。', body: '背景や役割に関係なく、それぞれの価値観を受け止めます。', Icon: HeartIcon },
+  { title: '誠実に、前に進み続ける。', body: 'ごまかさず、言い訳せず。一歩ずつ、着実に成長していきます。', Icon: ArrowForwardIcon },
+];
+
 export default function CompanyPage() {
   return (
     <>
       <Header />
       <main className="bg-gift-near-black">
-        {/* Page header */}
-        <section className="border-b border-gift-border py-s-80">
-          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        {/* Page header — with drifting blobs for atmosphere */}
+        <section className="relative overflow-hidden border-b border-gift-border py-s-80">
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="hero-blob hero-blob-1" />
+            <div className="hero-blob hero-blob-2" />
+            <div className="hero-blob hero-blob-3" />
+          </div>
+          <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
               COMPANY
             </p>
@@ -171,14 +239,27 @@ export default function CompanyPage() {
                   </h2>
                 </div>
                 <div className="lg:col-span-3">
-                  <ul
-                    className="space-y-4 font-sans font-light text-gift-silver"
-                    style={{ fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '1.9' }}
-                  >
-                    <li>— 挑戦を、支え合う。</li>
-                    <li>— 一人ひとりを、尊重する。</li>
-                    <li>— 誠実に、前に進み続ける。</li>
-                  </ul>
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                    {valueCards.map((v) => {
+                      const Icon = v.Icon;
+                      return (
+                        <div
+                          key={v.title}
+                          className="group flex flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_10px_30px_rgba(37,211,102,0.08)]"
+                        >
+                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green group-hover:text-white">
+                            <Icon className="h-7 w-7" />
+                          </span>
+                          <h3 className="font-sans text-medium font-bold text-gift-ink">
+                            {v.title}
+                          </h3>
+                          <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                            {v.body}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,14 +322,25 @@ export default function CompanyPage() {
                 </h2>
               </div>
 
-              <ol className="relative border-l border-gift-border pl-6 sm:pl-10">
+              <ol className="relative mx-auto max-w-3xl border-l-2 border-gift-green/30 pl-8 sm:pl-12">
                 {history.map((item, i) => (
-                  <li key={i} className="mb-10 last:mb-0">
-                    <span className="absolute -left-[7px] mt-2 h-3 w-3 rounded-full bg-gift-green" />
-                    <p className="mb-1 font-display text-normal font-bold text-gift-green">
-                      {item.year}
-                    </p>
-                    <p className="font-sans font-light text-gift-silver">{item.event}</p>
+                  <li key={i} className="relative mb-10 last:mb-0">
+                    {/* Dot on the timeline */}
+                    <span
+                      aria-hidden
+                      className="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gift-green shadow-[0_0_0_4px_rgba(37,211,102,0.15)] sm:-left-[57px]"
+                    >
+                      <span className="h-2 w-2 rounded-full bg-white" />
+                    </span>
+                    {/* Year + event card */}
+                    <div className="rounded-xl border border-gift-border bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green/40 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                      <p className="mb-2 font-display text-[22px] font-extrabold leading-none text-gift-green">
+                        {item.year}
+                      </p>
+                      <p className="font-sans font-light leading-relaxed text-gift-silver">
+                        {item.event}
+                      </p>
+                    </div>
                   </li>
                 ))}
               </ol>

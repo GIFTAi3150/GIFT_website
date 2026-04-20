@@ -5,6 +5,7 @@ import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import WhoWeAre from '@/components/sections/WhoWeAre';
 import CaseStudy from '@/components/sections/CaseStudy';
 import ServicesCards from '@/components/sections/ServicesCards';
+import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
@@ -45,6 +46,9 @@ export default async function HomePage() {
         </Reveal>
         <Reveal>
           <ServicesCards />
+        </Reveal>
+        <Reveal>
+          <ProcessFlow />
         </Reveal>
         <Reveal>
           <Clients />

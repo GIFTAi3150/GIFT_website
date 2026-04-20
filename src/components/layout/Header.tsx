@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 
 const navItems = [
   { href: '/company', en: 'ABOUT', ja: '会社概要' },
@@ -108,18 +109,27 @@ export default function Header() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <button
-                    className="group relative block h-5 overflow-hidden whitespace-nowrap leading-5"
+                    className="group flex items-center gap-1.5 whitespace-nowrap"
                     aria-expanded={serviceOpen}
                     aria-haspopup="true"
                   >
-                    <span className="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-5">
-                      <span className="block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink/85">
-                        SERVICE
-                      </span>
-                      <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
-                        事業内容
+                    <span className="relative block h-5 overflow-hidden leading-5">
+                      <span className="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-5">
+                        <span className="block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink/85">
+                          SERVICE
+                        </span>
+                        <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
+                          事業内容
+                        </span>
                       </span>
                     </span>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 text-gift-ink/60 transition-transform duration-200 ${
+                        serviceOpen ? 'rotate-180' : ''
+                      }`}
+                      strokeWidth={2.5}
+                      aria-hidden
+                    />
                   </button>
 
                   {/* Dropdown */}
@@ -177,21 +187,17 @@ export default function Header() {
         </nav>
 
         <button
-          className="nav-reveal flex flex-col gap-1.5 rounded-sm p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gift-green-mid md:hidden"
+          className="nav-reveal relative z-10 flex h-10 w-10 items-center justify-center rounded-md text-gift-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-gift-green-mid md:hidden"
           style={{ ['--reveal-delay' as string]: '150ms' }}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label="メニューを開く"
         >
-          <span
-            className={`block h-0.5 w-6 bg-gift-ink transition-transform duration-200 ${open ? 'translate-y-2 rotate-45' : ''}`}
-          />
-          <span
-            className={`block h-0.5 w-6 bg-gift-ink transition-opacity duration-200 ${open ? 'opacity-0' : ''}`}
-          />
-          <span
-            className={`block h-0.5 w-6 bg-gift-ink transition-transform duration-200 ${open ? '-translate-y-2 -rotate-45' : ''}`}
-          />
+          {open ? (
+            <X size={28} strokeWidth={2.5} />
+          ) : (
+            <Menu size={28} strokeWidth={2.5} />
+          )}
         </button>
       </div>
 

@@ -36,11 +36,31 @@ const path = [
   { label: 'STEP 4', title: '財務コンサル', body: '経営と財務の視座を獲得する。' },
 ];
 
-const flow = [
-  { step: '01', title: '募集ポジションから応募', body: '本ページの募集ポジションから希望の職種をタップし、LINE求人アカウントへお進みください。' },
-  { step: '02', title: 'LINEで応募情報を入力', body: 'LINE上のフォームに必要事項をご入力ください。以降のやり取りもLINEを中心に進めます。' },
-  { step: '03', title: '面談・選考', body: '部署ごとの採用フローに合わせて面談・選考を進めます。' },
-  { step: '04', title: 'ご入社', body: '研修と伴走支援を経てスムーズに立ち上がっていただきます。' },
+const flow: { step: string; title: string; body: string; img?: string }[] = [
+  {
+    step: '01',
+    title: '募集ポジションをタップ',
+    body: '本ページの募集ポジションカードから、希望する職種をタップしてください。',
+    img: '/recruit/step1.jpg',
+  },
+  {
+    step: '02',
+    title: 'QRコードを読み取る',
+    body: '表示されるQRコードをスマートフォンで読み取り、GIFT求人LINEアカウントへ友だち追加します。',
+    img: '/recruit/step2.jpg',
+  },
+  {
+    step: '03',
+    title: '面談予約へ進む',
+    body: 'LINE内の案内ボタンをタップすると、面談予約用のQRコードが表示されます。読み取って次へ進んでください。',
+    img: '/recruit/step3.jpg',
+  },
+  {
+    step: '04',
+    title: '日時を選んで予約完了',
+    body: 'ご都合の良い面談日時をお選びいただき、予約完了。当日お会いできるのを楽しみにしています。',
+    img: '/recruit/step4.jpg',
+  },
 ];
 
 export const dynamic = 'force-dynamic';
@@ -192,18 +212,50 @@ export default async function RecruitPage() {
                 ご応募は各募集ポジションからLINE求人アカウントへ直接お進みいただけます。以降のやり取りはLINEを中心にスムーズに進めます。
               </p>
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {/* Slide hint — mobile only */}
+              <p className="mb-6 flex items-center justify-center gap-2 font-sans text-small italic text-gift-silver lg:hidden">
+                <span aria-hidden>←</span>
+                スライドして手順をご確認ください
+                <span aria-hidden>→</span>
+              </p>
+
+              {/* Steps: horizontal swipeable carousel on mobile, 4-col grid on desktop.
+                  -mx-4/px-4 gives full-bleed scroll so cards start from edge, partial next card peeks in. */}
+              <div className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 pb-4 md:-mx-6 md:px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-0 lg:pb-0">
                 {flow.map((f) => (
-                  <div key={f.step} className="relative rounded-2xl bg-gift-bg-alt p-6">
-                    <p className="mb-3 font-display text-small font-bold text-gift-green">
-                      STEP {f.step}
-                    </p>
-                    <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
-                      {f.title}
-                    </h3>
-                    <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
-                      {f.body}
-                    </p>
+                  <div
+                    key={f.step}
+                    className="group relative flex w-[85%] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-gift-border bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(37,211,102,0.1)] sm:w-[60%] md:w-[48%] lg:w-auto"
+                  >
+                    {/* Big decorative step number in top corner */}
+                    <div className="pointer-events-none absolute right-4 top-4 z-10 select-none font-display text-[64px] font-extrabold leading-none text-gift-green/10">
+                      {f.step}
+                    </div>
+
+                    {/* Image frame — uniform 4:5 aspect across all cards, image contained on soft bg */}
+                    {f.img && (
+                      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-gift-bg-alt to-gift-near-black">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={f.img}
+                          alt={f.title}
+                          className="absolute inset-0 h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+
+                    {/* Text */}
+                    <div className="flex flex-1 flex-col p-6">
+                      <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                        STEP {f.step}
+                      </p>
+                      <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
+                        {f.title}
+                      </h3>
+                      <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                        {f.body}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
