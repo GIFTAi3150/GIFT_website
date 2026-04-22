@@ -5,7 +5,7 @@
 /* Global paragraph readability — larger text + darker color */
 @layer base {
   p {
-    font-size: clamp(16px, 1.2vw, 18px);
+    font-size: clamp(18px, 1.7vw, 22px);
     color: #333333;
     line-height: 1.9;
     /* Break long URLs / tokens instead of overflowing the viewport */
@@ -522,7 +522,7 @@
 .social-panel:hover,
 .social-panel:focus-visible,
 .social-panel:active {
-  color: #ffffff;
+  color: #111B21;
 }
 .social-panel:hover::before,
 .social-panel:focus-visible::before,
@@ -953,8 +953,34 @@ h6 {
   transform-origin: center bottom;
   animation: robotBob 1.8s ease-in-out infinite;
 }
+
+/* Pixel robot — waving arm. Swings the right arm back and forth around the shoulder. */
+@keyframes robotWave {
+  0%, 100% { transform: rotate(-12deg); }
+  50%      { transform: rotate(18deg); }
+}
+.robot-arm-wave {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: robotWave 1.4s ease-in-out infinite;
+}
+
+/* Pixel robot — sleeping Zs that drift up and fade. */
+@keyframes robotZzz {
+  0%   { transform: translateY(0); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-3px); opacity: 0; }
+}
+.robot-zzz {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: robotZzz 2.2s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .robot-antenna { animation: none; }
+  .robot-antenna,
+  .robot-arm-wave,
+  .robot-zzz { animation: none; }
 }
 
 /* Hero background — slow drifting blurred blobs for depth.

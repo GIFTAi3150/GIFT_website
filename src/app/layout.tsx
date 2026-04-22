@@ -48,14 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body style={{ backgroundColor: '#F0F4F9' }}>
-        {/* Font preload — Next.js allows <link> inside body */}
-        <link
-          rel="preload"
-          href="/fonts/Poppins-Bold.ttf"
-          as="font"
-          type="font/ttf"
-          crossOrigin="anonymous"
-        />
         {/* SSR-rendered dark cover. Present in the very first HTML byte the
             browser receives, so it can paint before any React/JS runs.
             Inline script fades it out once the page is ready. */}

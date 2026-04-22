@@ -3,19 +3,49 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
-import members from '@/data/members.json';
+import staticMembers from '@/data/members.json';
+import { getPublishedMembers } from '@/lib/notion';
 
-export function generateStaticParams() {
-  return members.map((m) => ({ id: m.id }));
-}
+export const dynamic = 'force-dynamic';
 
-export default function MemberDetailPage({
+type MemberRecord = {
+  id: string;
+  name: string;
+  nameEn: string;
+  role: string;
+  department: string;
+  image: string;
+  bio: string;
+};
+
+export default async function MemberDetailPage({
   params,
   searchParams,
 }: {
   params: { id: string };
   searchParams: { from?: string };
 }) {
+  // Try Notion first, fall back to static placeholders
+  let members: MemberRecord[] = [];
+  try {
+    const notionMembers = await getPublishedMembers();
+    if (notionMembers.length > 0) {
+      members = notionMembers.map((m) => ({
+        id: m.id,
+        name: m.name,
+        nameEn: m.nameEn,
+        role: m.role,
+        department: m.department,
+        image: m.image,
+        bio: m.bio,
+      }));
+    } else {
+      members = staticMembers;
+    }
+  } catch {
+    members = staticMembers;
+  }
+
   const index = members.findIndex((m) => m.id === params.id);
   if (index === -1) notFound();
 
@@ -133,7 +163,7 @@ export default function MemberDetailPage({
 
         {/* Other members — circular avatars */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 {scopedToDept ? member.department : 'OTHER MEMBERS'}

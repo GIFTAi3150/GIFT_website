@@ -21,14 +21,71 @@ export default function FinanceConsultingPage() {
               財務コンサル事業
             </h1>
             <p className="mt-6 max-w-3xl font-sans text-normal font-light text-gift-silver" style={{ lineHeight: '2' }}>
-              融資支援・資金調達サポートから、財務戦略・KPI設計まで、経営者に寄り添う伴走型の財務コンサルティングをご提供します。外部専門家とのアライアンス体制で、成長期の中小企業を資金面から支えます。
+              融資支援・資金調達から、財務戦略・KPI設計まで。財務のプロフェッショナル
+              <strong className="font-semibold text-gift-ink">「財務パートナーズ」</strong>
+              と業務提携することで、GIFTのお客様にも経営者に寄り添う伴走型のコンサルティングをご提供しています。
             </p>
+
+            {/* Alliance partner — 財務パートナーズ */}
+            <div className="mt-10 flex flex-col items-start gap-5 rounded-2xl border-2 border-gift-border bg-white px-6 py-6 sm:flex-row sm:items-center">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gift-bg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#128C7E" strokeWidth={1.6} className="h-9 w-9">
+                  <polyline points="3 17 9 11 13 15 21 7" strokeLinecap="round" strokeLinejoin="round" />
+                  <polyline points="14 7 21 7 21 14" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="font-sans text-[20px] font-extrabold text-gift-ink">財務パートナーズ</p>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gift-green-teal/10 px-3 py-1">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} className="h-3 w-3 text-gift-green-teal">
+                      <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="font-display text-[11px] font-bold text-gift-green-teal">業務提携パートナー</span>
+                  </span>
+                </div>
+                <p className="mt-2 font-sans text-[15px] leading-relaxed text-gift-silver">
+                  融資・資金調達のプロフェッショナル集団。経営戦略から数字の設計までを伴走支援する財務コンサルとして、業務提携によりGIFTのお客様にもサービスをご提供しています。
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
+        {/* Stats — Alliance track record (placeholders, swap with real numbers when shared) */}
+        <Reveal>
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-70">
+            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+              <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+                <div className="text-center">
+                  {/* TODO: replace with real number from 財務パートナーズ */}
+                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
+                    30<span className="text-[32px]">社+</span>
+                  </div>
+                  <p className="mt-3 font-sans text-small font-light text-gift-silver">支援企業</p>
+                </div>
+                <div className="text-center">
+                  {/* TODO: replace with real number from 財務パートナーズ */}
+                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
+                    ¥10<span className="text-[32px]">億+</span>
+                  </div>
+                  <p className="mt-3 font-sans text-small font-light text-gift-silver">累計融資調達額</p>
+                </div>
+                <div className="text-center">
+                  {/* TODO: replace with real number from 財務パートナーズ */}
+                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
+                    90<span className="text-[32px]">%+</span>
+                  </div>
+                  <p className="mt-3 font-sans text-small font-light text-gift-silver">融資承認率</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </Reveal>
+
         {/* What we offer */}
         <Reveal>
-          <section className="py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 WHAT WE OFFER
@@ -52,7 +109,7 @@ export default function FinanceConsultingPage() {
                 ].map((s) => (
                   <div key={s.title} className="gift-card !p-8">
                     <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">{s.title}</h3>
-                    <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                    <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                       {s.body}
                     </p>
                   </div>
@@ -64,7 +121,7 @@ export default function FinanceConsultingPage() {
 
         {/* Approach */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-10 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
@@ -93,7 +150,7 @@ export default function FinanceConsultingPage() {
 
         {/* Target */}
         <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 WHO IT'S FOR
@@ -113,7 +170,7 @@ export default function FinanceConsultingPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
                 className="mb-8 font-sans font-extrabold text-gift-ink"

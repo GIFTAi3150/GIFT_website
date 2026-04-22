@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Reveal from '@/components/ui/Reveal';
+import PixelRobot from '@/components/ui/PixelRobot';
 
 interface Article {
   slug: string;
@@ -25,7 +26,7 @@ export default function NewsGrid({ articles }: { articles: Article[] }) {
     <>
       {/* Category filter */}
       {articles.length > 0 && (
-        <section className="border-b border-gift-border py-8">
+        <section className="border-t border-gift-border bg-gift-bg-alt py-8">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <div className="flex flex-wrap gap-2">
               {categories.map((c) => {
@@ -56,10 +57,11 @@ export default function NewsGrid({ articles }: { articles: Article[] }) {
       )}
 
       {/* News grid */}
-      <section className="py-s-80">
+      <section className="border-t border-gift-border bg-white py-s-80">
         <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center py-20 text-center">
+              <PixelRobot pose="sleep" className="mb-6 h-24 w-24 text-gift-green-teal" />
               <p className="mb-2 font-sans text-medium font-bold text-gift-ink">
                 記事はまだありません
               </p>
@@ -97,7 +99,7 @@ export default function NewsGrid({ articles }: { articles: Article[] }) {
                       <h3 className="mb-3 font-sans text-normal font-semibold leading-snug text-gift-ink">
                         {n.title}
                       </h3>
-                      <p className="font-sans text-small font-light leading-relaxed text-gift-silver line-clamp-3">
+                      <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver line-clamp-3">
                         {n.excerpt}
                       </p>
                     </div>

@@ -65,8 +65,20 @@ const flow: { step: string; title: string; body: string; img?: string }[] = [
 
 export const dynamic = 'force-dynamic';
 
+type PositionDetail = { label: string; value: string };
+type Position = {
+  id: string;
+  title: string;
+  type: string;
+  department: string;
+  summary: string;
+  tags: string[];
+  url: string;
+  details?: PositionDetail[];
+};
+
 export default async function RecruitPage() {
-  let positions: { id: string; title: string; type: string; department: string; summary: string; tags: string[]; url: string }[] = [];
+  let positions: Position[] = [];
 
   try {
     const notionPositions = await getPublishedPositions();
@@ -113,7 +125,7 @@ export default async function RecruitPage() {
 
         {/* Why GIFT — values with glyph icons */}
         <Reveal>
-          <section className="py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 WHY GIFT
@@ -136,7 +148,7 @@ export default async function RecruitPage() {
                         <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
                           {v.title}
                         </h3>
-                        <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                        <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                           {v.body}
                         </p>
                       </div>
@@ -194,7 +206,7 @@ export default async function RecruitPage() {
 
         {/* Application flow */}
         <Reveal>
-          <section className="py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 HOW TO APPLY
@@ -225,7 +237,7 @@ export default async function RecruitPage() {
                 {flow.map((f) => (
                   <div
                     key={f.step}
-                    className="group relative flex w-[85%] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-gift-border bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(37,211,102,0.1)] sm:w-[60%] md:w-[48%] lg:w-auto"
+                    className="relative flex w-[85%] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-gift-border bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:w-[60%] md:w-[48%] lg:w-auto"
                   >
                     {/* Big decorative step number in top corner */}
                     <div className="pointer-events-none absolute right-4 top-4 z-10 select-none font-display text-[64px] font-extrabold leading-none text-gift-green/10">
@@ -252,7 +264,7 @@ export default async function RecruitPage() {
                       <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
                         {f.title}
                       </h3>
-                      <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                      <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                         {f.body}
                       </p>
                     </div>
@@ -271,11 +283,17 @@ export default async function RecruitPage() {
                 OPEN POSITIONS
               </p>
               <h2
-                className="mb-12 font-sans font-extrabold text-gift-ink"
+                className="mb-4 font-sans font-extrabold text-gift-ink"
                 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
               >
                 募集中のポジション
               </h2>
+              <p
+                className="mb-12 max-w-2xl font-sans font-light text-gift-silver"
+                style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
+              >
+                雇用形態（中途／新卒）は固定せず、ポジション単位で募集しています。応募者の希望を伺いながら、働き方を個別に検討します。
+              </p>
 
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {positions.map((p, i) => (
@@ -284,7 +302,7 @@ export default async function RecruitPage() {
                       href={p.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="gift-card group relative block !p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                      className="gift-card group relative flex h-full flex-col !p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
                     >
                       <div className="mb-4 flex flex-wrap items-center gap-2">
                         <span className="rounded-full border border-gift-green px-3 py-1 font-display text-small font-bold uppercase tracking-widest text-gift-green">
@@ -297,9 +315,25 @@ export default async function RecruitPage() {
                       <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
                         {p.title}
                       </h3>
-                      <p className="mb-5 font-sans text-small font-light leading-relaxed text-gift-silver">
+                      <p className="mb-5 font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                         {p.summary}
                       </p>
+
+                      {p.details && p.details.length > 0 && (
+                        <dl className="mb-5 grid grid-cols-1 gap-x-6 gap-y-3 rounded-xl border border-gift-border bg-gift-bg-alt/50 p-5 sm:grid-cols-[auto,1fr]">
+                          {p.details.map((d) => (
+                            <div key={d.label} className="contents">
+                              <dt className="font-sans text-small font-bold text-gift-ink">
+                                {d.label}
+                              </dt>
+                              <dd className="font-sans text-small font-light text-gift-silver">
+                                {d.value}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+
                       <div className="mb-6 flex flex-wrap gap-2">
                         {p.tags.map((t) => (
                           <span
@@ -310,7 +344,7 @@ export default async function RecruitPage() {
                           </span>
                         ))}
                       </div>
-                      <div className="flex items-center gap-2 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                      <div className="mt-auto flex items-center gap-2 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                         <span>LINEから応募する</span>
                         <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.5} />
                       </div>
@@ -324,7 +358,7 @@ export default async function RecruitPage() {
 
         {/* Final CTA */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 JOIN US

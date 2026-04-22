@@ -58,11 +58,11 @@ export default {
         mincho: ['var(--font-mincho)'],
       },
       fontSize: {
-        small: ['13px', { lineHeight: '1.5' }],
-        normal: ['16px', { lineHeight: '1.75' }],
-        medium: ['20px', { lineHeight: '1.5' }],
-        large: ['36px', { lineHeight: '1.25' }],
-        xlarge: ['42px', { lineHeight: '1.15' }],
+        small: ['16px', { lineHeight: '1.5' }],
+        normal: ['18px', { lineHeight: '1.75' }],
+        medium: ['24px', { lineHeight: '1.5' }],
+        large: ['40px', { lineHeight: '1.25' }],
+        xlarge: ['46px', { lineHeight: '1.15' }],
       },
       borderRadius: {
         pill: '9999px',

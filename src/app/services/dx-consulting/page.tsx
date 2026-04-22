@@ -155,7 +155,7 @@ export default function DxConsultingPage() {
                     <span className="font-display text-[11px] font-bold text-[#06C755]">公式認定パートナー</span>
                   </span>
                 </div>
-                <p className="mt-2 font-sans text-[14px] leading-relaxed text-gift-silver">
+                <p className="mt-2 font-sans text-[15px] leading-relaxed text-gift-silver">
                   Lステップ構築代行だけではなく、RPAを活用した企業のDX化を推進。既存のシステムを大きく変えず、Lステップと自動連携させることで、蓄積されたデータ資産を最大限に活用します。
                 </p>
               </div>
@@ -177,9 +177,40 @@ export default function DxConsultingPage() {
           </div>
         </section>
 
+        {/* Stats — DX track record (placeholders, swap with real numbers when shared) */}
+        <Reveal>
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-70">
+            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+              <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+                <div className="text-center">
+                  {/* TODO: replace with real number when shared */}
+                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
+                    50<span className="text-[32px]">社+</span>
+                  </div>
+                  <p className="mt-3 font-sans text-small font-light text-gift-silver">DX支援企業数</p>
+                </div>
+                <div className="text-center">
+                  {/* TODO: replace with real number when shared */}
+                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
+                    1,000<span className="text-[32px]">時間+</span>
+                  </div>
+                  <p className="mt-3 font-sans text-small font-light text-gift-silver">RPAによる業務削減</p>
+                </div>
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#06C755]/10 px-4 py-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded bg-[#06C755] font-display text-sm font-bold text-white">L</span>
+                    <span className="font-sans text-[14px] font-bold text-[#06C755]">公式認定パートナー</span>
+                  </div>
+                  <p className="mt-4 font-sans text-small font-light text-gift-silver">Lステップ</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </Reveal>
+
         {/* Service areas */}
         <Reveal>
-          <section className="py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 SERVICE AREAS
@@ -211,7 +242,7 @@ export default function DxConsultingPage() {
                 ].map((s) => (
                   <div key={s.title} className="gift-card !p-8">
                     <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">{s.title}</h3>
-                    <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                    <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                       {s.body}
                     </p>
                   </div>
@@ -235,21 +266,18 @@ export default function DxConsultingPage() {
                 >
                   こんなお悩みありませんか？
                 </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <ul className="grid grid-cols-1 gap-x-8 gap-y-5 text-left sm:grid-cols-2">
                   {painPoints.map((p) => (
-                    <div
-                      key={p}
-                      className="flex items-center gap-4 rounded-2xl border border-gift-border bg-white px-6 py-5 text-left transition-all duration-300 hover:border-gift-green/40 hover:shadow-[0_4px_20px_rgba(37,211,102,0.06)]"
-                    >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gift-green/10">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth={2} className="h-4 w-4">
+                    <li key={p} className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gift-green/10" aria-hidden>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth={2} className="h-3.5 w-3.5">
                           <path d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                      </div>
-                      <p className="font-sans text-[15px] font-medium text-gift-ink">{p}</p>
-                    </div>
+                      </span>
+                      <p className="font-sans text-[15px] leading-relaxed text-gift-ink">{p}</p>
+                    </li>
                   ))}
-                </div>
+                </ul>
 
                 <div className="mx-auto mt-12 flex flex-col items-center">
                   <div className="mb-2 h-8 w-px bg-gift-green/40" />
@@ -267,7 +295,7 @@ export default function DxConsultingPage() {
 
         {/* What is Lstep */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mx-auto max-w-3xl">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
@@ -310,17 +338,25 @@ export default function DxConsultingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Slide hint — mobile only, signals horizontal swipe */}
+              <p className="mb-4 flex items-center justify-center gap-2 font-sans text-small italic text-gift-silver lg:hidden">
+                <span aria-hidden>←</span>
+                スライドして機能をご確認ください
+                <span aria-hidden>→</span>
+              </p>
+
+              {/* Mobile = horizontal scroll-snap, lg = 3-col grid */}
+              <div className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 pb-4 md:-mx-6 md:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0 lg:pb-0">
                 {features.map((f) => (
                   <div
                     key={f.title}
-                    className="group rounded-2xl border border-gift-border bg-white p-7 transition-all duration-500 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]"
+                    className="group w-[80%] shrink-0 snap-center rounded-2xl border border-gift-border bg-white p-7 sm:w-[55%] md:w-[42%] lg:w-auto"
                   >
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gift-bg text-gift-green-teal transition-colors duration-500 group-hover:bg-gift-green group-hover:text-white">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gift-bg text-gift-green-teal transition-colors duration-300 group-hover:bg-gift-green/20">
                       {f.icon}
                     </div>
                     <h3 className="mb-3 font-sans text-[17px] font-bold text-gift-ink">{f.title}</h3>
-                    <p className="font-sans text-[14px] leading-relaxed text-gift-silver">{f.body}</p>
+                    <p className="font-sans text-[15px] leading-relaxed text-gift-silver">{f.body}</p>
                   </div>
                 ))}
               </div>
@@ -330,7 +366,7 @@ export default function DxConsultingPage() {
 
         {/* Case studies */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-12 text-center">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
@@ -372,25 +408,22 @@ export default function DxConsultingPage() {
               </div>
 
               {/* Pain points */}
-              <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+              <ul className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-5 text-left sm:grid-cols-3">
                 {[
                   'CRMとの連携ができないので更新作業が手間',
                   'CRMに溜まった顧客情報をLステップで有効活用したい',
                   'LステップとCRMを同時に管理したい',
                 ].map((p) => (
-                  <div
-                    key={p}
-                    className="flex items-center gap-3 rounded-2xl border border-gift-border bg-white px-5 py-5 transition-all duration-300 hover:border-gift-green/40"
-                  >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gift-green/10">
+                  <li key={p} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gift-green/10" aria-hidden>
                       <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth={2} className="h-3.5 w-3.5">
                         <path d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
-                    </div>
-                    <p className="font-sans text-[14px] font-medium text-gift-ink">{p}</p>
-                  </div>
+                    </span>
+                    <p className="font-sans text-[15px] leading-relaxed text-gift-ink">{p}</p>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               {/* 3 capabilities */}
               <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-3">
@@ -425,13 +458,13 @@ export default function DxConsultingPage() {
                 ].map((c) => (
                   <div
                     key={c.title}
-                    className="group rounded-2xl border border-gift-border bg-white p-7 text-center transition-all duration-500 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]"
+                    className="group rounded-2xl border border-gift-border bg-white p-7 text-center"
                   >
-                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gift-bg text-gift-green-teal transition-colors duration-500 group-hover:bg-gift-green group-hover:text-white">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gift-bg text-gift-green-teal transition-colors duration-300 group-hover:bg-gift-green/20">
                       {c.icon}
                     </div>
                     <h3 className="mb-2 font-sans text-[16px] font-bold text-gift-ink">{c.title}</h3>
-                    <p className="font-sans text-[14px] leading-relaxed text-gift-silver">{c.body}</p>
+                    <p className="font-sans text-[15px] leading-relaxed text-gift-silver">{c.body}</p>
                   </div>
                 ))}
               </div>
@@ -465,7 +498,7 @@ export default function DxConsultingPage() {
                       <p className="mb-1 font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
                         成果
                       </p>
-                      <p className="font-sans text-[14px] leading-relaxed text-gift-silver">{cs.result}</p>
+                      <p className="font-sans text-[15px] leading-relaxed text-gift-silver">{cs.result}</p>
                     </div>
                   </div>
                 ))}
@@ -476,7 +509,7 @@ export default function DxConsultingPage() {
 
         {/* AI-first strength */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-10 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
@@ -505,7 +538,7 @@ export default function DxConsultingPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
                 className="mb-8 font-sans font-extrabold text-gift-ink"

@@ -2,13 +2,12 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
-import CountUp from '@/components/ui/CountUp';
 import ProcessFlow from '@/components/sections/ProcessFlow';
 import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 import achievements from '@/data/achievements.json';
 
 export default function AchievementsPage() {
-  const { stats, businessLines } = achievements;
+  const { businessLines } = achievements;
 
   return (
     <>
@@ -39,51 +38,23 @@ export default function AchievementsPage() {
           </div>
         </section>
 
-        {/* Stats band */}
-        <Reveal>
-          <section className="border-b border-gift-border bg-gift-bg-alt py-s-70">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-                <div className="text-center">
-                  <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
-                    <CountUp end={Number(stats.totalClients)} />
-                    <span className="text-[28px]">社+</span>
-                  </p>
-                  <p className="mt-2 font-sans text-[14px] text-gift-silver">累計支援企業</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
-                    <CountUp end={Number(stats.industries)} />
-                    <span className="text-[28px]">+</span>
-                  </p>
-                  <p className="mt-2 font-sans text-[14px] text-gift-silver">対応業種</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-display text-[56px] font-extrabold leading-none text-gift-green">
-                    {stats.since}
-                    <span className="text-[28px]">年〜</span>
-                  </p>
-                  <p className="mt-2 font-sans text-[14px] text-gift-silver">運営開始</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        </Reveal>
-
-        {/* Business lines */}
-        <section className="py-s-80">
+        {/* Business lines — each card carries its own metric tiles */}
+        <section className="border-t border-gift-border bg-white py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <div className="flex flex-col gap-16">
               {businessLines.map((bl, idx) => {
                 const Icon = SERVICE_ICON_BY_ID[bl.id];
                 return (
                 <Reveal key={bl.id} delay={idx * 100}>
-                  <div className="group overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-500 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]">
+                  <Link
+                    href={`/services/${bl.id}`}
+                    className="group block overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-300 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]"
+                  >
                     {/* Header bar */}
                     <div className="flex flex-col gap-4 border-b border-gift-border bg-gift-bg-alt px-6 py-6 sm:flex-row sm:items-center sm:justify-between md:px-10">
                       <div className="flex items-center gap-5">
                         {Icon && (
-                          <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-500 group-hover:bg-gift-green group-hover:text-white md:h-16 md:w-16">
+                          <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green group-hover:text-white md:h-16 md:w-16">
                             <Icon className="h-8 w-8 md:h-10 md:w-10" />
                           </span>
                         )}
@@ -119,44 +90,35 @@ export default function AchievementsPage() {
                         </div>
                       )}
 
-                      {/* Two columns: industries + services */}
-                      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-                        {/* Industries */}
-                        <div>
-                          <p className="mb-3 font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
-                            対応業種
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {bl.industries.map((ind) => (
-                              <span
-                                key={ind}
-                                className="rounded-full border border-gift-border bg-gift-bg-alt px-4 py-1.5 font-sans text-[13px] text-gift-ink"
-                              >
-                                {ind}
-                              </span>
-                            ))}
+                      {/* Metrics — 3 KPI tiles per business line.
+                          TODO: replace placeholder values once manager sends real numbers
+                          (DX 支援社数 / RPA削減時間, Finance 支援社数 / 融資調達 / 承認率). */}
+                      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        {bl.metrics.map((m) => (
+                          <div
+                            key={m.label}
+                            className="rounded-xl border border-gift-border bg-gift-bg-alt px-5 py-6 text-center"
+                          >
+                            <p className="font-display text-[40px] font-extrabold leading-none text-gift-green md:text-[48px]">
+                              {m.value}
+                              <span className="text-[20px] md:text-[24px]">{m.suffix}</span>
+                            </p>
+                            <p className="mt-3 font-sans text-[13px] font-medium text-gift-silver">
+                              {m.label}
+                            </p>
                           </div>
-                        </div>
+                        ))}
+                      </div>
 
-                        {/* Services */}
-                        <div>
-                          <p className="mb-3 font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
-                            提供サービス
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {bl.services.map((svc) => (
-                              <span
-                                key={svc}
-                                className="rounded-full border border-gift-green/30 bg-gift-green/5 px-4 py-1.5 font-sans text-[13px] text-gift-green-teal"
-                              >
-                                {svc}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+                      {/* CTA — confirms the card is a link */}
+                      <div className="mt-8 flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-widest text-gift-green">
+                        <span>詳しく見る</span>
+                        <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                          <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
                 );
               })}
@@ -171,7 +133,7 @@ export default function AchievementsPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
                 className="mb-8 font-sans font-extrabold text-gift-ink"

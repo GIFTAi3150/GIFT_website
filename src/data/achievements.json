@@ -1,37 +1,41 @@
 {
-  "stats": {
-    "totalClients": "500",
-    "industries": "6",
-    "since": "2018"
-  },
   "businessLines": [
     {
       "id": "callcenter",
       "title": "コールセンター事業",
       "titleEn": "Call Center",
       "since": "2018年〜",
-      "description": "アウトバウンド特化の自社運営コールセンター。通信キャリア・SaaS企業を中心に、約300名体制で高品質なセールス支援を提供。組織運営と教育制度を強みに、安定した成果を実現しています。",
-      "industries": ["通信キャリア", "SaaS企業", "小売・EC"],
-      "services": ["アウトバウンドコール", "研修設計", "KPI運用", "クラウドPBX + CRM"]
+      "description": "アウトバウンド特化の自社運営コールセンター。通信キャリア・SaaS企業を中心に、教育制度を中枢に据えて品質と組織拡大を両立しています。",
+      "metrics": [
+        { "value": "300", "suffix": "名+", "label": "コールセンター従業員体制" },
+        { "value": "2018", "suffix": "年〜", "label": "運営開始" },
+        { "value": "2", "suffix": "領域", "label": "通信キャリア・法人営業" }
+      ]
     },
     {
       "id": "dx-consulting",
       "title": "DXコンサル事業",
       "titleEn": "DX Consulting",
-      "since": "2020年〜",
-      "description": "LINE公式・Lステップ構築から、RPA・業務自動化、AI導入、SaaS・CRM構築支援まで、中小企業・スタートアップのDX推進をワンストップで支援。Lステップ公式認定パートナー。",
-      "industries": ["中小企業", "スタートアップ", "飲食・サービス", "教育・人材", "医療・ヘルスケア"],
-      "services": ["LINE公式・Lステップ", "RPA・業務自動化", "AI導入・生成AI活用", "SaaS導入・CRM構築"],
+      "since": "2022年〜",
+      "description": "LINE公式・Lステップ構築から、RPA・業務自動化、AI導入、SaaS・CRM構築支援まで、中小企業・スタートアップのDX推進をワンストップで支援します。",
+      "metrics": [
+        { "value": "50", "suffix": "社+", "label": "支援企業数" },
+        { "value": "1,000", "suffix": "時間+", "label": "RPA削減時間" },
+        { "value": "公式", "suffix": "認定", "label": "Lステップ公式認定パートナー" }
+      ],
       "badge": "Lステップ公式認定パートナー"
     },
     {
       "id": "finance-consulting",
       "title": "財務コンサル事業",
       "titleEn": "Financial Consulting",
-      "since": "2024年〜",
-      "description": "融資支援・資金調達サポートから財務戦略・KPI設計まで、成長期の中小企業経営者に寄り添う伴走型コンサルティング。外部専門家とのアライアンス体制で幅広くサポート。",
-      "industries": ["中小企業経営者", "成長期企業"],
-      "services": ["融資支援・資金調達", "財務戦略・KPI設計", "経営コンサル"]
+      "since": "2026年〜",
+      "description": "融資支援・資金調達サポートから財務戦略・KPI設計まで、成長期の中小企業経営者に寄り添う伴走型コンサルティング。提携パートナー（財務パートナーズ）と連携して幅広く支援します。",
+      "metrics": [
+        { "value": "30", "suffix": "社+", "label": "支援企業数" },
+        { "value": "¥10", "suffix": "億+", "label": "融資調達総額" },
+        { "value": "90", "suffix": "%+", "label": "融資承認率" }
+      ]
     }
   ]
 }

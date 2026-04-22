@@ -1,20 +1,44 @@
 [
   {
-    "id": "it",
+    "id": "call-center",
+    "title": "コールセンタースタッフ",
+    "type": "アルバイト・パート",
+    "department": "コールセンター事業部",
+    "summary": "光回線・法人営業のアウトバウンドコール業務。研修制度が充実しており、3名に社員1名の専属サポート体制で、未経験の方も安心して挑戦できます。",
+    "tags": ["未経験歓迎", "服装自由", "髪型自由", "日払い・週払い可", "週1日3h〜OK", "交通費全額支給"],
+    "details": [
+      { "label": "勤務地", "value": "札幌市中央区南一条西9丁目" },
+      { "label": "時給", "value": "1,700〜3,000円" },
+      { "label": "業務内容", "value": "アウトバウンドコール業務" },
+      { "label": "サポート体制", "value": "3名に社員1名の専属サポート" }
+    ],
+    "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=5PKgQN&liff_id=2007127169-4a6eZq1z"
+  },
+  {
+    "id": "it-engineer",
     "title": "ITエンジニア",
-    "type": "正社員",
-    "department": "IT",
-    "summary": "社内システム・自社プロダクトの開発、AI活用・DX推進を担うポジション。LINE公式応募後、担当者よりご案内します。",
-    "tags": ["AI活用", "DX推進", "自社開発"],
+    "type": "ポジション単位募集（中途／新卒）",
+    "department": "DXAI事業部",
+    "summary": "社内システム・自社プロダクトの開発、AI活用・DX推進を担うポジション。雇用形態は応募者の希望に合わせて個別に検討します。詳細は面談にてご案内します。",
+    "tags": ["AI活用", "DX推進", "自社開発", "個別相談"],
     "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=VxQDVD&liff_id=2007127169-4a6eZq1z"
   },
   {
-    "id": "call-center",
-    "title": "コールセンタースタッフ",
-    "type": "正社員 / アルバイト・パート",
-    "department": "コールセンター",
-    "summary": "光回線・法人営業のアウトバウンド業務。研修制度が充実しているため未経験歓迎です。LINE公式応募後、担当者よりご案内します。",
-    "tags": ["未経験歓迎", "研修あり", "シフト相談可"],
-    "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=5PKgQN&liff_id=2007127169-4a6eZq1z"
+    "id": "project-manager",
+    "title": "プロジェクトマネージャー",
+    "type": "ポジション単位募集（中途／新卒）",
+    "department": "DXAI事業部",
+    "summary": "DXAI事業部のプロジェクト推進を担うポジション。複数案件の進行管理とクライアント対応をリードします。詳細は面談にてご案内します。",
+    "tags": ["プロジェクト推進", "個別相談"],
+    "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=VxQDVD&liff_id=2007127169-4a6eZq1z"
+  },
+  {
+    "id": "sales-closer",
+    "title": "法人営業 商談クローザー",
+    "type": "ポジション単位募集（中途／新卒）",
+    "department": "営業",
+    "summary": "オンライン対面営業を中心とした法人営業ポジション。商談クロージングを担っていただきます。詳細は面談にてご案内します。",
+    "tags": ["オンライン営業", "法人営業", "個別相談"],
+    "url": "https://liff.line.me/2007127169-4a6eZq1z/landing?follow=%40375ocpik&lp=VxQDVD&liff_id=2007127169-4a6eZq1z"
   }
 ]

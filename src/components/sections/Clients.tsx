@@ -89,9 +89,9 @@ export default function Clients() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6 lg:gap-5">
           {industries.map((ind, i) => (
             <Reveal key={ind.labelEn} delay={i * 80}>
-              <div className="group relative flex flex-col items-center gap-4 rounded-2xl border border-gift-border bg-white px-4 py-8 text-center transition-all duration-500 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_8px_30px_rgba(37,211,102,0.08)]">
-                {/* Icon circle */}
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gift-bg text-gift-green-teal transition-colors duration-500 group-hover:bg-gift-green group-hover:text-white">
+              <div className="group relative flex flex-col items-center gap-4 rounded-2xl border border-gift-border bg-white px-4 py-8 text-center">
+                {/* Icon circle — subtle tint shift on parent hover (content-discovery, not click signal) */}
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gift-green/10 text-gift-green-teal transition-colors duration-300 group-hover:bg-gift-green/20">
                   {ind.icon}
                 </div>
 
@@ -104,9 +104,6 @@ export default function Clients() {
                     {ind.labelEn}
                   </p>
                 </div>
-
-                {/* Subtle green bottom accent on hover */}
-                <div className="absolute bottom-0 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-gift-green transition-all duration-500 group-hover:w-12" />
               </div>
             </Reveal>
           ))}

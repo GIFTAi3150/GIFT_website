@@ -50,7 +50,7 @@ export default function CaseCarousel({ cases }: { cases: CaseStudy[] }) {
       </button>
 
       {/* Card */}
-      <div className="overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-500 hover:border-gift-green/40">
+      <div className="overflow-hidden rounded-2xl border-2 border-gift-border bg-white">
         {/* Image */}
         {cs.image && (
           <div className="relative overflow-hidden" style={{ aspectRatio: '21/9' }}>
@@ -60,26 +60,18 @@ export default function CaseCarousel({ cases }: { cases: CaseStudy[] }) {
               alt={cs.title}
               className="h-full w-full object-cover brightness-[0.85] transition-all duration-700"
             />
-            {/* Overlay with number + title */}
+            {/* Overlay with title */}
             <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/20 to-transparent p-6 md:p-8">
-              <div className="flex items-center gap-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gift-green font-display text-[14px] font-bold text-white">
-                  {cs.num}
-                </span>
-                <h3 className="font-sans text-[18px] font-bold text-white md:text-[22px]">
-                  {cs.title}
-                </h3>
-              </div>
+              <h3 className="font-sans text-[18px] font-bold text-white md:text-[22px]">
+                {cs.title}
+              </h3>
             </div>
           </div>
         )}
 
         {/* Text-only header if no image */}
         {!cs.image && (
-          <div className="flex items-center gap-4 border-b border-gift-border bg-gift-bg-alt px-6 py-5 md:px-8">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gift-green font-display text-[14px] font-bold text-white">
-              {cs.num}
-            </span>
+          <div className="border-b border-gift-border bg-gift-bg-alt px-6 py-5 md:px-8">
             <h3 className="font-sans text-[18px] font-bold text-gift-ink md:text-[20px]">
               {cs.title}
             </h3>
@@ -105,7 +97,7 @@ export default function CaseCarousel({ cases }: { cases: CaseStudy[] }) {
                   <div className="h-1.5 w-1.5 rounded-full bg-gift-green" />
                   <h4 className="font-sans text-[15px] font-bold text-gift-ink">{pt.heading}</h4>
                 </div>
-                <p className="font-sans text-[14px] leading-relaxed text-gift-silver">
+                <p className="font-sans text-[15px] leading-relaxed text-gift-silver">
                   {pt.body}
                 </p>
               </div>
