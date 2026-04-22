@@ -195,7 +195,7 @@ export default function ProcessFlow() {
               <Reveal key={s.step} delay={i * 100} className="w-[85%] shrink-0 snap-center sm:w-[60%] md:w-[48%] lg:w-auto">
                 <div className="group flex h-full flex-col">
                   {/* Illustration frame */}
-                  <div className="relative mb-5 flex min-h-[160px] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gift-bg-alt to-gift-near-black p-5 transition-transform duration-500 group-hover:-translate-y-1">
+                  <div className="relative mb-5 flex min-h-[160px] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gift-bg-alt to-gift-near-black p-5">
                     <div className="w-full max-w-[200px]">
                       <Ui />
                     </div>
@@ -213,7 +213,7 @@ export default function ProcessFlow() {
                   <h3 className="mb-2 font-sans text-medium font-bold text-gift-ink">
                     {s.title}
                   </h3>
-                  <p className="flex-1 font-sans text-small font-light leading-relaxed text-gift-silver">
+                  <p className="flex-1 font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                     {s.body}
                   </p>
                 </div>

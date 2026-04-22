@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, Check } from 'lucide-react';
+import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
+import PixelRobot from '@/components/ui/PixelRobot';
 import company from '@/data/company.json';
 
 const inquiryTypes = [
@@ -82,7 +83,7 @@ export default function ContactPage() {
         </section>
 
         {/* Form + sidebar */}
-        <section className="py-s-80">
+        <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:gap-16">
               {/* Form */}
@@ -90,9 +91,7 @@ export default function ContactPage() {
                 <div className="rounded-2xl border border-gift-border bg-white p-6 md:p-10">
                   {submitted ? (
                     <div className="flex flex-col items-center py-12 text-center">
-                      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gift-green text-white">
-                        <Check className="h-8 w-8" strokeWidth={2.5} />
-                      </div>
+                      <PixelRobot pose="wave" className="mb-6 h-28 w-28 text-gift-green-teal" />
                       <h2 className="mb-3 font-sans text-large font-extrabold text-gift-ink">
                         送信が完了しました
                       </h2>

@@ -121,6 +121,7 @@ export interface JobPosition {
   summary: string;
   tags: string[];
   url: string;
+  details?: { label: string; value: string }[];
 }
 
 export async function getPublishedPositions(): Promise<JobPosition[]> {
@@ -177,10 +178,134 @@ export async function getPublishedPositions(): Promise<JobPosition[]> {
         ? props.URL.url || ''
         : '';
 
+    const readRichText = (key: string) =>
+      props[key]?.type === 'rich_text'
+        ? props[key].rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
+    const detailFields: { key: string; label: string }[] = [
+      { key: 'Location', label: '勤務地' },
+      { key: 'Wage', label: '時給' },
+      { key: 'Duties', label: '業務内容' },
+      { key: 'Support', label: 'サポート体制' },
+    ];
+
+    const details = detailFields
+      .map(({ key, label }) => ({ label, value: readRichText(key) }))
+      .filter((d) => d.value);
+
     if (title && slug) {
-      positions.push({ id: page.id, title, slug, type, department, summary, tags, url });
+      positions.push({
+        id: page.id,
+        title,
+        slug,
+        type,
+        department,
+        summary,
+        tags,
+        url,
+        ...(details.length > 0 ? { details } : {}),
+      });
     }
   }
 
   return positions;
+}
+
+// --- Members ---
+
+const membersDbId = process.env.NOTION_MEMBERS_DB_ID!;
+
+export interface Member {
+  id: string; // url slug — derived from NameEn (last word lowercased), fallback to Notion page id
+  notionId: string;
+  name: string;
+  nameEn: string;
+  role: string;
+  department: string;
+  image: string;
+  bio: string;
+  order: number;
+}
+
+const slugify = (nameEn: string, fallback: string): string => {
+  if (!nameEn) return fallback;
+  const last = nameEn.trim().split(/\s+/).pop() || '';
+  return last.toLowerCase() || fallback;
+};
+
+export async function getPublishedMembers(): Promise<Member[]> {
+  if (!membersDbId) return [];
+
+  const response = await notion.databases.query({
+    database_id: membersDbId,
+    filter: {
+      property: 'Published',
+      checkbox: { equals: true },
+    },
+    sorts: [{ property: 'Order', direction: 'ascending' }],
+  });
+
+  const members: Member[] = [];
+
+  for (const page of response.results) {
+    if (!('properties' in page)) continue;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props = page.properties as Record<string, any>;
+
+    const name =
+      props.Name?.type === 'title'
+        ? props.Name.title.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
+    const nameEn =
+      props.NameEn?.type === 'rich_text'
+        ? props.NameEn.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
+    const role =
+      props.Role?.type === 'rich_text'
+        ? props.Role.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
+    const department =
+      props.Department?.type === 'select'
+        ? props.Department.select?.name || ''
+        : '';
+
+    const bio =
+      props.Bio?.type === 'rich_text'
+        ? props.Bio.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
+    const order =
+      props.Order?.type === 'number'
+        ? props.Order.number || 0
+        : 0;
+
+    // Image — Files & Media (Notion-hosted or external) — fallback to male placeholder
+    // (all 8 confirmed members are male; swap to a different default if a female member is added)
+    let image = '/img/placeholder-gemini2.png';
+    if (props.Image?.type === 'files' && props.Image.files.length > 0) {
+      const file = props.Image.files[0];
+      const url = file.type === 'external' ? file.external?.url : file.file?.url;
+      if (url) image = url;
+    } else if (props.Image?.type === 'url' && props.Image.url) {
+      image = props.Image.url;
+    }
+
+    const id = slugify(nameEn, page.id);
+
+    if (name) {
+      members.push({ id, notionId: page.id, name, nameEn, role, department, image, bio, order });
+    }
+  }
+
+  return members;
+}
+
+export async function getMemberById(id: string): Promise<Member | null> {
+  const members = await getPublishedMembers();
+  return members.find((m) => m.id === id) || null;
 }

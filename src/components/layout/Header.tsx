@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 
@@ -21,13 +22,33 @@ const serviceItems = [
 ];
 
 export default function Header() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [serviceOpen, setServiceOpen] = useState(false);
   const [mobileServiceOpen, setMobileServiceOpen] = useState(false);
+  const [clickedHref, setClickedHref] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Active link detection — root is exact match, others match by prefix
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+  const isServiceActive = pathname.startsWith('/services');
+
+  // Flash a brief green highlight on the clicked link (280ms) — works reliably on both desktop and mobile
+  const flashClick = (href: string) => {
+    setClickedHref(href);
+    setTimeout(() => setClickedHref(null), 280);
+  };
+  const justClicked = (href: string) => clickedHref === href;
+
+  // Mobile: flash the link green BEFORE closing the menu, otherwise the menu hides the feedback instantly
+  const flashThenCloseMenu = (href: string) => {
+    flashClick(href);
+    setTimeout(() => setOpen(false), 280);
+  };
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -109,13 +130,20 @@ export default function Header() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <button
-                    className="group flex items-center gap-1.5 whitespace-nowrap"
+                    className="group relative flex items-center gap-1.5 whitespace-nowrap"
                     aria-expanded={serviceOpen}
                     aria-haspopup="true"
+                    onClick={() => flashClick('/services')}
                   >
                     <span className="relative block h-5 overflow-hidden leading-5">
                       <span className="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-5">
-                        <span className="block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink/85">
+                        <span
+                          className={`block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
+                            justClicked('/services')
+                              ? 'text-gift-green'
+                              : 'text-gift-ink/85 group-hover:text-gift-green'
+                          }`}
+                        >
                           SERVICE
                         </span>
                         <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
@@ -167,16 +195,26 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="nav-reveal group relative block h-5 overflow-hidden whitespace-nowrap leading-5"
+                onClick={() => flashClick(item.href)}
+                className="nav-reveal group relative whitespace-nowrap leading-5"
                 style={{ ['--reveal-delay' as string]: `${150 + actualIndex * 80}ms` }}
                 aria-label={item.ja}
+                aria-current={isActive(item.href) ? 'page' : undefined}
               >
-                <span className="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-5">
-                  <span className="block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink/85">
-                    {item.en}
-                  </span>
-                  <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
-                    {item.ja}
+                <span className="relative block h-5 overflow-hidden">
+                  <span className="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-5">
+                    <span
+                      className={`block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
+                        justClicked(item.href)
+                          ? 'text-gift-green'
+                          : 'text-gift-ink/85 group-hover:text-gift-green'
+                      }`}
+                    >
+                      {item.en}
+                    </span>
+                    <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
+                      {item.ja}
+                    </span>
                   </span>
                 </span>
               </Link>
@@ -211,10 +249,15 @@ export default function Header() {
         {/* ABOUT */}
         <Link
           href="/company"
-          onClick={() => setOpen(false)}
-          className="flex items-center gap-4 leading-none"
+          onClick={() => flashThenCloseMenu('/company')}
+          className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked('/company') ? 'opacity-60' : ''}`}
+          aria-current={isActive('/company') ? 'page' : undefined}
         >
-          <span className="font-display text-[28px] font-bold uppercase tracking-[0.1em] text-gift-ink">
+          <span
+            className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+              justClicked('/company') ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+            }`}
+          >
             ABOUT
           </span>
           <span aria-hidden className="h-6 w-px bg-gift-border" />
@@ -226,10 +269,14 @@ export default function Header() {
         {/* SERVICE with expandable sub-items */}
         <div>
           <button
-            onClick={() => setMobileServiceOpen((v) => !v)}
-            className="flex items-center gap-4 leading-none"
+            onClick={() => { flashClick('/services'); setMobileServiceOpen((v) => !v); }}
+            className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked('/services') ? 'opacity-60' : ''}`}
           >
-            <span className="font-display text-[28px] font-bold uppercase tracking-[0.1em] text-gift-ink">
+            <span
+              className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+                justClicked('/services') ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+              }`}
+            >
               SERVICE
             </span>
             <span aria-hidden className="h-6 w-px bg-gift-border" />
@@ -251,13 +298,18 @@ export default function Header() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  onClick={() => setOpen(false)}
-                  className="flex flex-col gap-0.5"
+                  onClick={() => flashThenCloseMenu(s.href)}
+                  className={`flex flex-col gap-0.5 transition-opacity duration-200 ${justClicked(s.href) ? 'opacity-60' : ''}`}
+                  aria-current={isActive(s.href) ? 'page' : undefined}
                 >
                   <span className="font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
                     {s.labelEn}
                   </span>
-                  <span className="font-sans text-[16px] font-medium text-gift-ink">
+                  <span
+                    className={`font-sans text-[16px] font-medium transition-colors duration-200 ${
+                      justClicked(s.href) ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+                    }`}
+                  >
                     {s.label}
                   </span>
                 </Link>
@@ -271,10 +323,15 @@ export default function Header() {
           <Link
             key={item.href}
             href={item.href}
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-4 leading-none"
+            onClick={() => flashThenCloseMenu(item.href)}
+            className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked(item.href) ? 'opacity-60' : ''}`}
+            aria-current={isActive(item.href) ? 'page' : undefined}
           >
-            <span className="font-display text-[28px] font-bold uppercase tracking-[0.1em] text-gift-ink">
+            <span
+              className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+                justClicked(item.href) ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+              }`}
+            >
               {item.en}
             </span>
             <span aria-hidden className="h-6 w-px bg-gift-border" />

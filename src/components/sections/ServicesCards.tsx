@@ -53,7 +53,7 @@ export default function ServicesCards() {
                     )}
                     <p className="font-sans text-small font-medium text-gift-green-mid">{s.title}</p>
                   </div>
-                  <p className="mt-1 flex-1 font-sans text-small font-light leading-relaxed text-gift-silver">
+                  <p className="mt-1 flex-1 font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                     {s.body.length > 90 ? s.body.slice(0, 90) + '…' : s.body}
                   </p>
                 </div>

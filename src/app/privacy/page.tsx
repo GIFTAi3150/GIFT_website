@@ -28,7 +28,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Body */}
-        <section className="py-s-80">
+        <section className="border-t border-gift-border bg-white py-s-80">
           <div className="mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
             <article className="privacy-body">
               <h2>■ 個人情報の取扱いについて</h2>

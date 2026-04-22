@@ -9,7 +9,9 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "news:draft": "node scripts/weekly-news.mjs"
+    "news:draft": "node scripts/weekly-news.mjs",
+    "seed:members": "node scripts/seed-members.mjs",
+    "seed:positions": "node scripts/seed-positions.mjs"
   },
   "dependencies": {
     "@notionhq/client": "^2.3.0",

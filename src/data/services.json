@@ -5,7 +5,7 @@
     "title": "コールセンター事業",
     "imageLeft": true,
     "href": "/services/callcenter",
-    "image": "/img/5.jpg",
+    "image": "/img/services/call-center.webp",
     "body": "アウトバウンド特化のコールセンターを自社運営。光回線（通信キャリア2次代理店）と法人営業（SaaS会社1次代理店）を扱い、通信分野だけで総従業員約300名。教育制度を中枢に据え、品質と組織の拡大を両立させています。",
     "extra": "自社運営 / アウトバウンド特化 / 約300名体制"
   },
@@ -15,7 +15,7 @@
     "title": "DXコンサル事業",
     "imageLeft": false,
     "href": "/services/dx-consulting",
-    "image": "/img/7.jpg",
+    "image": "/img/services/dx-consulting.webp",
     "body": "LINE公式・Lステップ構築/運用、RPA・業務自動化、AI導入・生成AI活用支援、SaaS導入・CRM構築支援までワンストップで提供。AIを業務に深く組み込み、フル活用している点が独自の強みです。",
     "extra": "Lステップ公式認定パートナー"
   },
@@ -25,7 +25,7 @@
     "title": "財務コンサル事業",
     "imageLeft": true,
     "href": "/services/finance-consulting",
-    "image": "/img/8.jpg",
+    "image": "/img/services/financial-consulting.webp",
     "body": "融資支援・資金調達サポートから、財務戦略・KPI設計まで、経営者に寄り添う伴走型の財務コンサルティング。外部専門家とのアライアンス体制で、成長期の中小企業を資金面から支えます。",
     "extra": "融資実行実績多数 / アライアンス型"
   }

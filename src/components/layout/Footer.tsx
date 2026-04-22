@@ -17,10 +17,8 @@ const footerServices = [
   { href: '/services/finance-consulting', label: '財務コンサル事業' },
 ];
 
-// TODO: add real hrefs for X (Twitter) and LINE (採用用) when shared
 const socials = [
   { name: 'Instagram', href: 'https://www.instagram.com/gift_with_you_', icon: 'instagram' },
-  { name: 'X', href: '#', icon: 'x' },
   { name: 'TikTok', href: 'https://www.tiktok.com/@gift_with_you_', icon: 'tiktok' },
 ];
 
@@ -33,12 +31,7 @@ function Icon({ name }: { name: string }) {
           <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.3.4.6.2 1 .5 1.5 1s.8.9 1 1.5c.1.4.3 1 .4 2.3.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.3-.2.6-.5 1-1 1.5s-.9.8-1.5 1c-.4.1-1 .3-2.3.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.3-.4-.6-.2-1-.5-1.5-1s-.8-.9-1-1.5c-.1-.4-.3-1-.4-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.3.2-.6.5-1 1-1.5s.9-.8 1.5-1c.4-.1 1-.3 2.3-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.5-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.7a2.3 2.3 0 110 4.6 2.3 2.3 0 010-4.6z" />
         </svg>
       );
-    case 'x':
-      return (
-        <svg {...common}>
-          <path d="M18.244 2H21l-6.52 7.45L22 22h-6.84l-4.76-6.22L4.8 22H2l7-8L1.5 2h7l4.3 5.68L18.244 2zm-2.4 18h1.9L7.3 4h-2L15.843 20z" />
-        </svg>
-      );
+
     case 'youtube':
       return (
         <svg {...common}>

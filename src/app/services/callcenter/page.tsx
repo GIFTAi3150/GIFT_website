@@ -28,7 +28,7 @@ export default function CallCenterPage() {
 
         {/* Highlights */}
         <Reveal>
-          <section className="py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 HIGHLIGHTS
@@ -56,7 +56,7 @@ export default function CallCenterPage() {
                 ].map((h) => (
                   <div key={h.title} className="gift-card !p-8">
                     <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">{h.title}</h3>
-                    <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                    <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                       {h.body}
                     </p>
                   </div>
@@ -68,7 +68,7 @@ export default function CallCenterPage() {
 
         {/* Scale */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
@@ -102,7 +102,7 @@ export default function CallCenterPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
                 className="mb-8 font-sans font-extrabold text-gift-ink"

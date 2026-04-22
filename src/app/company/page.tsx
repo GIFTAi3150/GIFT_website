@@ -4,6 +4,7 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
 import PhotoCarousel from '@/components/sections/PhotoCarousel';
+import HistoryCarousel from '@/components/sections/HistoryCarousel';
 
 const infoRows = [
   { label: '会社名', value: `${company.name} / ${company.nameEn}` },
@@ -15,11 +16,20 @@ const infoRows = [
   { label: 'インボイス番号', value: company.invoiceNumber },
 ];
 
-const history = [
-  { year: '2018', event: '株式会社GIFTを北海道札幌市にて設立。コールセンター事業を開始。' },
-  { year: '2020', event: 'DXコンサル事業を開始（LINE公式・Lステップ構築/運用など）。' },
-  { year: '2024', event: '財務コンサル事業を開始（予定・確認中）。' },
-  { year: '2026', event: '新コーポレートサイトをローンチ。' },
+type HistoryItem = {
+  year: string;
+  month?: string;
+  isPresent?: boolean;
+  event: string;
+};
+
+const history: HistoryItem[] = [
+  { year: '2018', month: '8月', event: '株式会社GIFTを北海道札幌市にて設立。コールセンター事業を開始。' },
+  { year: '2022', event: 'Lステップ代理店事業を開始。' },
+  { year: '2024', event: 'Lステップ代理店の認定を取得。' },
+  { year: '2025', event: 'コールセンター従業員が100名を突破。' },
+  { year: '2026', event: 'コールセンター従業員が300名を突破。' },
+  { year: '2026', isPresent: true, event: '財務パートナーズと業務提携を開始。法人向け商材を立ち上げつつ、次なる事業展開としてAI領域の準備を進行中。' },
 ];
 
 // Pixel icons for the 3 VALUES cards
@@ -42,47 +52,92 @@ function SupportIcon({ className = '' }: { className?: string }) {
   );
 }
 
-function HeartIcon({ className = '' }: { className?: string }) {
+function SproutIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
-      {/* Top of lobes — two small bumps */}
-      <rect x="6" y="6" width="4" height="1" />
-      <rect x="14" y="6" width="4" height="1" />
-      {/* Lobes expanding */}
-      <rect x="5" y="7" width="6" height="2" />
-      <rect x="13" y="7" width="6" height="2" />
-      {/* Lobes merging — widest part */}
-      <rect x="4" y="9" width="16" height="2" />
-      {/* Tapering toward point */}
-      <rect x="5" y="11" width="14" height="1" />
-      <rect x="6" y="12" width="12" height="1" />
-      <rect x="7" y="13" width="10" height="1" />
-      <rect x="8" y="14" width="8" height="1" />
-      <rect x="9" y="15" width="6" height="1" />
-      <rect x="10" y="16" width="4" height="1" />
-      <rect x="11" y="17" width="2" height="1" />
+      {/* Left leaf */}
+      <rect x="3" y="6" width="2" height="2" />
+      <rect x="2" y="8" width="5" height="2" />
+      <rect x="3" y="10" width="5" height="2" />
+      <rect x="5" y="12" width="4" height="1" />
+      {/* Right leaf */}
+      <rect x="19" y="6" width="2" height="2" />
+      <rect x="17" y="8" width="5" height="2" />
+      <rect x="16" y="10" width="5" height="2" />
+      <rect x="15" y="12" width="4" height="1" />
+      {/* Stem */}
+      <rect x="11" y="8" width="2" height="11" />
+      {/* Soil base */}
+      <rect x="5" y="19" width="14" height="1" />
+      <rect x="6" y="20" width="12" height="2" />
     </svg>
   );
 }
 
-function ArrowForwardIcon({ className = '' }: { className?: string }) {
+function NoIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
-      {/* Horizontal shaft */}
-      <rect x="3" y="10" width="14" height="4" />
-      {/* Arrowhead pixel steps */}
-      <rect x="15" y="8" width="2" height="8" />
-      <rect x="17" y="6" width="2" height="12" />
-      <rect x="19" y="9" width="2" height="6" />
-      <rect x="17" y="9" width="4" height="6" />
+      {/* Top-left to bottom-right stroke */}
+      <rect x="4" y="4" width="2" height="2" />
+      <rect x="6" y="6" width="2" height="2" />
+      <rect x="8" y="8" width="2" height="2" />
+      <rect x="10" y="10" width="4" height="4" />
+      <rect x="14" y="14" width="2" height="2" />
+      <rect x="16" y="16" width="2" height="2" />
+      <rect x="18" y="18" width="2" height="2" />
+      {/* Top-right to bottom-left stroke */}
+      <rect x="18" y="4" width="2" height="2" />
+      <rect x="16" y="6" width="2" height="2" />
+      <rect x="14" y="8" width="2" height="2" />
+      <rect x="8" y="14" width="2" height="2" />
+      <rect x="6" y="16" width="2" height="2" />
+      <rect x="4" y="18" width="2" height="2" />
+    </svg>
+  );
+}
+
+function FlameIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
+      {/* Top tip */}
+      <rect x="11" y="2" width="2" height="2" />
+      {/* Tapering up */}
+      <rect x="10" y="4" width="4" height="2" />
+      <rect x="9" y="6" width="6" height="2" />
+      {/* Body widest */}
+      <rect x="7" y="8" width="10" height="2" />
+      <rect x="6" y="10" width="12" height="2" />
+      <rect x="5" y="12" width="14" height="2" />
+      <rect x="5" y="14" width="14" height="2" />
+      {/* Base curving in */}
+      <rect x="6" y="16" width="12" height="2" />
+      <rect x="7" y="18" width="10" height="2" />
+      <rect x="9" y="20" width="6" height="1" />
     </svg>
   );
 }
 
 const valueCards = [
-  { title: '挑戦を、支え合う。', body: 'チームで挑む姿勢を大切に。困ったときはお互いに手を差し伸べます。', Icon: SupportIcon },
-  { title: '一人ひとりを、尊重する。', body: '背景や役割に関係なく、それぞれの価値観を受け止めます。', Icon: HeartIcon },
-  { title: '誠実に、前に進み続ける。', body: 'ごまかさず、言い訳せず。一歩ずつ、着実に成長していきます。', Icon: ArrowForwardIcon },
+  {
+    title: '素直に吸収する。',
+    body: '新しいツールも、他者の意見も、まずは受け止める。学び続ける姿勢が、私たちの成長を加速させます。',
+    Icon: SproutIcon,
+  },
+  {
+    title: '寄り添って動かす。',
+    body: 'お客様の隣に立ち、課題を共に背負う。理解した上で、本当に意味のある一歩を一緒に進めます。',
+    Icon: SupportIcon,
+  },
+  {
+    title: '熱を伝染させる。',
+    body: '一人の本気が、チームを、お客様を、社会を動かす。私たちは熱量で、人と未来を巻き込みます。',
+    Icon: FlameIcon,
+  },
+];
+
+const antiValues = [
+  '古いやり方にしがみつく',
+  '受け身で、変化を恐れる',
 ];
 
 export default function CompanyPage() {
@@ -115,7 +170,7 @@ export default function CompanyPage() {
 
         {/* CEO Message */}
         <Reveal>
-          <section className="relative overflow-hidden py-s-80">
+          <section className="relative overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
             {/* Giant faded logo as background watermark */}
             <div
               aria-hidden
@@ -146,16 +201,29 @@ export default function CompanyPage() {
             </div>
 
             <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+              <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
                 MISSION
               </p>
-              <p
-                className="mb-10 font-display font-bold text-gift-ink"
-                style={{ fontSize: 'clamp(36px, 6vw, 72px)', lineHeight: '1.05' }}
+
+              {/* Japanese mission — primary headline */}
+              <h2
+                className="mb-5 font-sans font-extrabold text-gift-ink"
+                style={{ fontSize: 'clamp(28px, 4.4vw, 48px)', lineHeight: '1.5' }}
               >
-                Gift an
-                <br />
-                <span className="text-gift-green">opportunity.</span>
+                関わるすべての人に、
+                <br className="hidden sm:inline" />
+                人生が変わる<span className="text-gift-green">きっかけ</span>を贈る。
+              </h2>
+
+              {/* English brand line — subtitle, supporting */}
+              <p
+                className="mb-12 font-display font-light text-gift-silver"
+                style={{ fontSize: 'clamp(17px, 1.8vw, 22px)', lineHeight: '1.2', letterSpacing: '0.02em' }}
+              >
+                Gift an{' '}
+                <span className="font-medium text-[#7EE0B5]">
+                  opportunity.
+                </span>
               </p>
 
               <p
@@ -194,7 +262,7 @@ export default function CompanyPage() {
 
         {/* Vision */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
@@ -210,11 +278,12 @@ export default function CompanyPage() {
                 </div>
                 <div className="lg:col-span-3">
                   <p
-                    className="font-sans font-light text-gift-silver"
-                    style={{ fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '2' }}
+                    className="font-sans font-bold text-gift-ink"
+                    style={{ fontSize: 'clamp(22px, 2.6vw, 32px)', lineHeight: '1.6' }}
                   >
-                    全ての人と社会へ夢やキッカケを与えられる企業として、
-                    地域から世界へ、新しい出会いと挑戦の機会を広げていく。
+                    AIが当たり前の時代にこそ、
+                    <br className="hidden sm:inline" />
+                    <span className="text-[#7EE0B5]">人の心を動かす</span>会社であり続ける。
                   </p>
                 </div>
               </div>
@@ -224,7 +293,7 @@ export default function CompanyPage() {
 
         {/* Values */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
@@ -245,20 +314,54 @@ export default function CompanyPage() {
                       return (
                         <div
                           key={v.title}
-                          className="group flex flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gift-green/40 hover:shadow-[0_10px_30px_rgba(37,211,102,0.08)]"
+                          className="group flex flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6"
                         >
-                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green group-hover:text-white">
+                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green/20">
                             <Icon className="h-7 w-7" />
                           </span>
                           <h3 className="font-sans text-medium font-bold text-gift-ink">
                             {v.title}
                           </h3>
-                          <p className="font-sans text-small font-light leading-relaxed text-gift-silver">
+                          <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
                             {v.body}
                           </p>
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* Anti-values — clean grey manifesto strip, intentional visual break */}
+                  <div className="relative mt-10 overflow-hidden rounded-2xl bg-[#6B6B6B] p-7 md:p-9">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex items-center gap-3">
+                        <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#FF4757]" />
+                        <p className="font-display text-small font-bold uppercase tracking-widest text-[#FF4757]">
+                          We&apos;ll Never
+                        </p>
+                      </div>
+                      <h3
+                        className="mb-7 font-sans font-extrabold text-white"
+                        style={{ fontSize: 'clamp(20px, 2.4vw, 28px)', lineHeight: '1.4' }}
+                      >
+                        私たちが、選ばない姿勢。
+                      </h3>
+
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {antiValues.map((item) => (
+                          <div
+                            key={item}
+                            className="flex items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5"
+                          >
+                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FF4757] text-white shadow-[0_2px_8px_rgba(255,71,87,0.35)]">
+                              <NoIcon className="h-6 w-6" />
+                            </span>
+                            <p className="pt-1 font-sans text-[15px] font-light leading-relaxed text-white/90">
+                              {item}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -273,7 +376,7 @@ export default function CompanyPage() {
 
         {/* Company Info Table */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-12">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
@@ -308,7 +411,7 @@ export default function CompanyPage() {
 
         {/* History */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-12">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
@@ -322,35 +425,14 @@ export default function CompanyPage() {
                 </h2>
               </div>
 
-              <ol className="relative mx-auto max-w-3xl border-l-2 border-gift-green/30 pl-8 sm:pl-12">
-                {history.map((item, i) => (
-                  <li key={i} className="relative mb-10 last:mb-0">
-                    {/* Dot on the timeline */}
-                    <span
-                      aria-hidden
-                      className="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gift-green shadow-[0_0_0_4px_rgba(37,211,102,0.15)] sm:-left-[57px]"
-                    >
-                      <span className="h-2 w-2 rounded-full bg-white" />
-                    </span>
-                    {/* Year + event card */}
-                    <div className="rounded-xl border border-gift-border bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-gift-green/40 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
-                      <p className="mb-2 font-display text-[22px] font-extrabold leading-none text-gift-green">
-                        {item.year}
-                      </p>
-                      <p className="font-sans font-light leading-relaxed text-gift-silver">
-                        {item.event}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              <HistoryCarousel items={history} />
             </div>
           </section>
         </Reveal>
 
         {/* Access */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-10">
                 <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
@@ -404,7 +486,7 @@ export default function CompanyPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-gift-border py-s-80">
+          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
                 className="mb-8 font-sans font-extrabold text-gift-ink"
