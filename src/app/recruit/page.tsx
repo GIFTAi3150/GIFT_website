@@ -38,10 +38,10 @@ const values = [
 ];
 
 const path = [
-  { label: 'STEP 1', title: 'コールオペ', body: '現場で顧客接点の基礎を学ぶ。' },
-  { label: 'STEP 2', title: 'SV / リーダー', body: 'チーム運営と教育に踏み込む。' },
-  { label: 'STEP 3', title: 'DXコンサル', body: '事業の仕組みを設計する側へ。' },
-  { label: 'STEP 4', title: '財務コンサル', body: '経営と財務の視座を獲得する。' },
+  { label: 'PATH 1', title: 'コールオペ', body: '現場で顧客接点の基礎を学ぶ。' },
+  { label: 'PATH 2', title: 'SV / リーダー', body: 'チーム運営と教育に踏み込む。' },
+  { label: 'PATH 3', title: 'DXコンサル', body: '事業の仕組みを設計する側へ。' },
+  { label: 'PATH 4', title: '財務コンサル', body: '経営と財務の視座を獲得する。' },
 ];
 
 const flow: { step: string; title: string; body: string; img?: string }[] = [
@@ -182,11 +182,21 @@ export default async function RecruitPage() {
                 事業をまたぐキャリア
               </h2>
               <p
-                className="mb-14 max-w-2xl font-sans font-light text-gift-silver"
+                className="mb-10 max-w-2xl font-sans font-light text-gift-silver"
                 style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
               >
                 GIFTの特徴は、コール → SV → DX → 財務 と事業を越えて成長できること。一つの現場で終わらないキャリアを歩めます。
               </p>
+
+              {/* Career path hero image */}
+              <div className="mb-14 overflow-hidden rounded-2xl border border-gift-border bg-white shadow-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/recruit/career-path.jpg"
+                  alt="GIFTのキャリアパス"
+                  className="block h-auto w-full object-cover"
+                />
+              </div>
 
               <div className="relative grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-4">
                 {path.map((p, i) => (

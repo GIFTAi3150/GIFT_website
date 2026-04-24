@@ -1054,3 +1054,125 @@ h6 {
   animation: nav-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--reveal-delay, 0ms);
 }
+
+/* Company page hero — "constellation of values" dark mode.
+   Green dots softly pulse; labels stay put so they read as floating terms. */
+.constellation-node {
+  transform-origin: center;
+  animation: constellation-pulse 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes constellation-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(37, 211, 102, 0.55));
+    opacity: 0.95;
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(37, 211, 102, 0.9));
+    opacity: 1;
+  }
+}
+
+/* Electric pulse wires — each line has a tiny bright dash sliding along it. The gap
+   (200 units) is much longer than any line (<52 units), so at most one pulse is visible
+   per line at any time. Combined with the base steady wires behind, this reads as
+   "current traveling through the wire" — not a flying dot. */
+.pulse-wave {
+  stroke-dasharray: 5 200;
+  stroke-dashoffset: 0;
+  animation: pulse-travel 2.4s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(37, 211, 102, 0.95)) drop-shadow(0 0 6px rgba(37, 211, 102, 0.5));
+}
+@keyframes pulse-travel {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .constellation-node,
+  .pulse-wave { animation: none; }
+}
+
+/* Call-center hero — "voice waveform" flowing across the dark bg.
+   Multiple sine layers move at different speeds for organic overlap.
+   activity-pulse is a quick green flash, like a live call signal. */
+.activity-pulse {
+  transform-origin: center;
+  animation: activity-pulse 4s ease-in-out infinite;
+}
+@keyframes activity-pulse {
+  0%, 88%, 100% {
+    opacity: 0.15;
+    filter: drop-shadow(0 0 3px rgba(37, 211, 102, 0.4));
+  }
+  6%, 12% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(37, 211, 102, 1));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-pulse { animation: none; }
+}
+
+/* Finance hero — "rising curve": line chart draws itself once, then data points fade in + pulse */
+.finance-curve {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: finance-curve-draw 2.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+  filter: drop-shadow(0 0 6px rgba(37, 211, 102, 0.4));
+}
+@keyframes finance-curve-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.finance-fill {
+  opacity: 0;
+  animation: finance-fill-appear 1.6s cubic-bezier(0.22, 1, 0.36, 1) 2.4s forwards;
+}
+@keyframes finance-fill-appear {
+  to { opacity: 1; }
+}
+
+.finance-point {
+  opacity: 0;
+  transform-origin: center;
+  animation:
+    finance-point-appear 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    constellation-pulse 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes finance-point-appear {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finance-curve { stroke-dashoffset: 0; animation: none; }
+  .finance-fill { opacity: 1; animation: none; }
+  .finance-point { opacity: 1; animation: none; }
+}
+
+/* DX page hero — "command center" dark mode.
+   Grid is a double-linear-gradient masked to fade toward edges.
+   Nodes are small green dots that pulse outward like sonar pings. */
+.dx-hero-grid {
+  background-image:
+    linear-gradient(rgba(37, 211, 102, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 211, 102, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+          mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+.dx-node {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #25D366;
+  animation: dx-node-pulse 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes dx-node-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0.55); opacity: 1;   }
+  70%  { box-shadow: 0 0 0 22px rgba(37, 211, 102, 0);   opacity: 0.85; }
+  100% { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0);   opacity: 0.4;  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dx-node { animation: none; }
+}

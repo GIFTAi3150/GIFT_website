@@ -6,6 +6,7 @@ import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
 import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import HistoryCarousel from '@/components/sections/HistoryCarousel';
+import FadeUpText from '@/components/ui/FadeUpText';
 
 export const metadata: Metadata = {
   title: '会社概要',
@@ -153,26 +154,151 @@ export default function CompanyPage() {
     <>
       <Header />
       <main className="bg-gift-near-black">
-        {/* Page header — with drifting blobs for atmosphere */}
-        <section className="relative overflow-hidden border-b border-gift-border py-s-80">
+        {/* Hero — "Constellation of values": deep teal gradient (between green and blue), distinct from the
+             three other gift-ink heroes. Green nodes + electric lines feel right against a teal ocean. */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#0F3845] via-[#0C2D36] to-[#0A242D]">
+          {/* Background layers */}
           <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="hero-blob hero-blob-1" />
-            <div className="hero-blob hero-blob-2" />
-            <div className="hero-blob hero-blob-3" />
+            {/* Corner glows */}
+            <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-gift-green/15 blur-[120px]" />
+            <div className="absolute -bottom-40 -right-40 h-[520px] w-[520px] rounded-full bg-gift-green-teal/20 blur-[120px]" />
+
+            {/* Mobile-only mini constellation — small SVG in bottom-right corner (below the CTA so it
+                doesn't fight the text). Scaled large enough to read as a proper constellation with
+                visible pulse-wave electricity on the lines. */}
+            <svg
+              className="pointer-events-none absolute bottom-6 right-3 h-40 w-40 md:hidden"
+              viewBox="0 0 60 60"
+              preserveAspectRatio="xMidYMid meet"
+              aria-hidden
+            >
+              {/* Base wires */}
+              <g stroke="rgba(37,211,102,0.35)" strokeWidth="0.3" fill="none">
+                <line x1="10" y1="12" x2="45" y2="8" />
+                <line x1="45" y1="8" x2="52" y2="30" />
+                <line x1="10" y1="12" x2="28" y2="35" />
+                <line x1="52" y1="30" x2="28" y2="35" />
+                <line x1="28" y1="35" x2="20" y2="52" />
+                <line x1="28" y1="35" x2="48" y2="50" />
+              </g>
+              {/* Pulse overlays */}
+              <g stroke="#25D366" strokeWidth="0.5" fill="none" strokeLinecap="round">
+                <line x1="10" y1="12" x2="45" y2="8" className="pulse-wave" />
+                <line x1="45" y1="8" x2="52" y2="30" className="pulse-wave" style={{ animationDelay: '-0.4s' }} />
+                <line x1="10" y1="12" x2="28" y2="35" className="pulse-wave" style={{ animationDelay: '-0.8s' }} />
+                <line x1="52" y1="30" x2="28" y2="35" className="pulse-wave" style={{ animationDelay: '-1.2s' }} />
+                <line x1="28" y1="35" x2="20" y2="52" className="pulse-wave" style={{ animationDelay: '-0.6s' }} />
+                <line x1="28" y1="35" x2="48" y2="50" className="pulse-wave" style={{ animationDelay: '-1.0s' }} />
+              </g>
+              {/* Nodes */}
+              <circle cx="10" cy="12" r="1.6" fill="#25D366" className="constellation-node" />
+              <circle cx="45" cy="8" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '0.5s' }} />
+              <circle cx="52" cy="30" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.0s' }} />
+              <circle cx="28" cy="35" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.5s' }} />
+              <circle cx="20" cy="52" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.0s' }} />
+              <circle cx="48" cy="50" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.5s' }} />
+            </svg>
+
+            {/* Constellation SVG — value words as nodes. Desktop-only because on mobile the nodes would
+                collide with the full-width H1 and subtitle. Mobile keeps the hero clean via dark bg + glow
+                blobs; desktop gets the full constellation in the right column, with text constrained to
+                the left column so they never overlap. */}
+            <svg
+              className="absolute inset-0 hidden h-full w-full md:block"
+              viewBox="0 0 160 90"
+              preserveAspectRatio="xMaxYMid slice"
+              aria-hidden
+            >
+              {/* Solid connector lines — the steady wires between the kanji nodes */}
+              <g stroke="rgba(37,211,102,0.3)" strokeWidth="0.18" fill="none">
+                <line x1="112" y1="16" x2="144" y2="10" />
+                <line x1="112" y1="16" x2="128" y2="46" />
+                <line x1="144" y1="10" x2="128" y2="46" />
+                <line x1="128" y1="46" x2="146" y2="72" />
+                <line x1="128" y1="46" x2="90" y2="80" />
+                <line x1="146" y1="72" x2="118" y2="80" />
+                <line x1="90" y1="80" x2="118" y2="80" />
+              </g>
+
+              {/* Pulse overlay — same 7 lines, but with a small bright dash that slides along each wire.
+                  The base lines above stay steady; these overlays carry the "electric current" effect. */}
+              <g stroke="#25D366" strokeWidth="0.35" fill="none" strokeLinecap="round">
+                <line x1="112" y1="16" x2="144" y2="10" className="pulse-wave" />
+                <line x1="112" y1="16" x2="128" y2="46" className="pulse-wave" style={{ animationDelay: '-0.4s' }} />
+                <line x1="144" y1="10" x2="128" y2="46" className="pulse-wave" style={{ animationDelay: '-0.8s' }} />
+                <line x1="128" y1="46" x2="146" y2="72" className="pulse-wave" style={{ animationDelay: '-1.2s' }} />
+                <line x1="128" y1="46" x2="90" y2="80" className="pulse-wave" style={{ animationDelay: '-1.6s' }} />
+                <line x1="146" y1="72" x2="118" y2="80" className="pulse-wave" style={{ animationDelay: '-0.6s' }} />
+                <line x1="90" y1="80" x2="118" y2="80" className="pulse-wave" style={{ animationDelay: '-1.0s' }} />
+              </g>
+
+              {/* Nodes — stationary pulsing dots with their kanji labels. No drift — the electricity on the lines carries the motion. */}
+              <g>
+                <circle cx="112" cy="16" r="1" fill="#25D366" className="constellation-node" />
+                <text x="114.5" y="17.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">機会</text>
+              </g>
+              <g>
+                <circle cx="144" cy="10" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '0.5s' }} />
+                <text x="146.5" y="11.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">挑戦</text>
+              </g>
+              <g>
+                <circle cx="128" cy="46" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.0s' }} />
+                <text x="130.5" y="47.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">成長</text>
+              </g>
+              <g>
+                <circle cx="146" cy="72" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.5s' }} />
+                <text x="148.5" y="73.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">信頼</text>
+              </g>
+              <g>
+                <circle cx="90" cy="80" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.0s' }} />
+                <text x="85" y="83.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">人</text>
+              </g>
+              <g>
+                <circle cx="118" cy="80" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.5s' }} />
+                <text x="120.5" y="81.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">未来</text>
+              </g>
+            </svg>
           </div>
-          <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+
+          <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-container flex-col justify-center px-4 py-s-80 md:px-6 lg:px-8">
+            <p
+              className="nav-reveal mb-5 font-display text-small font-bold uppercase tracking-widest text-gift-green"
+              style={{ ['--reveal-delay' as string]: '100ms' } as React.CSSProperties}
+            >
               COMPANY
             </p>
+
             <h1
-              className="font-sans font-extrabold text-gift-ink"
-              style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: '1.1' }}
+              className="font-sans font-extrabold text-white"
+              style={{ fontSize: 'clamp(44px, 7vw, 76px)', lineHeight: '1.05' }}
             >
-              会社概要
+              <FadeUpText text="会社" delayMs={250} />
+              <span className="text-gift-green">
+                <FadeUpText text="概要" delayMs={520} />
+              </span>
             </h1>
-            <p className="mt-4 font-sans text-normal font-light text-gift-silver">
+
+            <p
+              className="nav-reveal mt-8 max-w-2xl font-mincho font-light text-white/75"
+              style={
+                {
+                  fontSize: 'clamp(16px, 1.7vw, 19px)',
+                  lineHeight: '2',
+                  ['--reveal-delay' as string]: '900ms',
+                } as React.CSSProperties
+              }
+            >
               {company.subheadline}
             </p>
+
+            <div
+              className="nav-reveal mt-10"
+              style={{ ['--reveal-delay' as string]: '1300ms' } as React.CSSProperties}
+            >
+              <Link href="/contact" className="cta-btn">
+                <span>お問い合わせ</span>
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -322,15 +448,15 @@ export default function CompanyPage() {
                       return (
                         <div
                           key={v.title}
-                          className="group flex flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6"
+                          className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-gift-green/40 hover:shadow-[0_20px_40px_-12px_rgba(37,211,102,0.3),0_0_30px_-5px_rgba(37,211,102,0.2)] active:scale-[0.99]"
                         >
-                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green/20">
+                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-300 group-hover:scale-110 group-hover:bg-gift-green/20">
                             <Icon className="h-7 w-7" />
                           </span>
-                          <h3 className="font-sans text-medium font-bold text-gift-ink">
+                          <h3 className="font-sans text-medium font-bold text-gift-ink [line-break:strict]">
                             {v.title}
                           </h3>
-                          <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
+                          <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver [line-break:strict]">
                             {v.body}
                           </p>
                         </div>
@@ -358,9 +484,9 @@ export default function CompanyPage() {
                         {antiValues.map((item) => (
                           <div
                             key={item}
-                            className="flex items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5"
+                            className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#FF4757]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(255,71,87,0.4),0_0_30px_-5px_rgba(255,71,87,0.25)] active:scale-[0.99]"
                           >
-                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FF4757] text-white shadow-[0_2px_8px_rgba(255,71,87,0.35)]">
+                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FF4757] text-white shadow-[0_2px_8px_rgba(255,71,87,0.35)] transition-transform duration-300 group-hover:scale-110">
                               <NoIcon className="h-6 w-6" />
                             </span>
                             <p className="pt-1 font-sans text-[15px] font-light leading-relaxed text-white/90">
