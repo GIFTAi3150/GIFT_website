@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import CaseCarousel from '@/components/ui/CaseCarousel';
+
+export const metadata: Metadata = {
+  title: 'DXコンサル事業',
+  description:
+    'Lステップ運用、RPA導入、AI活用による業務自動化。中小企業のデジタル変革を支援する株式会社GIFTのDXコンサルティング事業。',
+  alternates: { canonical: '/services/dx-consulting' },
+};
 
 const painPoints = [
   'LINEを活用して集客・売上を上げたい',

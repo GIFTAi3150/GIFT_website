@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     };
 
     await resend.emails.send({
-      from: 'GIFT Website <onboarding@resend.dev>',
+      from: 'GIFT お問い合わせ <noreply@gift-original.jp>',
       to: 'it@gift-original.jp',
       subject: `【お問い合わせ】${inquiryLabels[inquiryType] || 'その他'} - ${name}様`,
       replyTo: email,

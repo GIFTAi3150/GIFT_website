@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
@@ -13,6 +14,13 @@ import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles } from '@/lib/notion';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: '株式会社GIFT | Gift an opportunity',
+  description:
+    'コールセンター・DXコンサル・財務コンサルの3事業で、企業のチャンスを形にする。株式会社GIFTの公式サイト。',
+  alternates: { canonical: '/' },
+};
 
 export default async function HomePage() {
   let articles: { slug: string; title: string; date: string; category: string; cover?: string }[] = [];

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { TrendingUp, Shuffle, Sparkles, GraduationCap, ArrowUpRight } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -5,6 +6,13 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedPositions } from '@/lib/notion';
 import staticPositions from '@/data/positions.json';
+
+export const metadata: Metadata = {
+  title: '採用情報',
+  description:
+    '株式会社GIFTでは、コールセンタースタッフ、ITエンジニア、プロジェクトマネージャー、法人営業職を募集しています。あなたのキャリアを一緒に形にしませんか。',
+  alternates: { canonical: '/recruit' },
+};
 
 const values = [
   {
