@@ -54,23 +54,20 @@ export default function CaseStudy() {
 
       {/* Mobile: horizontal swipe with snap. Desktop: 3-column grid. No arrows. */}
       <div className="mx-auto max-w-container">
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-4 md:px-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-8 lg:pb-0">
+        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-6 md:px-6 md:py-8 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-8 lg:py-0">
           {cases.map((c) => {
             const Icon = SERVICE_ICON_BY_ID[c.iconId];
             return (
             <div
               key={c.id}
-              className="flex w-[85%] shrink-0 snap-center flex-col rounded-2xl border border-gift-border bg-white p-6 sm:w-[60%] lg:w-auto"
+              className="group flex w-[85%] shrink-0 cursor-pointer snap-center flex-col rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-gift-green/40 hover:shadow-[0_20px_40px_-12px_rgba(37,211,102,0.3),0_0_30px_-5px_rgba(37,211,102,0.2)] active:scale-[0.99] sm:w-[60%] lg:w-auto"
             >
-              <div className="mb-4 flex items-center gap-3">
+              <div className="mb-4">
                 {Icon && (
-                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green">
+                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-300 group-hover:scale-110 group-hover:bg-gift-green/20">
                     <Icon className="h-7 w-7" />
                   </span>
                 )}
-                <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                  {c.industry}
-                </p>
               </div>
               <h3 className="mb-6 font-sans text-medium font-bold leading-snug text-gift-ink">
                 {c.title}

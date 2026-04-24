@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import CaseCarousel from '@/components/ui/CaseCarousel';
+import FadeUpText from '@/components/ui/FadeUpText';
 
 export const metadata: Metadata = {
   title: 'DXコンサル事業',
@@ -132,55 +133,97 @@ export default function DxConsultingPage() {
     <>
       <Header />
       <main className="bg-gift-near-black">
-        {/* Hero */}
-        <section className="border-b border-gift-border py-s-80">
-          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+        {/* Hero — "Command Center" dark mode: distinct from the rest of the site to give this page its own identity */}
+        <section className="relative overflow-hidden bg-gift-ink">
+          {/* Background layers: subtle grid + soft green glows in corners + pulsing node dots */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="dx-hero-grid absolute inset-0" />
+            <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-gift-green/15 blur-[120px]" />
+            <div className="absolute -bottom-40 -right-40 h-[520px] w-[520px] rounded-full bg-gift-green-teal/10 blur-[120px]" />
+            <span className="dx-node" style={{ top: '20%', left: '12%' }} />
+            <span className="dx-node" style={{ top: '68%', left: '82%', animationDelay: '1.1s' }} />
+            <span className="dx-node" style={{ top: '38%', left: '88%', animationDelay: '2.0s' }} />
+            <span className="dx-node" style={{ top: '78%', left: '22%', animationDelay: '0.6s' }} />
+            <span className="dx-node" style={{ top: '15%', left: '62%', animationDelay: '1.7s' }} />
+            <span className="dx-node" style={{ top: '52%', left: '46%', animationDelay: '2.6s' }} />
+          </div>
+
+          <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-container flex-col justify-center px-4 py-s-80 md:px-6 lg:px-8">
+            <p
+              className="nav-reveal mb-5 font-display text-small font-bold uppercase tracking-widest text-gift-green"
+              style={{ ['--reveal-delay' as string]: '100ms' } as React.CSSProperties}
+            >
               DX CONSULTING
             </p>
+
             <h1
-              className="font-sans font-extrabold text-gift-ink"
-              style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: '1.1' }}
+              className="font-sans font-extrabold leading-none text-white"
+              style={{ fontSize: 'clamp(44px, 7vw, 76px)', lineHeight: '1.05' }}
             >
-              DXコンサル事業
+              <FadeUpText text="DXコンサル" delayMs={250} />
+              <span className="text-gift-green">
+                <FadeUpText text="事業" delayMs={520} />
+              </span>
             </h1>
-            <p className="mt-6 max-w-3xl font-sans text-normal font-light text-gift-silver" style={{ lineHeight: '2' }}>
-              LINE公式・Lステップ構築/運用、RPA・業務自動化、AI導入・生成AI活用支援、SaaS導入・CRM構築支援までをワンストップでご提供します。AIを業務に深く組み込み、フル活用している点が独自の強みです。
+
+            <p
+              className="nav-reveal mt-8 max-w-2xl font-mincho font-light text-white/75"
+              style={
+                {
+                  fontSize: 'clamp(16px, 1.7vw, 19px)',
+                  lineHeight: '2',
+                  ['--reveal-delay' as string]: '900ms',
+                } as React.CSSProperties
+              }
+            >
+              既存の環境を変えずに — LINE・Lステップ・RPA・AIで事業を自動化する、ワンストップDXパートナー。
             </p>
 
-            {/* Official partner — Aoyama */}
-            <div className="mt-10 flex flex-col items-start gap-5 rounded-2xl border-2 border-gift-border bg-white px-6 py-6 sm:flex-row sm:items-center">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gift-bg">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#128C7E" strokeWidth={1.2} className="h-9 w-9">
+            <div
+              className="nav-reveal mt-10 max-w-xl border-l-2 border-gift-green pl-5"
+              style={{ ['--reveal-delay' as string]: '1200ms' } as React.CSSProperties}
+            >
+              <p
+                className="font-sans font-extrabold italic text-white"
+                style={{ fontSize: 'clamp(17px, 1.9vw, 22px)', lineHeight: '1.45' }}
+              >
+                今の環境を変えずに、Lステップでより高みへ。
+              </p>
+            </div>
+
+            <div
+              className="nav-reveal mt-10"
+              style={{ ['--reveal-delay' as string]: '1500ms' } as React.CSSProperties}
+            >
+              <Link href="/contact" className="cta-btn">
+                <span>お問い合わせ</span>
+              </Link>
+            </div>
+
+            {/* Partner badge — glassmorphism variant of the original 青山 card, compressed */}
+            <div
+              className="nav-reveal mt-12 flex max-w-md items-center gap-4 self-start rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-md"
+              style={{ ['--reveal-delay' as string]: '1800ms' } as React.CSSProperties}
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth={1.4} className="h-6 w-6">
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <p className="font-sans text-[20px] font-extrabold text-gift-ink">青山 雄基</p>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#06C755]/10 px-3 py-1">
-                    <span className="flex h-5 w-5 items-center justify-center rounded bg-[#06C755] font-display text-[10px] font-bold text-white">L</span>
-                    <span className="font-display text-[11px] font-bold text-[#06C755]">公式認定パートナー</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-sans text-[15px] font-bold text-white">青山 雄基</p>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#06C755]/20 px-2.5 py-0.5">
+                    <span className="flex h-4 w-4 items-center justify-center rounded bg-[#06C755] font-display text-[9px] font-extrabold text-white">
+                      L
+                    </span>
+                    <span className="font-display text-[10px] font-bold text-[#06C755]">公式認定パートナー</span>
                   </span>
                 </div>
-                <p className="mt-2 font-sans text-[15px] leading-relaxed text-gift-silver">
-                  Lステップ構築代行だけではなく、RPAを活用した企業のDX化を推進。既存のシステムを大きく変えず、Lステップと自動連携させることで、蓄積されたデータ資産を最大限に活用します。
+                <p className="mt-1 font-sans text-[12px] leading-relaxed text-white/60">
+                  Lステップ構築代行 / RPA活用DX推進
                 </p>
               </div>
-            </div>
-
-            {/* Tagline */}
-            <div className="mt-8 rounded-xl border-l-4 border-gift-green bg-gift-bg-alt px-6 py-5">
-              <p
-                className="font-sans font-extrabold italic text-gift-ink"
-                style={{ fontSize: 'clamp(18px, 2vw, 24px)', lineHeight: '1.4' }}
-              >
-                「今の環境を変えずにLステップでより高みへ」
-              </p>
-              <p className="mt-2 font-sans text-[14px] text-gift-silver">
-                既存のシステムやオペレーションを大きく変えることなく、Lステップと自動連携させることが可能です。
-                今まで蓄積された全ての情報は貴重な財産 — それを最大限に活用します。
-              </p>
             </div>
           </div>
         </section>
@@ -296,6 +339,108 @@ export default function DxConsultingPage() {
                     その課題、Lステップが解決します！
                   </p>
                 </div>
+              </div>
+            </div>
+          </section>
+        </Reveal>
+
+        {/* Live L-step — proof-of-product: a pure-CSS LINE-style chat card linking to GIFT's own Lステップ */}
+        <Reveal>
+          <section className="border-t border-gift-border bg-gradient-to-b from-white via-[#F0FAF4] to-white py-s-80">
+            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+              <div className="mx-auto max-w-3xl text-center">
+                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                  SEE L-STEP LIVE
+                </p>
+                <h2
+                  className="mb-4 font-sans font-extrabold text-gift-ink"
+                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+                >
+                  実際のLステップを、ご体験ください
+                </h2>
+                <p className="font-sans text-normal font-light text-gift-silver">
+                  GIFT自身が運用する公式Lステップを、そのまま実例としてご覧いただけます。
+                </p>
+              </div>
+
+              <div className="mx-auto mt-12 max-w-lg">
+                <a
+                  href="https://xn--l-qfu4al0g.com/gift_lstep/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GIFT公式Lステップを見る（新しいタブで開きます）"
+                  className="group block overflow-hidden rounded-[28px] border border-gift-border bg-white shadow-[0_20px_50px_-20px_rgba(6,199,85,0.25)] transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_30px_70px_-12px_rgba(6,199,85,0.45)]"
+                >
+                  {/* Chat header — mimics an official account row */}
+                  <div className="flex items-center gap-3 border-b border-gift-border bg-gradient-to-r from-[#06C755]/15 via-[#06C755]/5 to-transparent px-5 py-4">
+                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gift-ink shadow-md">
+                      <span className="font-display text-[18px] font-extrabold text-white">G</span>
+                      <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#06C755] ring-2 ring-white">
+                        <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M2 6.5l2.5 2.5L10 3.5" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-sans text-[15px] font-bold text-gift-ink">GIFT公式LINE</p>
+                      <p className="font-sans text-[11px] text-gift-silver">Lステップ 公式認定パートナー運用</p>
+                    </div>
+                    <span className="font-sans text-[11px] font-medium text-gift-silver">いま</span>
+                  </div>
+
+                  {/* Chat body */}
+                  <div className="space-y-3 bg-[#F7F8FA] px-5 py-6">
+                    {[
+                      'こんにちは！株式会社GIFTです 👋',
+                      'この公式LINEは、私たち自身がLステップで構築・運用しています。',
+                      'まずは友だち追加で、実際の設計をご体験ください 👇',
+                    ].map((msg, i) => (
+                      <div key={i} className="flex items-end gap-2">
+                        {/* Avatar only on first message — matches LINE's consecutive-message grouping */}
+                        <div
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#06C755]"
+                          style={{ opacity: i === 0 ? 1 : 0 }}
+                          aria-hidden={i !== 0}
+                        >
+                          <span className="font-display text-[11px] font-bold text-white">G</span>
+                        </div>
+                        <div className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white px-4 py-2.5 shadow-sm">
+                          <p className="font-sans text-[14px] leading-relaxed text-gift-ink">{msg}</p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Typing indicator — subtle "still there" signal that leads the eye to the CTA */}
+                    <div className="flex items-end gap-2 pt-1" aria-hidden>
+                      <div className="h-7 w-7 shrink-0" />
+                      <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-white px-4 py-3 shadow-sm">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gift-silver/60" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gift-silver/60" style={{ animationDelay: '0.2s' }} />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gift-silver/60" style={{ animationDelay: '0.4s' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA footer — big LINE-green button that responds to card hover */}
+                  <div className="border-t border-gift-border bg-white p-5">
+                    <div className="flex w-full items-center justify-center gap-2 rounded-full bg-[#06C755] px-6 py-3.5 font-sans text-[15px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(6,199,85,0.55)] transition-all duration-300 group-hover:bg-[#05a948] group-hover:shadow-[0_14px_32px_-6px_rgba(6,199,85,0.75)]">
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-white font-display text-[11px] font-extrabold text-[#06C755]">
+                        L
+                      </span>
+                      GIFTのLステップを見る
+                      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1">
+                        <path fillRule="evenodd" d="M3 10a1 1 0 011-1h10.586L11.293 5.707a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 11H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </a>
+
+                <p className="mt-4 flex items-center justify-center gap-2 font-sans text-[12px] text-gift-silver">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  安全なリンク・LINE公式アカウントへ
+                </p>
               </div>
             </div>
           </section>
@@ -487,13 +632,13 @@ export default function DxConsultingPage() {
                   },
                   {
                     title: '光回線コールセンター',
-                    tools: '楽テル × Lステップ',
+                    tools: 'キントーン × Lステップ',
                     result: 'CRM内の顧客情報をLステップへインポートする作業を自動化。オペレーターの負担を軽減。',
                   },
                 ].map((cs) => (
-                  <div key={cs.title} className="overflow-hidden rounded-2xl border-2 border-gift-border bg-white">
-                    <div className="flex items-center gap-3 border-b border-gift-border bg-gift-bg px-6 py-4">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gift-green font-display text-[12px] font-bold text-white">
+                  <div key={cs.title} className="group cursor-pointer overflow-hidden rounded-2xl border-2 border-gift-border bg-white transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-gift-green/50 hover:shadow-[0_20px_40px_-12px_rgba(37,211,102,0.3),0_0_30px_-5px_rgba(37,211,102,0.2)] active:scale-[0.99]">
+                    <div className="flex items-center gap-3 border-b border-gift-border bg-gift-bg px-6 py-4 transition-colors duration-300 group-hover:bg-gift-green/10">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gift-green font-display text-[12px] font-bold text-white transition-transform duration-300 group-hover:scale-110">
                         RPA
                       </span>
                       <h4 className="font-sans text-[16px] font-bold text-gift-ink">{cs.title}</h4>

@@ -192,10 +192,10 @@ export default function ProcessFlow() {
           {steps.map((s, i) => {
             const Ui = s.Ui;
             return (
-              <Reveal key={s.step} delay={i * 100} className="w-[85%] shrink-0 snap-center sm:w-[60%] md:w-[48%] lg:w-auto">
+              <Reveal key={s.step} delay={i * 100} className="h-full w-[85%] shrink-0 snap-center sm:w-[60%] md:w-[48%] lg:w-auto">
                 <div className="group flex h-full flex-col">
-                  {/* Illustration frame */}
-                  <div className="relative mb-5 flex min-h-[160px] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gift-bg-alt to-gift-near-black p-5">
+                  {/* Illustration frame — fixed height keeps the STEP labels / titles / body bottoms aligned across all four cards */}
+                  <div className="relative mb-5 flex h-[200px] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gift-bg-alt to-gift-near-black p-5">
                     <div className="w-full max-w-[200px]">
                       <Ui />
                     </div>
