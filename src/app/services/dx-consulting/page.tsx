@@ -80,7 +80,7 @@ const caseStudies = [
   {
     num: '01',
     title: '光回線の開通手続きの案内',
-    image: '/img/2.jpg',
+    image: '/img/dx-case-01.jpg',
     description: '開通までの手続きの流れをLステップのシナリオ機能を使ってステップ配信。従来よりも問い合わせ対応の工数削減を実現。',
     points: [
       {
@@ -96,7 +96,7 @@ const caseStudies = [
   {
     num: '02',
     title: 'エステサロンの予約管理をLステップで一元化',
-    image: '/img/4.jpg',
+    image: '/img/dx-case-02.jpg',
     description: 'LINEだけで簡単予約、予約日前日にリマインド配信を行うことで予約率の増加とキャンセル率の低下を実現。予約状況もLステップで一元管理できるため、予約表への転記等も不要になった。',
     points: [
       {
@@ -112,7 +112,7 @@ const caseStudies = [
   {
     num: '03',
     title: '地域限定のクーポンやお得情報の配信',
-    image: '/img/6.jpg',
+    image: '/img/dx-case-03.jpg',
     description: 'セグメント配信機能を活用し、地域限定のクーポンやお得情報などを発信。必要な人にのみ絞って配信できるため、無駄な配信数の削減とブロック率の低下に繋がった。',
     points: [
       {
