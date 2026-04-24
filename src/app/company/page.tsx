@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -5,6 +6,13 @@ import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
 import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import HistoryCarousel from '@/components/sections/HistoryCarousel';
+
+export const metadata: Metadata = {
+  title: '会社概要',
+  description:
+    '株式会社GIFTの会社情報、ミッション・ビジョン・バリュー、沿革、代表メッセージをご紹介します。',
+  alternates: { canonical: '/company' },
+};
 
 const infoRows = [
   { label: '会社名', value: `${company.name} / ${company.nameEn}` },

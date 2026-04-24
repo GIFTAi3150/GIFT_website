@@ -278,13 +278,13 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
     // Phase 3 (4s+): Gentle rock animation
 
     if (t < 1.6) {
-      // Spin in — fast 360° rotation while scaling up to 1.0
+      // Scale up (no rotation — rotation happens after the entrance)
       const s = Math.min(t / 1.6, 1);
       const eased = 1 - Math.pow(1 - s, 3);
       wholeGroupRef.current.scale.setScalar(eased);
       wholeGroupRef.current.position.x = 0;
       textMatRef.current.opacity = 0;
-      groupRef.current.rotation.y = (1 - eased) * Math.PI * 2;
+      groupRef.current.rotation.y = 0;
     } else if (t < 1.9) {
       // HARD PUNCH — zoom in fast to 1.28
       const p = (t - 1.6) / 0.3;
@@ -296,7 +296,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
     } else if (t < 2.3) {
       // SETTLE — snap back to 1.0 with a tiny overshoot bounce
       const p = (t - 1.9) / 0.4;
-      // damped oscillation from 1.28 down to 1.0
       const decay = Math.exp(-4 * p);
       const osc = Math.cos(p * Math.PI * 2.2);
       const s = 1 + 0.28 * decay * osc;
@@ -312,11 +311,20 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
       wholeGroupRef.current.position.x = eased * -0.8;
       textMatRef.current.opacity = eased * 0.9;
       groupRef.current.rotation.y = 0;
-    } else {
-      // Settled — slow Y rotation
+    } else if (t < 19) {
+      // 180° Y-axis rotation over 15 seconds, ease in-out.
+      const p = (t - 4) / 15;
+      const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      wholeGroupRef.current.scale.setScalar(1);
       wholeGroupRef.current.position.x = -0.8;
       textMatRef.current.opacity = 0.9;
-      groupRef.current.rotation.y += 0.003;
+      groupRef.current.rotation.y = eased * Math.PI;
+    } else {
+      // Stopped at 180°. Rocks keep orbiting independently in OrbitingRocks.
+      wholeGroupRef.current.scale.setScalar(1);
+      wholeGroupRef.current.position.x = -0.8;
+      textMatRef.current.opacity = 0.9;
+      groupRef.current.rotation.y = Math.PI;
     }
   });
 
@@ -357,7 +365,7 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
         {/* "ift Inc." text that appears to the right of the logo */}
         <Suspense fallback={null}>
         <Text
-          position={[1.05, 0, 0]}
+          position={[1.22, -0.1, 0]}
           fontSize={0.42}
           anchorX="left"
           anchorY="middle"

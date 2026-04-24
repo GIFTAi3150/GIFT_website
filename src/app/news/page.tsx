@@ -1,9 +1,17 @@
+import type { Metadata } from 'next';
 import { getPublishedArticles } from '@/lib/notion';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import NewsGrid from './NewsGrid';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'お知らせ・ブログ',
+  description:
+    '株式会社GIFTからのお知らせ、DX・コールセンター・財務領域のノウハウ記事をお届けします。',
+  alternates: { canonical: '/news' },
+};
 
 export default async function NewsPage() {
   let articles: { slug: string; title: string; date: string; category: string; excerpt: string; cover: string }[] = [];

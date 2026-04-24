@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -7,6 +8,12 @@ import { getPublishedMembers } from '@/lib/notion';
 import staticMembers from '@/data/members.json';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'メンバー紹介',
+  description: '株式会社GIFTで活躍するメンバーをご紹介します。',
+  alternates: { canonical: '/member' },
+};
 
 export default async function MemberPage() {
   let members: MemberCard[] = [];

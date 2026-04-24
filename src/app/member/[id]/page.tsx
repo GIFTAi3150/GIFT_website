@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
@@ -7,6 +8,29 @@ import staticMembers from '@/data/members.json';
 import { getPublishedMembers } from '@/lib/notion';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  let members: { id: string; name: string; role: string }[] = staticMembers;
+  try {
+    const notionMembers = await getPublishedMembers();
+    if (notionMembers.length > 0) members = notionMembers;
+  } catch {
+    // use fallback
+  }
+  const member = members.find((m) => m.id === params.id);
+  if (!member) {
+    return { title: 'メンバーが見つかりません' };
+  }
+  return {
+    title: `${member.name}（${member.role}）`,
+    description: `株式会社GIFT ${member.role} ${member.name}のプロフィールページです。`,
+    alternates: { canonical: `/member/${member.id}` },
+  };
+}
 
 type MemberRecord = {
   id: string;

@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
+
+export const metadata: Metadata = {
+  title: 'コールセンター事業',
+  description:
+    'インバウンド・アウトバウンド・カスタマーサポートを100名超の体制で提供。株式会社GIFTのコールセンター事業についてご紹介します。',
+  alternates: { canonical: '/services/callcenter' },
+};
 
 export default function CallCenterPage() {
   return (

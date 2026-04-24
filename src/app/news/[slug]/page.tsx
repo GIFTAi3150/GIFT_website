@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
@@ -6,6 +7,29 @@ import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles, getArticleBySlug } from '@/lib/notion';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const article = await getArticleBySlug(params.slug);
+  if (!article) {
+    return { title: '記事が見つかりません' };
+  }
+  return {
+    title: article.title,
+    description: article.excerpt,
+    alternates: { canonical: `/news/${article.slug}` },
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      type: 'article',
+      url: `/news/${article.slug}`,
+      images: article.cover ? [{ url: article.cover }] : undefined,
+    },
+  };
+}
 
 export default async function NewsDetailPage({ params }: { params: { slug: string } }) {
   const article = await getArticleBySlug(params.slug);

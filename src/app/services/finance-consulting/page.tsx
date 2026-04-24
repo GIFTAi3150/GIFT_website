@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
+
+export const metadata: Metadata = {
+  title: '財務コンサル事業',
+  description:
+    '財務パートナーズとの業務提携により、融資調達・資金繰り改善を支援。株式会社GIFTの財務コンサルティング事業についてご紹介します。',
+  alternates: { canonical: '/services/finance-consulting' },
+};
 
 export default function FinanceConsultingPage() {
   return (

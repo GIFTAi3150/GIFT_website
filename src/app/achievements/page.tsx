@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import ProcessFlow from '@/components/sections/ProcessFlow';
+
+export const metadata: Metadata = {
+  title: '実績・事例',
+  description:
+    '株式会社GIFTのこれまでの支援実績・導入事例をご紹介します。コールセンター、DX、財務コンサルの各事業での成果をまとめています。',
+  alternates: { canonical: '/achievements' },
+};
 import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 import achievements from '@/data/achievements.json';
 

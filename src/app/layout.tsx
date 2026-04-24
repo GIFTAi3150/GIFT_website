@@ -3,8 +3,32 @@ import { notoSansJP, poppins } from './fonts';
 import '../styles/globals.css';
 
 export const metadata: Metadata = {
-  title: '株式会社GIFT | Gift an opportunity',
-  description: 'テレマーケティング・LINE運用・RPA・不動産事業を展開する株式会社GIFTの公式サイト。',
+  metadataBase: new URL('https://gift-inc.org'),
+  title: {
+    default: '株式会社GIFT | Gift an opportunity',
+    template: '%s | 株式会社GIFT',
+  },
+  description:
+    'コールセンター・DXコンサル・財務コンサル事業を展開する株式会社GIFTの公式サイト。',
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    url: 'https://gift-inc.org',
+    siteName: '株式会社GIFT',
+    title: '株式会社GIFT | Gift an opportunity',
+    description:
+      'コールセンター・DXコンサル・財務コンサル事業を展開する株式会社GIFTの公式サイト。',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '株式会社GIFT | Gift an opportunity',
+    description:
+      'コールセンター・DXコンサル・財務コンサル事業を展開する株式会社GIFTの公式サイト。',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
