@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getPublishedArticles, getPublishedMembers } from '@/lib/notion';
+import { getArticleSlugs, getPublishedMembers } from '@/lib/notion';
 import membersFallback from '@/data/members.json';
 
 const SITE_URL = 'https://gift-inc.org';
@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // News — try Notion; if it fails, skip (no JSON fallback for articles).
   let newsEntries: MetadataRoute.Sitemap = [];
   try {
-    const articles = await getPublishedArticles();
+    const articles = await getArticleSlugs();
     newsEntries = articles.map((a) => ({
       url: `${SITE_URL}/news/${a.slug}`,
       lastModified: a.date ? new Date(a.date.replace(/\./g, '-')) : now,
