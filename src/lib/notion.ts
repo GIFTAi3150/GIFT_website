@@ -14,7 +14,6 @@ export interface BlogArticle {
   excerpt: string;
   body: string;
   giftView: string;
-  debugPropKeys?: string[];
 }
 
 export async function getPublishedArticles(): Promise<BlogArticle[]> {
@@ -65,7 +64,11 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
         ? props.Cover.url || ''
         : '';
 
-    const giftViewProp = props['GIFT View'] || props.GiftView || props.giftView;
+    const normalizeKey = (s: string) => s.toLowerCase().replace(/\s+/g, '');
+    const giftViewKey = Object.keys(props).find(
+      (k) => normalizeKey(k) === 'giftview',
+    );
+    const giftViewProp = giftViewKey ? props[giftViewKey] : undefined;
     const giftView =
       giftViewProp?.type === 'rich_text'
         ? giftViewProp.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
@@ -104,19 +107,7 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
     if (body.length > 120) excerpt += '…';
 
     if (title && slug) {
-      articles.push({
-        id: page.id,
-        title,
-        slug,
-        category,
-        date,
-        author,
-        cover,
-        excerpt,
-        body,
-        giftView,
-        debugPropKeys: Object.keys(props),
-      });
+      articles.push({ id: page.id, title, slug, category, date, author, cover, excerpt, body, giftView });
     }
   }
 

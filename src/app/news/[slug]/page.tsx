@@ -153,17 +153,17 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
                 })}
               </div>
 
-              <div className="mt-12 rounded-2xl border-l-4 border-gift-green bg-gift-bg-alt p-8">
-                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                  GIFT&apos;S VIEW
-                </p>
-                <h2
-                  className="mb-6 font-sans font-extrabold text-gift-ink"
-                  style={{ fontSize: 'clamp(20px, 2.4vw, 26px)', lineHeight: '1.3' }}
-                >
-                  GIFTの視点
-                </h2>
-                {article.giftView ? (
+              {article.giftView && (
+                <div className="mt-12 rounded-2xl border-l-4 border-gift-green bg-gift-bg-alt p-8">
+                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                    GIFT&apos;S VIEW
+                  </p>
+                  <h2
+                    className="mb-6 font-sans font-extrabold text-gift-ink"
+                    style={{ fontSize: 'clamp(20px, 2.4vw, 26px)', lineHeight: '1.3' }}
+                  >
+                    GIFTの視点
+                  </h2>
                   <div
                     className="font-sans font-light text-gift-silver"
                     style={{ fontSize: 'clamp(15px, 1.5vw, 17px)', lineHeight: '2' }}
@@ -173,20 +173,8 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
                       return <p key={i} className="mb-4">{line}</p>;
                     })}
                   </div>
-                ) : (
-                  <div className="font-mono text-small text-red-600">
-                    <p className="mb-2 font-bold">DEBUG: giftView is empty.</p>
-                    <p className="mb-2">Notion property keys for this article:</p>
-                    <ul className="ml-4 list-disc">
-                      {(article.debugPropKeys || []).map((k) => (
-                        <li key={k}>
-                          [{k}] (length: {k.length}, codes: {Array.from(k).map((c) => c.charCodeAt(0)).join(',')})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </section>
         </Reveal>
