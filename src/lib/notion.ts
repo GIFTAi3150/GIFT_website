@@ -13,6 +13,7 @@ export interface BlogArticle {
   cover: string;
   excerpt: string;
   body: string;
+  giftView: string;
 }
 
 export async function getPublishedArticles(): Promise<BlogArticle[]> {
@@ -63,6 +64,12 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
         ? props.Cover.url || ''
         : '';
 
+    const giftViewProp = props['GIFT View'] || props.GiftView || props.giftView;
+    const giftView =
+      giftViewProp?.type === 'rich_text'
+        ? giftViewProp.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
     // Fetch page content as body
     const blocks = await notion.blocks.children.list({ block_id: page.id });
     let body = '';
@@ -96,7 +103,7 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
     if (body.length > 120) excerpt += '…';
 
     if (title && slug) {
-      articles.push({ id: page.id, title, slug, category, date, author, cover, excerpt, body });
+      articles.push({ id: page.id, title, slug, category, date, author, cover, excerpt, body, giftView });
     }
   }
 
