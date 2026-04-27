@@ -152,6 +152,29 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
                   return <p key={i} className="mb-4">{line}</p>;
                 })}
               </div>
+
+              {article.giftView && (
+                <div className="mt-12 rounded-2xl border-l-4 border-gift-green bg-gift-bg-alt p-8">
+                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                    GIFT&apos;S VIEW
+                  </p>
+                  <h2
+                    className="mb-6 font-sans font-extrabold text-gift-ink"
+                    style={{ fontSize: 'clamp(20px, 2.4vw, 26px)', lineHeight: '1.3' }}
+                  >
+                    GIFTの視点
+                  </h2>
+                  <div
+                    className="font-sans font-light text-gift-silver"
+                    style={{ fontSize: 'clamp(15px, 1.5vw, 17px)', lineHeight: '2' }}
+                  >
+                    {article.giftView.split('\n').map((line, i) => {
+                      if (line.trim() === '') return <div key={i} className="h-3" />;
+                      return <p key={i} className="mb-4">{line}</p>;
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </Reveal>
