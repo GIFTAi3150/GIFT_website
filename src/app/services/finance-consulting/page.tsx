@@ -27,37 +27,43 @@ export default function FinanceConsultingPage() {
             {/* Trading-platform-style faint grid in background */}
             <div className="dx-hero-grid absolute inset-0 opacity-60" />
 
-            {/* Mobile-only rising-curve mini: scaled-down chart in bottom-right corner, with the same
-                pulse-wave effect on the line so mobile users get visible animation (the full chart is
-                hidden on mobile because a line chart needs horizontal width to read as growth). */}
+            {/* Mobile-only rising-curve: covers the whole hero (same as desktop) using the SAME
+                draw-in animation. preserveAspectRatio="xMidYMax slice" anchors the curve to the bottom
+                and crops empty space off the top, so the rising line reads from bottom-left to upper-right
+                with no visible container edge. Text/badge/CTA sit on top via z-10. */}
             <svg
-              className="pointer-events-none absolute bottom-6 right-3 h-36 w-44 md:hidden"
-              viewBox="0 0 100 70"
-              preserveAspectRatio="xMidYMid meet"
+              className="absolute inset-0 h-full w-full md:hidden"
+              viewBox="0 0 200 120"
+              preserveAspectRatio="xMidYMax slice"
               aria-hidden
             >
-              {/* Dim base curve */}
+              <defs>
+                <linearGradient id="finance-fill-grad-m" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#25D366" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#25D366" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+
               <path
-                d="M 5 60 C 20 58, 32 52, 45 44 S 68 32, 80 18 L 95 6"
-                stroke="rgba(37,211,102,0.35)"
-                strokeWidth="0.5"
-                fill="none"
-                strokeLinecap="round"
+                d="M 10 95 C 40 92, 60 88, 80 80 S 120 68, 145 52 S 180 22, 195 12 L 195 105 L 10 105 Z"
+                fill="url(#finance-fill-grad-m)"
+                className="finance-fill"
               />
-              {/* Bright pulse-wave overlay */}
+
               <path
-                d="M 5 60 C 20 58, 32 52, 45 44 S 68 32, 80 18 L 95 6"
+                d="M 10 95 C 40 92, 60 88, 80 80 S 120 68, 145 52 S 180 22, 195 12"
                 stroke="#25D366"
-                strokeWidth="0.7"
+                strokeWidth="1.6"
                 fill="none"
                 strokeLinecap="round"
-                className="pulse-wave"
+                strokeLinejoin="round"
+                className="finance-curve"
               />
-              {/* Data points pulsing along the curve */}
-              <circle cx="20" cy="58" r="1.2" fill="#25D366" className="constellation-node" />
-              <circle cx="45" cy="44" r="1.2" fill="#25D366" className="constellation-node" style={{ animationDelay: '0.8s' }} />
-              <circle cx="80" cy="18" r="1.2" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.6s' }} />
-              <circle cx="95" cy="6" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.4s' }} />
+
+              <circle cx="40" cy="92" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '0.9s, 1.6s' }} />
+              <circle cx="80" cy="80" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '1.5s, 2.2s' }} />
+              <circle cx="145" cy="52" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '2.1s, 2.8s' }} />
+              <circle cx="195" cy="12" r="2.4" fill="#25D366" className="finance-point" style={{ animationDelay: '2.6s, 3.3s' }} />
             </svg>
 
             {/* Rising curve SVG — desktop only. On narrow mobile screens the slice would expose just the steep
@@ -215,20 +221,26 @@ export default function FinanceConsultingPage() {
                 WHAT WE OFFER
               </p>
               <h2
-                className="mb-12 font-sans font-extrabold text-gift-ink"
+                className="mb-5 font-sans font-extrabold text-gift-ink"
                 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
               >
                 提供内容
               </h2>
+              <p
+                className="mb-12 max-w-3xl font-sans font-light text-gift-silver"
+                style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
+              >
+                財務コンサルティングは、提携パートナー「財務パートナーズ」との業務提携によりご提供しております。両社の連携体制で、以下の支援をお届けします。
+              </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {[
                   {
                     title: '融資支援・資金調達',
-                    body: '融資実行実績の豊富さを背景に、事業フェーズに応じた最適な資金調達プランをご提案します。',
+                    body: '財務パートナーズの豊富な融資実行実績をもとに、事業フェーズに応じた最適な資金調達プランをご提案します。',
                   },
                   {
                     title: '経営コンサル',
-                    body: '財務戦略・KPI設計を軸に、経営判断に必要な数値と視点を経営者と共に整えます。',
+                    body: '財務パートナーズと連携し、財務戦略・KPI設計を軸に、経営判断に必要な数値と視点を経営者と共に整えます。',
                   },
                 ].map((s) => (
                   <div key={s.title} className="gift-card !p-8">

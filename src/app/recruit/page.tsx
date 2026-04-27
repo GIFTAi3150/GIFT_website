@@ -121,9 +121,6 @@ export default async function RecruitPage() {
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
-              <Link href="#positions" className="cta-btn">
-                <span>募集ポジションを見る</span>
-              </Link>
               <Link href="#positions" className="cta-btn cta-btn--deep">
                 <span>応募する</span>
               </Link>

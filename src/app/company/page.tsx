@@ -163,98 +163,99 @@ export default function CompanyPage() {
             <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-gift-green/15 blur-[120px]" />
             <div className="absolute -bottom-40 -right-40 h-[520px] w-[520px] rounded-full bg-gift-green-teal/20 blur-[120px]" />
 
-            {/* Mobile-only mini constellation — small SVG in bottom-right corner (below the CTA so it
-                doesn't fight the text). Scaled large enough to read as a proper constellation with
-                visible pulse-wave electricity on the lines. */}
+            {/* Mobile-only constellation — covers the whole hero (no corner-tucked mini), uses the
+                SAME single-traveling-pulse animation as desktop. viewBox is tightly framed around the
+                constellation so it appears prominent and centered behind the hero text. */}
             <svg
-              className="pointer-events-none absolute bottom-6 right-3 h-40 w-40 md:hidden"
-              viewBox="0 0 60 60"
+              className="absolute inset-0 h-full w-full md:hidden"
+              viewBox="73 0 90 90"
               preserveAspectRatio="xMidYMid meet"
               aria-hidden
             >
-              {/* Base wires */}
-              <g stroke="rgba(37,211,102,0.35)" strokeWidth="0.3" fill="none">
-                <line x1="10" y1="12" x2="45" y2="8" />
-                <line x1="45" y1="8" x2="52" y2="30" />
-                <line x1="10" y1="12" x2="28" y2="35" />
-                <line x1="52" y1="30" x2="28" y2="35" />
-                <line x1="28" y1="35" x2="20" y2="52" />
-                <line x1="28" y1="35" x2="48" y2="50" />
-              </g>
-              {/* Pulse overlays */}
-              <g stroke="#25D366" strokeWidth="0.5" fill="none" strokeLinecap="round">
-                <line x1="10" y1="12" x2="45" y2="8" className="pulse-wave" />
-                <line x1="45" y1="8" x2="52" y2="30" className="pulse-wave" style={{ animationDelay: '-0.4s' }} />
-                <line x1="10" y1="12" x2="28" y2="35" className="pulse-wave" style={{ animationDelay: '-0.8s' }} />
-                <line x1="52" y1="30" x2="28" y2="35" className="pulse-wave" style={{ animationDelay: '-1.2s' }} />
-                <line x1="28" y1="35" x2="20" y2="52" className="pulse-wave" style={{ animationDelay: '-0.6s' }} />
-                <line x1="28" y1="35" x2="48" y2="50" className="pulse-wave" style={{ animationDelay: '-1.0s' }} />
-              </g>
-              {/* Nodes */}
-              <circle cx="10" cy="12" r="1.6" fill="#25D366" className="constellation-node" />
-              <circle cx="45" cy="8" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '0.5s' }} />
-              <circle cx="52" cy="30" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.0s' }} />
-              <circle cx="28" cy="35" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.5s' }} />
-              <circle cx="20" cy="52" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.0s' }} />
-              <circle cx="48" cy="50" r="1.6" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.5s' }} />
+              {/* Dim base path — single Eulerian circuit covering all 7 original constellation edges:
+                  機会→挑戦→成長→人→未来→信頼→成長→機会 */}
+              <path
+                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
+                stroke="rgba(37,211,102,0.25)"
+                strokeWidth="0.45"
+                fill="none"
+              />
+              {/* Bright traveling-pulse overlay — single dash that slides along the whole loop */}
+              <path
+                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
+                pathLength="100"
+                stroke="#25D366"
+                strokeWidth="0.7"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="constellation-trail"
+              />
+
+              {/* Glowing nodes — animation-delay timed to the % of path length where each one sits */}
+              <circle cx="112" cy="16" className="constellation-glow-node" style={{ animationDelay: '0s' }} />
+              <circle cx="144" cy="10" className="constellation-glow-node" style={{ animationDelay: '1.06s' }} />
+              <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '2.34s' }} />
+              <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '6.89s' }} />
+              <circle cx="90" cy="80" className="constellation-glow-node" style={{ animationDelay: '4s' }} />
+              <circle cx="118" cy="80" className="constellation-glow-node" style={{ animationDelay: '4.92s' }} />
+              <circle cx="146" cy="72" className="constellation-glow-node" style={{ animationDelay: '5.86s' }} />
             </svg>
 
-            {/* Constellation SVG — value words as nodes. Desktop-only because on mobile the nodes would
-                collide with the full-width H1 and subtitle. Mobile keeps the hero clean via dark bg + glow
-                blobs; desktop gets the full constellation in the right column, with text constrained to
-                the left column so they never overlap. */}
+            {/* Desktop constellation — same single-traveling-pulse animation, but using the wider 160x90
+                viewBox with the constellation anchored to the right (xMaxYMid slice) so it sits in the
+                right half of the hero, with the kanji labels visible next to each node. */}
             <svg
               className="absolute inset-0 hidden h-full w-full md:block"
               viewBox="0 0 160 90"
               preserveAspectRatio="xMaxYMid slice"
               aria-hidden
             >
-              {/* Solid connector lines — the steady wires between the kanji nodes */}
-              <g stroke="rgba(37,211,102,0.3)" strokeWidth="0.18" fill="none">
-                <line x1="112" y1="16" x2="144" y2="10" />
-                <line x1="112" y1="16" x2="128" y2="46" />
-                <line x1="144" y1="10" x2="128" y2="46" />
-                <line x1="128" y1="46" x2="146" y2="72" />
-                <line x1="128" y1="46" x2="90" y2="80" />
-                <line x1="146" y1="72" x2="118" y2="80" />
-                <line x1="90" y1="80" x2="118" y2="80" />
-              </g>
+              {/* Dim base path — single Eulerian circuit covering all 7 original constellation edges */}
+              <path
+                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
+                stroke="rgba(37,211,102,0.25)"
+                strokeWidth="0.18"
+                fill="none"
+              />
+              {/* Bright traveling-pulse overlay */}
+              <path
+                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
+                pathLength="100"
+                stroke="#25D366"
+                strokeWidth="0.4"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="constellation-trail"
+              />
 
-              {/* Pulse overlay — same 7 lines, but with a small bright dash that slides along each wire.
-                  The base lines above stay steady; these overlays carry the "electric current" effect. */}
-              <g stroke="#25D366" strokeWidth="0.35" fill="none" strokeLinecap="round">
-                <line x1="112" y1="16" x2="144" y2="10" className="pulse-wave" />
-                <line x1="112" y1="16" x2="128" y2="46" className="pulse-wave" style={{ animationDelay: '-0.4s' }} />
-                <line x1="144" y1="10" x2="128" y2="46" className="pulse-wave" style={{ animationDelay: '-0.8s' }} />
-                <line x1="128" y1="46" x2="146" y2="72" className="pulse-wave" style={{ animationDelay: '-1.2s' }} />
-                <line x1="128" y1="46" x2="90" y2="80" className="pulse-wave" style={{ animationDelay: '-1.6s' }} />
-                <line x1="146" y1="72" x2="118" y2="80" className="pulse-wave" style={{ animationDelay: '-0.6s' }} />
-                <line x1="90" y1="80" x2="118" y2="80" className="pulse-wave" style={{ animationDelay: '-1.0s' }} />
-              </g>
-
-              {/* Nodes — stationary pulsing dots with their kanji labels. No drift — the electricity on the lines carries the motion. */}
+              {/* Nodes with kanji labels — circles glow when the pulse passes; labels stay static.
+                  The 成長 node has TWO circles because the Eulerian path visits it twice (once at 29.29%
+                  through the loop = 2.34s, and again at 86.16% = 6.89s). */}
               <g>
-                <circle cx="112" cy="16" r="1" fill="#25D366" className="constellation-node" />
+                <circle cx="112" cy="16" className="constellation-glow-node" style={{ animationDelay: '0s' }} />
                 <text x="114.5" y="17.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">機会</text>
               </g>
               <g>
-                <circle cx="144" cy="10" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '0.5s' }} />
+                <circle cx="144" cy="10" className="constellation-glow-node" style={{ animationDelay: '1.06s' }} />
                 <text x="146.5" y="11.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">挑戦</text>
               </g>
               <g>
-                <circle cx="128" cy="46" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.0s' }} />
+                <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '2.34s' }} />
+                <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '6.89s' }} />
                 <text x="130.5" y="47.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">成長</text>
               </g>
               <g>
-                <circle cx="146" cy="72" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '1.5s' }} />
+                <circle cx="146" cy="72" className="constellation-glow-node" style={{ animationDelay: '5.86s' }} />
                 <text x="148.5" y="73.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">信頼</text>
               </g>
               <g>
-                <circle cx="90" cy="80" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.0s' }} />
+                <circle cx="90" cy="80" className="constellation-glow-node" style={{ animationDelay: '4s' }} />
                 <text x="85" y="83.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">人</text>
               </g>
               <g>
-                <circle cx="118" cy="80" r="1" fill="#25D366" className="constellation-node" style={{ animationDelay: '2.5s' }} />
+                <circle cx="118" cy="80" className="constellation-glow-node" style={{ animationDelay: '4.92s' }} />
                 <text x="120.5" y="81.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">未来</text>
               </g>
             </svg>

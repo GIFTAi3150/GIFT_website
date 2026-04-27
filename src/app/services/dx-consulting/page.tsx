@@ -344,7 +344,8 @@ export default function DxConsultingPage() {
           </section>
         </Reveal>
 
-        {/* Live L-step — proof-of-product: a pure-CSS LINE-style chat card linking to GIFT's own Lステップ */}
+        {/* Live L-step — editorial spread proving GIFT's standing as a Lステップ certified partner.
+            Three alternating rows (認定 / 担当 / 業種) → single CTA → 🔒 trust line. */}
         <Reveal>
           <section className="border-t border-gift-border bg-gradient-to-b from-white via-[#F0FAF4] to-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
@@ -363,84 +364,129 @@ export default function DxConsultingPage() {
                 </p>
               </div>
 
-              <div className="mx-auto mt-12 max-w-lg">
-                <a
-                  href="https://xn--l-qfu4al0g.com/gift_lstep/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GIFT公式Lステップを見る（新しいタブで開きます）"
-                  className="group block overflow-hidden rounded-[28px] border border-gift-border bg-white shadow-[0_20px_50px_-20px_rgba(6,199,85,0.25)] transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_30px_70px_-12px_rgba(6,199,85,0.45)]"
-                >
-                  {/* Chat header — mimics an official account row */}
-                  <div className="flex items-center gap-3 border-b border-gift-border bg-gradient-to-r from-[#06C755]/15 via-[#06C755]/5 to-transparent px-5 py-4">
-                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gift-ink shadow-md">
-                      <span className="font-display text-[18px] font-extrabold text-white">G</span>
-                      <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#06C755] ring-2 ring-white">
-                        <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M2 6.5l2.5 2.5L10 3.5" />
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-sans text-[15px] font-bold text-gift-ink">GIFT公式LINE</p>
-                      <p className="font-sans text-[11px] text-gift-silver">Lステップ 公式認定パートナー運用</p>
-                    </div>
-                    <span className="font-sans text-[11px] font-medium text-gift-silver">いま</span>
-                  </div>
-
-                  {/* Chat body */}
-                  <div className="space-y-3 bg-[#F7F8FA] px-5 py-6">
-                    {[
-                      'こんにちは！株式会社GIFTです 👋',
-                      'この公式LINEは、私たち自身がLステップで構築・運用しています。',
-                      'まずは友だち追加で、実際の設計をご体験ください 👇',
-                    ].map((msg, i) => (
-                      <div key={i} className="flex items-end gap-2">
-                        {/* Avatar only on first message — matches LINE's consecutive-message grouping */}
-                        <div
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#06C755]"
-                          style={{ opacity: i === 0 ? 1 : 0 }}
-                          aria-hidden={i !== 0}
-                        >
-                          <span className="font-display text-[11px] font-bold text-white">G</span>
-                        </div>
-                        <div className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white px-4 py-2.5 shadow-sm">
-                          <p className="font-sans text-[14px] leading-relaxed text-gift-ink">{msg}</p>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Typing indicator — subtle "still there" signal that leads the eye to the CTA */}
-                    <div className="flex items-end gap-2 pt-1" aria-hidden>
-                      <div className="h-7 w-7 shrink-0" />
-                      <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-white px-4 py-3 shadow-sm">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gift-silver/60" />
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gift-silver/60" style={{ animationDelay: '0.2s' }} />
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gift-silver/60" style={{ animationDelay: '0.4s' }} />
+              {/* Editorial spread — 3 alternating image+text rows prove GIFT's standing as a
+                  certified Lステップ partner. Each row enters from the side its image sits on, so
+                  the spread feels paginated as the user scrolls. Single CTA at the bottom. */}
+              <div className="mx-auto mt-16 max-w-5xl space-y-16 md:mt-20 md:space-y-24">
+                {/* Row 1 — image left, text right */}
+                <Reveal from="left">
+                  <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
+                    <div className="overflow-hidden rounded-2xl border border-gift-border bg-white shadow-[0_20px_50px_-25px_rgba(6,199,85,0.25)]">
+                      <div className="relative aspect-[16/10]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/l-step.jpg"
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover object-top"
+                          loading="lazy"
+                        />
                       </div>
                     </div>
+                    <div>
+                      <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                        Certified Partner
+                      </p>
+                      <h3
+                        className="mb-4 font-sans font-extrabold text-gift-ink"
+                        style={{ fontSize: 'clamp(22px, 2.5vw, 30px)', lineHeight: '1.3' }}
+                      >
+                        Lステップ正規代理店として認定
+                      </h3>
+                      <p className="font-sans text-[16px] leading-loose text-gift-silver">
+                        公式から認定された設計・運用パートナーとして、4年連続No.1の実績を持つLステップを正規にご提供します。
+                      </p>
+                    </div>
                   </div>
+                </Reveal>
 
-                  {/* CTA footer — big LINE-green button that responds to card hover */}
-                  <div className="border-t border-gift-border bg-white p-5">
-                    <div className="flex w-full items-center justify-center gap-2 rounded-full bg-[#06C755] px-6 py-3.5 font-sans text-[15px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(6,199,85,0.55)] transition-all duration-300 group-hover:bg-[#05a948] group-hover:shadow-[0_14px_32px_-6px_rgba(6,199,85,0.75)]">
+                {/* Row 2 — text left, image right (alternating direction) */}
+                <Reveal from="right">
+                  <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
+                    <div className="md:order-2 overflow-hidden rounded-2xl border border-gift-border bg-white shadow-[0_20px_50px_-25px_rgba(6,199,85,0.25)]">
+                      <div className="relative aspect-[16/10]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/official-partner.jpg"
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover object-top"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                    <div className="md:order-1">
+                      <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                        Dedicated Support
+                      </p>
+                      <h3
+                        className="mb-4 font-sans font-extrabold text-gift-ink"
+                        style={{ fontSize: 'clamp(22px, 2.5vw, 30px)', lineHeight: '1.3' }}
+                      >
+                        専属の担当が、設計から運用まで伴走
+                      </h3>
+                      <p className="font-sans text-[16px] leading-loose text-gift-silver">
+                        業界を熟知した担当者が、設計・配信シナリオ・改善までを一貫してサポート。一社一社の状況に合わせて、顔の見える距離感で並走します。
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Row 3 — image left, text right */}
+                <Reveal from="left">
+                  <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
+                    <div className="overflow-hidden rounded-2xl border border-gift-border bg-white shadow-[0_20px_50px_-25px_rgba(6,199,85,0.25)]">
+                      <div className="relative aspect-[16/10]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/whoUsedIt.jpg"
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover object-top"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                        Proven Across Industries
+                      </p>
+                      <h3
+                        className="mb-4 font-sans font-extrabold text-gift-ink"
+                        style={{ fontSize: 'clamp(22px, 2.5vw, 30px)', lineHeight: '1.3' }}
+                      >
+                        業種を問わず、活用が広がっています
+                      </h3>
+                      <p className="font-sans text-[16px] leading-loose text-gift-silver">
+                        美容・コーチング・不動産・整体・パーソナルトレーニングなど、業種を問わず実績を蓄積。事業特性に合わせた運用設計をご提案します。
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Single CTA + trust line — anchors the spread with one clear action */}
+                <Reveal>
+                  <div className="text-center">
+                    <a
+                      href="https://xn--l-qfu4al0g.com/gift_lstep/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GIFT公式Lステップを見る（新しいタブで開きます）"
+                      className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#06C755] px-9 py-4 font-sans text-[16px] font-bold text-white shadow-[0_14px_32px_-10px_rgba(6,199,85,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#05a948] hover:shadow-[0_18px_40px_-8px_rgba(6,199,85,0.75)]"
+                    >
                       <span className="flex h-5 w-5 items-center justify-center rounded bg-white font-display text-[11px] font-extrabold text-[#06C755]">
                         L
                       </span>
-                      GIFTのLステップを見る
+                      実際のLステップを見る
                       <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1">
                         <path fillRule="evenodd" d="M3 10a1 1 0 011-1h10.586L11.293 5.707a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 11H4a1 1 0 01-1-1z" clipRule="evenodd" />
                       </svg>
-                    </div>
+                    </a>
+                    <p className="mt-4 flex items-center justify-center gap-1.5 font-sans text-[12px] text-gift-silver">
+                      <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                      安全なリンク
+                    </p>
                   </div>
-                </a>
-
-                <p className="mt-4 flex items-center justify-center gap-2 font-sans text-[12px] text-gift-silver">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                  安全なリンク・LINE公式アカウントへ
-                </p>
+                </Reveal>
               </div>
             </div>
           </section>

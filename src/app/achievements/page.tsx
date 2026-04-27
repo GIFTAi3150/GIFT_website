@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import ProcessFlow from '@/components/sections/ProcessFlow';
+import PixelRobot from '@/components/ui/PixelRobot';
 
 export const metadata: Metadata = {
   title: '実績・事例',
@@ -21,7 +22,7 @@ export default function AchievementsPage() {
     <>
       <Header />
       <main className="bg-gift-near-black">
-        {/* Page header — decorative drifting blobs behind the title */}
+        {/* Page header — decorative drifting blobs behind the title, pixel trophy on the right */}
         <section className="relative overflow-hidden border-b border-gift-border py-s-80">
           {/* Floating blurred blobs for atmospheric depth */}
           <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -29,6 +30,20 @@ export default function AchievementsPage() {
             <div className="hero-blob hero-blob-2" />
             <div className="hero-blob hero-blob-3" />
           </div>
+
+          {/* GIFT mascot holding a trophy aloft — celebratory winner pose with a diagonal shine
+              sweep on the trophy. On mobile the robot sits in the bottom-right corner at a smaller
+              size so it doesn't fight the H1; on md+ it moves up to vertical center on the right. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-4 right-4 md:bottom-auto md:right-6 md:top-1/2 md:-translate-y-1/2 lg:right-16"
+          >
+            <PixelRobot
+              pose="holdTrophy"
+              className="h-24 w-24 text-gift-green-teal md:h-36 md:w-36 lg:h-44 lg:w-44"
+            />
+          </div>
+
           <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
               WORKS

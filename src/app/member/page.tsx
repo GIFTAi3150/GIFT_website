@@ -57,7 +57,7 @@ export default async function MemberPage() {
               className="mt-6 max-w-3xl font-sans text-normal font-light text-gift-silver"
               style={{ lineHeight: '2' }}
             >
-              GIFTを構成する経営陣と主要メンバーをご紹介します。多様な専門性を持つ一人ひとりが、お客様と社会に価値を届けています。
+              GIFTの経営陣と主要メンバーをご紹介します。一人ひとりが独自の専門性を持ち、力を合わせてお客様と社会に価値をお届けしています。
             </p>
           </div>
         </section>

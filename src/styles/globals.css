@@ -1092,6 +1092,59 @@ h6 {
   .pulse-wave { animation: none; }
 }
 
+/* Single traveling pulse around the constellation. The path is one continuous Eulerian circuit
+   visiting each constellation edge once. pathLength="100" normalizes timing — dasharray 6/100
+   means a 6%-long bright dash with 100%-long gap, so only ONE pulse is visible at a time as it
+   travels around the loop over 8s. */
+.constellation-trail {
+  stroke-dasharray: 6 100;
+  stroke-dashoffset: 0;
+  animation: constellation-trail-travel 8s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(37, 211, 102, 0.95)) drop-shadow(0 0 6px rgba(37, 211, 102, 0.5));
+}
+@keyframes constellation-trail-travel {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -100; }
+}
+
+/* Each glow-node lights up briefly when the traveling pulse passes it, then dims back down.
+   Set inline style={{ animationDelay: 'Xs' }} on each circle — the delay equals (node position
+   along path / total path length) * 8s. Glow window is 6% of the cycle (~480ms). */
+.constellation-glow-node {
+  fill: rgba(37, 211, 102, 0.4);
+  r: 1;
+  animation: constellation-glow-flash 8s linear infinite;
+}
+@keyframes constellation-glow-flash {
+  0% {
+    fill: #ffffff;
+    r: 1.8;
+    filter: drop-shadow(0 0 5px #25D366) drop-shadow(0 0 10px rgba(37, 211, 102, 0.6));
+  }
+  6% {
+    fill: rgba(37, 211, 102, 0.4);
+    r: 1;
+    filter: none;
+  }
+  100% {
+    fill: rgba(37, 211, 102, 0.4);
+    r: 1;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .constellation-trail,
+  .constellation-glow-node { animation: none; }
+}
+
+/* Achievements/Works hero — pixel trophy with diagonal shine sweep.
+   The shine is a thin white rect inside the trophy SVG, rotated 20° and translated across
+   via SVG SMIL animation. clipPath ensures it only shows over the trophy shape. */
+@media (prefers-reduced-motion: reduce) {
+  .trophy-shine { display: none; }
+}
+
 /* Call-center hero — "voice waveform" flowing across the dark bg.
    Multiple sine layers move at different speeds for organic overlap.
    activity-pulse is a quick green flash, like a live call signal. */
