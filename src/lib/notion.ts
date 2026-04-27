@@ -14,6 +14,7 @@ export interface BlogArticle {
   excerpt: string;
   body: string;
   giftView: string;
+  debugPropKeys?: string[];
 }
 
 export async function getPublishedArticles(): Promise<BlogArticle[]> {
@@ -103,7 +104,19 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
     if (body.length > 120) excerpt += '…';
 
     if (title && slug) {
-      articles.push({ id: page.id, title, slug, category, date, author, cover, excerpt, body, giftView });
+      articles.push({
+        id: page.id,
+        title,
+        slug,
+        category,
+        date,
+        author,
+        cover,
+        excerpt,
+        body,
+        giftView,
+        debugPropKeys: Object.keys(props),
+      });
     }
   }
 
