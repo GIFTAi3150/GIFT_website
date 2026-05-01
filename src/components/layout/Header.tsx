@@ -1,10 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { useNavTheme, navThemeVars } from '@/lib/navTheme';
+import GiftLogo from '@/components/brand/GiftLogo';
 
 const navItems = [
   { href: '/company', en: 'ABOUT', ja: '会社概要' },
@@ -23,6 +24,8 @@ const serviceItems = [
 
 export default function Header() {
   const pathname = usePathname();
+  const theme = useNavTheme();
+  const themeStyle = navThemeVars(theme) as CSSProperties;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -88,13 +91,13 @@ export default function Header() {
   return (
     <>
     <header
+      style={{
+        ...themeStyle,
+        backgroundColor: scrolled ? theme.bgAlpha : theme.bg,
+      }}
       className={`fixed top-0 z-50 w-full transition-opacity duration-700 ease-out ${
         isHidden ? 'pointer-events-none opacity-0' : 'opacity-100'
-      } ${
-        scrolled
-          ? 'bg-gift-bg/95 shadow-deep backdrop-blur-md'
-          : 'bg-gift-bg/90 backdrop-blur-sm'
-      }`}
+      } ${scrolled ? 'shadow-deep backdrop-blur-md' : 'backdrop-blur-sm'}`}
     >
       <div className="mx-auto flex h-20 max-w-container items-center justify-between px-4 md:px-6 lg:px-8">
         <Link
@@ -103,12 +106,9 @@ export default function Header() {
           aria-label="株式会社GIFT トップページ"
           style={{ ['--reveal-delay' as string]: '0ms' }}
         >
-          <Image
-            src="/GIFT_logo.svg"
-            alt="株式会社GIFT"
-            width={48}
-            height={48}
-            priority
+          <GiftLogo
+            shieldFill={theme.logoShield}
+            innerFill={theme.logoInner}
             className="h-10 w-auto transition-transform duration-200 hover:scale-105"
           />
         </Link>
@@ -140,13 +140,13 @@ export default function Header() {
                         <span
                           className={`block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
                             justClicked('/services')
-                              ? 'text-gift-green'
-                              : 'text-gift-ink/85 group-hover:text-gift-green'
+                              ? 'text-[var(--nav-accent)]'
+                              : 'text-gift-ink/85 group-hover:text-[var(--nav-accent)]'
                           }`}
                         >
                           SERVICE
                         </span>
-                        <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
+                        <span className="block h-5 font-sans text-[13px] font-medium text-[var(--nav-accent)]">
                           事業内容
                         </span>
                       </span>
@@ -169,18 +169,18 @@ export default function Header() {
                     }`}
                     style={{ transform: serviceOpen ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-8px)' }}
                   >
-                    <div className="w-64 overflow-hidden rounded-xl border border-gift-border bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                    <div className="w-64 overflow-hidden rounded-xl border border-[var(--nav-border)] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
                       {serviceItems.map((s) => (
                         <Link
                           key={s.href}
                           href={s.href}
-                          className="group/item flex flex-col gap-0.5 border-b border-gift-border/50 px-5 py-3.5 transition-colors duration-150 last:border-0 hover:bg-gift-bg-alt"
+                          className="group/item flex flex-col gap-0.5 border-b border-[var(--nav-border)]/50 px-5 py-3.5 transition-colors duration-150 last:border-0 hover:bg-[var(--nav-bg-alt)]"
                           onClick={() => setServiceOpen(false)}
                         >
-                          <span className="font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
+                          <span className="font-display text-[11px] font-bold uppercase tracking-widest text-[var(--nav-accent)]">
                             {s.labelEn}
                           </span>
-                          <span className="font-sans text-[14px] font-medium text-gift-ink transition-colors group-hover/item:text-gift-green-teal">
+                          <span className="font-sans text-[14px] font-medium text-gift-ink transition-colors group-hover/item:text-[var(--nav-accent-deep)]">
                             {s.label}
                           </span>
                         </Link>
@@ -206,13 +206,13 @@ export default function Header() {
                     <span
                       className={`block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
                         justClicked(item.href)
-                          ? 'text-gift-green'
-                          : 'text-gift-ink/85 group-hover:text-gift-green'
+                          ? 'text-[var(--nav-accent)]'
+                          : 'text-gift-ink/85 group-hover:text-[var(--nav-accent)]'
                       }`}
                     >
                       {item.en}
                     </span>
-                    <span className="block h-5 font-sans text-[13px] font-medium text-gift-hover">
+                    <span className="block h-5 font-sans text-[13px] font-medium text-[var(--nav-accent)]">
                       {item.ja}
                     </span>
                   </span>
@@ -225,7 +225,7 @@ export default function Header() {
         </nav>
 
         <button
-          className="nav-reveal relative z-10 flex h-10 w-10 items-center justify-center rounded-md text-gift-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-gift-green-mid md:hidden"
+          className="nav-reveal relative z-10 flex h-10 w-10 items-center justify-center rounded-md text-gift-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-accent)] md:hidden"
           style={{ ['--reveal-delay' as string]: '150ms' }}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
@@ -243,7 +243,8 @@ export default function Header() {
 
     {open && (
       <nav
-        className="fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto bg-gift-bg px-6 pb-10 pt-10 md:hidden"
+        className="fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto bg-[var(--nav-bg-full)] px-6 pb-10 pt-10 md:hidden"
+        style={themeStyle}
         aria-label="モバイルナビゲーション"
       >
         {/* ABOUT */}
@@ -255,12 +256,12 @@ export default function Header() {
         >
           <span
             className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
-              justClicked('/company') ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+              justClicked('/company') ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
             }`}
           >
             ABOUT
           </span>
-          <span aria-hidden className="h-6 w-px bg-gift-border" />
+          <span aria-hidden className="h-6 w-px bg-[var(--nav-border)]" />
           <span className="font-sans text-[15px] font-medium text-gift-silver">
             会社概要
           </span>
@@ -274,12 +275,12 @@ export default function Header() {
           >
             <span
               className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
-                justClicked('/services') ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+                justClicked('/services') ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
               }`}
             >
               SERVICE
             </span>
-            <span aria-hidden className="h-6 w-px bg-gift-border" />
+            <span aria-hidden className="h-6 w-px bg-[var(--nav-border)]" />
             <span className="font-sans text-[15px] font-medium text-gift-silver">
               事業内容
             </span>
@@ -293,7 +294,7 @@ export default function Header() {
           </button>
 
           {mobileServiceOpen && (
-            <div className="mt-4 flex flex-col gap-3 pl-4 border-l-2 border-gift-green/30">
+            <div className="mt-4 flex flex-col gap-3 pl-4 border-l-2 border-[var(--nav-accent)]/30">
               {serviceItems.map((s) => (
                 <Link
                   key={s.href}
@@ -302,12 +303,12 @@ export default function Header() {
                   className={`flex flex-col gap-0.5 transition-opacity duration-200 ${justClicked(s.href) ? 'opacity-60' : ''}`}
                   aria-current={isActive(s.href) ? 'page' : undefined}
                 >
-                  <span className="font-display text-[11px] font-bold uppercase tracking-widest text-gift-green">
+                  <span className="font-display text-[11px] font-bold uppercase tracking-widest text-[var(--nav-accent)]">
                     {s.labelEn}
                   </span>
                   <span
                     className={`font-sans text-[16px] font-medium transition-colors duration-200 ${
-                      justClicked(s.href) ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+                      justClicked(s.href) ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
                     }`}
                   >
                     {s.label}
@@ -329,12 +330,12 @@ export default function Header() {
           >
             <span
               className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
-                justClicked(item.href) ? 'text-gift-green' : 'text-gift-ink hover:text-gift-green'
+                justClicked(item.href) ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
               }`}
             >
               {item.en}
             </span>
-            <span aria-hidden className="h-6 w-px bg-gift-border" />
+            <span aria-hidden className="h-6 w-px bg-[var(--nav-border)]" />
             <span className="font-sans text-[15px] font-medium text-gift-silver">
               {item.ja}
             </span>

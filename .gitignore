@@ -31,3 +31,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# original-quality source media kept outside /public so it doesn't ship
+/_source-assets/

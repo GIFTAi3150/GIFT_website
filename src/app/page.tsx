@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import Link from 'next/link';
 import Hero from '@/components/sections/Hero';
 import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import WhoWeAre from '@/components/sections/WhoWeAre';
@@ -43,29 +44,55 @@ export default async function HomePage() {
       <Header />
       <main>
         <Hero />
+
+        {/* ABOUT */}
         <Reveal>
           <WhoWeAre />
         </Reveal>
-        <Reveal>
-          <PhotoCarousel />
-        </Reveal>
-        <Reveal>
-          <CaseStudy />
-        </Reveal>
+
+        {/* SERVICE */}
         <Reveal>
           <ServicesCards />
         </Reveal>
         <Reveal>
           <ProcessFlow />
         </Reveal>
+
+        {/* WORKS */}
+        <Reveal>
+          <CaseStudy />
+        </Reveal>
         <Reveal>
           <Clients />
         </Reveal>
+
+        {/* MEMBER */}
         <Reveal>
-          <SocialLinks />
+          <PhotoCarousel />
         </Reveal>
+
+        {/* RECRUIT — minimal CTA strip linking to the dedicated /recruit page */}
+        <Reveal>
+          <section className="border-t border-gift-border bg-white py-s-80">
+            <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
+              <p className="mb-6 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                RECRUIT
+              </p>
+              <Link href="/recruit" className="cta-btn cta-btn--deep">
+                <span>採用情報を見る</span>
+              </Link>
+            </div>
+          </section>
+        </Reveal>
+
+        {/* NEWS */}
         <Reveal>
           <Column articles={articles} />
+        </Reveal>
+
+        {/* CONTACT (social-adjacent) */}
+        <Reveal>
+          <SocialLinks />
         </Reveal>
       </main>
       <Footer />
