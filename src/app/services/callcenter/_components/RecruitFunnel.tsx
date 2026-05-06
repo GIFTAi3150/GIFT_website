@@ -264,7 +264,7 @@ export default function RecruitFunnel() {
                   justifyContent: 'center',
                 }}
               >
-                <a href="/contact" className="tw-btn butter">
+                <a href="/recruit" className="tw-btn butter">
                   応募フォームへ →
                 </a>
                 <a href="/contact" className="tw-btn ghost-light">

@@ -2,9 +2,8 @@
 
 import { useEffect, useState, type CSSProperties } from 'react';
 
-// Editorial hero — left: stagger-in JP headline + minimal underlined CTA.
-// Right: portrait video frame at its native ~0.8 aspect, hard cream backdrop.
-// Below 880px collapses to a single-column stack with the video centered.
+// Full-bleed cinematic hero — landscape video covers the entire viewport.
+// Headline + CTA overlay on top with a gradient scrim for readability.
 
 const HEADLINE_JP = '声で、誰かの一日を、変える人になる。';
 const ACCENT_CHAR = '誰';
@@ -14,37 +13,78 @@ const ACCENT_COLOR = 'var(--r-magenta)';
 const styles: Record<string, CSSProperties> = {
   root: {
     position: 'relative',
+    // 100svh keeps iOS Safari from leaving extra space below when the URL bar
+    // collapses; 100vh is the fallback for browsers that don't know svh yet.
     minHeight: '100vh',
     width: '100%',
     overflow: 'hidden',
-    background: 'var(--r-cream)',
-    display: 'grid',
-    gridTemplateColumns: '1fr auto',
+    background: 'var(--r-ink)',
+    display: 'flex',
     alignItems: 'center',
-    gap: 'clamp(40px, 6vw, 96px)',
-    padding: 'clamp(56px, 6vw, 88px)',
     boxSizing: 'border-box',
   },
-  left: {
+  videoLayer: {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    zIndex: 0,
+  },
+  video: {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'center',
+    display: 'block',
+  },
+  fallback: {
+    position: 'absolute',
+    inset: 0,
+    backgroundImage: 'url(/callcenter-hero.svg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  },
+  // Diagonal gradient on desktop keeps the left side dark for the headline.
+  scrim: {
+    position: 'absolute',
+    inset: 0,
+    background:
+      'linear-gradient(105deg, rgba(14,10,36,0.78) 0%, rgba(14,10,36,0.52) 35%, rgba(14,10,36,0.18) 65%, rgba(14,10,36,0) 100%)',
+    zIndex: 1,
+  },
+  // On narrow viewports the diagonal becomes a top-down gradient so the
+  // headline at the top stays readable regardless of where the video subject is.
+  scrimNarrow: {
+    background:
+      'linear-gradient(180deg, rgba(14,10,36,0.85) 0%, rgba(14,10,36,0.55) 40%, rgba(14,10,36,0.25) 70%, rgba(14,10,36,0.55) 100%)',
+  },
+  content: {
+    position: 'relative',
+    zIndex: 2,
     display: 'flex',
     flexDirection: 'column',
-    gap: 'clamp(40px, 6vh, 80px)',
-    maxWidth: 720,
+    gap: 'clamp(28px, 5vh, 72px)',
+    // Top padding floor (108px) clears the fixed 80px header with breathing
+    // room on mobile. Side floor (20px) keeps the headline off the edge.
+    padding: 'clamp(108px, 8vw, 128px) clamp(20px, 6vw, 96px)',
+    maxWidth: 920,
     minWidth: 0,
+    width: '100%',
   },
-  // Desktop headline. Narrow viewports get a smaller, looser variant below
-  // (`narrowHeadline`) — the desktop floor of 48px crowded the edges of small
-  // phones once the per-char inline-blocks wrapped.
   headline: {
     fontFamily: 'var(--font-sans)',
     fontWeight: 900,
     fontSize: 'clamp(48px, 6.4vw, 112px)',
     lineHeight: 1.05,
     letterSpacing: '-0.01em',
-    color: 'var(--r-ink)',
+    color: '#FFFCF3',
     margin: 0,
     fontFeatureSettings: '"palt" 1',
     wordBreak: 'keep-all',
+    textShadow: '0 4px 24px rgba(0,0,0,0.35)',
   },
   narrowHeadline: {
     fontSize: 'clamp(36px, 9.5vw, 56px)',
@@ -64,7 +104,7 @@ const styles: Record<string, CSSProperties> = {
     alignItems: 'baseline',
     padding: 0,
     background: 'transparent',
-    color: 'var(--r-ink)',
+    color: '#FFFCF3',
     fontFamily: 'var(--font-sans)',
     fontWeight: 800,
     fontSize: 'clamp(28px, 2.6vw, 40px)',
@@ -85,29 +125,6 @@ const styles: Record<string, CSSProperties> = {
     transformOrigin: 'left',
     transform: 'scaleX(0.4)',
     transition: 'transform .5s cubic-bezier(0.22,1,0.36,1)',
-  },
-  videoFrame: {
-    position: 'relative',
-    height: 'min(94vh, 1080px)',
-    aspectRatio: '0.8 / 1',
-    overflow: 'hidden',
-    background: 'var(--r-ink)',
-    boxShadow: '0 50px 100px -30px rgba(14,10,36,0.4)',
-  },
-  video: {
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    objectPosition: 'center 30%',
-    display: 'block',
-  },
-  cornerBase: {
-    position: 'absolute',
-    width: 18,
-    height: 18,
-    pointerEvents: 'none',
   },
 };
 
@@ -133,40 +150,39 @@ export default function HeroScene() {
     transition: `opacity 1.2s ease ${delay}ms, transform 1.2s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
   });
 
-  const rootStyle: CSSProperties = narrow
-    ? {
-        // Mobile: stack with VIDEO first (column-reverse on the source order
-        // — left/text comes second in JSX, right/video first visually).
-        // Top padding is ≥ the fixed Header height (80px) plus breathing room
-        // so neither the video frame nor the headline sit under the navbar.
-        ...styles.root,
-        display: 'flex',
-        flexDirection: 'column-reverse',
-        padding: '108px 20px 56px',
-        gap: 32,
-        minHeight: 'auto',
-      }
-    : styles.root;
-
   const headlineStyle: CSSProperties = narrow
     ? { ...styles.headline, ...styles.narrowHeadline }
     : styles.headline;
 
-  const videoStyle: CSSProperties = narrow
-    ? {
-        ...styles.videoFrame,
-        height: 'auto',
-        width: '100%',
-        maxWidth: 420,
-        aspectRatio: '0.8 / 1',
-        justifySelf: 'center',
-      }
-    : styles.videoFrame;
-
   return (
-    <section style={rootStyle} aria-label="コールセンター事業 — Hero">
-      {/* LEFT — headline + button */}
-      <div style={styles.left}>
+    <section style={styles.root} aria-label="コールセンター事業 — Hero">
+      {/* Full-bleed background video. SVG fallback sits behind in case the
+          video can't decode. preload="metadata" keeps the initial mobile
+          payload light — the browser only fetches the bytes once it starts. */}
+      <div style={styles.videoLayer} aria-hidden>
+        <div style={styles.fallback} />
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/callcenter-hero.svg"
+          style={styles.video}
+        >
+          <source src="/img/callcenter-hero.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      {/* Dark gradient over the video so the headline stays readable.
+          Switches direction on narrow viewports. */}
+      <div
+        style={{ ...styles.scrim, ...(narrow ? styles.scrimNarrow : {}) }}
+        aria-hidden
+      />
+
+      {/* Headline + CTA */}
+      <div style={styles.content}>
         <h1 style={headlineStyle} aria-label={HEADLINE_JP}>
           {Array.from(HEADLINE_JP).map((ch, i) => {
             const isAccent = ch === ACCENT_CHAR;
@@ -189,7 +205,7 @@ export default function HeroScene() {
         </h1>
 
         <a
-          href="#recruit"
+          href="/recruit"
           style={{ ...styles.ctaBtn, ...fade(450 + HEADLINE_JP.length * 60) }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = ACCENT_COLOR;
@@ -197,7 +213,7 @@ export default function HeroScene() {
             if (u) u.style.transform = 'scaleX(1)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--r-ink)';
+            e.currentTarget.style.color = '#FFFCF3';
             const u = e.currentTarget.querySelector<HTMLElement>('[data-underline]');
             if (u) u.style.transform = 'scaleX(0.4)';
           }}
@@ -207,82 +223,6 @@ export default function HeroScene() {
             <span data-underline style={styles.ctaUnderline} />
           </span>
         </a>
-      </div>
-
-      {/* RIGHT — portrait video.
-          The placeholder mp4 from the design kit is HEVC and won't decode in
-          Chrome/Firefox on Windows; the SVG below shows through as a graceful
-          fallback. Drop a real H.264-encoded .mp4 at /public/callcenter-hero.mp4
-          (or replace the <source> path) and it'll cover the SVG automatically. */}
-      <div style={{ ...videoStyle, ...fade(350) }}>
-        {/* Animated SVG fallback — sits behind the <video> so if the video
-            fails to decode we still see motion and color, not a black hole. */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url(/callcenter-hero.svg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={styles.video}
-        >
-          <source src="/callcenter-hero.mp4" type="video/mp4" />
-        </video>
-
-        {/* Headphones sticker — covers the bottom-right corner of the video
-            (the AI watermark) and also nods to the call-center theme.
-            Sized + positioned to fully overlap a typical Vidu watermark
-            footprint (~120×40px starting ~20px from the bottom-right). */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 12,
-            right: 12,
-            zIndex: 4,
-            width: 120,
-            height: 120,
-            borderRadius: '50%',
-            background: 'var(--r-cream)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 20px -6px rgba(14,10,36,0.4)',
-            transform: 'rotate(-8deg)',
-          }}
-        >
-          <svg
-            width="68"
-            height="68"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--r-ink)"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            {/* Filled magenta ear cups under the stroked headband — call-center
-                cue with a pop of brand color. */}
-            <path d="M4 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3z" fill="#E5347A" />
-            <path d="M20 14h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3z" fill="#E5347A" />
-            {/* Headband + ear-cup outline as a single continuous stroke */}
-            <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
-          </svg>
-        </div>
-
-        {/* Corner crop marks — editorial detail */}
-        <div style={{ ...styles.cornerBase, top: -10, left: -10, borderTop: '1.5px solid var(--r-ink)', borderLeft: '1.5px solid var(--r-ink)' }} />
-        <div style={{ ...styles.cornerBase, top: -10, right: -10, borderTop: '1.5px solid var(--r-ink)', borderRight: '1.5px solid var(--r-ink)' }} />
-        <div style={{ ...styles.cornerBase, bottom: -10, left: -10, borderBottom: '1.5px solid var(--r-ink)', borderLeft: '1.5px solid var(--r-ink)' }} />
-        <div style={{ ...styles.cornerBase, bottom: -10, right: -10, borderBottom: '1.5px solid var(--r-ink)', borderRight: '1.5px solid var(--r-ink)' }} />
       </div>
     </section>
   );

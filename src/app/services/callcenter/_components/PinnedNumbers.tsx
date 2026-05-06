@@ -153,7 +153,7 @@ export default function PinnedNumbers() {
             <br />
             測れる事実だけで語る、はたらく場所としてのGIFT。
           </p>
-          <a href="#recruit" className="tw-btn butter" style={{ marginTop: 28 }}>
+          <a href="/recruit" className="tw-btn butter" style={{ marginTop: 28 }}>
             応募ページへ →
           </a>
         </div>

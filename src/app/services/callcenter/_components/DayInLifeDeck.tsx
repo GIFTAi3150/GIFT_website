@@ -16,11 +16,41 @@ interface DeckEntry {
 }
 
 const DECK_ENTRIES: DeckEntry[] = [
-  { time: '09:30', title: '朝のチーム集合',     body: 'その日の目標と、ちょっとした近況をシェア。発声練習で笑い合うところからスタート。',     img: '/img/team/team-3.jpg', chip: 'OPEN' },
-  { time: '10:00', title: 'コール業務スタート', body: 'マニュアルは骨組み、肉付けはあなたの言葉。隣には先輩がいる安心感。',                      img: '/img/team/team-1.jpg', chip: 'CONNECT' },
-  { time: '12:30', title: 'ランチタイム',       body: 'オフィスのキッチンで温かい昼食。シフト制でも、毎日誰かと食卓を囲める設計。',              img: '/img/team/team-4.jpg', chip: 'PAUSE' },
-  { time: '15:00', title: '1on1ミーティング',   body: '週1の30分。数字より先に「最近どう?」を聴く時間。SVが伴走します。',                       img: '/img/team/team-2.jpg', chip: 'TALK' },
-  { time: '18:00', title: 'おつかれさま',       body: '残業ほぼゼロ。夜の予定も、推し活も、ちゃんと両立できる職場です。',                        img: '/img/team/team-5.jpg', chip: 'CLOSE' },
+  {
+    time: '10:00',
+    title: '朝のチーム集合',
+    body: 'その日の目標と、ちょっとした近況をシェア。発声練習で笑い合うところからスタート。',
+    img: '/img/callcenter/cc-01.jpg',
+    chip: 'OPEN',
+  },
+  {
+    time: '10:30',
+    title: 'コール業務スタート',
+    body: 'マニュアルは骨組み、肉付けはあなたの言葉。隣には先輩がいる安心感。',
+    img: '/img/callcenter/cc-02.jpg',
+    chip: 'CONNECT',
+  },
+  {
+    time: '13:00',
+    title: 'ランチタイム',
+    body: 'オフィスのキッチンで温かい昼食。シフト制でも、毎日誰かと食卓を囲める設計。',
+    img: '/img/callcenter/cc-03.jpg',
+    chip: 'PAUSE',
+  },
+  {
+    time: '16:00',
+    title: '1on1ミーティング',
+    body: '週1の30分。数字より先に「最近どう?」を聴く時間。SVが伴走します。',
+    img: '/img/callcenter/cc-04.jpg',
+    chip: 'TALK',
+  },
+  {
+    time: '19:00',
+    title: 'おつかれさま',
+    body: '残業ほぼゼロ。夜の予定も、推し活も、ちゃんと両立できる職場です。',
+    img: '/img/callcenter/cc-05.jpg',
+    chip: 'CLOSE',
+  },
 ];
 
 const TOTAL_CARDS = DECK_ENTRIES.length + 1; // +1 for CTA tail card
@@ -72,18 +102,6 @@ const styles: Record<string, CSSProperties> = {
     color: '#FFFCF3',
     textWrap: 'balance',
   } as CSSProperties,
-  hint: {
-    fontFamily: 'var(--font-display)',
-    fontWeight: 700,
-    fontSize: 11,
-    letterSpacing: '0.22em',
-    textTransform: 'uppercase',
-    color: 'rgba(255,253,243,0.65)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 6,
-  },
   stage: {
     position: 'absolute',
     inset: 0,
@@ -119,7 +137,8 @@ const styles: Record<string, CSSProperties> = {
   imgScrim: {
     position: 'absolute',
     inset: 0,
-    background: 'linear-gradient(180deg, rgba(14,10,36,0.05) 0%, rgba(14,10,36,0.45) 55%, rgba(14,10,36,0.92) 100%)',
+    background:
+      'linear-gradient(180deg, rgba(14,10,36,0.05) 0%, rgba(14,10,36,0.45) 55%, rgba(14,10,36,0.92) 100%)',
   },
   cardBody: {
     position: 'absolute',
@@ -299,8 +318,7 @@ export default function DayInLifeDeck() {
 
         node.style.opacity = String(opacity);
         node.style.zIndex = String(zIndex);
-        node.style.transform =
-          `translateY(${translate}${translateUnit}) scale(${scale}) rotate(${rotate}deg)`;
+        node.style.transform = `translateY(${translate}${translateUnit}) scale(${scale}) rotate(${rotate}deg)`;
       });
 
       const idx = Math.min(TOTAL_CARDS - 1, Math.floor(t));
@@ -338,9 +356,6 @@ export default function DayInLifeDeck() {
             <h2 style={styles.title}>
               ある一日を、<span style={{ color: 'var(--r-gold)' }}>めくる</span>。
             </h2>
-            <div style={styles.hint}>
-              <span>↓</span> SCROLL TO REVEAL
-            </div>
           </div>
         </div>
 
@@ -386,19 +401,21 @@ export default function DayInLifeDeck() {
                   NEXT DAY
                 </div>
                 <h3
-                  style={{
-                    margin: '20px 0 28px',
-                    fontWeight: 900,
-                    fontSize: 'clamp(36px, 5vw, 64px)',
-                    lineHeight: 1.05,
-                    textWrap: 'balance',
-                  } as CSSProperties}
+                  style={
+                    {
+                      margin: '20px 0 28px',
+                      fontWeight: 900,
+                      fontSize: 'clamp(36px, 5vw, 64px)',
+                      lineHeight: 1.05,
+                      textWrap: 'balance',
+                    } as CSSProperties
+                  }
                 >
                   次の一日は、
                   <br />
                   あなたの番です。
                 </h3>
-                <a href="#recruit" className="tw-btn butter">
+                <a href="/recruit" className="tw-btn butter">
                   応募する <span style={{ fontSize: 18 }}>→</span>
                 </a>
               </div>

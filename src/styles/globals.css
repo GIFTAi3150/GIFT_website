@@ -837,8 +837,11 @@
   content: '';
   border-radius: 50%;
   display: block;
-  width: 20em;
-  height: 20em;
+  /* Sized so the inset fill reaches the right edge of any reasonable
+     button width (≤ ~55em / 880px). The original 20em circle left a
+     gap on long-text buttons because it didn't span past x=15em. */
+  width: 60em;
+  height: 60em;
   text-align: center;
   transition: box-shadow 0.5s ease-out;
   z-index: 0;
@@ -850,7 +853,7 @@
 }
 .cta-btn:hover::before,
 .cta-btn:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #25D366;
+  box-shadow: inset 0 0 0 30em #25D366;
 }
 .cta-btn:active {
   transform: scale(0.97);
@@ -867,7 +870,7 @@
 }
 .cta-btn--deep:hover::before,
 .cta-btn--deep:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #128C7E;
+  box-shadow: inset 0 0 0 30em #128C7E;
 }
 
 /* On-green-band variant (white outline → white fill, green text on hover) */
@@ -882,7 +885,7 @@
 }
 .cta-btn--on-green:hover::before,
 .cta-btn--on-green:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #ffffff;
+  box-shadow: inset 0 0 0 30em #ffffff;
 }
 
 :root {
@@ -1228,4 +1231,32 @@ h6 {
 }
 @media (prefers-reduced-motion: reduce) {
   .dx-node { animation: none; }
+}
+
+/* ==========================================================
+   Emoji rain — Osmo Supply pattern adapted for unicode emojis.
+   The container is a viewport-fixed overlay, pointer-events
+   off so it never blocks clicks. JS injects .single-rain-emoji
+   children at click-time and animates them upward via GSAP.
+========================================================== */
+.emoji-rain-container {
+  z-index: 150;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+.single-rain-emoji {
+  will-change: transform;
+  width: max(80px, 8vw);
+  position: absolute;
+  top: 0;
+}
+.single-rain-emoji-text {
+  width: 100%;
+  text-align: center;
+  font-size: clamp(48px, 7vw, 110px);
+  line-height: 1;
 }

@@ -34,3 +34,6 @@ next-env.d.ts
 
 # original-quality source media kept outside /public so it doesn't ship
 /_source-assets/
+
+# design references / scratch (Osmo snippets, design ZIPs)
+/_design-assets/

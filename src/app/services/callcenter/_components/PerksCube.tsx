@@ -20,12 +20,49 @@ interface Perk {
 
 // ─── Icons (one per face) ───────────────────────────────────────────────
 const IconHeadset = ({ tint = 'var(--r-magenta)' }: { tint?: string }) => (
-  <svg viewBox="0 0 160 160" style={{ width: '60%', height: '60%' }} aria-hidden>
-    <path d="M 32 92 Q 32 36 80 36 Q 128 36 128 92" stroke="var(--r-ink)" strokeWidth="8" fill="none" strokeLinecap="round" />
-    <rect x="22" y="86" width="24" height="44" rx="12" fill={tint} />
-    <rect x="114" y="86" width="24" height="44" rx="12" fill={tint} />
-    <path d="M 138 108 Q 150 118 138 134" stroke="var(--r-ink)" strokeWidth="4" fill="none" strokeLinecap="round" />
-    <circle cx="138" cy="134" r="6" fill="var(--r-gold)" />
+  <svg viewBox="0 0 160 160" style={{ width: '62%', height: '62%' }} aria-hidden>
+    {/* Headband arcing over the top, connecting both ear cups */}
+    <path
+      d="M 32 80 Q 32 22 80 22 Q 128 22 128 80"
+      stroke="var(--r-ink)"
+      strokeWidth="7"
+      fill="none"
+      strokeLinecap="round"
+    />
+    {/* Ear cups */}
+    <rect
+      x="16"
+      y="72"
+      width="32"
+      height="58"
+      rx="10"
+      fill={tint}
+      stroke="var(--r-ink)"
+      strokeWidth="4"
+    />
+    <rect
+      x="112"
+      y="72"
+      width="32"
+      height="58"
+      rx="10"
+      fill={tint}
+      stroke="var(--r-ink)"
+      strokeWidth="4"
+    />
+    {/* Speaker dots */}
+    <circle cx="32" cy="101" r="5" fill="var(--r-ink)" />
+    <circle cx="128" cy="101" r="5" fill="var(--r-ink)" />
+    {/* Boom mic arm — curves down and forward from the right cup */}
+    <path
+      d="M 128 130 Q 130 146 112 150 L 86 150"
+      stroke="var(--r-ink)"
+      strokeWidth="5"
+      fill="none"
+      strokeLinecap="round"
+    />
+    {/* Mic capsule at the end of the boom */}
+    <ellipse cx="80" cy="150" rx="9" ry="5" fill="var(--r-ink)" />
   </svg>
 );
 
@@ -69,11 +106,50 @@ const IconClock = ({ tint = 'var(--r-gold)' }: { tint?: string }) => (
 
 const IconBookmark = ({ tint = 'var(--r-magenta)' }: { tint?: string }) => (
   <svg viewBox="0 0 160 160" style={{ width: '60%', height: '60%' }} aria-hidden>
-    <rect x="40" y="28" width="80" height="104" rx="6" fill="#FBF6EC" stroke="var(--r-ink)" strokeWidth="5" />
-    <line x1="56" y1="56" x2="104" y2="56" stroke="var(--r-ink)" strokeWidth="4" strokeLinecap="round" />
-    <line x1="56" y1="74" x2="96" y2="74" stroke="var(--r-ink)" strokeWidth="4" strokeLinecap="round" />
-    <line x1="56" y1="92" x2="100" y2="92" stroke="var(--r-ink)" strokeWidth="4" strokeLinecap="round" />
-    <path d="M 96 22 L 96 70 L 110 60 L 124 70 L 124 22 Z" fill={tint} stroke="var(--r-ink)" strokeWidth="5" strokeLinejoin="round" />
+    <rect
+      x="40"
+      y="28"
+      width="80"
+      height="104"
+      rx="6"
+      fill="#FBF6EC"
+      stroke="var(--r-ink)"
+      strokeWidth="5"
+    />
+    <line
+      x1="56"
+      y1="56"
+      x2="104"
+      y2="56"
+      stroke="var(--r-ink)"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    <line
+      x1="56"
+      y1="74"
+      x2="96"
+      y2="74"
+      stroke="var(--r-ink)"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    <line
+      x1="56"
+      y1="92"
+      x2="100"
+      y2="92"
+      stroke="var(--r-ink)"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    <path
+      d="M 96 22 L 96 70 L 110 60 L 124 70 L 124 22 Z"
+      fill={tint}
+      stroke="var(--r-ink)"
+      strokeWidth="5"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -100,17 +176,38 @@ const IconChart = ({ tint = 'var(--r-gold)' }: { tint?: string }) => (
     <rect x="54" y="60" width="18" height="72" rx="3" fill="var(--r-magenta)" />
     <rect x="80" y="44" width="18" height="88" rx="3" fill={tint} />
     <rect x="106" y="28" width="18" height="104" rx="3" fill="#FBF6EC" />
-    <path d="M 36 90 L 62 70 L 88 54 L 114 38" stroke="#FBF6EC" strokeWidth="4" fill="none" strokeLinecap="round" />
+    <path
+      d="M 36 90 L 62 70 L 88 54 L 114 38"
+      stroke="#FBF6EC"
+      strokeWidth="4"
+      fill="none"
+      strokeLinecap="round"
+    />
     <circle cx="114" cy="38" r="6" fill="#FBF6EC" />
   </svg>
 );
 
 const IconCoin = ({ tint = 'var(--r-gold)' }: { tint?: string }) => (
   <svg viewBox="0 0 160 160" style={{ width: '60%', height: '60%' }} aria-hidden>
-    <ellipse cx="80" cy="118" rx="44" ry="10" fill="rgba(14,10,36,0.18)" />
-    <circle cx="80" cy="78" r="46" fill={tint} stroke="var(--r-ink)" strokeWidth="5" />
-    <circle cx="80" cy="78" r="36" fill="none" stroke="var(--r-ink)" strokeWidth="2" opacity="0.4" />
-    <text x="80" y="92" textAnchor="middle" fontFamily="var(--font-display)" fontWeight={900} fontSize="42" fill="var(--r-ink)">
+    <circle cx="80" cy="80" r="50" fill={tint} stroke="var(--r-ink)" strokeWidth="5" />
+    <circle
+      cx="80"
+      cy="80"
+      r="40"
+      fill="none"
+      stroke="var(--r-ink)"
+      strokeWidth="2"
+      opacity="0.4"
+    />
+    <text
+      x="80"
+      y="94"
+      textAnchor="middle"
+      fontFamily="var(--font-display)"
+      fontWeight={900}
+      fontSize="46"
+      fill="var(--r-ink)"
+    >
       ¥
     </text>
   </svg>
@@ -123,7 +220,7 @@ const PERKS: Perk[] = [
     title: '「話を聴く」を、武器にする。',
     body: 'マニュアル通りでなく、相手に合わせて言葉を選ぶ。コールの仕事は、思っているより、ずっと創造的。話す力ではなく、聴く力で評価される職場です。',
     chips: ['傾聴力', '対話設計', '評価の軸'],
-    bg: 'var(--r-magenta)',
+    bg: 'var(--r-gold)',
     Icon: IconHeadset,
     anim: 'wordsUp',
   },
@@ -172,10 +269,10 @@ const PERKS: Perk[] = [
   {
     tag: '06 · COMP',
     sticker: 'COMP',
-    title: '初任給 月給 28万円〜。',
+    title: '初任給 月給 27万円〜。',
     body: '賞与年2回、交通費全額、社会保険完備、住宅手当も。生活の地盤を、まず整える待遇です。',
     chips: ['賞与年2回', '交通費全額', '社保完備', '住宅手当'],
-    stat: '¥280K',
+    stat: '¥270K',
     statLabel: 'STARTING SALARY',
     bg: '#FFFDF7',
     Icon: IconCoin,
@@ -189,21 +286,20 @@ const FACE_TRANSFORMS = [
   'rotateY(90deg)  rotateX(0deg)   translateZ(var(--half))',
   'rotateY(180deg) rotateX(0deg)   translateZ(var(--half))',
   'rotateY(270deg) rotateX(0deg)   translateZ(var(--half))',
-  'rotateX(90deg)  translateZ(var(--half)) rotateZ(180deg)',
-  'rotateX(-90deg) translateZ(var(--half))',
+  'rotateX(90deg)  translateZ(var(--half)) rotateZ(90deg)',
+  'rotateX(-90deg) translateZ(var(--half)) rotateZ(-90deg)',
 ];
 
 const CUBE_AT_STEP = [
-  { rx: 0,   ry: 0 },
-  { rx: 0,   ry: -90 },
-  { rx: 0,   ry: -180 },
-  { rx: 0,   ry: -270 },
+  { rx: 0, ry: 0 },
+  { rx: 0, ry: -90 },
+  { rx: 0, ry: -180 },
+  { rx: 0, ry: -270 },
   { rx: -90, ry: -270 },
-  { rx: 90,  ry: -270 },
+  { rx: 90, ry: -270 },
 ];
 
-const easeInOutCubic = (t: number) =>
-  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const styles: Record<string, CSSProperties> = {
   section: {
@@ -510,7 +606,12 @@ function PerkSwitch({ p }: { p: Perk }) {
   if (p.anim === 'maskRight') {
     return (
       <div style={styles.perkArea}>
-        <h3 style={{ ...styles.perkTitle, animation: 'twPcMaskRight .8s cubic-bezier(.7,0,.3,1) both' }}>
+        <h3
+          style={{
+            ...styles.perkTitle,
+            animation: 'twPcMaskRight .8s cubic-bezier(.7,0,.3,1) both',
+          }}
+        >
           {p.title}
         </h3>
         <div style={{ position: 'relative', width: 64, height: 3, marginBottom: 14 }}>
@@ -524,7 +625,12 @@ function PerkSwitch({ p }: { p: Perk }) {
             }}
           />
         </div>
-        <p style={{ ...styles.perkBody, animation: 'twPcMaskRight 1s cubic-bezier(.7,0,.3,1) .25s both' }}>
+        <p
+          style={{
+            ...styles.perkBody,
+            animation: 'twPcMaskRight 1s cubic-bezier(.7,0,.3,1) .25s both',
+          }}
+        >
           {p.body}
         </p>
         <div style={{ animation: 'twPcWordsUp .6s ease 1s both' }}>
@@ -562,10 +668,20 @@ function PerkSwitch({ p }: { p: Perk }) {
   if (p.anim === 'tiltFlip') {
     return (
       <div style={styles.perkArea}>
-        <h3 style={{ ...styles.perkTitle, animation: 'twPcTiltFlip .9s cubic-bezier(.22,1,.36,1) both' }}>
+        <h3
+          style={{
+            ...styles.perkTitle,
+            animation: 'twPcTiltFlip .9s cubic-bezier(.22,1,.36,1) both',
+          }}
+        >
           {p.title}
         </h3>
-        <p style={{ ...styles.perkBody, animation: 'twPcTiltFlip 1s cubic-bezier(.22,1,.36,1) .15s both' }}>
+        <p
+          style={{
+            ...styles.perkBody,
+            animation: 'twPcTiltFlip 1s cubic-bezier(.22,1,.36,1) .15s both',
+          }}
+        >
           {p.body}
         </p>
         <div style={{ animation: 'twPcTiltFlip .8s cubic-bezier(.22,1,.36,1) .35s both' }}>
@@ -578,10 +694,20 @@ function PerkSwitch({ p }: { p: Perk }) {
   // fadeBlur (default)
   return (
     <div style={styles.perkArea}>
-      <h3 style={{ ...styles.perkTitle, animation: 'twPcFadeBlur .9s cubic-bezier(.22,1,.36,1) both' }}>
+      <h3
+        style={{
+          ...styles.perkTitle,
+          animation: 'twPcFadeBlur .9s cubic-bezier(.22,1,.36,1) both',
+        }}
+      >
         {p.title}
       </h3>
-      <p style={{ ...styles.perkBody, animation: 'twPcFadeBlur 1.1s cubic-bezier(.22,1,.36,1) .15s both' }}>
+      <p
+        style={{
+          ...styles.perkBody,
+          animation: 'twPcFadeBlur 1.1s cubic-bezier(.22,1,.36,1) .15s both',
+        }}
+      >
         {p.body}
       </p>
       <div style={{ animation: 'twPcFadeBlur .9s ease .35s both' }}>

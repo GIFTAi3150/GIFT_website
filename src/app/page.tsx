@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import Link from 'next/link';
 import Hero from '@/components/sections/Hero';
 import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import WhoWeAre from '@/components/sections/WhoWeAre';
@@ -11,6 +10,7 @@ import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
+import RecruitCta from '@/components/sections/RecruitCta';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles } from '@/lib/notion';
 
@@ -71,18 +71,9 @@ export default async function HomePage() {
           <PhotoCarousel />
         </Reveal>
 
-        {/* RECRUIT — minimal CTA strip linking to the dedicated /recruit page */}
+        {/* RECRUIT — CTA with emoji rain on click (Osmo Supply pattern) */}
         <Reveal>
-          <section className="border-t border-gift-border bg-white py-s-80">
-            <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
-              <p className="mb-6 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                RECRUIT
-              </p>
-              <Link href="/recruit" className="cta-btn cta-btn--deep">
-                <span>採用情報を見る</span>
-              </Link>
-            </div>
-          </section>
+          <RecruitCta />
         </Reveal>
 
         {/* NEWS */}
