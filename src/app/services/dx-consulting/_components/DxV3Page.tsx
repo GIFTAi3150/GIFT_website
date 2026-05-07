@@ -133,7 +133,6 @@ const RPA_CARDS = [
 // ============================================================
 export default function DxV3Page() {
   const heroRef = useRef<HTMLElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const progRef = useRef<HTMLDivElement | null>(null);
 
   // ----- All scroll-driven animations (single useEffect to share state) -----
@@ -166,252 +165,7 @@ export default function DxV3Page() {
       })
     );
 
-    // ---- Hero canvas: living neural network ----
-    // 50 nodes scattered in a 3D volume, each connected to its 3 nearest
-    // neighbors. The whole graph rotates slowly and tracks the cursor with
-    // ±20° tilt. Bright pulses periodically travel along random connections
-    // (think neurons firing, attention propagating). Pure canvas 2D — no
-    // text rendering, ~lightweight.
-    const canvas = canvasRef.current;
-    let canvasRaf = 0;
-    let cleanupCanvas = () => {};
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        let W = 0,
-          H = 0,
-          dpr = 1;
-        const size = () => {
-          dpr = Math.min(window.devicePixelRatio || 1, 2);
-          W = canvas.clientWidth;
-          H = canvas.clientHeight;
-          canvas.width = W * dpr;
-          canvas.height = H * dpr;
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        };
-        size();
-
-        type Node3D = {
-          x: number; y: number; z: number;
-          vx: number; vy: number; vz: number;
-          conns: number[];
-        };
-        type Pulse = {
-          fromIdx: number;
-          toIdx: number;
-          progress: number;
-          speed: number;
-        };
-
-        const NODE_COUNT = 50;
-        const NEAREST_K = 3;
-        const nodes: Node3D[] = [];
-        const pulses: Pulse[] = [];
-
-        const initNodes = () => {
-          nodes.length = 0;
-          for (let i = 0; i < NODE_COUNT; i++) {
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
-            const radius = 0.4 + Math.random() * 0.55;
-            nodes.push({
-              x: Math.sin(phi) * Math.cos(theta) * radius,
-              y: Math.sin(phi) * Math.sin(theta) * radius,
-              z: Math.cos(phi) * radius,
-              vx: (Math.random() - 0.5) * 0.0003,
-              vy: (Math.random() - 0.5) * 0.0003,
-              vz: (Math.random() - 0.5) * 0.0003,
-              conns: [],
-            });
-          }
-          nodes.forEach((node, i) => {
-            const dists = nodes
-              .map((other, j) => ({
-                j,
-                d:
-                  i === j
-                    ? Infinity
-                    : Math.hypot(node.x - other.x, node.y - other.y, node.z - other.z),
-              }))
-              .sort((a, b) => a.d - b.d);
-            node.conns = dists.slice(0, NEAREST_K).map((x) => x.j);
-          });
-        };
-        initNodes();
-
-        const onResize = () => size();
-        window.addEventListener('resize', onResize);
-
-        const mouse = { nx: 0, ny: 0 };
-        const onMove = (e: MouseEvent) => {
-          const r = canvas.getBoundingClientRect();
-          mouse.nx = ((e.clientX - r.left) / r.width) * 2 - 1;
-          mouse.ny = ((e.clientY - r.top) / r.height) * 2 - 1;
-        };
-        window.addEventListener('mousemove', onMove);
-
-        const rot = { x: 0, y: 0 };
-        const target = { x: 0, y: 0 };
-        const MAX_TILT = 0.35;
-
-        let lastPulse = performance.now();
-        const PULSE_INTERVAL = 220;
-
-        const projectAll = () => {
-          const cx = Math.cos(rot.x);
-          const sx = Math.sin(rot.x);
-          const cy = Math.cos(rot.y);
-          const sy = Math.sin(rot.y);
-          const cw = W / 2;
-          const ch = H / 2;
-          const fov = 1.5;
-          const camZ = 2.5;
-          const scale = Math.min(W, H) * 0.45;
-          return nodes.map((n) => {
-            const y1 = n.y * cx - n.z * sx;
-            const z1 = n.y * sx + n.z * cx;
-            const x2 = n.x * cy + z1 * sy;
-            const z2 = -n.x * sy + z1 * cy;
-            const dist = camZ - z2;
-            const k = fov / dist;
-            return {
-              px: cw + x2 * k * scale,
-              py: ch + y1 * k * scale,
-              depth: k,
-            };
-          });
-        };
-
-        let prevTs = performance.now();
-
-        const draw = (now: number) => {
-          const dtMs = Math.min(48, now - prevTs);
-          prevTs = now;
-          ctx.clearRect(0, 0, W, H);
-
-          nodes.forEach((n) => {
-            n.x += n.vx;
-            n.y += n.vy;
-            n.z += n.vz;
-            if (Math.abs(n.x) > 1.05) n.vx *= -1;
-            if (Math.abs(n.y) > 1.05) n.vy *= -1;
-            if (Math.abs(n.z) > 1.05) n.vz *= -1;
-          });
-
-          target.x = mouse.ny * MAX_TILT;
-          target.y = mouse.nx * MAX_TILT;
-          rot.x += (target.x - rot.x) * 0.05;
-          rot.y += (target.y - rot.y) * 0.05;
-
-          const proj = projectAll();
-
-          ctx.lineWidth = 1;
-          nodes.forEach((node, i) => {
-            for (const j of node.conns) {
-              if (j < i) continue;
-              const a = proj[i];
-              const b = proj[j];
-              const avg = (a.depth + b.depth) / 2;
-              const opacity = Math.max(0, Math.min(0.5, (avg - 0.4) * 1.0));
-              ctx.strokeStyle = `rgba(39, 71, 255, ${opacity})`;
-              ctx.beginPath();
-              ctx.moveTo(a.px, a.py);
-              ctx.lineTo(b.px, b.py);
-              ctx.stroke();
-            }
-          });
-
-          if (now - lastPulse > PULSE_INTERVAL) {
-            const fromIdx = Math.floor(Math.random() * nodes.length);
-            const conns = nodes[fromIdx].conns;
-            const toIdx = conns[Math.floor(Math.random() * conns.length)];
-            pulses.push({
-              fromIdx,
-              toIdx,
-              progress: 0,
-              speed: 0.7 + Math.random() * 0.5,
-            });
-            lastPulse = now;
-          }
-
-          for (let pi = pulses.length - 1; pi >= 0; pi--) {
-            const p = pulses[pi];
-            p.progress += (dtMs / 1000) * p.speed;
-            if (p.progress >= 1) {
-              pulses.splice(pi, 1);
-              continue;
-            }
-            const a = proj[p.fromIdx];
-            const b = proj[p.toIdx];
-            if (!a || !b) continue;
-            const t = p.progress;
-            const x = a.px + (b.px - a.px) * t;
-            const y = a.py + (b.py - a.py) * t;
-            const depth = a.depth + (b.depth - a.depth) * t;
-            const r = 3 * depth;
-            // Guard: a transitioning sticky panel can briefly hand us a
-            // 0-sized canvas; that produces non-finite projections and
-            // createRadialGradient throws on non-finite radii. Skip the frame.
-            if (
-              !Number.isFinite(x) ||
-              !Number.isFinite(y) ||
-              !Number.isFinite(r) ||
-              r <= 0
-            )
-              continue;
-            const grd = ctx.createRadialGradient(x, y, 0, x, y, r * 5);
-            grd.addColorStop(0, 'rgba(189, 208, 255, 0.95)');
-            grd.addColorStop(0.4, 'rgba(59, 91, 255, 0.45)');
-            grd.addColorStop(1, 'rgba(39, 71, 255, 0)');
-            ctx.fillStyle = grd;
-            ctx.beginPath();
-            ctx.arc(x, y, r * 5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          const order = proj
-            .map((p, i) => ({ i, depth: p.depth }))
-            .sort((a, b) => a.depth - b.depth);
-          order.forEach(({ i }) => {
-            const p = proj[i];
-            const r = 2.4 * p.depth;
-            // Same guard as above — bail on any frame where the projection
-            // produced non-finite coords (canvas not yet laid out / hidden).
-            if (
-              !Number.isFinite(p.px) ||
-              !Number.isFinite(p.py) ||
-              !Number.isFinite(r) ||
-              r <= 0
-            )
-              return;
-            const opacity = Math.min(1, Math.max(0.25, p.depth * 0.9));
-            const grd = ctx.createRadialGradient(p.px, p.py, 0, p.px, p.py, r * 4);
-            grd.addColorStop(0, `rgba(39, 71, 255, ${opacity * 0.45})`);
-            grd.addColorStop(1, 'rgba(39, 71, 255, 0)');
-            ctx.fillStyle = grd;
-            ctx.beginPath();
-            ctx.arc(p.px, p.py, r * 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = `rgba(39, 71, 255, ${opacity})`;
-            ctx.beginPath();
-            ctx.arc(p.px, p.py, r, 0, Math.PI * 2);
-            ctx.fill();
-          });
-
-          canvasRaf = requestAnimationFrame(draw);
-        };
-        canvasRaf = requestAnimationFrame(draw);
-
-        cleanupCanvas = () => {
-          window.removeEventListener('resize', onResize);
-          window.removeEventListener('mousemove', onMove);
-        };
-      }
-    }
+    // (Hero canvas removed — pure typographic hero now.)
 
     // AI ticker
     const aiStrip = document.querySelector('.dx-v3 .ai-ticker .strip');
@@ -458,6 +212,64 @@ export default function DxV3Page() {
         },
       })
     );
+
+    // ---- Manifesto scene: subtle scroll-driven parallax ----
+    // PNGs drift slowly, accent shapes drift faster — gives the
+    // section life without any "fly-in" entry animation. All driven
+    // by scrub:1 ScrollTrigger so motion is tied 1:1 to scroll
+    // position and reverses cleanly when the user scrolls back up.
+    const manifestoScene = document.querySelector<HTMLElement>('.dx-v3 .manifesto-scene');
+    if (manifestoScene) {
+      // PNG objects — each drifts a different small amount.
+      const objs = Array.from(
+        manifestoScene.querySelectorAll<HTMLElement>('.m-obj')
+      );
+      const objDrifts = [-40, 50, -30, 60]; // total y travel in px
+      objs.forEach((obj, i) => {
+        const y = objDrifts[i % objDrifts.length];
+        const t = gsap.fromTo(
+          obj,
+          { y: -y * 0.4 },
+          {
+            y: y * 0.6,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: manifestoScene,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1,
+            },
+          }
+        );
+        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+      });
+
+      // 2D accents — keep their static rotation, drift more visibly.
+      const accents = Array.from(
+        manifestoScene.querySelectorAll<HTMLElement>('.acc')
+      );
+      const accRotations = [0, -18, 0, 22, 0, -12];
+      const accDrifts = [80, -110, 90, -120, 100, -85];
+      accents.forEach((acc, i) => {
+        gsap.set(acc, { rotate: accRotations[i % accRotations.length] });
+        const y = accDrifts[i % accDrifts.length];
+        const t = gsap.fromTo(
+          acc,
+          { y: -y * 0.4 },
+          {
+            y: y * 0.6,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: manifestoScene,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          }
+        );
+        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+      });
+    }
 
     // ---- Stats count-up ----
     document.querySelectorAll<HTMLElement>('.dx-v3 .stat .num[data-count]').forEach((el) => {
@@ -551,24 +363,82 @@ export default function DxV3Page() {
       if (t.scrollTrigger) triggers.push(t.scrollTrigger);
     }
 
-    // ---- Cap rows: alternating left/right slides ----
-    // Odd rows arrive from the left, even from the right — gives the
-    // vertical stack a zigzag rhythm instead of one repeated direction.
-    gsap.utils.toArray<HTMLElement>('.dx-v3 .cap-row').forEach((el, i) => {
-      const fromX = i % 2 === 0 ? -90 : 90;
-      const t = gsap.fromTo(
-        el,
-        { x: fromX, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 1.0,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 82%', once: true },
-        }
-      );
-      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-    });
+    // ---- Capabilities: horizontal pinned scroll ----
+    // .caps-stack pins to the top of the viewport while .caps-track
+    // (a wide flex row of the four cap-cards) gets translated left
+    // by the same distance as its overflow. So vertical scroll input
+    // becomes left-to-right card travel. Each card's content cascade
+    // is then driven via `containerAnimation`, which re-scopes the
+    // ScrollTrigger to fire based on the card's horizontal position
+    // inside the pinned viewport (not its document position).
+    const capsStack = document.querySelector<HTMLElement>('.dx-v3 .caps-stack');
+    const capsTrack = document.querySelector<HTMLElement>('.dx-v3 .caps-track');
+    const capRows = gsap.utils.toArray<HTMLElement>('.dx-v3 .cap-row');
+    if (capsStack && capsTrack && capRows.length) {
+      const getDistance = () =>
+        Math.max(0, capsTrack.scrollWidth - window.innerWidth);
+
+      const horizTween = gsap.to(capsTrack, {
+        x: () => -getDistance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: capsStack,
+          pin: true,
+          scrub: 0.5,
+          start: 'top top',
+          end: () => `+=${getDistance()}`,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+        },
+      });
+      if (horizTween.scrollTrigger) triggers.push(horizTween.scrollTrigger);
+
+      capRows.forEach((row) => {
+        const card = row.querySelector<HTMLElement>('.cap-card');
+        const rule = row.querySelector<HTMLElement>('.rule');
+        const num = row.querySelector<HTMLElement>('.num');
+        const label = row.querySelector<HTMLElement>('.label');
+        const h3 = row.querySelector<HTMLElement>('h3');
+        const body = row.querySelector<HTMLElement>('.body');
+        const tags = row.querySelectorAll<HTMLElement>('.tag');
+
+        gsap.set(card, { scale: 0.9, opacity: 0.5 });
+        gsap.set(rule, { scaleX: 0 });
+        gsap.set(num, { x: -60, y: 24, opacity: 0, rotate: -6, scale: 0.85 });
+        gsap.set(label, { y: 18, opacity: 0 });
+        gsap.set(h3, { y: 30, opacity: 0 });
+        gsap.set(body, { y: 24, opacity: 0 });
+        gsap.set(tags, { y: 12, opacity: 0, scale: 0.9 });
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: row,
+            containerAnimation: horizTween,
+            start: 'left 85%',
+            end: 'left 30%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+
+        tl.to(card, { scale: 1, opacity: 1, duration: 0.7, ease: 'power3.out' }, 0)
+          .to(rule, { scaleX: 1, duration: 0.6, ease: 'power3.inOut' }, 0)
+          .to(
+            num,
+            { x: 0, y: 0, opacity: 1, rotate: 0, scale: 1, duration: 0.85, ease: 'expo.out' },
+            0.1
+          )
+          .to(label, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
+          .to(h3, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, 0.35)
+          .to(body, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, 0.5)
+          .to(
+            tags,
+            { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.6)', stagger: 0.06 },
+            0.65
+          );
+
+        if (tl.scrollTrigger) triggers.push(tl.scrollTrigger);
+      });
+    }
 
     // ---- Bento cells: scale-in stagger from the center outward ----
     // Cells expand as if popping out of a single point. Uses back.out
@@ -1050,8 +920,6 @@ export default function DxV3Page() {
     );
 
     return () => {
-      cancelAnimationFrame(canvasRaf);
-      cleanupCanvas();
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
       gsap.ticker.remove(lenisRaf);
@@ -1086,26 +954,53 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          <canvas id="grid-canvas" ref={canvasRef} />
+          <div className="hero-meta">
+            <span className="dash" />
+            <span>00 / DX Consulting</span>
+            <span className="accent">GIFT × L-Step</span>
+          </div>
+
+          <div className="hero-coords">
+            <span>Tokyo, JP</span>
+            <span>35.6586°N · 139.7454°E</span>
+            <span className="accent">Active session · 2026—</span>
+          </div>
 
           <div className="hero-stage-inner">
             <div className="masthead">
-              <div className="row r1">DIGITAL</div>
+              <div className="row r1">業務を、変えずに</div>
               <div className="row r2">
-                <span className="stroke">TRANSFORM</span>
+                <em>事業を、変える。</em>
               </div>
               <div className="ja">
-                <span className="ja-inner">業務を、もっと自由に。</span>
+                <span className="rule" aria-hidden />
+                <span className="ja-inner">Don&rsquo;t change operations. Change the business.</span>
               </div>
             </div>
           </div>
 
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <span className="v">50<i>+</i></span>
+              <span className="k">DX Supported</span>
+            </div>
+            <span className="hero-stat-sep" aria-hidden />
+            <div className="hero-stat">
+              <span className="v">1,000h<i>+</i></span>
+              <span className="k">Hours Saved</span>
+            </div>
+            <span className="hero-stat-sep" aria-hidden />
+            <div className="hero-stat">
+              <span className="v">04</span>
+              <span className="k">Capabilities</span>
+            </div>
+          </div>
+
           <div className="hero-foot">
-            <div className="lab">[ Scroll to begin ]</div>
-            <div className="scroll-cue">→ Index 01</div>
+            <div className="scroll-cue">Scroll · Index 01</div>
             <div className="partner">
               <span className="l">L</span>
-              <span>Lstep Certified Partner</span>
+              <span>L-Step Certified Partner</span>
             </div>
           </div>
 
@@ -1117,38 +1012,40 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="label">00 — Manifesto</div>
           <div className="text" id="introText">
-            <span className="word">既存の</span> <span className="word">環境を</span>{' '}
-            <span className="word">変えずに、</span>{' '}
-            <span className="word accent">LINE・</span>
-            <span className="word accent">Lステップ・</span>
-            <span className="word accent">RPA・</span>
-            <span className="word accent">AIで</span> <span className="word">事業を</span>{' '}
-            <span className="word">自動化する、</span> <span className="word">ワンストップ</span>{' '}
-            <span className="word">DX</span> <span className="word">パートナー。</span>
+            <span className="word">Whatever</span> <span className="word">you</span>{' '}
+            <span className="word accent">imagine,</span>{' '}
+            <span className="word">we&rsquo;ll</span>{' '}
+            <span className="word">make</span> <span className="word">it</span>{' '}
+            <span className="word accent">run itself.</span>
+          </div>
+          <div className="intro-ja">
+            あなたが描くビジネスを、自走するシステムへ。
           </div>
         </div>
 
-        {/* Draw-path-on-scroll — bold line with a full-circle loop in
-            the middle. Path: gentle S-curve down → 360° loop drawn as
-            two semicircular arcs → exit curve continues to the bottom
-            (passes back through the loop, creating the "knot" feel). */}
-        <div className="draw-flow" data-draw-scroll-wrap aria-hidden="true">
-          <svg
-            viewBox="0 0 280 800"
-            preserveAspectRatio="none"
-            data-draw-scroll-desktop
-          >
-            <path
-              d="M 220 30
-                 C 260 130 40 200 100 290
-                 C 30 320 0 450 60 510
-                 C 130 580 230 540 200 440
-                 C 170 360 120 330 100 290
-                 C 100 340 240 410 220 530
-                 C 200 660 60 700 140 780"
-              data-draw-scroll-path
-            />
-          </svg>
+        {/* Spline objects scene — four PNG renders enter from offscreen
+            with sequential cascade as the user scrolls past the
+            manifesto text. Soft blurred gradient blobs sit behind for
+            warmth. Layout shifts to vertical stack on mobile. */}
+        <div className="manifesto-scene" aria-hidden="true">
+          <span className="glow glow-1" />
+          <span className="glow glow-2" />
+          <span className="glow glow-3" />
+
+          {/* 2D accent shapes — small blue dots / pills scattered
+              through the scene. Drift up/down on scroll at different
+              speeds to give the composition life. */}
+          <span className="acc acc-dot acc-1" />
+          <span className="acc acc-pill acc-2" />
+          <span className="acc acc-dot acc-3" />
+          <span className="acc acc-pill acc-4" />
+          <span className="acc acc-dot acc-5" />
+          <span className="acc acc-pill acc-6" />
+
+          <img className="m-obj m-obj-1" src="/spline/cylinder.png" alt="" />
+          <img className="m-obj m-obj-2" src="/spline/car.png" alt="" />
+          <img className="m-obj m-obj-3" src="/spline/sphere.png" alt="" />
+          <img className="m-obj m-obj-4" src="/spline/pill.png" alt="" />
         </div>
 
       </section>
@@ -1200,32 +1097,37 @@ export default function DxV3Page() {
           </div>
 
           <div className="caps-stack">
-            {CAPABILITIES.map((c) => (
-              <article key={c.id} className="cap-row">
-                <div className="num">{c.num}</div>
-                <div>
-                  <div className="label">{c.id}</div>
-                  <h3>
-                    {c.title.split('\n').map((line, i, arr) => (
-                      <span key={i}>
-                        {line}
-                        {i < arr.length - 1 && <br />}
-                      </span>
-                    ))}
-                  </h3>
-                </div>
-                <div>
-                  <p className="body">{c.body}</p>
-                  <div className="tags">
-                    {c.tags.map((t) => (
-                      <span key={t} className="tag">
-                        {t}
-                      </span>
-                    ))}
+            <div className="caps-track">
+              {CAPABILITIES.map((c) => (
+                <article key={c.id} className={`cap-row ${c.color}`}>
+                  <div className="cap-card">
+                    <span className="rule" aria-hidden />
+                    <div className="num">{c.num}</div>
+                    <div className="head">
+                      <div className="label">{c.id}</div>
+                      <h3>
+                        {c.title.split('\n').map((line, i, arr) => (
+                          <span key={i}>
+                            {line}
+                            {i < arr.length - 1 && <br />}
+                          </span>
+                        ))}
+                      </h3>
+                    </div>
+                    <div className="body-wrap">
+                      <p className="body">{c.body}</p>
+                      <div className="tags">
+                        {c.tags.map((t) => (
+                          <span key={t} className="tag">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -1366,24 +1268,13 @@ export default function DxV3Page() {
           <div className="right">
             <div className="case-vis">
               <div className="badge">CASE 01 / TELECOM</div>
-              <div className="core" />
-              <svg
-                viewBox="0 0 600 600"
-                fill="none"
-                stroke="rgba(39,71,255,0.4)"
-                strokeWidth="0.6"
-              >
-                <circle cx="300" cy="300" r="80" />
-                <circle cx="300" cy="300" r="160" />
-                <circle cx="300" cy="300" r="240" />
-                <line x1="0" y1="300" x2="600" y2="300" />
-                <line x1="300" y1="0" x2="300" y2="600" />
-                <circle cx="300" cy="220" r="3" fill="var(--blue)" stroke="none" />
-                <circle cx="380" cy="300" r="3" fill="var(--blue)" stroke="none" />
-                <circle cx="300" cy="380" r="3" fill="var(--blue)" stroke="none" />
-                <circle cx="220" cy="300" r="3" fill="var(--blue)" stroke="none" />
-              </svg>
-              <div className="big-num">01</div>
+              <div className="case-poster">
+                <div className="big-num">01</div>
+                <div className="theme">
+                  <span className="en">TELECOM</span>
+                  <span className="ja">通信</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1415,21 +1306,13 @@ export default function DxV3Page() {
           <div className="right">
             <div className="case-vis">
               <div className="badge">CASE 02 / BEAUTY</div>
-              <div className="core" />
-              <svg
-                viewBox="0 0 600 600"
-                fill="none"
-                stroke="rgba(255,255,255,0.4)"
-                strokeWidth="0.6"
-              >
-                <rect x="160" y="160" width="280" height="280" />
-                <rect x="200" y="200" width="200" height="200" />
-                <rect x="240" y="240" width="120" height="120" />
-                <line x1="160" y1="160" x2="440" y2="440" />
-                <line x1="440" y1="160" x2="160" y2="440" />
-                <circle cx="300" cy="300" r="4" fill="#fff" stroke="none" />
-              </svg>
-              <div className="big-num">02</div>
+              <div className="case-poster">
+                <div className="big-num">02</div>
+                <div className="theme">
+                  <span className="en">BEAUTY</span>
+                  <span className="ja">美容</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1461,21 +1344,13 @@ export default function DxV3Page() {
           <div className="right">
             <div className="case-vis">
               <div className="badge">CASE 03 / LOCAL</div>
-              <div className="core" />
-              <svg
-                viewBox="0 0 600 600"
-                fill="none"
-                stroke="rgba(39,71,255,0.4)"
-                strokeWidth="0.6"
-              >
-                <path d="M 100 300 Q 300 100, 500 300 T 100 300" />
-                <path d="M 100 350 Q 300 150, 500 350 T 100 350" />
-                <path d="M 100 250 Q 300 50, 500 250 T 100 250" />
-                <circle cx="200" cy="280" r="3" fill="var(--blue)" stroke="none" />
-                <circle cx="350" cy="200" r="3" fill="var(--blue)" stroke="none" />
-                <circle cx="450" cy="320" r="3" fill="var(--blue)" stroke="none" />
-              </svg>
-              <div className="big-num">03</div>
+              <div className="case-poster">
+                <div className="big-num">03</div>
+                <div className="theme">
+                  <span className="en">LOCAL</span>
+                  <span className="ja">地域</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1497,13 +1372,34 @@ export default function DxV3Page() {
             </div>
           </div>
 
+          <div className="rpa-cards">
+            {RPA_CARDS.map((c, i) => (
+              <article key={c.title} className="rpa-card">
+                <div className="rpa-card-num">{String(i + 1).padStart(2, '0')}</div>
+                <div className="top">
+                  <span className="pill">RPA</span>
+                  <h4>{c.title}</h4>
+                </div>
+                <div className="lab">— 使用ツール</div>
+                <div className="val">{c.tools}</div>
+                <div className="lab">— 成果</div>
+                <p className="res">{c.result}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="rpa-cap-head">
+            <span className="rule" aria-hidden />
+            <span>RPAで実現できること</span>
+            <span className="rule" aria-hidden />
+          </div>
           <div className="rpa-trio">
             {RPA_TRIO.map((t) => (
               <div key={t.title} className="item">
                 <div className="ic">
                   <svg
-                    width="22"
-                    height="22"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -1514,21 +1410,6 @@ export default function DxV3Page() {
                 </div>
                 <h4>{t.title}</h4>
                 <p>{t.body}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="rpa-cards">
-            {RPA_CARDS.map((c) => (
-              <div key={c.title} className="rpa-card">
-                <div className="top">
-                  <span className="pill">RPA</span>
-                  <h4>{c.title}</h4>
-                </div>
-                <div className="lab">— 使用ツール</div>
-                <div className="val">{c.tools}</div>
-                <div className="lab">— 成果</div>
-                <p className="res">{c.result}</p>
               </div>
             ))}
           </div>

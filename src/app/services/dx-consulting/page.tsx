@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 };
 
 // Page-scoped fonts loaded via Google Fonts. The dx-v3 design references the
-// literal family names directly in dx-v3.css (Space Grotesk / JetBrains Mono /
-// Shippori Mincho), so we let Next.js hoist the <link> tags into the document
-// head only when this route is rendered.
+// literal family names directly in dx-v3.css (Geist / Instrument Serif /
+// JetBrains Mono / Noto Sans JP), so we let Next.js hoist the <link> tags
+// into the document head only when this route is rendered.
 function DxFontsLink() {
   return (
     <>
@@ -22,7 +22,7 @@ function DxFontsLink() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500;700&family=Shippori+Mincho:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;800&display=swap"
       />
     </>
   );
