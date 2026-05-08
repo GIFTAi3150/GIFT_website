@@ -213,38 +213,14 @@ export default function DxV3Page() {
       })
     );
 
-    // ---- Manifesto scene: subtle scroll-driven parallax ----
-    // PNGs drift slowly, accent shapes drift faster — gives the
-    // section life without any "fly-in" entry animation. All driven
-    // by scrub:1 ScrollTrigger so motion is tied 1:1 to scroll
-    // position and reverses cleanly when the user scrolls back up.
+    // ---- Manifesto scene: only the 2D accents drift on scroll ----
+    // PNG parallax was removed — the offset-then-land motion meant
+    // the cluster only "looked right" when the section sat at the
+    // viewport center, and felt like the PNGs appeared late. Now
+    // the PNGs sit at their CSS positions, fully formed from the
+    // moment the section enters view. Accents still drift for life.
     const manifestoScene = document.querySelector<HTMLElement>('.dx-v3 .manifesto-scene');
     if (manifestoScene) {
-      // PNG objects — each drifts a different small amount.
-      const objs = Array.from(
-        manifestoScene.querySelectorAll<HTMLElement>('.m-obj')
-      );
-      const objDrifts = [-40, 50, -30, 60]; // total y travel in px
-      objs.forEach((obj, i) => {
-        const y = objDrifts[i % objDrifts.length];
-        const t = gsap.fromTo(
-          obj,
-          { y: -y * 0.4 },
-          {
-            y: y * 0.6,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: manifestoScene,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1,
-            },
-          }
-        );
-        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-      });
-
-      // 2D accents — keep their static rotation, drift more visibly.
       const accents = Array.from(
         manifestoScene.querySelectorAll<HTMLElement>('.acc')
       );
@@ -621,7 +597,9 @@ export default function DxV3Page() {
     // subtitles are skipped so the small Japanese subtext stays intact.
     const splitInto = (root: HTMLElement, skipSelector: string) => {
       const skipSet = new Set<Element>();
-      root.querySelectorAll(skipSelector).forEach((s) => skipSet.add(s));
+      if (skipSelector) {
+        root.querySelectorAll(skipSelector).forEach((s) => skipSet.add(s));
+      }
       // Already-split headings (caps-intro h2) carry .ch children — skip.
       if (root.querySelector('.ch')) return;
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -656,14 +634,81 @@ export default function DxV3Page() {
       });
     };
 
+    // ---- Text scramble / decode effect (Osmo Supply pattern) ----
+    // Each .ch span cycles through random glyphs at a fast tick rate,
+    // then locks to its final letter after a short duration. Stagger
+    // per char gives the "matrix decoding" cascade. Works on any
+    // group of pre-split character spans.
+    const scrambleGlyphs =
+      '!<>-_\\/[]{}=+*^?#█▓░ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+    const scrambleSpans = (
+      charSpans: HTMLElement[],
+      opts: { startDelay?: number; charDuration?: number; stagger?: number } = {}
+    ) => {
+      const startDelay = opts.startDelay ?? 0;
+      const charDuration = opts.charDuration ?? 2.0;
+      const stagger = opts.stagger ?? 0.09;
+      const tickInterval = 0.09;
+
+      charSpans.forEach((span, i) => {
+        const finalChar = span.textContent ?? '';
+        // Skip whitespace — let those settle silently
+        if (!finalChar || /\s/.test(finalChar)) return;
+
+        const startTime = startDelay + i * stagger;
+        const ticks = Math.max(2, Math.floor(charDuration / tickInterval));
+
+        for (let t = 0; t < ticks; t++) {
+          gsap.delayedCall(startTime + t * tickInterval, () => {
+            span.textContent =
+              scrambleGlyphs[Math.floor(Math.random() * scrambleGlyphs.length)];
+          });
+        }
+        gsap.delayedCall(startTime + charDuration, () => {
+          span.textContent = finalChar;
+        });
+      });
+    };
+
+    // Hero masthead rows — split immediately, but defer the scramble
+    // animation until the user begins scrolling (fires once hero top
+    // crosses 10px above viewport top = first ~10px of scroll).
+    const heroRows = Array.from(
+      document.querySelectorAll<HTMLElement>('.dx-v3 .masthead .row')
+    );
+    heroRows.forEach((row) => {
+      if (!row.querySelector('.ch')) splitInto(row, '');
+    });
+    if (heroRows.length) {
+      const heroT = ScrollTrigger.create({
+        trigger: '.dx-v3 .hero',
+        start: 'top top-=10',
+        once: true,
+        onEnter: () => {
+          heroRows.forEach((row, i) => {
+            const chars = Array.from(
+              row.querySelectorAll<HTMLElement>('.ch')
+            );
+            if (!chars.length) return;
+            scrambleSpans(chars, {
+              startDelay: i * 0.7,
+              stagger: 0.09,
+              charDuration: 2.2,
+            });
+          });
+        },
+      });
+      triggers.push(heroT);
+    }
+
     document
       .querySelectorAll<HTMLElement>('.dx-v3 .sec-head h2')
       .forEach((h) => {
         splitInto(h, '.ja, .meta');
-        const chars = h.querySelectorAll<HTMLElement>('.ch');
-        if (!chars.length) return;
+        const charsArr = Array.from(h.querySelectorAll<HTMLElement>('.ch'));
+        if (!charsArr.length) return;
         const t = gsap.fromTo(
-          chars,
+          charsArr,
           { yPercent: 110, opacity: 0, rotate: 6 },
           {
             yPercent: 0,
@@ -672,6 +717,13 @@ export default function DxV3Page() {
             duration: 0.85,
             ease: 'power3.out',
             stagger: 0.022,
+            // Kick off the scramble at the same moment the fade-in
+            // starts, so the chars decode while they rise into place.
+            onStart: () =>
+              scrambleSpans(charsArr, {
+                stagger: 0.08,
+                charDuration: 1.8,
+              }),
             scrollTrigger: { trigger: h, start: 'top 82%', once: true },
           }
         );
@@ -933,39 +985,9 @@ export default function DxV3Page() {
         <div className="bar" ref={progRef} />
       </div>
 
-      {/* Pixelated scroll-out transition — fixed-position overlay above
-          ALL sections. Tied to the hero via data-trigger so the cells
-          fade in as the user scrolls the hero, then fade back out as
-          the next section enters. Lives at .dx-v3 root (not inside
-          hero) so no other sticky panel can paint over it. */}
-      <div
-        data-pixelated-scroll-transition=""
-        data-mode="cover"
-        data-rows="20"
-        data-columns="22"
-        data-columns-tablet="14"
-        data-columns-mobile="8"
-        data-trigger=".dx-v3 .hero"
-        data-out-trigger=".dx-v3 .intro"
-        className="pixelated-scroll-transition pixelated-scroll-transition--fixed"
-        aria-hidden="true"
-      />
-
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          <div className="hero-meta">
-            <span className="dash" />
-            <span>00 / DX Consulting</span>
-            <span className="accent">GIFT × L-Step</span>
-          </div>
-
-          <div className="hero-coords">
-            <span>Tokyo, JP</span>
-            <span>35.6586°N · 139.7454°E</span>
-            <span className="accent">Active session · 2026—</span>
-          </div>
-
           <div className="hero-stage-inner">
             <div className="masthead">
               <div className="row r1">業務を、変えずに</div>
@@ -1010,7 +1032,6 @@ export default function DxV3Page() {
       {/* INTRO */}
       <section className="intro">
         <div className="wrap">
-          <div className="label">00 — Manifesto</div>
           <div className="text" id="introText">
             <span className="word">Whatever</span> <span className="word">you</span>{' '}
             <span className="word accent">imagine,</span>{' '}
@@ -1023,10 +1044,7 @@ export default function DxV3Page() {
           </div>
         </div>
 
-        {/* Spline objects scene — four PNG renders enter from offscreen
-            with sequential cascade as the user scrolls past the
-            manifesto text. Soft blurred gradient blobs sit behind for
-            warmth. Layout shifts to vertical stack on mobile. */}
+        {/* Spline objects scene — sits BELOW the manifesto copy. */}
         <div className="manifesto-scene" aria-hidden="true">
           <span className="glow glow-1" />
           <span className="glow glow-2" />
@@ -1046,6 +1064,34 @@ export default function DxV3Page() {
           <img className="m-obj m-obj-2" src="/spline/car.png" alt="" />
           <img className="m-obj m-obj-3" src="/spline/sphere.png" alt="" />
           <img className="m-obj m-obj-4" src="/spline/pill.png" alt="" />
+          <img className="m-obj m-obj-5" src="/spline/sphere.png" alt="" />
+          <img className="m-obj m-obj-6" src="/spline/sphere.png" alt="" />
+          <img className="m-obj m-obj-7" src="/spline/sphere.png" alt="" />
+
+          {/* Drawn-on-scroll wavy lines — weave through the cluster.
+              Each path animates in via the existing draw-scroll JS
+              (queries [data-draw-scroll-wrap]). preserveAspectRatio
+              "none" lets the curves stretch with the scene size. */}
+          <div className="m-flow" data-draw-scroll-wrap>
+            <svg
+              viewBox="0 0 1000 600"
+              preserveAspectRatio="none"
+              data-draw-scroll-desktop
+            >
+              <path
+                d="M 940 30 C 820 90, 880 220, 720 260 C 560 300, 600 420, 460 450 C 320 480, 340 560, 180 580"
+                data-draw-scroll-path
+              />
+              <path
+                d="M 60 540 C 200 460, 180 360, 320 320 C 460 280, 420 200, 540 140 C 660 80, 720 60, 820 40"
+                data-draw-scroll-path
+              />
+              <path
+                d="M 500 200 C 560 220, 600 280, 540 340 C 480 400, 540 460, 620 440"
+                data-draw-scroll-path
+              />
+            </svg>
+          </div>
         </div>
 
       </section>

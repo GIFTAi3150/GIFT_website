@@ -11,16 +11,16 @@
   --ink-2: #1e2a6b;
   --silver: #6b7aa8;
   --line: #c9d3f5;
-  --blue: #2747ff;
-  --blue-bright: #3b5bff;
-  --blue-glow: #7da3ff;
-  --sky: #bcd0ff;
-  --cobalt: #1e3deb;
+  --blue: #635bff;
+  --blue-bright: #8a82ff;
+  --blue-glow: #b3a9ff;
+  --sky: #cfc8ff;
+  --cobalt: #4a3fe0;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Geist', 'Noto Sans JP', system-ui, sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', system-ui, sans-serif;
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -33,21 +33,44 @@
   color: #fff;
 }
 
-/* ---------- Scroll progress bar (top) ---------- */
-.dx-v3 .progress {
+/* Page-wide blurple ambient glow — fixed to viewport so the wash
+   stays visible across every section. Three radial gradients at
+   different corners give an all-sides vignette feel rather than a
+   single edge. mix-blend-mode: multiply tints through section
+   backgrounds. Tweak any rgba alpha or stop-% to adjust. */
+.dx-v3::before {
+  content: '';
   position: fixed;
-  top: 80px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: rgba(11, 19, 64, 0.06);
-  z-index: 40;
+  inset: 0;
+  background:
+    /* top-left corner */
+    radial-gradient(ellipse 70% 60% at 0% 0%, rgba(99, 91, 255, 0.16) 0%, transparent 60%),
+    /* top-middle side */
+    radial-gradient(ellipse 50% 35% at 50% 0%, rgba(99, 91, 255, 0.1) 0%, transparent 65%),
+    /* top-right corner */
+    radial-gradient(ellipse 65% 55% at 100% 0%, rgba(99, 91, 255, 0.14) 0%, transparent 60%),
+    /* right-middle side */
+    radial-gradient(ellipse 35% 50% at 100% 50%, rgba(99, 91, 255, 0.1) 0%, transparent 65%),
+    /* bottom-right corner */
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(99, 91, 255, 0.16) 0%, transparent 60%),
+    /* bottom-middle side */
+    radial-gradient(ellipse 50% 35% at 50% 100%, rgba(99, 91, 255, 0.1) 0%, transparent 65%),
+    /* bottom-left corner */
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(99, 91, 255, 0.16) 0%, transparent 60%),
+    /* left-middle side */
+    radial-gradient(ellipse 35% 50% at 0% 50%, rgba(99, 91, 255, 0.1) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 100;
+  /* Removed mix-blend-mode: multiply — it made the glow disappear
+     over dark sections (final CTA). Plain alpha blend means the
+     blurple is visible on every background, light or dark. */
 }
-.dx-v3 .progress .bar {
-  height: 100%;
-  background: var(--blue);
-  transform-origin: left;
-  transform: scaleX(0);
+
+/* ---------- Scroll progress bar (top) — hidden ----------
+   Was a 2px fixed-top track at 80px that visually sliced through
+   the manifesto PNG cluster. Hidden globally for now. */
+.dx-v3 .progress {
+  display: none;
 }
 
 /* ============================================================
@@ -62,7 +85,7 @@
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: var(--paper);
+  background: transparent;
 }
 .dx-v3 .hero-meta {
   position: absolute;
@@ -124,7 +147,7 @@
   padding: 0 32px;
 }
 .dx-v3 .masthead .row {
-  font-family: 'Noto Sans JP', 'Geist', sans-serif;
+  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
   font-weight: 700;
   font-size: clamp(44px, 8.6vw, 128px);
   line-height: 1;
@@ -157,7 +180,7 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  font-family: 'Noto Sans JP', 'Geist', sans-serif;
+  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
   font-weight: 400;
   font-size: clamp(13px, 1.1vw, 16px);
   color: var(--ink-2);
@@ -196,7 +219,7 @@
   gap: 4px;
 }
 .dx-v3 .hero-stat .v {
-  font-family: 'Geist', sans-serif;
+  font-family: 'General Sans', sans-serif;
   font-weight: 600;
   font-size: clamp(24px, 2.4vw, 32px);
   line-height: 1;
@@ -274,7 +297,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 700;
   font-size: 11px;
 }
@@ -301,7 +324,7 @@
   display: flex;
   gap: 56px;
   white-space: nowrap;
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: 16px;
   letter-spacing: 0.04em;
@@ -347,7 +370,7 @@
   aspect-ratio: 1;
   top: 6%;
   right: -14%;
-  background: radial-gradient(closest-side, rgba(39, 71, 255, 0.28), transparent 70%);
+  background: radial-gradient(closest-side, rgba(99, 91, 255, 0.28), transparent 70%);
   filter: blur(80px);
 }
 .dx-v3 .intro::after {
@@ -384,7 +407,7 @@
   background: var(--blue);
 }
 .dx-v3 .intro .text {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 300;
   font-size: clamp(24px, 4.4vw, 68px);
   line-height: 1.45;
@@ -410,16 +433,19 @@
   opacity: 0.7;
 }
 
-/* Manifesto scene — Spline PNG objects share the same canvas as
-   the text above. PNGs are HUGE (130-180vw) because each Spline
-   export has ~3x transparent padding around the visible 3D shape.
-   The scene clips overflow so PNG edges bleed off the section. */
+/* Manifesto scene — aspect-locked stage like juanmora.co
+   (theirs is 117vw tall). Using vw for height means the scene
+   keeps the same proportions on every viewport size, so the
+   cluster composition reads identically on desktop and mobile. */
 .dx-v3 .manifesto-scene {
   position: relative;
-  margin-top: 32px;
+  margin-top: 48px;
+  margin-bottom: 0;
   margin-left: -32px;
   margin-right: -32px;
-  height: clamp(620px, 90vh, 880px);
+  height: 100vw;
+  min-height: 620px;
+  max-height: 1500px;
   pointer-events: none;
   z-index: 1;
   overflow: hidden;
@@ -474,6 +500,32 @@
   top: 38%;
   right: 42%;
 }
+
+/* Manifesto draw-on-scroll wavy lines — full-inset SVG overlay that
+   sits in front of the PNG cluster. Lines stroke in as the user
+   scrolls through the section, drawing a hand-sketched feel through
+   the composition. */
+.dx-v3 .manifesto-scene .m-flow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6; /* above PNGs (max z-index there is 5) */
+  color: var(--blue);
+}
+.dx-v3 .manifesto-scene .m-flow svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.dx-v3 .manifesto-scene .m-flow [data-draw-scroll-path] {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.65;
+}
 .dx-v3 .manifesto-scene .m-obj {
   position: absolute;
   display: block;
@@ -493,59 +545,77 @@
    offset that lands its visible content in the cluster zone.
    The cluster sits left-of-center so it doesn't fight the manifesto
    text, with the pill (biggest) anchoring the bottom. */
+/* All sizes/positions use pure vw — same composition rhythm at any
+   viewport width. PNG widths in vw, matching negative left% so the
+   visible 3D shape (~25% of each canvas) lands at the target spot.
+   Formula: visible_center_in_vw ≈ left% + (width_vw / 2) */
+
+/* Desktop layout — PNGs are now tightly trimmed so width = visible
+   shape width directly. Clean juanmora-style values: small vw
+   numbers, positive top/left, no negative-offset gymnastics. */
+
 .dx-v3 .manifesto-scene .m-obj-1 {
-  /* cylinder — LEFT side, fully visible */
-  top: 4%;
-  left: -65%;
-  width: clamp(900px, 600vw, 2700px);
-  z-index: 3;
-}
-.dx-v3 .manifesto-scene .m-obj-2 {
-  /* car — RIGHT side */
-  top: -2%;
-  left: -28%;
-  width: clamp(1100px, 750vw, 3000px);
-  z-index: 2;
-}
-.dx-v3 .manifesto-scene .m-obj-3 {
-  /* sphere — HALF-CUT by the right edge (only the left half shows) */
-  top: 6%;
-  left: 7%;
-  width: clamp(950px, 520vw, 2800px);
-  z-index: 1;
-}
-.dx-v3 .manifesto-scene .m-obj-4 {
-  /* pill — MIDDLE, transparent, overlaps car + sphere */
-  top: 10%;
-  left: -63%;
-  width: clamp(1300px, 375vw, 3400px);
-  opacity: 0.55;
+  /* cylinder — left-side accent, lower */
+  top: 28vw;
+  left: 4vw;
+  width: 26vw;
+  opacity: 0.8;
   z-index: 5;
 }
-/* Tablet — same cluster, slightly tighter. */
+.dx-v3 .manifesto-scene .m-obj-2 {
+  /* car — centerpiece, top-center area */
+  top: 8vw;
+  left: 32vw;
+  width: 44vw;
+  z-index: 6;
+}
+.dx-v3 .manifesto-scene .m-obj-3 {
+  /* sphere main — BIG, bleeds off TOP-LEFT corner (juanmora-style) */
+  top: -8vw;
+  left: -10vw;
+  width: 52vw;
+  opacity: 0.7;
+  z-index: 4;
+}
+.dx-v3 .manifesto-scene .m-obj-4 {
+  /* pill — solid accent, smaller, lower mid */
+  top: 48vw;
+  left: 38vw;
+  width: 38vw;
+  opacity: 1;
+  z-index: 7;
+}
+.dx-v3 .manifesto-scene .m-obj-5 {
+  /* second sphere — bleeds off LEFT, mid-height ghost */
+  top: 50vw;
+  left: -8vw;
+  width: 36vw;
+  opacity: 0.4;
+  z-index: 1;
+}
+.dx-v3 .manifesto-scene .m-obj-6 {
+  /* third sphere — right side mid */
+  top: 22vw;
+  left: 68vw;
+  width: 36vw;
+  opacity: 0.65;
+  z-index: 3;
+}
+.dx-v3 .manifesto-scene .m-obj-7 {
+  /* BIG dominant middle sphere — desktop shows MORE of it (smaller
+     top = sphere sits higher inside scene), mobile override below
+     pushes it way down so only ~half shows. Centered horizontally
+     (left = (100-60)/2 = 20vw). */
+  top: 45vw;
+  left: 20vw;
+  width: 60vw;
+  opacity: 0.9;
+  z-index: 2;
+}
+/* Tablet/mobile only adjusts scene height — positions auto-scale via vw. */
 @media (max-width: 991px) {
   .dx-v3 .manifesto-scene {
-    height: clamp(560px, 85vh, 780px);
-  }
-  .dx-v3 .manifesto-scene .m-obj-1 {
-    top: -8%;
-    left: -38%;
-    width: 145vw;
-  }
-  .dx-v3 .manifesto-scene .m-obj-2 {
-    top: -8%;
-    left: 0%;
-    width: 165vw;
-  }
-  .dx-v3 .manifesto-scene .m-obj-3 {
-    top: 6%;
-    left: -32%;
-    width: 150vw;
-  }
-  .dx-v3 .manifesto-scene .m-obj-4 {
-    top: 12%;
-    left: -42%;
-    width: 195vw;
+    height: clamp(500px, 72vh, 720px);
   }
 }
 
@@ -558,65 +628,19 @@
    alternating offsets so the composition still has rhythm. The JS
    entry animation (translate + rotate offscreen) still plays, just
    from the new mobile anchor positions. */
+/* Mobile — same clean values as desktop, just scaled up for the
+   narrower viewport. Trimmed PNGs let us use direct width = visible
+   shape size, no negative offsets. */
+/* Mobile — composition aspect-locks via vw, so most rules carry over.
+   Only the big sphere gets pushed lower so more of it clips off the
+   bottom edge (visually heavier "cut" on small screens). */
 @media (max-width: 640px) {
   .dx-v3 .manifesto-scene {
-    height: auto;
-    padding: 40px 24px 80px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: -24px;
+    margin-right: -24px;
   }
-  .dx-v3 .manifesto-scene {
-    height: auto;
-    min-height: 100vh;
-    display: block;
-    padding: 0;
-    margin-left: -32px;
-    margin-right: -32px;
-    overflow: hidden;
-  }
-  .dx-v3 .manifesto-scene .m-obj {
-    position: absolute;
-    margin: 0;
-    /* Override the desktop tile-like sizing with mobile-cluster sizing */
-  }
-  .dx-v3 .manifesto-scene .m-obj-1 {
-    top: -8%;
-    left: -50%;
-    width: 200vw;
-  }
-  .dx-v3 .manifesto-scene .m-obj-2 {
-    top: -10%;
-    left: -10%;
-    width: 220vw;
-  }
-  .dx-v3 .manifesto-scene .m-obj-3 {
-    top: 8%;
-    left: -45%;
-    width: 210vw;
-  }
-  .dx-v3 .manifesto-scene .m-obj-4 {
-    top: 18%;
-    left: -55%;
-    width: 250vw;
-  }
-  .dx-v3 .manifesto-scene .glow {
-    filter: blur(60px);
-  }
-  .dx-v3 .manifesto-scene .glow-1 {
-    width: 90%;
-    top: -4%;
-  }
-  .dx-v3 .manifesto-scene .glow-2 {
-    width: 90%;
-    bottom: -4%;
-  }
-  .dx-v3 .manifesto-scene .glow-3 {
-    width: 50%;
-    top: 40%;
-    left: 25%;
+  .dx-v3 .manifesto-scene .m-obj-7 {
+    top: 115vw; /* mobile: sphere sinks until only ~top half is visible */
   }
 }
 
@@ -675,7 +699,7 @@
   background: #fff;
 }
 .dx-v3 .sec-head h2 {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(40px, 7vw, 110px);
   line-height: 0.95;
@@ -753,7 +777,7 @@
   padding-left: 24px;
 }
 .dx-v3 .stat .num {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(64px, 11vw, 168px);
   line-height: 0.92;
@@ -830,7 +854,7 @@
   background: var(--blue);
 }
 .dx-v3 .caps-intro h2 {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(40px, 9vw, 128px);
   line-height: 0.95;
@@ -958,7 +982,7 @@
   background: rgba(255, 255, 255, 0.08);
 }
 .dx-v3 .cap-row .num {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(56px, 6vw, 96px);
   line-height: 0.9;
@@ -975,7 +999,7 @@
   margin-bottom: 12px;
 }
 .dx-v3 .cap-row h3 {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(28px, 3.4vw, 48px);
   line-height: 1.1;
@@ -1034,7 +1058,7 @@
   color: var(--blue);
 }
 .dx-v3 .pain .q {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 500;
   font-size: clamp(18px, 2.4vw, 30px);
   color: var(--ink);
@@ -1066,7 +1090,7 @@
   margin: 0 auto 20px;
 }
 .dx-v3 .pain-end .ans {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(24px, 4vw, 48px);
   color: var(--ink);
@@ -1250,7 +1274,7 @@
   justify-content: center;
 }
 .dx-v3 .case-block .left .num {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: 180px;
   line-height: 0.9;
@@ -1321,8 +1345,8 @@
     180deg,
     transparent 0,
     transparent 55px,
-    rgba(39, 71, 255, 0.06) 55px,
-    rgba(39, 71, 255, 0.06) 56px
+    rgba(99, 91, 255, 0.06) 55px,
+    rgba(99, 91, 255, 0.06) 56px
   );
 }
 .dx-v3 .case-poster {
@@ -1333,7 +1357,7 @@
   padding: 56px 32px;
 }
 .dx-v3 .case-vis .big-num {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(200px, 28vw, 380px);
   line-height: 0.82;
@@ -1349,7 +1373,7 @@
   text-align: center;
 }
 .dx-v3 .case-vis .theme .en {
-  font-family: 'Geist', sans-serif;
+  font-family: 'General Sans', sans-serif;
   font-weight: 700;
   font-size: clamp(28px, 3.6vw, 52px);
   letter-spacing: -0.02em;
@@ -1424,12 +1448,12 @@
   position: absolute;
   top: 24px;
   right: 24px;
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(96px, 11vw, 160px);
   line-height: 0.85;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(39, 71, 255, 0.18);
+  -webkit-text-stroke: 1px rgba(99, 91, 255, 0.18);
   letter-spacing: -0.05em;
   pointer-events: none;
 }
@@ -1450,7 +1474,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 700;
   font-size: 12px;
   border-radius: 50%;
@@ -1473,7 +1497,7 @@
 }
 .dx-v3 .rpa-card .val {
   color: var(--ink);
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: 18px;
   margin-bottom: 24px;
@@ -1527,7 +1551,7 @@
   align-items: center;
   justify-content: center;
   color: var(--blue);
-  background: rgba(39, 71, 255, 0.08);
+  background: rgba(99, 91, 255, 0.08);
   flex-shrink: 0;
 }
 .dx-v3 .rpa-trio .item h4 {
@@ -1562,7 +1586,7 @@
   width: 100%;
 }
 .dx-v3 .ai-headline {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(48px, 9vw, 168px);
   line-height: 0.92;
@@ -1626,7 +1650,7 @@
   display: flex;
   gap: 60px;
   white-space: nowrap;
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(96px, 18vw, 280px);
   line-height: 1;
@@ -1660,7 +1684,7 @@
   transform: translate(-50%, -50%);
   width: 1000px;
   height: 1000px;
-  background: radial-gradient(circle, rgba(39, 71, 255, 0.18) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(99, 91, 255, 0.18) 0%, transparent 60%);
   pointer-events: none;
   will-change: transform;
 }
@@ -1689,7 +1713,7 @@
   background: var(--blue);
 }
 .dx-v3 .final h2 {
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(48px, 11vw, 200px);
   line-height: 0.92;
@@ -1705,7 +1729,7 @@
   letter-spacing: -0.01em;
 }
 .dx-v3 .final .ja {
-  font-family: 'Noto Sans JP', 'Geist', sans-serif;
+  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
   font-weight: 400;
   font-size: clamp(15px, 1.5vw, 20px);
   letter-spacing: 0.04em;
@@ -1724,7 +1748,7 @@
   gap: 14px;
   padding: 20px 36px;
   border-radius: 999px;
-  font-family: 'Geist', 'Noto Sans JP', sans-serif;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.02em;
@@ -1734,12 +1758,12 @@
 .dx-v3 .btn.primary {
   background: var(--blue);
   color: #fff;
-  box-shadow: 0 12px 40px -8px rgba(39, 71, 255, 0.45);
+  box-shadow: 0 12px 40px -8px rgba(99, 91, 255, 0.45);
 }
 .dx-v3 .btn.primary:hover {
   background: var(--cobalt);
   transform: translateY(-3px);
-  box-shadow: 0 16px 50px -6px rgba(39, 71, 255, 0.55);
+  box-shadow: 0 16px 50px -6px rgba(99, 91, 255, 0.55);
 }
 .dx-v3 .btn.ghost {
   color: var(--ink);
@@ -1777,7 +1801,6 @@
    that exceeds 100vh, so they need natural scroll to reveal
    every item. The stack pauses there and resumes after.
 ============================================================ */
-.dx-v3 .hero,
 .dx-v3 > section.sec,
 .dx-v3 .rpa,
 .dx-v3 .ai,
@@ -1786,8 +1809,10 @@
   top: 0;
   min-height: 100vh;
 }
-/* Manifesto + Stats opted out of the sticky-stack — they scroll
-   normally so nothing rises up to cover the manifesto content. */
+/* Hero + Manifesto + Stats opted out of the sticky-stack — they
+   scroll normally so the hero → manifesto transition is a regular
+   scroll, not a sticky-pin "rise up and cover" animation. */
+.dx-v3 .hero,
 .dx-v3 .intro,
 .dx-v3 .stats {
   position: relative;
@@ -1856,7 +1881,7 @@
   height: 14px;
   margin: -7px 0 0 -7px; /* center on x/y */
   border-radius: 50%;
-  background: #2747ff;
+  background: #635bff;
   pointer-events: none;
   z-index: 99999;
   mix-blend-mode: difference;

@@ -11,18 +11,25 @@ export const metadata: Metadata = {
   alternates: { canonical: '/services/dx-consulting' },
 };
 
-// Page-scoped fonts loaded via Google Fonts. The dx-v3 design references the
-// literal family names directly in dx-v3.css (Geist / Instrument Serif /
-// JetBrains Mono / Noto Sans JP), so we let Next.js hoist the <link> tags
-// into the document head only when this route is rendered.
+// Page-scoped fonts. General Sans (Fontshare) is the chunky geometric sans
+// used as the headline font — closest free analog to juanmora.co's Goga.
+// The Latin subset of dx-v3 type uses 'General Sans'; Japanese still falls
+// through to Noto Sans JP (kanji not in General Sans). Instrument Serif
+// stays for italic emphasis, JetBrains Mono for tech labels.
 function DxFontsLink() {
   return (
     <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link rel="preconnect" href="https://api.fontshare.com" />
+      <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;800&display=swap"
+      />
+      <link
+        rel="stylesheet"
+        href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600,700&display=swap"
       />
     </>
   );
