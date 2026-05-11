@@ -59,9 +59,24 @@ const CALLCENTER_THEME: NavTheme = {
   logoInner: '#F2EBDC',                     // cream — matches page bg, reads as cutout
 };
 
+const DX_CONSULTING_THEME: NavTheme = {
+  bg: '#f5f7ff',                            // paper — light blurple tint
+  bgAlpha: 'rgba(245, 247, 255, 0.95)',
+  bgFull: '#f5f7ff',
+  accent: '#FF4D6D',                        // vivid coral — hover/secondary pop
+  accentDeep: '#E63950',                    // deeper coral — hover-on-hover
+  border: '#c9d3f5',                        // hairline
+  bgAlt: '#e6eeff',                         // paper-2 — dropdown hover band
+  ink: '#0b1340',                           // deep navy ink
+  muted: '#6b7aa8',                         // silver slate
+  logoShield: '#635bff',                    // blurple — page brand stays primary
+  logoInner: '#f5f7ff',                     // paper cutout — reads as negative space
+};
+
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
-  // Add more service themes here as they get designed (DX, Finance, …).
+  [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],
+  // Add more service themes here as they get designed (Finance, …).
 ];
 
 export function getNavThemeForPath(pathname: string): NavTheme {
