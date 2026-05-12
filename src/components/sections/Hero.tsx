@@ -1,5 +1,6 @@
 import HeroLogoDelayed from '@/components/ui/HeroLogoDelayed';
 import FadeUpText from '@/components/ui/FadeUpText';
+import DotsGrid from '@/components/ui/DotsGrid';
 
 export default function Hero() {
   return (
@@ -13,6 +14,10 @@ export default function Hero() {
         <div className="hero-blob hero-blob-2" />
         <div className="hero-blob hero-blob-3" />
       </div>
+      {/* Interactive dots grid — sits above the blobs, below content.
+          Dots light up gift-green near the cursor, get pushed by fast
+          mouse movement, and ripple on click. Decorative only. */}
+      <DotsGrid className="absolute inset-0 z-[1]" />
       <div className="relative z-10 mx-auto w-full max-w-container px-4 py-16 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
           {/* Text — left on desktop, top on mobile */}

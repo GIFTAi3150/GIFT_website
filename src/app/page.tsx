@@ -50,10 +50,10 @@ export default async function HomePage() {
           <WhoWeAre />
         </Reveal>
 
-        {/* SERVICE */}
-        <Reveal>
-          <ServicesCards />
-        </Reveal>
+        {/* SERVICE — ServicesCards handles its own pinned scroll-driven
+            entrance, so no Reveal wrapper (Reveal applies a transform
+            which would break GSAP's position: fixed pinning). */}
+        <ServicesCards />
         <Reveal>
           <ProcessFlow />
         </Reveal>

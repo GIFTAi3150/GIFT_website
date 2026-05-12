@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import WarpTransition from './WarpTransition';
 
 // Split a string into per-character spans so GSAP can stagger them.
 // Spaces become non-breaking unicode spaces wrapped in a non-`.ch` span
@@ -153,6 +154,11 @@ export default function DxV3Page() {
     const lenisRaf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(lenisRaf);
     gsap.ticker.lagSmoothing(0);
+    // Expose Lenis on window so the WarpTransition overlay can stop/start
+    // page scroll while its time-based animation plays. Cleaned up on
+    // unmount below.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__dxLenis = lenis;
 
     // ---- Progress bar ----
     triggers.push(
@@ -213,12 +219,11 @@ export default function DxV3Page() {
       })
     );
 
-    // ---- Manifesto scene: only the 2D accents drift on scroll ----
-    // PNG parallax was removed — the offset-then-land motion meant
-    // the cluster only "looked right" when the section sat at the
-    // viewport center, and felt like the PNGs appeared late. Now
-    // the PNGs sit at their CSS positions, fully formed from the
-    // moment the section enters view. Accents still drift for life.
+    // ---- Manifesto scene: 2D accents AND PNG shapes drift on scroll ----
+    // Each shape has its own drift amount and direction so the cluster
+    // breathes as the user scrolls — no two PNGs move in lockstep. The
+    // drift range is intentionally small (±25-40px) so shapes never
+    // feel "offscreen-low" or "offscreen-high" at the scroll extremes.
     const manifestoScene = document.querySelector<HTMLElement>('.dx-v3 .manifesto-scene');
     if (manifestoScene) {
       const accents = Array.from(
@@ -234,6 +239,62 @@ export default function DxV3Page() {
           { y: -y * 0.4 },
           {
             y: y * 0.6,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: manifestoScene,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          }
+        );
+        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+      });
+
+      // Spheres drift vertically — the classic up/down bob that makes
+      // the round shapes feel weightless.
+      const spheres = Array.from(
+        manifestoScene.querySelectorAll<HTMLElement>(
+          '.m-obj-3, .m-obj-5, .m-obj-6, .m-obj-7'
+        )
+      );
+      const sphereDrifts = [60, -80, 70, -65];
+      spheres.forEach((sphere, i) => {
+        const drift = sphereDrifts[i % sphereDrifts.length];
+        const t = gsap.fromTo(
+          sphere,
+          { y: -drift / 2 },
+          {
+            y: drift / 2,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: manifestoScene,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          }
+        );
+        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+      });
+
+      // Geometric shapes (cylinder, pill, cube) rotate in place as the
+      // user scrolls — no translation, just spin around their own
+      // center. Each shape rotates a different amount in a different
+      // direction so the three pieces feel independent, not synced.
+      const rotShapes: Array<{ sel: string; deg: number }> = [
+        { sel: '.m-obj-1', deg: 50 },  // cylinder — clockwise
+        { sel: '.m-obj-4', deg: -70 }, // pill — counter-clockwise, wider arc
+        { sel: '.m-obj-8', deg: 60 },  // cube — clockwise
+      ];
+      rotShapes.forEach(({ sel, deg }) => {
+        const el = manifestoScene.querySelector<HTMLElement>(sel);
+        if (!el) return;
+        const t = gsap.fromTo(
+          el,
+          { rotate: -deg / 2 },
+          {
+            rotate: deg / 2,
             ease: 'none',
             scrollTrigger: {
               trigger: manifestoScene,
@@ -670,36 +731,26 @@ export default function DxV3Page() {
       });
     };
 
-    // Hero masthead rows — split immediately, but defer the scramble
-    // animation until the user begins scrolling (fires once hero top
-    // crosses 10px above viewport top = first ~10px of scroll).
+    // Hero masthead rows — split into chars, then fire the scramble
+    // immediately on page load. Previously this fired on first scroll,
+    // but first-scroll is now the warp interstitial's trigger, so the
+    // two would race. Firing on mount = visitor sees the decode on
+    // landing, then scrolls to enter the warp.
     const heroRows = Array.from(
       document.querySelectorAll<HTMLElement>('.dx-v3 .masthead .row')
     );
     heroRows.forEach((row) => {
       if (!row.querySelector('.ch')) splitInto(row, '');
     });
-    if (heroRows.length) {
-      const heroT = ScrollTrigger.create({
-        trigger: '.dx-v3 .hero',
-        start: 'top top-=10',
-        once: true,
-        onEnter: () => {
-          heroRows.forEach((row, i) => {
-            const chars = Array.from(
-              row.querySelectorAll<HTMLElement>('.ch')
-            );
-            if (!chars.length) return;
-            scrambleSpans(chars, {
-              startDelay: i * 0.7,
-              stagger: 0.09,
-              charDuration: 2.2,
-            });
-          });
-        },
+    heroRows.forEach((row, i) => {
+      const chars = Array.from(row.querySelectorAll<HTMLElement>('.ch'));
+      if (!chars.length) return;
+      scrambleSpans(chars, {
+        startDelay: i * 0.7,
+        stagger: 0.09,
+        charDuration: 2.2,
       });
-      triggers.push(heroT);
-    }
+    });
 
     document
       .querySelectorAll<HTMLElement>('.dx-v3 .sec-head h2')
@@ -976,6 +1027,8 @@ export default function DxV3Page() {
       triggers.forEach((t) => t.kill());
       gsap.ticker.remove(lenisRaf);
       lenis.destroy();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as any).__dxLenis;
     };
   }, []);
 
@@ -1026,6 +1079,10 @@ export default function DxV3Page() {
             </div>
           </div>
 
+          {/* Tiny black dot — visual cue / "event horizon" before the
+              hyperspace warp section below begins. Subtle pulse. */}
+          <span className="hero-dot" aria-hidden />
+
         </div>
       </section>
 
@@ -1061,12 +1118,12 @@ export default function DxV3Page() {
           <span className="acc acc-pill acc-6" />
 
           <img className="m-obj m-obj-1" src="/spline/cylinder.png" alt="" />
-          <img className="m-obj m-obj-2" src="/spline/car.png" alt="" />
           <img className="m-obj m-obj-3" src="/spline/sphere.png" alt="" />
           <img className="m-obj m-obj-4" src="/spline/pill.png" alt="" />
           <img className="m-obj m-obj-5" src="/spline/sphere.png" alt="" />
           <img className="m-obj m-obj-6" src="/spline/sphere.png" alt="" />
           <img className="m-obj m-obj-7" src="/spline/sphere.png" alt="" />
+          <img className="m-obj m-obj-8" src="/spline/cube2.png" alt="" />
 
           {/* Drawn-on-scroll wavy lines — weave through the cluster.
               Each path animates in via the existing draw-scroll JS
@@ -1563,6 +1620,12 @@ export default function DxV3Page() {
           </div>
         </div>
       </section>
+
+      {/* WARP TRANSITION OVERLAY — fixed-position. Its ScrollTrigger
+          pins the hero and scrubs the warp animation in sync with the
+          user's scroll. Position in the tree doesn't matter — fixed
+          overlay sits on top of everything. */}
+      <WarpTransition />
     </div>
   );
 }
