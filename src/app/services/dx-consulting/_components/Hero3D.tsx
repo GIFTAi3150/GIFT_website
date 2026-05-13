@@ -81,7 +81,7 @@ function DeskScene({
 }) {
   const { scene: ramenScene } = useGLTF(MODEL_RAMEN_URL);
   const { scene: monitorScene } = useGLTF(MODEL_MONITOR_URL);
-  const { camera, controls } = useThree();
+  const { camera, controls, size: viewportSize } = useThree();
   // Screen logo position is now a manual offset relative to MONITOR_POS
   // (see SCREEN_LOGO_* constants up top). The mesh-lookup approach was
   // unreliable because the screen mesh's bbox extended past the visible
@@ -561,15 +561,31 @@ function DeskScene({
     ctx.fillStyle = SCREEN_BG_DARK;
     ctx.fillRect(0, 0, SNAKE_CANVAS_W, SNAKE_CANVAS_H);
 
-    const cellW = SNAKE_CANVAS_W / SNAKE_COLS;
-    const cellH = SNAKE_CANVAS_H / SNAKE_ROWS;
+    // The screen mesh's bbox is slightly larger than the lit screen
+    // face on every side, so cells drawn at the canvas edges land
+    // BEHIND the TV's bezel and disappear. Inset the playfield to a
+    // generous rectangle that sits centered on the visible screen,
+    // leaving a strip of space below for the score. The values are
+    // centered on the canvas (0.5W, 0.5H-ish) rather than on the
+    // logo-channel offset — the bezel symmetry suggests the visible
+    // screen actually centers near the canvas center. If cells still
+    // get clipped after a model re-export, tune these four constants.
+    const PLAY_X = SNAKE_CANVAS_W * 0.18;
+    const PLAY_Y = SNAKE_CANVAS_H * 0.20;
+    const PLAY_W = SNAKE_CANVAS_W * 0.64;
+    const PLAY_H = SNAKE_CANVAS_H * 0.50;
+    const PLAY_CX = PLAY_X + PLAY_W / 2;
+    const PLAY_CY = PLAY_Y + PLAY_H / 2;
+
+    const cellW = PLAY_W / SNAKE_COLS;
+    const cellH = PLAY_H / SNAKE_ROWS;
     const gap = 3;
 
     // Faint grid background so the playfield is readable even when empty.
     ctx.fillStyle = 'rgba(99, 91, 255, 0.06)';
     for (let r = 0; r < SNAKE_ROWS; r++) {
       for (let c = 0; c < SNAKE_COLS; c++) {
-        ctx.fillRect(c * cellW + gap, r * cellH + gap, cellW - gap * 2, cellH - gap * 2);
+        ctx.fillRect(PLAY_X + c * cellW + gap, PLAY_Y + r * cellH + gap, cellW - gap * 2, cellH - gap * 2);
       }
     }
 
@@ -583,8 +599,8 @@ function DeskScene({
           ? BRAND_SHIELD
           : `rgba(99, 91, 255, ${0.45 + t * 0.45})`;
       ctx.fillRect(
-        s.x * cellW + gap,
-        s.y * cellH + gap,
+        PLAY_X + s.x * cellW + gap,
+        PLAY_Y + s.y * cellH + gap,
         cellW - gap * 2,
         cellH - gap * 2
       );
@@ -593,46 +609,52 @@ function DeskScene({
     // Food — brand coral.
     const f = snakeFoodRef.current;
     ctx.fillStyle = '#FF4D6D';
-    ctx.fillRect(f.x * cellW + gap, f.y * cellH + gap, cellW - gap * 2, cellH - gap * 2);
+    ctx.fillRect(PLAY_X + f.x * cellW + gap, PLAY_Y + f.y * cellH + gap, cellW - gap * 2, cellH - gap * 2);
 
-    // Score (top-left).
-    ctx.fillStyle = 'rgba(245, 247, 255, 0.92)';
-    ctx.font = 'bold 40px ui-monospace, "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
+    // Score — drawn in the strip BELOW the playfield (inside the
+    // visible screen, outside the grid). Centered horizontally on the
+    // playfield so it tracks the playfield's position automatically.
+    ctx.fillStyle = '#f5f7ff';
+    ctx.font = 'bold 38px ui-monospace, "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText(`SCORE  ${snakeScoreRef.current.toString().padStart(3, '0')}`, 24, 20);
+    ctx.fillText(
+      `SCORE  ${snakeScoreRef.current.toString().padStart(3, '0')}`,
+      PLAY_CX,
+      PLAY_Y + PLAY_H + 16
+    );
 
     // Start-screen overlay — shown before the player has pressed SPACE.
     // Same visual pattern as the game-over screen so it reads as a
-    // proper title card.
+    // proper title card. Centered on the playfield, not the canvas.
     if (!snakeStartedRef.current && !snakeOverRef.current) {
       ctx.fillStyle = 'rgba(11, 19, 64, 0.88)';
-      ctx.fillRect(0, SNAKE_CANVAS_H / 2 - 160, SNAKE_CANVAS_W, 320);
+      ctx.fillRect(PLAY_X, PLAY_CY - 160, PLAY_W, 320);
       ctx.fillStyle = BRAND_SHIELD;
       ctx.font = 'bold 108px ui-monospace, "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('SNAKE', SNAKE_CANVAS_W / 2, SNAKE_CANVAS_H / 2 - 60);
+      ctx.fillText('SNAKE', PLAY_CX, PLAY_CY - 60);
       ctx.fillStyle = '#f5f7ff';
       ctx.font = 'bold 36px ui-monospace, "JetBrains Mono", monospace';
-      ctx.fillText('TAP OR PRESS SPACE TO START', SNAKE_CANVAS_W / 2, SNAKE_CANVAS_H / 2 + 20);
+      ctx.fillText('TAP OR PRESS SPACE TO START', PLAY_CX, PLAY_CY + 20);
       ctx.fillStyle = 'rgba(245, 247, 255, 0.6)';
       ctx.font = '26px ui-monospace, "JetBrains Mono", monospace';
-      ctx.fillText('SWIPE / ARROWS / WASD TO STEER', SNAKE_CANVAS_W / 2, SNAKE_CANVAS_H / 2 + 80);
+      ctx.fillText('SWIPE / ARROWS / WASD TO STEER', PLAY_CX, PLAY_CY + 80);
     }
 
     // Game over overlay.
     if (snakeOverRef.current) {
       ctx.fillStyle = 'rgba(11, 19, 64, 0.86)';
-      ctx.fillRect(0, SNAKE_CANVAS_H / 2 - 130, SNAKE_CANVAS_W, 260);
+      ctx.fillRect(PLAY_X, PLAY_CY - 130, PLAY_W, 260);
       ctx.fillStyle = '#FF4D6D';
       ctx.font = 'bold 96px ui-monospace, "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('GAME OVER', SNAKE_CANVAS_W / 2, SNAKE_CANVAS_H / 2 - 30);
+      ctx.fillText('GAME OVER', PLAY_CX, PLAY_CY - 30);
       ctx.fillStyle = '#f5f7ff';
       ctx.font = 'bold 32px ui-monospace, "JetBrains Mono", monospace';
-      ctx.fillText('TAP OR PRESS SPACE TO RESTART', SNAKE_CANVAS_W / 2, SNAKE_CANVAS_H / 2 + 60);
+      ctx.fillText('TAP OR PRESS SPACE TO RESTART', PLAY_CX, PLAY_CY + 60);
     }
 
     tex.needsUpdate = true;
@@ -733,13 +755,24 @@ function DeskScene({
     });
     const center = new THREE.Vector3();
     box.getCenter(center);
-    const size = new THREE.Vector3();
-    box.getSize(size);
-    const maxDim = Math.max(size.x, size.y, size.z, 0.2);
-    // 1.7× the TV's largest dimension — close enough that the screen
-    // dominates the frame, far enough that the side buttons are still
-    // visible and clickable.
-    const distance = maxDim * 1.7;
+    const boxSize = new THREE.Vector3();
+    box.getSize(boxSize);
+    // Compute the camera distance required to fit the TV bbox into
+    // the viewport given the camera's actual vFOV and the canvas
+    // aspect ratio. A fixed multiplier like maxDim * 1.7 framed the
+    // TV nicely on 16:9 desktops but pushed the camera way too close
+    // on narrow phone screens — there the horizontal FOV is much
+    // smaller, so the same distance fills the viewport. Recomputing
+    // per-call makes the framing identical on every device. The
+    // padding factor leaves room for buttons + a little breathing room.
+    const perspectiveCam = camera as THREE.PerspectiveCamera;
+    const vFovRad = (perspectiveCam.fov * Math.PI) / 180;
+    const aspect = viewportSize.width / viewportSize.height;
+    const fitPadding = 1.15;
+    const distV = (boxSize.y / 2) * fitPadding / Math.tan(vFovRad / 2);
+    const distH = (boxSize.x / 2) * fitPadding / (Math.tan(vFovRad / 2) * aspect);
+    // Floor on boxSize.z so we never end up inside the bbox depth.
+    const distance = Math.max(distV, distH, boxSize.z);
     // Always approach from straight ahead — camera along the TV's
     // +Z axis at the screen's height, looking dead-on at the screen.
     // No elevation, no side offset, regardless of where the user

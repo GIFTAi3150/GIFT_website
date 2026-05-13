@@ -37,56 +37,87 @@ const cases = [
 export default function CaseStudy() {
   return (
     <section className="w-full bg-gift-bg-alt py-s-80">
-      <div className="mx-auto mb-12 max-w-container px-4 md:px-6 lg:px-8">
-        <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+      <div className="mx-auto mb-12 flex max-w-container flex-col gap-3 px-4 md:mb-16 md:px-6 lg:px-8">
+        <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
           WORKS
         </p>
         <h2
           className="font-sans font-extrabold text-gift-ink"
-          style={{ fontSize: '36px', lineHeight: '1.25' }}
+          style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: '1.15' }}
         >
           実績・強み
         </h2>
-        <p className="mt-2 font-sans text-normal font-light text-gift-silver">
+        <p className="font-sans text-normal font-light text-gift-silver">
           3つの事業を軸に、お客様の成長を支援しています。
         </p>
       </div>
 
-      {/* Mobile: horizontal swipe with snap. Desktop: 3-column grid. No arrows. */}
+      {/* Mobile/tablet: horizontal swipe rail with hidden scrollbar — the
+          partially-visible neighbor card cues the affordance. Desktop:
+          3-column grid. */}
       <div className="mx-auto max-w-container">
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-6 md:px-6 md:py-8 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-8 lg:py-0">
-          {cases.map((c) => {
+        <div className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 py-6 md:px-6 md:py-8 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-8 lg:py-0">
+          {cases.map((c, i) => {
             const Icon = SERVICE_ICON_BY_ID[c.iconId];
+            const index = String(i + 1).padStart(2, '0');
             return (
-            <div
-              key={c.id}
-              className="group flex w-[85%] shrink-0 cursor-pointer snap-center flex-col rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-gift-green/40 hover:shadow-[0_20px_40px_-12px_rgba(37,211,102,0.3),0_0_30px_-5px_rgba(37,211,102,0.2)] active:scale-[0.99] sm:w-[60%] lg:w-auto"
-            >
-              <div className="mb-4">
-                {Icon && (
-                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-300 group-hover:scale-110 group-hover:bg-gift-green/20">
-                    <Icon className="h-7 w-7" />
-                  </span>
-                )}
-              </div>
-              <h3 className="mb-6 font-sans text-medium font-bold leading-snug text-gift-ink">
-                {c.title}
-              </h3>
-              <div className="mt-auto grid grid-cols-2 gap-3">
-                {c.metrics.map((m) => (
-                  <div
-                    key={m.label}
-                    className="rounded-lg border border-gift-border bg-gift-bg-alt px-3 py-4 text-center"
-                  >
-                    <p className="font-display text-[28px] font-extrabold leading-none text-gift-green">
-                      {m.value}
-                      <span className="text-[16px]">{m.suffix}</span>
-                    </p>
-                    <p className="mt-2 font-sans text-[12px] text-gift-silver">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+              <article
+                key={c.id}
+                className="group relative flex w-[82%] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-gift-border bg-white p-7 transition-[transform,border-color,box-shadow] duration-[400ms] ease-out hover:-translate-y-1.5 hover:border-gift-green hover:shadow-[0_24px_48px_-16px_rgba(17,27,33,0.18)] sm:w-[58%] sm:p-8 lg:w-auto"
+              >
+                {/* Editorial index — large, faint, sits behind icon. Tints
+                    forward on hover so the card has a clear "active" tell
+                    beyond the lift+border. */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute right-5 top-3 select-none font-display font-extrabold leading-none text-gift-green/[0.08] transition-colors duration-[400ms] group-hover:text-gift-green/25"
+                  style={{ fontSize: 'clamp(72px, 7vw, 104px)' }}
+                >
+                  {index}
+                </span>
+
+                {/* Icon — flips to solid green on hover, mirroring the
+                    card's elevation change. */}
+                <div className="relative mb-6">
+                  {Icon && (
+                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gift-green/10 text-gift-green transition-colors duration-[400ms] group-hover:bg-gift-green group-hover:text-white">
+                      <Icon className="h-7 w-7" />
+                    </span>
+                  )}
+                </div>
+
+                <p className="mb-2 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-gift-silver">
+                  {c.industry}
+                </p>
+                <h3 className="mb-10 font-sans text-medium font-bold leading-snug text-gift-ink">
+                  {c.title}
+                </h3>
+
+                {/* Metrics row — inline at the foot of the card with a
+                    thin rule above. Hierarchy: huge number, small suffix,
+                    small caps label. No nested boxes. */}
+                <div className="mt-auto flex flex-wrap items-baseline gap-x-8 gap-y-3 border-t border-gift-border pt-5">
+                  {c.metrics.map((m) => (
+                    <div key={m.label}>
+                      <p className="font-display text-[30px] font-extrabold leading-none text-gift-ink">
+                        {m.value}
+                        <span className="text-[15px] text-gift-green">{m.suffix}</span>
+                      </p>
+                      <p className="mt-2 font-sans text-[11px] uppercase tracking-[0.15em] text-gift-silver">
+                        {m.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Bottom accent — a thin green line that draws in from
+                    the left edge on hover. Reads as an editorial reading
+                    guide rather than a generic glow. */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-0 left-0 h-[3px] w-full origin-left scale-x-0 bg-gift-green transition-transform duration-[500ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:scale-x-100"
+                />
+              </article>
             );
           })}
         </div>

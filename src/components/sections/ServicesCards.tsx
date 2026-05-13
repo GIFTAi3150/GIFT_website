@@ -1,190 +1,266 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import services from '@/data/services.json';
-import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 
-gsap.registerPlugin(ScrollTrigger);
+// Osmo-style parallax slideshow. Each slide is a full-bleed service
+// image with a left-side text panel. On transition, the outer slide
+// translates 100% in one direction while its inner <img> translates 50%
+// in the opposite direction — so within the slide's overflow:hidden
+// frame, the image appears to move at half-speed, reading as depth.
+// Navigation: click thumbnails, drag, or horizontal wheel/trackpad.
+// Wraps around past the ends.
 
-// Stack visual tuning — how far each card sits behind the one in front,
-// and how much smaller it scales. Subtle so the stack reads as depth,
-// not as a stair-step.
-const STAGGER_Y = 18;
-const SCALE_STEP = 0.04;
+const TRANSITION_EASE = 'expo.inOut';
+const TRANSITION_DURATION = 0.9;
 
 export default function ServicesCards() {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const pinRef = useRef<HTMLDivElement | null>(null);
-  const stackRef = useRef<HTMLDivElement | null>(null);
+  const wheelTargetRef = useRef<HTMLDivElement | null>(null);
+  const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
+  const innersRef = useRef<(HTMLImageElement | null)[]>([]);
+  const animatingRef = useRef(false);
+  const currentRef = useRef(0);
+  const [current, setCurrent] = useState(0);
 
+  const total = services.length;
+
+  const animateTo = (nextIdx: number, direction: 1 | -1) => {
+    const cur = currentRef.current;
+    if (animatingRef.current || nextIdx === cur) return;
+    const outSlide = slidesRef.current[cur];
+    const outInner = innersRef.current[cur];
+    const inSlide = slidesRef.current[nextIdx];
+    const inInner = innersRef.current[nextIdx];
+    if (!outSlide || !outInner || !inSlide || !inInner) return;
+
+    animatingRef.current = true;
+
+    // Stage the incoming slide off-screen on the opposite side from where
+    // the current is leaving, with its inner image pre-offset so it can
+    // ease into 0 at half speed.
+    gsap.set(inSlide, {
+      opacity: 1,
+      pointerEvents: 'auto',
+      xPercent: direction * 100,
+      zIndex: 2,
+    });
+    gsap.set(inInner, { xPercent: -direction * 50 });
+    gsap.set(outSlide, { zIndex: 1 });
+
+    gsap.timeline({
+      defaults: { duration: TRANSITION_DURATION, ease: TRANSITION_EASE },
+      onComplete: () => {
+        // The outgoing slide is now off-screen — hide it and reset its
+        // transforms so it's ready to re-enter on a future transition.
+        gsap.set(outSlide, {
+          opacity: 0,
+          pointerEvents: 'none',
+          xPercent: 0,
+          zIndex: 1,
+        });
+        gsap.set(outInner, { xPercent: 0 });
+        gsap.set(inSlide, { zIndex: 1 });
+        currentRef.current = nextIdx;
+        setCurrent(nextIdx);
+        animatingRef.current = false;
+      },
+    })
+      .to(outSlide, { xPercent: -direction * 100 }, 0)
+      .to(outInner, { xPercent: direction * 50 }, 0)
+      .to(inSlide, { xPercent: 0 }, 0)
+      .to(inInner, { xPercent: 0 }, 0);
+  };
+
+  const next = () => {
+    const cur = currentRef.current;
+    animateTo((cur + 1) % total, 1);
+  };
+  const prev = () => {
+    const cur = currentRef.current;
+    animateTo((cur - 1 + total) % total, -1);
+  };
+  const goTo = (target: number) => {
+    const cur = currentRef.current;
+    if (target === cur) return;
+    const forward = (target - cur + total) % total;
+    const backward = (cur - target + total) % total;
+    animateTo(target, forward <= backward ? 1 : -1);
+  };
+
+  // Initial layout — only slide 0 visible.
   useEffect(() => {
-    const section = sectionRef.current;
-    const pin = pinRef.current;
-    const stack = stackRef.current;
-    if (!section || !pin || !stack) return;
-
-    const cards = Array.from(stack.querySelectorAll<HTMLElement>('.card-stack-item'));
-    const total = cards.length;
-    if (total < 2) return;
-
-    // Stack the cards at rest — index 0 in front, each subsequent card
-    // offset down by STAGGER_Y px and scaled down by SCALE_STEP. The
-    // xPercent/yPercent of -50 handles centering via transform so we
-    // can layer `y` and `scale` on top without fighting CSS translates.
-    cards.forEach((card, i) => {
-      gsap.set(card, {
-        xPercent: -50,
-        yPercent: -50,
-        y: i * STAGGER_Y,
-        scale: 1 - i * SCALE_STEP,
-        zIndex: total - i,
-        transformOrigin: 'center center',
+    slidesRef.current.forEach((slide, i) => {
+      if (!slide) return;
+      gsap.set(slide, {
+        opacity: i === 0 ? 1 : 0,
+        pointerEvents: i === 0 ? 'auto' : 'none',
+        xPercent: 0,
       });
     });
-
-    // Each card transition takes one viewport height of scroll. With N
-    // cards, we need (N-1) transitions before the last card sits front.
-    const tl = gsap.timeline({
-      defaults: { ease: 'power2.inOut', duration: 1 },
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${window.innerHeight * (total - 1)}`,
-        pin: pin,
-        scrub: 0.6,
-        invalidateOnRefresh: true,
-        anticipatePin: 1,
-      },
+    innersRef.current.forEach((img) => {
+      if (img) gsap.set(img, { xPercent: 0 });
     });
+  }, []);
 
-    for (let i = 0; i < total - 1; i++) {
-      // Drop the front card — translates up and off, fades, tilts slightly
-      // so it reads as "thrown away" rather than just sliding.
-      tl.to(
-        cards[i],
-        {
-          y: () => -window.innerHeight * 0.85,
-          opacity: 0,
-          rotate: -6,
-          scale: 0.88,
-          ease: 'power2.in',
-          // Prevent the dropped card from intercepting clicks once it's
-          // off-screen (clicks would still hit it during the fade out).
-          pointerEvents: 'none',
-        },
-        i
-      );
-
-      // All cards behind shift one slot forward — into the position
-      // previously occupied by the card that's dropping.
-      for (let j = i + 1; j < total; j++) {
-        const newSlot = j - i - 1;
-        tl.to(
-          cards[j],
-          {
-            y: newSlot * STAGGER_Y,
-            scale: 1 - newSlot * SCALE_STEP,
-            ease: 'power2.out',
-          },
-          i
-        );
+  // Horizontal wheel / trackpad — only react when horizontal delta
+  // dominates, so vertical page scroll passes through.
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      if (animatingRef.current) {
+        e.preventDefault();
+        return;
       }
-    }
+      e.preventDefault();
+      if (e.deltaX > 0) next();
+      else prev();
+    };
+    const node = wheelTargetRef.current;
+    if (!node) return;
+    node.addEventListener('wheel', onWheel, { passive: false });
+    return () => node.removeEventListener('wheel', onWheel);
+  }, []);
 
+  // Pointer drag — start on the slide area, ignore drags that begin on
+  // links/buttons so the CTA stays clickable.
+  useEffect(() => {
+    const node = wheelTargetRef.current;
+    if (!node) return;
+    let startX = 0;
+    let dragging = false;
+
+    const onDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, button')) return;
+      dragging = true;
+      startX = e.clientX;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) < 50) return;
+      if (dx < 0) next();
+      else prev();
+    };
+
+    node.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointerup', onUp);
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      node.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointerup', onUp);
     };
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative w-full bg-gift-near-black"
-      // Section needs enough height to scrub through (total - 1) transitions
-      // plus the initial pin moment. 100vh per card transition + 100vh
-      // settle = (total) * 100vh total height.
-      style={{ height: `${100 * Math.max(2, services.length)}vh` }}
-    >
-      <div ref={pinRef} className="h-screen w-full flex flex-col overflow-hidden">
-        {/* Section header — stays visible above the dropping stack */}
-        <div className="mx-auto w-full max-w-container px-4 md:px-6 lg:px-8 pt-s-80 shrink-0">
-          <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+    <section className="relative w-full bg-gift-near-black py-s-80">
+      <div className="mx-auto w-full max-w-container px-4 md:px-6 lg:px-8">
+        <div className="mb-10 flex flex-col gap-3 md:mb-14">
+          <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
             SERVICE
           </p>
           <h2
             className="font-sans font-extrabold text-gift-ink"
-            style={{ fontSize: '36px', lineHeight: '1.25' }}
+            style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: '1.15' }}
           >
             事業内容
           </h2>
-          <p className="mt-2 font-sans text-normal font-light text-gift-silver">
+          <p className="font-sans text-normal font-light text-gift-silver">
             GIFTが提供する3つの事業。
           </p>
         </div>
 
-        {/* Cards stack — absolute-positioned cards centered in flex area.
-            Each card uses top-1/2 left-1/2 for centering anchor; GSAP
-            applies xPercent: -50, yPercent: -50 transform to actually
-            center, leaving y/scale free for the stack offsets. */}
-        <div ref={stackRef} className="relative flex-1 w-full">
-          {services.map((s, idx) => {
-            const Icon = SERVICE_ICON_BY_ID[s.id];
-            const cardContent = (
-              <div className="gift-card group relative flex h-full flex-col overflow-hidden !p-0">
-                <div
-                  className="relative overflow-hidden rounded-t-[18px]"
-                  style={{ aspectRatio: '4/3' }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={s.image}
-                    alt={s.title}
-                    className="h-full w-full object-cover brightness-75 transition-all duration-700 group-hover:scale-[1.06] group-hover:brightness-100"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
+        {/* Slideshow frame — overflow:hidden clips the parallax. */}
+        <div
+          ref={wheelTargetRef}
+          className="relative w-full overflow-hidden rounded-2xl bg-black aspect-[4/5] sm:aspect-[16/10] touch-pan-y select-none"
+        >
+          {services.map((s, i) => (
+            <div
+              key={s.id}
+              ref={(el) => {
+                slidesRef.current[i] = el;
+              }}
+              className="absolute inset-0 overflow-hidden will-change-transform"
+              aria-hidden={i !== current}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                ref={(el) => {
+                  innersRef.current[i] = el;
+                }}
+                src={s.image}
+                alt={s.titleEn}
+                draggable={false}
+                className="absolute inset-0 h-full w-full object-cover will-change-transform"
+              />
 
-                  <span className="absolute left-5 top-4 font-display text-small font-bold tracking-widest text-gift-green">
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
+              {/* Scrim — strong on the left where the text sits, fading
+                  to transparent on the right so the image breathes. */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
 
-                  <h3 className="absolute bottom-4 left-5 right-5 font-display text-medium font-bold leading-tight text-gift-ink">
-                    {s.titleEn}
-                  </h3>
-                </div>
-
-                <div className="flex flex-1 flex-col p-6">
-                  <div className="mb-3 flex items-center gap-3">
-                    {Icon && (
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-gift-green/10 text-gift-green transition-colors duration-300 group-hover:bg-gift-green group-hover:text-white">
-                        <Icon className="h-6 w-6" />
-                      </span>
-                    )}
-                    <p className="font-sans text-small font-medium text-gift-green-mid">{s.title}</p>
-                  </div>
-                  <p className="mt-1 flex-1 font-sans text-[15px] font-light leading-relaxed text-gift-silver">
-                    {s.body.length > 90 ? s.body.slice(0, 90) + '…' : s.body}
+              {/* Text panel */}
+              <div className="relative z-10 flex h-full items-end p-6 sm:items-center sm:p-10 lg:p-16">
+                <div className="max-w-xl text-white">
+                  <p className="mb-3 font-display text-small font-bold uppercase tracking-[0.2em] text-gift-green">
+                    {String(i + 1).padStart(2, '0')} · {s.titleEn}
                   </p>
+                  <h3
+                    className="mb-4 font-display font-extrabold leading-[1.1]"
+                    style={{ fontSize: 'clamp(28px, 4.5vw, 52px)' }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p className="mb-6 max-w-md font-sans text-normal font-light text-white/85">
+                    {s.body.length > 130 ? s.body.slice(0, 130) + '…' : s.body}
+                  </p>
+                  {s.href && (
+                    <Link
+                      href={s.href}
+                      className="cta-btn cta-btn--on-green"
+                      tabIndex={i === current ? 0 : -1}
+                    >
+                      <span>詳しく見る</span>
+                    </Link>
+                  )}
                 </div>
-
-                <span className="gift-card-btn">詳しく見る</span>
               </div>
-            );
+            </div>
+          ))}
 
-            const wrapperClass =
-              'card-stack-item absolute top-1/2 left-1/2 w-[90%] max-w-[520px] will-change-transform';
+        </div>
 
-            return s.href ? (
-              <Link key={s.id} href={s.href} className={wrapperClass}>
-                {cardContent}
-              </Link>
-            ) : (
-              <div key={s.id} className={wrapperClass}>
-                {cardContent}
-              </div>
+        {/* Thumbnails — small bordered previews. Click to jump; current
+            one scales up and gets the green border. */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8 md:gap-4">
+          {services.map((s, i) => {
+            const isCurrent = i === current;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => goTo(i)}
+                aria-label={`${s.titleEn}へ`}
+                aria-current={isCurrent ? 'true' : undefined}
+                className={`relative h-16 w-28 shrink-0 overflow-hidden rounded-md border transition-all duration-300 ease-out md:h-20 md:w-32 ${
+                  isCurrent
+                    ? 'scale-105 border-gift-green opacity-100'
+                    : 'border-white/20 opacity-50 hover:opacity-100'
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={s.image}
+                  alt=""
+                  draggable={false}
+                  className="h-full w-full object-cover"
+                />
+                {isCurrent && (
+                  <span className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gift-green" />
+                )}
+              </button>
             );
           })}
         </div>

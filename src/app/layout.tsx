@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { notoSansJP, poppins } from './fonts';
 import '../styles/globals.css';
+import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -141,6 +142,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         {children}
+        <CtaHoverHydrator />
       </body>
     </html>
   );

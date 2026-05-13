@@ -9,7 +9,9 @@
       "Bash(ls -lh c:/Users/owner/Desktop/GIFT_website/public/textures/Rusty*)",
       "Bash(curl -L -o c:/Users/owner/Desktop/GIFT_website/public/fonts/Poppins-Bold.ttf \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Bold.ttf\")",
       "WebFetch(domain:www.aquarium.ru)",
-      "Bash(npm ls *)"
+      "Bash(npm ls *)",
+      "WebFetch(domain:www.osmo.supply)",
+      "WebFetch(domain:api.anthropic.com)"
     ]
   }
 }
