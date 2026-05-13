@@ -4,7 +4,13 @@ import { Fragment, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import WarpTransition from './WarpTransition';
+import dynamic from 'next/dynamic';
+
+// Hero3D mounts WebGL via React Three Fiber. R3F + Next.js App Router
+// hits a Suspense hydration crash when rendered server-side, so import
+// it dynamically with SSR disabled — the component only ever appears
+// after client hydration.
+const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
 
 // Split a string into per-character spans so GSAP can stagger them.
 // Spaces become non-breaking unicode spaces wrapped in a non-`.ch` span
@@ -154,12 +160,6 @@ export default function DxV3Page() {
     const lenisRaf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(lenisRaf);
     gsap.ticker.lagSmoothing(0);
-    // Expose Lenis on window so the WarpTransition overlay can stop/start
-    // page scroll while its time-based animation plays. Cleaned up on
-    // unmount below.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__dxLenis = lenis;
-
     // ---- Progress bar ----
     triggers.push(
       ScrollTrigger.create({
@@ -1027,8 +1027,6 @@ export default function DxV3Page() {
       triggers.forEach((t) => t.kill());
       gsap.ticker.remove(lenisRaf);
       lenis.destroy();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any).__dxLenis;
     };
   }, []);
 
@@ -1041,6 +1039,9 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
+          {/* 3D backdrop — loads /public/models/*.glb, fills the entire
+              stage. Text overlays on top via higher z-index. */}
+          <Hero3D />
           <div className="hero-stage-inner">
             <div className="masthead">
               <div className="row r1">業務を、変えずに</div>
@@ -1078,10 +1079,6 @@ export default function DxV3Page() {
               <span>L-Step Certified Partner</span>
             </div>
           </div>
-
-          {/* Tiny black dot — visual cue / "event horizon" before the
-              hyperspace warp section below begins. Subtle pulse. */}
-          <span className="hero-dot" aria-hidden />
 
         </div>
       </section>
@@ -1621,11 +1618,6 @@ export default function DxV3Page() {
         </div>
       </section>
 
-      {/* WARP TRANSITION OVERLAY — fixed-position. Its ScrollTrigger
-          pins the hero and scrubs the warp animation in sync with the
-          user's scroll. Position in the tree doesn't matter — fixed
-          overlay sits on top of everything. */}
-      <WarpTransition />
     </div>
   );
 }
