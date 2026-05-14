@@ -1031,31 +1031,66 @@
   align-self: flex-end; /* editorial: anchor lead to right edge */
 }
 
-/* Horizontal pinned scroll. The .caps-stack is the pin frame —
-   it sticks to the top of the viewport while the inner .caps-track
-   (a wide flex row of cards) gets translated left by GSAP scrub.
-   So vertical scroll input becomes horizontal card travel. */
-.dx-v3 .caps-stack {
+/* Orbit-tiles infinite loop. The .caps-orbit-stack is a tall scroll
+   area; .caps-orbit-frame is sticky-pinned inside it so the orbit
+   stays on-screen while the page scrolls past. All tiles share
+   grid-area 1/1 (i.e., stacked at the frame's center) and are moved
+   into their orbit positions by GSAP transforms (translate/scale/blur).
+   --orbit-rx and --orbit-ry tune the orbit ellipse from CSS without
+   touching JS. */
+.dx-v3 .caps-orbit-stack {
   position: relative;
-  height: 100vh;
-  /* Cancel the section's 32px side padding so the track is full
-     viewport-bleed during the pinned scroll. */
+  /* Total scroll distance for one full revolution. ~250vh gives a
+     comfortable 62vh of scroll per tile in focus. */
+  height: 280vh;
   margin: 64px -32px 0;
+}
+.dx-v3 .caps-orbit-frame {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
   overflow: hidden;
+  display: grid;
+  place-items: center;
+  --orbit-rx: 380px;
+  --orbit-ry: 90px;
 }
-.dx-v3 .caps-track {
-  display: flex;
-  align-items: center;
-  gap: clamp(20px, 3vw, 48px);
-  height: 100%;
-  padding: 0 8vw;
-  will-change: transform;
+@media (min-width: 900px) {
+  .dx-v3 .caps-orbit-frame {
+    --orbit-rx: 460px;
+    --orbit-ry: 110px;
+  }
 }
-.dx-v3 .cap-row {
-  flex: 0 0 auto;
-  width: clamp(320px, 78vw, 980px);
-  height: clamp(460px, 78vh, 720px);
+@media (min-width: 1400px) {
+  .dx-v3 .caps-orbit-frame {
+    --orbit-rx: 560px;
+    --orbit-ry: 130px;
+  }
+}
+.dx-v3 .caps-orbit {
   position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.dx-v3 .orbit-tile {
+  grid-area: 1 / 1;
+  width: clamp(320px, 80vw, 560px);
+  height: clamp(440px, 72vh, 640px);
+  position: relative;
+  will-change: transform, opacity, filter;
+}
+@media (min-width: 900px) {
+  .dx-v3 .orbit-tile {
+    width: clamp(380px, 46vw, 720px);
+    height: clamp(480px, 74vh, 720px);
+  }
+  .dx-v3 .orbit-tile.has-video {
+    width: clamp(420px, 52vw, 820px);
+    height: clamp(520px, 78vh, 760px);
+  }
 }
 .dx-v3 .cap-card {
   position: relative;
@@ -1063,20 +1098,63 @@
   height: 100%;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 28px;
+  gap: 24px;
   align-content: center;
-  padding: 56px 40px;
-  border-radius: 28px;
+  padding: 36px 28px;
+  border-radius: 24px;
   box-shadow: 0 30px 80px -32px rgba(11, 19, 64, 0.22);
   will-change: transform, opacity;
   overflow: hidden;
 }
 @media (min-width: 900px) {
   .dx-v3 .cap-card {
-    grid-template-columns: 140px 1fr 1.2fr;
-    gap: 56px;
-    padding: 72px 80px;
+    gap: 28px;
+    padding: 48px 40px;
   }
+  .dx-v3 .orbit-tile.has-video .cap-card {
+    grid-template-rows: auto auto 1fr;
+    align-content: stretch;
+    gap: 18px;
+    padding: 32px 28px;
+  }
+}
+.dx-v3 .cap-card .cap-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video {
+    min-height: 300px;
+  }
+}
+/* Lottie wrapper. The Bodymovin comp has empty padding around the
+   artwork, so we zoom into where the art actually lives (~43% × 35%
+   of the canvas). Scale is gentler on mobile so portrait containers
+   don't crop the edges of the art. */
+.dx-v3 .cap-card .cap-video .cap-lottie {
+  transform: scale(1.6);
+  transform-origin: 45% 32%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie {
+    transform: scale(1.5);
+    transform-origin: 45% 48%;
+  }
+}
+.dx-v3 .cap-card .cap-video video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
 }
 .dx-v3 .cap-card .rule {
   position: absolute;
@@ -1094,42 +1172,42 @@
    data (color-paper / color-blue / color-sky / color-deep). The
    palette walks deeper as you scroll: light → tinted → cobalt
    slab as the closer. */
-.dx-v3 .cap-row.color-paper .cap-card {
+.dx-v3 .orbit-tile.color-paper .cap-card {
   background: var(--paper);
 }
-.dx-v3 .cap-row.color-blue .cap-card {
+.dx-v3 .orbit-tile.color-blue .cap-card {
   background: var(--paper-2);
 }
-.dx-v3 .cap-row.color-sky .cap-card {
+.dx-v3 .orbit-tile.color-sky .cap-card {
   background: var(--paper-3);
 }
-.dx-v3 .cap-row.color-deep .cap-card {
+.dx-v3 .orbit-tile.color-deep .cap-card {
   background: var(--blue);
   color: #fff;
 }
 /* Dark-card variant: invert all the typographic accents so the
    final card reads cleanly on the cobalt slab. */
-.dx-v3 .cap-row.color-deep .rule {
+.dx-v3 .orbit-tile.color-deep .rule {
   background: rgba(255, 255, 255, 0.35);
 }
-.dx-v3 .cap-row.color-deep .num {
+.dx-v3 .orbit-tile.color-deep .num {
   -webkit-text-stroke-color: rgba(255, 255, 255, 0.7);
 }
-.dx-v3 .cap-row.color-deep .label {
+.dx-v3 .orbit-tile.color-deep .label {
   color: rgba(255, 255, 255, 0.85);
 }
-.dx-v3 .cap-row.color-deep h3 {
+.dx-v3 .orbit-tile.color-deep h3 {
   color: #fff;
 }
-.dx-v3 .cap-row.color-deep .body {
+.dx-v3 .orbit-tile.color-deep .body {
   color: rgba(255, 255, 255, 0.9);
 }
-.dx-v3 .cap-row.color-deep .tag {
+.dx-v3 .orbit-tile.color-deep .tag {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.08);
 }
-.dx-v3 .cap-row .num {
+.dx-v3 .orbit-tile .num {
   font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(56px, 6vw, 96px);
@@ -1138,7 +1216,7 @@
   -webkit-text-stroke: 1px var(--blue);
   letter-spacing: -0.04em;
 }
-.dx-v3 .cap-row .label {
+.dx-v3 .orbit-tile .label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
@@ -1146,7 +1224,7 @@
   text-transform: uppercase;
   margin-bottom: 12px;
 }
-.dx-v3 .cap-row h3 {
+.dx-v3 .orbit-tile h3 {
   font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
   font-size: clamp(28px, 3.4vw, 48px);
@@ -1155,19 +1233,19 @@
   color: var(--ink);
   word-break: keep-all;
 }
-.dx-v3 .cap-row .body {
+.dx-v3 .orbit-tile .body {
   font-size: 16px;
   line-height: 1.95;
   color: var(--ink-2);
   max-width: 520px;
 }
-.dx-v3 .cap-row .tags {
+.dx-v3 .orbit-tile .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 22px;
 }
-.dx-v3 .cap-row .tag {
+.dx-v3 .orbit-tile .tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.15em;
@@ -1186,46 +1264,138 @@
   max-width: 1100px;
   margin: 0 auto;
 }
+/* Scroll-scrubbed spotlight layout: the section pins for ~3 viewport
+   heights and a "focus cursor" (driven by GSAP) walks down the four
+   questions. Each .pain's opacity / scale / blur is set imperatively
+   from JS, so this CSS only defines layout + typography; the visual
+   state per scroll lives in DxV3Page.tsx (applyFocus). */
+.dx-v3 .pains-pin-stack {
+  position: relative;
+  /* Total scroll runway. ~80vh per question feels like enough dwell
+     for the visitor to actually read each one. */
+  height: 320vh;
+}
+.dx-v3 .pains-pin-frame {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  /* Top-align so the heading shows up near the top of the viewport as
+     soon as the section enters — vertical-centering left ~50vh of
+     empty space above the heading because the invisible Q.02-Q.04
+     items still take layout space. */
+  padding-top: clamp(64px, 12vh, 140px);
+}
+.dx-v3 .pains-pin-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 5vh, 56px);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.dx-v3 .pains-pin-content .sec-head {
+  display: block;
+  margin: 0;
+}
+.dx-v3 .pains-pin-frame .pains-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 4vh, 48px);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  /* Anchor for the absolute-positioned .pain-selector below. */
+  position: relative;
+}
+.dx-v3 .pain {
+  position: relative;
+}
+/* Corner-bracket selector that follows the focus cursor through the
+   questions. JS sets top/left/width/height on each scroll update,
+   lerping between the cursor's two bracketing questions. The corners
+   themselves are tiny L-shapes drawn with two borders each. */
+.dx-v3 .pain-selector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+.dx-v3 .pain-br {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+}
+.dx-v3 .pain-br-tl {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--blue);
+  border-left: 2px solid var(--blue);
+}
+.dx-v3 .pain-br-tr {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--blue);
+  border-right: 2px solid var(--blue);
+}
+.dx-v3 .pain-br-bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--blue);
+  border-left: 2px solid var(--blue);
+}
+.dx-v3 .pain-br-br {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--blue);
+  border-right: 2px solid var(--blue);
+}
 .dx-v3 .pain {
   display: grid;
-  grid-template-columns: 60px 1fr auto;
-  gap: 24px;
+  grid-template-columns: 72px 1fr;
+  gap: 28px;
   align-items: baseline;
-  padding: 28px 0;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-  transition: padding 400ms var(--ease);
-}
-.dx-v3 .pain:hover {
-  padding-left: 16px;
+  padding: 0;
+  border-bottom: none;
+  cursor: default;
+  will-change: transform, opacity, filter;
 }
 .dx-v3 .pain .n {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.2em;
+  font-size: 13px;
+  letter-spacing: 0.22em;
   color: var(--blue);
 }
 .dx-v3 .pain .q {
   font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 500;
-  font-size: clamp(18px, 2.4vw, 30px);
+  font-size: clamp(22px, 4.4vw, 56px);
   color: var(--ink);
-  line-height: 1.5;
-  letter-spacing: -0.015em;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
   word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.dx-v3 .pain .arrow {
-  width: 22px;
-  height: 22px;
-  color: var(--blue);
-  opacity: 0.5;
-  transition:
-    opacity 400ms var(--ease),
-    transform 400ms var(--ease);
-}
-.dx-v3 .pain:hover .arrow {
-  opacity: 1;
-  transform: translate(8px, -8px);
+@media (max-width: 600px) {
+  .dx-v3 .pain {
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+  }
+  .dx-v3 .pain .q {
+    /* On narrow phones, allow up to 2 lines instead of an ellipsis
+       cut-off so the JP question stays readable. */
+    white-space: normal;
+  }
 }
 .dx-v3 .pain-end {
   margin-top: 64px;
@@ -1256,7 +1426,169 @@
 }
 
 /* ============================================================
-   FEATURES — bento with color tiles
+   FEATURES — scroll-scrubbed cascading slider.
+   .cascade-pin-stack provides the scroll runway; .cascade-pin-frame
+   is sticky-pinned inside it. The slider sits centered in the
+   pinned frame. JS uses a fractional scroll-cursor to set each
+   slide's x / --clip-l / --clip-r / z-index, so as the user scrolls
+   the cards advance one-by-one through the cascade.
+============================================================ */
+.dx-v3 .cascade-pin-stack {
+  position: relative;
+  /* ~60vh per slide; 6 slides = 360vh of scroll. */
+  height: 360vh;
+}
+.dx-v3 .cascade-pin-frame {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dx-v3 .cascade-slider {
+  position: relative;
+  width: 100%;
+  height: clamp(440px, 62vh, 600px);
+  overflow: hidden;
+}
+.dx-v3 .cascade-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.dx-v3 .cascade-slide {
+  --slide-w: clamp(240px, 66vw, 420px);
+  --slide-h: clamp(380px, 58vh, 480px);
+  --clip-l: 0;
+  --clip-r: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  margin-left: calc(var(--slide-w) * -0.5);
+  margin-top: calc(var(--slide-h) * -0.5);
+  /* Custom-prop driven so GSAP can tween the inset values numerically. */
+  clip-path: inset(
+    0px
+    calc(var(--clip-r) * 1px)
+    0px
+    calc(var(--clip-l) * 1px)
+    round 24px
+  );
+  will-change: transform, clip-path;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cascade-slide {
+    --slide-w: clamp(420px, 44vw, 600px);
+    --slide-h: clamp(420px, 58vh, 540px);
+  }
+}
+.dx-v3 .cascade-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  padding: 36px 32px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 30px 80px -32px rgba(11, 19, 64, 0.22);
+  border: 1px solid rgba(11, 19, 64, 0.06);
+}
+.dx-v3 .cascade-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+.dx-v3 .cascade-ic {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--paper-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+}
+.dx-v3 .cascade-card h3 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.dx-v3 .cascade-card p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.dx-v3 .cascade-counter {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--ink-2);
+  z-index: 100;
+  pointer-events: none;
+}
+.dx-v3 .cascade-counter .cascade-current {
+  color: var(--blue);
+  font-weight: 600;
+}
+.dx-v3 .cascade-controls {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+.dx-v3 .cascade-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(11, 19, 64, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 220ms var(--ease),
+    color 220ms var(--ease),
+    transform 220ms var(--ease),
+    border-color 220ms var(--ease);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.dx-v3 .cascade-btn:hover:not(:disabled) {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+  transform: translateY(-2px);
+}
+.dx-v3 .cascade-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   FEATURES — bento with color tiles (legacy; kept for reference,
+   the slider above replaced this layout)
 ============================================================ */
 .dx-v3 .bento {
   display: grid;
@@ -1999,7 +2331,6 @@
    custom cursor, this is what makes the page feel like Webflow IX2. */
 .dx-v3 .cap-card,
 .dx-v3 .bento .cell,
-.dx-v3 .pain,
 .dx-v3 .rpa-card,
 .dx-v3 .btn {
   transition:
@@ -2009,7 +2340,6 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .dx-v3 .bento .cell:hover,
-  .dx-v3 .pain:hover,
   .dx-v3 .rpa-card:hover {
     transform: translateY(-4px);
   }

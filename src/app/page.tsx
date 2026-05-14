@@ -2,10 +2,9 @@ import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
-import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import WhoWeAre from '@/components/sections/WhoWeAre';
-import CaseStudy from '@/components/sections/CaseStudy';
 import ServicesCards from '@/components/sections/ServicesCards';
+import ServicesTypoScroll from '@/components/sections/ServicesTypoScroll';
 import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
@@ -50,25 +49,24 @@ export default async function HomePage() {
           <WhoWeAre />
         </Reveal>
 
-        {/* SERVICE — ServicesCards handles its own pinned scroll-driven
-            entrance, so no Reveal wrapper (Reveal applies a transform
-            which would break GSAP's position: fixed pinning). */}
-        <ServicesCards />
+        {/* HOW WE WORK */}
         <Reveal>
           <ProcessFlow />
         </Reveal>
 
-        {/* WORKS */}
-        <Reveal>
-          <CaseStudy />
-        </Reveal>
+        {/* SERVICE — ServicesCards handles its own pinned scroll-driven
+            entrance, so no Reveal wrapper (Reveal applies a transform
+            which would break GSAP's position: fixed pinning). */}
+        <ServicesCards />
+
+        {/* WORKS — big-typo scroll preview. Each heading links to its
+            service page; a centered preview video swaps to the heading
+            closest to viewport center as the user scrolls. NOT wrapped
+            in Reveal because the preview uses position: fixed and a
+            transformed ancestor would re-anchor it. */}
+        <ServicesTypoScroll />
         <Reveal>
           <Clients />
-        </Reveal>
-
-        {/* MEMBER */}
-        <Reveal>
-          <PhotoCarousel />
         </Reveal>
 
         {/* RECRUIT — CTA with emoji rain on click (Osmo Supply pattern) */}

@@ -4,7 +4,6 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
-import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import HistoryCarousel from '@/components/sections/HistoryCarousel';
 import FadeUpText from '@/components/ui/FadeUpText';
 
@@ -502,11 +501,6 @@ export default function CompanyPage() {
               </div>
             </div>
           </section>
-        </Reveal>
-
-        {/* TeamPhotoCarousel*/}
-        <Reveal>
-          <PhotoCarousel showCta />
         </Reveal>
 
         {/* Company Info Table */}

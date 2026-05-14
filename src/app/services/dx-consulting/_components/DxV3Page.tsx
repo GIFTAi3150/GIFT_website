@@ -12,6 +12,9 @@ import dynamic from 'next/dynamic';
 // after client hydration.
 const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
 
+// Lottie touches the DOM; load client-only to avoid SSR mismatch.
+const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
+
 // Split a string into per-character spans so GSAP can stagger them.
 // Spaces become non-breaking unicode spaces wrapped in a non-`.ch` span
 // so they're skipped by the cascade tween (whitespace doesn't animate).
@@ -25,7 +28,16 @@ const splitChars = (text: string) =>
 // ============================================================
 //  Static content — pulled from page-v3.html design
 // ============================================================
-const CAPABILITIES = [
+const CAPABILITIES: ReadonlyArray<{
+  id: string;
+  num: string;
+  color: string;
+  title: string;
+  body: string;
+  tags: readonly string[];
+  video?: string;
+  lottie?: boolean;
+}> = [
   {
     id: 'CAP_001',
     num: '01',
@@ -33,6 +45,7 @@ const CAPABILITIES = [
     title: 'LINE公式・\nLステップ構築',
     body: 'Lステップ公式認定パートナーとして、アカウント設計から配信運用、自動化フロー構築まで一貫してサポート。',
     tags: ['L-Step', 'Official LINE', 'Scenario'],
+    lottie: true,
   },
   {
     id: 'CAP_002',
@@ -61,10 +74,10 @@ const CAPABILITIES = [
 ];
 
 const PAINS = [
-  { n: 'Q.01', q: 'LINEを活用して集客・売上を上げたい' },
-  { n: 'Q.02', q: 'メルマガやDMの効果が下がってきている' },
-  { n: 'Q.03', q: 'LINEをビジネスで活用したいが構築の仕方がわからない' },
-  { n: 'Q.04', q: '自分の業種でもLINEを活用できるのか知りたい' },
+  { n: 'Q.01', q: 'LINEで集客・売上を伸ばしたい' },
+  { n: 'Q.02', q: 'メルマガ・DMの効果が落ちてきた' },
+  { n: 'Q.03', q: 'LINEを活用したいが、構築方法がわからない' },
+  { n: 'Q.04', q: '自分の業種にLINEは活かせるのか' },
 ];
 
 const FEATURES = [
@@ -326,8 +339,6 @@ export default function DxV3Page() {
       );
     });
 
-    // (capabilities is now a vertical stack — no pinned scroll needed)
-
 
     // ---- Section meta (.num + .meta) — quiet fade for the labels above
     // and beside each section headline. The h2 itself gets the char
@@ -400,125 +411,265 @@ export default function DxV3Page() {
       if (t.scrollTrigger) triggers.push(t.scrollTrigger);
     }
 
-    // ---- Capabilities: horizontal pinned scroll ----
-    // .caps-stack pins to the top of the viewport while .caps-track
-    // (a wide flex row of the four cap-cards) gets translated left
-    // by the same distance as its overflow. So vertical scroll input
-    // becomes left-to-right card travel. Each card's content cascade
-    // is then driven via `containerAnimation`, which re-scopes the
-    // ScrollTrigger to fire based on the card's horizontal position
-    // inside the pinned viewport (not its document position).
-    const capsStack = document.querySelector<HTMLElement>('.dx-v3 .caps-stack');
-    const capsTrack = document.querySelector<HTMLElement>('.dx-v3 .caps-track');
-    const capRows = gsap.utils.toArray<HTMLElement>('.dx-v3 .cap-row');
-    if (capsStack && capsTrack && capRows.length) {
-      const getDistance = () =>
-        Math.max(0, capsTrack.scrollWidth - window.innerWidth);
+    // ---- Capabilities: orbit-tiles infinite-loop, scroll-scrubbed ----
+    // All tiles share grid-area 1/1 and orbit around the frame's center.
+    // .caps-orbit-frame is position:sticky so it stays put while the tall
+    // .caps-orbit-stack scrolls past. Scroll progress drives a global
+    // angle; each tile's position on the ring is baseAngle - globalAngle.
+    // Cos of that angle = "frontness" (1 = focused / front, -1 = back),
+    // which we map to scale, opacity, blur, and z-index for the depth.
+    const orbitStack = document.querySelector<HTMLElement>('.dx-v3 .caps-orbit-stack');
+    const orbitFrame = document.querySelector<HTMLElement>('.dx-v3 .caps-orbit-frame');
+    const orbitTiles = gsap.utils.toArray<HTMLElement>('.dx-v3 [data-orbit-tile]');
+    if (orbitStack && orbitFrame && orbitTiles.length) {
+      const count = orbitTiles.length;
+      const step = (Math.PI * 2) / count;
 
-      const horizTween = gsap.to(capsTrack, {
-        x: () => -getDistance(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: capsStack,
-          pin: true,
-          scrub: 0.5,
-          start: 'top top',
-          end: () => `+=${getDistance()}`,
-          invalidateOnRefresh: true,
-          anticipatePin: 1,
+      // Read the orbit ellipse dimensions from CSS custom properties so
+      // designers can tune the path without touching JS. Defaults give a
+      // wide-and-shallow ellipse — tiles drift horizontally with a
+      // gentle vertical arc, which reads more like a carousel-with-depth
+      // than a perfect circle.
+      const readRadii = () => {
+        const style = getComputedStyle(orbitFrame);
+        const rx = parseFloat(style.getPropertyValue('--orbit-rx')) || window.innerWidth * 0.28;
+        const ry = parseFloat(style.getPropertyValue('--orbit-ry')) || 90;
+        return { rx, ry };
+      };
+      let { rx, ry } = readRadii();
+
+      const applyTransforms = (progress: number) => {
+        const globalAngle = progress * Math.PI * 2;
+        orbitTiles.forEach((tile, i) => {
+          // Subtract globalAngle so tiles flow in the natural scroll
+          // direction (scroll down → tile cycles to the front).
+          const angle = i * step - globalAngle;
+          const x = Math.sin(angle) * rx;
+          const y = Math.cos(angle) * ry;
+          const front = (Math.cos(angle) + 1) / 2; // 0..1
+          const scale = 0.55 + 0.45 * front;
+          const opacity = 0.25 + 0.75 * front;
+          const blur = 10 * (1 - front);
+          gsap.set(tile, {
+            x,
+            y,
+            scale,
+            opacity,
+            filter: `blur(${blur.toFixed(2)}px)`,
+            zIndex: Math.round(front * 100),
+          });
+        });
+      };
+
+      // Initial layout so tiles aren't piled at 0,0 before first scroll.
+      applyTransforms(0);
+
+      const orbitTrigger = ScrollTrigger.create({
+        trigger: orbitStack,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.4,
+        invalidateOnRefresh: true,
+        onRefresh: () => {
+          ({ rx, ry } = readRadii());
         },
+        onUpdate: (self) => applyTransforms(self.progress),
       });
-      if (horizTween.scrollTrigger) triggers.push(horizTween.scrollTrigger);
+      triggers.push(orbitTrigger);
+    }
 
-      capRows.forEach((row) => {
-        const card = row.querySelector<HTMLElement>('.cap-card');
-        const rule = row.querySelector<HTMLElement>('.rule');
-        const num = row.querySelector<HTMLElement>('.num');
-        const label = row.querySelector<HTMLElement>('.label');
-        const h3 = row.querySelector<HTMLElement>('h3');
-        const body = row.querySelector<HTMLElement>('.body');
-        const tags = row.querySelectorAll<HTMLElement>('.tag');
+    // ---- Features: scroll-scrubbed cascading slider ----
+    // .cascade-pin-stack is a tall scroll runway (~60vh per slide); the
+    // inner .cascade-pin-frame is position:sticky so the slider stays
+    // pinned on-screen while the user scrolls through the runway. A
+    // fractional "cursor" walks from 0 → (count-1) tied to scroll
+    // progress, and each slide's x / --clip-l / --clip-r / z-index is
+    // continuously interpolated based on its distance from the cursor.
+    // The result: scroll = cards advance one by one through the cascade.
+    const cascadePinStack = document.querySelector<HTMLElement>(
+      '.dx-v3 .cascade-pin-stack'
+    );
+    const slideCleanups: Array<() => void> = [];
+    if (cascadePinStack) {
+      const slides = Array.from(
+        cascadePinStack.querySelectorAll<HTMLElement>('[data-cascading-slide]')
+      );
+      const currentLabel = cascadePinStack.querySelector<HTMLElement>('.cascade-current');
+      const totalLabel = cascadePinStack.querySelector<HTMLElement>('.cascade-total');
+      if (totalLabel) totalLabel.textContent = String(slides.length).padStart(2, '0');
 
-        gsap.set(card, { scale: 0.9, opacity: 0.5 });
-        gsap.set(rule, { scaleX: 0 });
-        gsap.set(num, { x: -60, y: 24, opacity: 0, rotate: -6, scale: 0.85 });
-        gsap.set(label, { y: 18, opacity: 0 });
-        gsap.set(h3, { y: 30, opacity: 0 });
-        gsap.set(body, { y: 24, opacity: 0 });
-        gsap.set(tags, { y: 12, opacity: 0, scale: 0.9 });
+      const layoutCascade = (cursor: number) => {
+        if (!slides.length) return;
+        const slideW = slides[0].offsetWidth || 400;
+        const peek = Math.min(70, Math.max(36, slideW * 0.13));
+        const gap = 12;
+        const innerStep = peek + 6;
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: row,
-            containerAnimation: horizTween,
-            start: 'left 85%',
-            end: 'left 30%',
-            toggleActions: 'play none none reverse',
-          },
+        slides.forEach((slide, i) => {
+          // distance can be fractional — that's what gives the smooth
+          // mid-transition cascade as the cursor moves between slides.
+          const distance = i - cursor;
+          const absDist = Math.abs(distance);
+          // t = 0..1 weight for "still acting like the active slide vs
+          // becoming a sibling". Beyond 1 the slide is in pure-sibling
+          // territory and just shifts by innerStep per additional unit.
+          const t = Math.min(1, absDist);
+          const beyond = absDist - t;
+
+          let x: number;
+          let clipL: number;
+          let clipR: number;
+          if (distance >= 0) {
+            x = (slideW + gap) * t + beyond * innerStep;
+            clipL = 0;
+            clipR = (slideW - peek) * t;
+          } else {
+            x = -((slideW + gap) * t + beyond * innerStep);
+            clipL = (slideW - peek) * t;
+            clipR = 0;
+          }
+          const zIndex = 50 - Math.floor(absDist);
+
+          gsap.set(slide, {
+            x,
+            '--clip-l': clipL,
+            '--clip-r': clipR,
+            zIndex,
+          } as gsap.TweenVars);
+
+          const isActive = absDist < 0.5;
+          slide.classList.toggle('is-active', isActive);
+          slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
         });
 
-        tl.to(card, { scale: 1, opacity: 1, duration: 0.7, ease: 'power3.out' }, 0)
-          .to(rule, { scaleX: 1, duration: 0.6, ease: 'power3.inOut' }, 0)
-          .to(
-            num,
-            { x: 0, y: 0, opacity: 1, rotate: 0, scale: 1, duration: 0.85, ease: 'expo.out' },
-            0.1
-          )
-          .to(label, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
-          .to(h3, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, 0.35)
-          .to(body, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, 0.5)
-          .to(
-            tags,
-            { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.6)', stagger: 0.06 },
-            0.65
-          );
+        if (currentLabel) {
+          const rounded = Math.min(slides.length, Math.round(cursor) + 1);
+          currentLabel.textContent = String(rounded).padStart(2, '0');
+        }
+      };
 
-        if (tl.scrollTrigger) triggers.push(tl.scrollTrigger);
+      // Initial render so slides aren't piled at 0,0 before the first
+      // scroll event fires.
+      layoutCascade(0);
+
+      const cascadeTrigger = ScrollTrigger.create({
+        trigger: cascadePinStack,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.4,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const cursor = self.progress * (slides.length - 1);
+          layoutCascade(cursor);
+        },
       });
+      triggers.push(cascadeTrigger);
     }
 
-    // ---- Bento cells: scale-in stagger from the center outward ----
-    // Cells expand as if popping out of a single point. Uses back.out
-    // for an overshoot, which feels distinct from the linear fades.
-    const bentoCells = gsap.utils.toArray<HTMLElement>('.dx-v3 .bento .cell');
-    if (bentoCells.length) {
-      const t = gsap.fromTo(
-        bentoCells,
-        { scale: 0.7, opacity: 0, y: 30 },
-        {
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          duration: 0.9,
-          ease: 'back.out(1.5)',
-          stagger: { each: 0.07, from: 'center' },
-          scrollTrigger: {
-            trigger: '.dx-v3 .bento',
-            start: 'top 78%',
-            once: true,
-          },
-        }
-      );
-      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-    }
+    // ---- Pains: scroll-scrubbed spotlight ----
+    // .pains-pin-stack is a tall scroll runway; .pains-pin-frame is
+    // position:sticky inside it so the questions stay on-screen while
+    // scrolling. A "focus cursor" walks from 0 → (count-1) as scroll
+    // progresses. Each question's opacity/scale/blur is driven by how
+    // close the cursor is to it — the focused question is sharp and
+    // bright, neighbours dim and blur out.
+    const pinStack = document.querySelector<HTMLElement>('.dx-v3 .pains-pin-stack');
+    const pains = gsap.utils.toArray<HTMLElement>('.dx-v3 .pains-pin-frame .pain');
+    const painSelector = document.querySelector<HTMLElement>(
+      '.dx-v3 .pains-pin-frame .pain-selector'
+    );
+    if (pinStack && pains.length) {
+      const count = pains.length;
+      const clamp = (v: number, lo: number, hi: number) =>
+        Math.max(lo, Math.min(hi, v));
+      const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-    // ---- Pain rows: typewriter clip reveal ----
-    // Each question wipes in left-to-right (clip-path inset) — looks like
-    // it's being typed/printed onto the page, not just sliding.
-    gsap.utils.toArray<HTMLElement>('.dx-v3 .pain').forEach((el, i) => {
-      const t = gsap.fromTo(
-        el,
-        { clipPath: 'inset(0 100% 0 0)', opacity: 1 },
-        {
-          clipPath: 'inset(0 0% 0 0)',
-          duration: 0.85,
-          ease: 'power2.out',
-          delay: i * 0.08,
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+      // Selector padding around each .q box.
+      const SEL_PAD_X = 16;
+      const SEL_PAD_Y = 10;
+
+      // Compute a .q element's untransformed position relative to its
+      // .pains-list parent. Walks the offsetParent chain so it survives
+      // any GSAP scale transforms applied to the parent .pain.
+      const measureQ = (q: HTMLElement) => {
+        let top = 0;
+        let left = 0;
+        let el: HTMLElement | null = q;
+        while (el && !el.classList.contains('pains-list')) {
+          top += el.offsetTop;
+          left += el.offsetLeft;
+          el = el.offsetParent as HTMLElement | null;
         }
-      );
-      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-    });
+        return {
+          top,
+          left,
+          width: q.offsetWidth,
+          height: q.offsetHeight,
+        };
+      };
+
+      const applyFocus = (progress: number) => {
+        // Spread the focus cursor from 0 to count-1 across the pin.
+        const cursor = progress * (count - 1);
+        pains.forEach((el, i) => {
+          const distance = Math.abs(cursor - i);
+          // Focus weight: 1 at the cursor, 0 once a full slot away.
+          const focus = clamp(1 - distance, 0, 1);
+          // Reveal: 1 once the cursor has reached (or nearly reached)
+          // this item; 0 before it enters. Items below the cursor fade
+          // back in slightly, never fully disappearing once revealed.
+          const reveal = clamp(cursor - i + 1, 0, 1);
+          const opacity = reveal * (0.22 + focus * 0.78);
+          const scale = 0.94 + focus * 0.08;
+          const blur = (1 - focus) * 2.2;
+          gsap.set(el, {
+            opacity,
+            scale,
+            filter: `blur(${blur.toFixed(2)}px)`,
+          });
+        });
+
+        // Corner-bracket selector — lerp between the cursor's two
+        // bracketing questions so the box smoothly slides AND resizes
+        // as the cursor walks down the list.
+        if (painSelector) {
+          const idxA = clamp(Math.floor(cursor), 0, count - 1);
+          const idxB = clamp(idxA + 1, 0, count - 1);
+          const t = cursor - idxA;
+          const qA = pains[idxA].querySelector<HTMLElement>('.q');
+          const qB = pains[idxB].querySelector<HTMLElement>('.q');
+          if (qA && qB) {
+            const a = measureQ(qA);
+            const b = measureQ(qB);
+            const top = lerp(a.top, b.top, t);
+            const left = lerp(a.left, b.left, t);
+            const width = lerp(a.width, b.width, t);
+            const height = lerp(a.height, b.height, t);
+            gsap.set(painSelector, {
+              top: top - SEL_PAD_Y,
+              left: left - SEL_PAD_X,
+              width: width + SEL_PAD_X * 2,
+              height: height + SEL_PAD_Y * 2,
+              opacity: 1,
+            });
+          }
+        }
+      };
+
+      // Seed initial layout so items aren't all full-opacity before
+      // the first scroll event fires.
+      applyFocus(0);
+
+      const pinTrigger = ScrollTrigger.create({
+        trigger: pinStack,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.5,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => applyFocus(self.progress),
+      });
+      triggers.push(pinTrigger);
+    }
 
     gsap.utils.toArray<HTMLElement>('.dx-v3 .case-block').forEach((b) => {
       const left = b.querySelector('.left');
@@ -1025,6 +1176,7 @@ export default function DxV3Page() {
     return () => {
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
+      slideCleanups.forEach((fn) => fn());
       gsap.ticker.remove(lenisRaf);
       lenis.destroy();
     };
@@ -1044,13 +1196,13 @@ export default function DxV3Page() {
           <Hero3D />
           <div className="hero-stage-inner">
             <div className="masthead">
-              <div className="row r1">業務を、変えずに</div>
+              <div className="row r1">一度組めば、</div>
               <div className="row r2">
-                <em>事業を、変える。</em>
+                <em>ずっと走る。</em>
               </div>
               <div className="ja">
                 <span className="rule" aria-hidden />
-                <span className="ja-inner">Don&rsquo;t change operations. Change the business.</span>
+                <span className="ja-inner">Build it once. Run forever.</span>
               </div>
             </div>
           </div>
@@ -1072,13 +1224,6 @@ export default function DxV3Page() {
             </div>
           </div>
 
-          <div className="hero-foot">
-            <div className="scroll-cue">Scroll · Index 01</div>
-            <div className="partner">
-              <span className="l">L</span>
-              <span>L-Step Certified Partner</span>
-            </div>
-          </div>
 
         </div>
       </section>
@@ -1185,7 +1330,6 @@ export default function DxV3Page() {
       <section className="caps-section" id="capabilities">
         <div className="wrap">
           <div className="caps-intro">
-            <div className="num">01 — Capabilities</div>
             <h2>
               <Fragment>{splitChars('Four lanes. ')}</Fragment>
               <em>{splitChars('One team.')}</em>
@@ -1196,80 +1340,105 @@ export default function DxV3Page() {
             </p>
           </div>
 
-          <div className="caps-stack">
-            <div className="caps-track">
-              {CAPABILITIES.map((c) => (
-                <article key={c.id} className={`cap-row ${c.color}`}>
-                  <div className="cap-card">
-                    <span className="rule" aria-hidden />
-                    <div className="num">{c.num}</div>
-                    <div className="head">
-                      <div className="label">{c.id}</div>
-                      <h3>
-                        {c.title.split('\n').map((line, i, arr) => (
-                          <span key={i}>
-                            {line}
-                            {i < arr.length - 1 && <br />}
-                          </span>
-                        ))}
-                      </h3>
-                    </div>
-                    <div className="body-wrap">
-                      <p className="body">{c.body}</p>
-                      <div className="tags">
-                        {c.tags.map((t) => (
-                          <span key={t} className="tag">
-                            {t}
-                          </span>
-                        ))}
+          {/* Orbit: tiles share grid-area 1/1 and orbit around a central
+              point. GSAP scrubs the rotation against scroll. */}
+          <div className="caps-orbit-stack">
+            <div className="caps-orbit-frame">
+              <div className="caps-orbit">
+                {CAPABILITIES.map((c) => (
+                  <article
+                    key={c.id}
+                    className={`orbit-tile ${c.color}${(c.video || c.lottie) ? ' has-video' : ''}`}
+                    data-orbit-tile
+                  >
+                    <div className="cap-card">
+                      <span className="rule" aria-hidden />
+                      <div className="head">
+                        <h3>
+                          {c.title.split('\n').map((line, i, arr) => (
+                            <span key={i}>
+                              {line}
+                              {i < arr.length - 1 && <br />}
+                            </span>
+                          ))}
+                        </h3>
                       </div>
+                      <div className="body-wrap">
+                        <p className="body">{c.body}</p>
+                        <div className="tags">
+                          {c.tags.map((t) => (
+                            <span key={t} className="tag">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {c.lottie ? (
+                        <div className="cap-video">
+                          <CapLottie />
+                        </div>
+                      ) : c.video ? (
+                        <div className="cap-video">
+                          <video
+                            src={c.video}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="metadata"
+                            aria-hidden
+                          />
+                        </div>
+                      ) : null}
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* PAINS */}
-      <section className="sec tinted">
-        <div className="wrap">
-          <div className="sec-head">
-            <div className="num">02 — Challenges</div>
-            <h2>
-              The questions <em>you ask</em>
-              <span className="ja">こんなお悩み、ありませんか？</span>
-            </h2>
-            <div className="meta">
-              04 / Open
-              <br />
-              Resolved by L-Step
+      {/* PAINS — scroll-scrubbed spotlight. Heading + questions both
+          live INSIDE the pin frame so they stay locked together as a
+          single composition; the "focus" cursor walks down the
+          questions as the user scrolls. */}
+      <section className="sec tinted pains-section">
+        <div className="pains-pin-stack">
+          <div className="pains-pin-frame">
+            <div className="pains-pin-content">
+              <div className="sec-head">
+                <h2>
+                  The questions <em>you ask</em>
+                  <span className="ja">こんなお悩み、ありませんか？</span>
+                </h2>
+              </div>
+              <div className="pains-list">
+                {/* Corner-bracket selector that follows the scroll-cursor.
+                    JS computes its position by lerping between adjacent
+                    questions' .q bounding boxes. */}
+                <div className="pain-selector" aria-hidden>
+                  <span className="pain-br pain-br-tl" />
+                  <span className="pain-br pain-br-tr" />
+                  <span className="pain-br pain-br-bl" />
+                  <span className="pain-br pain-br-br" />
+                </div>
+                {PAINS.map((p, i) => (
+                  <div
+                    key={p.n}
+                    className="pain"
+                    data-pain-idx={i}
+                  >
+                    <span className="n">{p.n}</span>
+                    <span className="q">{p.q}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="pains-list">
-            {PAINS.map((p) => (
-              <div key={p.n} className="pain">
-                <span className="n">{p.n}</span>
-                <span className="q">{p.q}</span>
-                <svg
-                  className="arrow"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path
-                    d="M7 17L17 7M9 7h8v8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            ))}
-          </div>
-
+        <div className="wrap">
           <div className="pain-end">
             <div className="arrow-down" />
             <div className="ans">
@@ -1280,42 +1449,55 @@ export default function DxV3Page() {
         </div>
       </section>
 
-      {/* FEATURES — bento */}
+      {/* FEATURES — cascading slider (click prev/next or use arrow keys) */}
       <section className="sec" id="features">
         <div className="wrap">
           <div className="sec-head">
-            <div className="num">03 — Features</div>
             <h2>
               Six tools, <em>one platform.</em>
               <span className="ja">Lステップの機能</span>
             </h2>
-            <div className="meta">
-              06 modules
-              <br />
-              Built-in
-            </div>
           </div>
+        </div>
 
-          <div className="bento">
-            {FEATURES.map((f) => (
-              <div key={f.id} className="cell">
-                <div className="id">{f.id}</div>
-                <div className="ic">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
+        <div className="cascade-pin-stack">
+          <div className="cascade-pin-frame">
+            <div className="cascade-slider" data-cascading-slider-wrap>
+              <div className="cascade-viewport" data-cascading-viewport>
+                {FEATURES.map((f, i) => (
+                  <article
+                    key={f.id}
+                    className="cascade-slide"
+                    data-cascading-slide
+                    data-slide-index={i}
                   >
-                    <path d={f.icon} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <h3>{f.title}</h3>
-                <p>{f.body}</p>
+                    <div className="cascade-card">
+                      <div className="cascade-id">{f.id}</div>
+                      <div className="cascade-ic">
+                        <svg
+                          width="28"
+                          height="28"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        >
+                          <path d={f.icon} strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <h3>{f.title}</h3>
+                      <p>{f.body}</p>
+                    </div>
+                  </article>
+                ))}
               </div>
-            ))}
+
+              <div className="cascade-counter">
+                <span className="cascade-current">01</span>
+                <span className="cascade-sep">/</span>
+                <span className="cascade-total">06</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

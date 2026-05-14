@@ -136,7 +136,7 @@ export default function ProcessFlow() {
             {/* Invisible ghost text — sets the button width to fit
                 whichever of the two labels is wider, so the swap
                 animation doesn't reflow the line. */}
-            <span aria-hidden className="invisible">クリック</span>
+            <span aria-hidden className="invisible">働く</span>
 
             {/* Default label — slides UP and out on hover. */}
             <span className="absolute inset-0 z-10 flex items-center justify-center transition-transform duration-[450ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:-translate-y-full">
@@ -146,7 +146,7 @@ export default function ProcessFlow() {
             {/* Hover label — starts BELOW the button, slides in to
                 replace the default. */}
             <span className="absolute inset-0 z-10 flex translate-y-full items-center justify-center transition-transform duration-[450ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:translate-y-0">
-              クリック
+              😊
             </span>
           </a>
         </div>
