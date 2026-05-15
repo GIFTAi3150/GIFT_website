@@ -4,7 +4,7 @@ import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
 import WhoWeAre from '@/components/sections/WhoWeAre';
 import ServicesCards from '@/components/sections/ServicesCards';
-import ServicesTypoScroll from '@/components/sections/ServicesTypoScroll';
+import CaseStudy from '@/components/sections/CaseStudy';
 import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
@@ -59,12 +59,12 @@ export default async function HomePage() {
             which would break GSAP's position: fixed pinning). */}
         <ServicesCards />
 
-        {/* WORKS — big-typo scroll preview. Each heading links to its
-            service page; a centered preview video swaps to the heading
-            closest to viewport center as the user scrolls. NOT wrapped
-            in Reveal because the preview uses position: fixed and a
-            transformed ancestor would re-anchor it. */}
-        <ServicesTypoScroll />
+        {/* WORKS — icon-led editorial achievement cards. Each row
+            alternates icon position (left vs right) for a magazine
+            rhythm; metric numbers count up on scroll-in. */}
+        <Reveal>
+          <CaseStudy />
+        </Reveal>
         <Reveal>
           <Clients />
         </Reveal>

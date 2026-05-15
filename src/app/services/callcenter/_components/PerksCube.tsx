@@ -818,6 +818,7 @@ export default function PerksCube() {
 
             <div
               ref={cubeRef}
+              className="pc-cube"
               style={
                 {
                   ...styles.cube,

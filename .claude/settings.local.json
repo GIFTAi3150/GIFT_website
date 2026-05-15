@@ -11,7 +11,11 @@
       "WebFetch(domain:www.aquarium.ru)",
       "Bash(npm ls *)",
       "WebFetch(domain:www.osmo.supply)",
-      "WebFetch(domain:api.anthropic.com)"
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "WebFetch(domain:www.igloo.inc)"
     ]
   }
 }

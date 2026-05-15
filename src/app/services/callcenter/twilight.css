@@ -164,9 +164,21 @@
 
 /* Mobile guards for cube */
 @media (max-width: 900px) {
-  .twilight-scope .pc-sticky { grid-template-columns: 1fr !important; grid-template-rows: 1fr 1fr; }
+  .twilight-scope .pc-sticky { grid-template-columns: 1fr !important; grid-template-rows: auto 1fr; }
   .twilight-scope .pc-left   { padding: clamp(20px, 5vw, 32px) !important; height: auto !important; justify-content: flex-start !important; padding-top: clamp(40px, 8vw, 56px) !important; }
-  .twilight-scope .pc-stage  { height: 100% !important; }
+  /* Stage: allow rotation overflow (a rotating cube extends ~√2× its box),
+     give the cube vertical breathing room, and push it down so the top
+     never sits against the perk chips. */
+  .twilight-scope .pc-stage  {
+    height: 100% !important;
+    overflow: visible !important;
+    padding: clamp(48px, 9vw, 88px) 0 clamp(32px, 6vw, 56px) !important;
+    align-items: flex-start !important;
+  }
+  .twilight-scope .pc-cube {
+    --cube-size: min(32vh, 50vw, 280px) !important;
+    --half: calc(min(32vh, 50vw, 280px) / 2) !important;
+  }
   .twilight-scope .pc-eyebrow-line { display: none; }
 }
 

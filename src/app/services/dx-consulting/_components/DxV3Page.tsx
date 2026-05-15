@@ -11,6 +11,12 @@ import dynamic from 'next/dynamic';
 // it dynamically with SSR disabled — the component only ever appears
 // after client hydration.
 const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
+// Particle-cloud version of the GIFT brand mark. Lives in the hero as a
+// decorative background layer, with the masthead text floating above.
+const GiftLogoParticles = dynamic(() => import('./GiftLogoParticles'), { ssr: false });
+// Companion 3D igloo (next to the particle logo in the hero). Pulls in
+// rapier physics → load client-only to avoid SSR + WASM mismatch.
+const IglooScene = dynamic(() => import('@/components/IglooScene'), { ssr: false });
 
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
@@ -36,7 +42,9 @@ const CAPABILITIES: ReadonlyArray<{
   body: string;
   tags: readonly string[];
   video?: string;
-  lottie?: boolean;
+  /** Path to a Bodymovin/Lottie JSON in /public — when present, the
+      tile renders that animation in place of any video. */
+  lottie?: string;
 }> = [
   {
     id: 'CAP_001',
@@ -45,7 +53,7 @@ const CAPABILITIES: ReadonlyArray<{
     title: 'LINE公式・\nLステップ構築',
     body: 'Lステップ公式認定パートナーとして、アカウント設計から配信運用、自動化フロー構築まで一貫してサポート。',
     tags: ['L-Step', 'Official LINE', 'Scenario'],
-    lottie: true,
+    lottie: '/lottie/animation.json',
   },
   {
     id: 'CAP_002',
@@ -54,6 +62,7 @@ const CAPABILITIES: ReadonlyArray<{
     title: 'RPA・\n業務自動化',
     body: 'ハイブリッド構成（カスタム開発＋市販ツール）で、業務の反復作業を徹底的に自動化。CRMとLステップの自動連携など、運用フローまで設計します。',
     tags: ['RPA', 'Automation', 'Workflow'],
+    lottie: '/lottie/datab-animation.json',
   },
   {
     id: 'CAP_003',
@@ -62,6 +71,7 @@ const CAPABILITIES: ReadonlyArray<{
     title: 'AI導入・\n生成AI活用',
     body: '最新のAIツールを業務に深く組み込み、生産性を最大化。社内で日常的に活用しているからこそ、AI前提での業務プロセス再設計を提案します。',
     tags: ['Generative AI', 'LLM', 'Agents'],
+    lottie: '/lottie/robot-animation.json',
   },
   {
     id: 'CAP_004',
@@ -70,6 +80,7 @@ const CAPABILITIES: ReadonlyArray<{
     title: 'SaaS導入・\nCRM構築',
     body: '課題に合ったSaaSの選定・導入から、CRM設計まで。事業成長に直結する基盤づくりを、現場目線で支援します。',
     tags: ['SaaS', 'CRM', 'Integration'],
+    lottie: '/lottie/saas-animation.json',
   },
 ];
 
@@ -151,9 +162,76 @@ const RPA_CARDS = [
 ];
 
 // ============================================================
+// Emoji rain pulled from RecruitCta — same Osmo Supply pattern.
+// Fires when the user clicks the "imagine" pill in the intro line.
+const IMAGINE_EMOJIS = ['✨', '💡', '🚀'];
+
 export default function DxV3Page() {
   const heroRef = useRef<HTMLElement | null>(null);
   const progRef = useRef<HTMLDivElement | null>(null);
+  const rainContainerRef = useRef<HTMLDivElement | null>(null);
+  const rainRunningRef = useRef(false);
+
+  const fireImagineRain = () => {
+    const container = rainContainerRef.current;
+    if (!container || rainRunningRef.current) return;
+    rainRunningRef.current = true;
+
+    const containerHeight = container.offsetHeight;
+    const quantity = 60;
+    const randInt = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
+
+    for (let i = 0; i < quantity; i++) {
+      const scale = Math.random() * 0.6 + 0.4;
+      const rotate = randInt(1, 5);
+      const delay = 0.001 * randInt(0, 1250);
+      const speed = randInt(500, 1500) * 0.001;
+      const left = `${randInt(0, 10)}0%`;
+      const emoji = IMAGINE_EMOJIS[Math.floor(Math.random() * IMAGINE_EMOJIS.length)];
+
+      const single = document.createElement('div');
+      single.className = 'single-rain-emoji append';
+      single.style.left = left;
+      const child = document.createElement('div');
+      child.className = 'single-rain-emoji-text';
+      child.textContent = emoji;
+      single.appendChild(child);
+
+      gsap.fromTo(
+        single,
+        { y: containerHeight, xPercent: -50, rotate: 0.001, scale },
+        {
+          y: '-100%',
+          xPercent: -50,
+          rotate: 0.001,
+          delay,
+          ease: 'Power1.easeIn',
+          duration: speed,
+        }
+      );
+      gsap.fromTo(
+        child,
+        { xPercent: -25, rotate },
+        {
+          xPercent: 25,
+          rotate: -rotate,
+          ease: 'Power1.easeInOut',
+          delay,
+          duration: 0.8,
+          repeat: -1,
+          yoyo: true,
+        }
+      );
+
+      container.appendChild(single);
+    }
+
+    window.setTimeout(() => {
+      container.querySelectorAll('.single-rain-emoji.append').forEach((el) => el.remove());
+      rainRunningRef.current = false;
+    }, 2750);
+  };
 
   // ----- All scroll-driven animations (single useEffect to share state) -----
   useEffect(() => {
@@ -671,49 +749,50 @@ export default function DxV3Page() {
       triggers.push(pinTrigger);
     }
 
-    gsap.utils.toArray<HTMLElement>('.dx-v3 .case-block').forEach((b) => {
-      const left = b.querySelector('.left');
-      const right = b.querySelector('.right .case-vis');
-      if (left) {
-        const t = gsap.fromTo(
-          left,
-          { y: 80, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: { trigger: b, start: 'top 80%', end: 'top 40%', scrub: true },
+    // ---- Cases: overlapping scroll-scrubbed slider ----
+    // All cards stack at the same position. Scroll progress drives a
+    // continuous "active index" — at progress 0 card 0 is front, at
+    // progress 1 the last card is front. Past cards slide out to the
+    // left with fade+shrink; upcoming cards peek behind the active
+    // one to the right with reduced scale and opacity.
+    const casesStack = document.querySelector<HTMLElement>('.dx-v3 .cases-slider-stack');
+    const caseCards = gsap.utils.toArray<HTMLElement>('.dx-v3 [data-case-card]');
+    if (casesStack && caseCards.length) {
+      const N = caseCards.length;
+
+      const applyCases = (progress: number) => {
+        const active = progress * (N - 1);
+        caseCards.forEach((card, i) => {
+          const rel = i - active;
+          let xPercent: number, scale: number, opacity: number, zIndex: number;
+          if (rel <= 0) {
+            // current or past — slides off to the left as it ages out.
+            xPercent = rel * 70;
+            scale = 1 + rel * 0.1;
+            opacity = Math.max(0, 1 + rel * 1.2);
+            zIndex = 20 + Math.round(rel * 4);
+          } else {
+            // upcoming — peeks behind active to the right.
+            xPercent = 6 + rel * 5;
+            scale = Math.max(0.7, 1 - rel * 0.08);
+            opacity = Math.max(0, 0.7 - rel * 0.22);
+            zIndex = 20 - Math.round(rel * 4);
           }
-        );
-        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-      }
-      if (right) {
-        const t = gsap.fromTo(
-          right,
-          { yPercent: 15, opacity: 0.4 },
-          {
-            yPercent: -10,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: { trigger: b, start: 'top bottom', end: 'bottom top', scrub: true },
-          }
-        );
-        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-      }
-      const bigNum = b.querySelector('.left .num');
-      if (bigNum) {
-        const t = gsap.fromTo(
-          bigNum,
-          { y: 80 },
-          {
-            y: -40,
-            ease: 'none',
-            scrollTrigger: { trigger: b, start: 'top bottom', end: 'bottom top', scrub: true },
-          }
-        );
-        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-      }
-    });
+          gsap.set(card, { xPercent, scale, opacity, zIndex });
+        });
+      };
+
+      applyCases(0);
+      const casesTrigger = ScrollTrigger.create({
+        trigger: casesStack,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.4,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => applyCases(self.progress),
+      });
+      triggers.push(casesTrigger);
+    }
 
     gsap.utils
       .toArray<HTMLElement>('.dx-v3 .rpa-trio .item, .dx-v3 .rpa-card')
@@ -1184,6 +1263,15 @@ export default function DxV3Page() {
 
   return (
     <div className="dx-v3">
+      {/* Emoji rain stage — fixed-position canvas the .imagine-cta pill
+          spawns emoji into when clicked. Uses the same DOM class names
+          as RecruitCta so the existing globals.css styles apply. */}
+      <div
+        ref={rainContainerRef}
+        className="emoji-rain-container"
+        aria-hidden="true"
+      />
+
       <div className="progress" aria-hidden>
         <div className="bar" ref={progRef} />
       </div>
@@ -1191,14 +1279,24 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* 3D backdrop — loads /public/models/*.glb, fills the entire
-              stage. Text overlays on top via higher z-index. */}
-          <Hero3D />
+          {/* Two 3D scenes side-by-side: the GIFT particle logo on the
+              left, the click-to-explode igloo on the right. On mobile
+              they stack vertically. Each scene fills its grid cell —
+              .hero-particles and .igloo-scene are both absolute inset:0
+              so they fill their relative-parent columns. */}
+          <div className="absolute inset-0 z-0 grid grid-cols-1 md:grid-cols-2">
+            <div className="relative w-full h-full">
+              <GiftLogoParticles />
+            </div>
+            <div className="relative w-full h-full">
+              <IglooScene />
+            </div>
+          </div>
           <div className="hero-stage-inner">
             <div className="masthead">
-              <div className="row r1">一度組めば、</div>
-              <div className="row r2">
-                <em>ずっと走る。</em>
+              <div className="row r1">
+                <span className="dx">DX</span>{' '}
+                <em className="consulting">Consulting.</em>
               </div>
               <div className="ja">
                 <span className="rule" aria-hidden />
@@ -1233,13 +1331,17 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="text" id="introText">
             <span className="word">Whatever</span> <span className="word">you</span>{' '}
-            <span className="word accent">imagine,</span>{' '}
+            <button
+              type="button"
+              className="word accent imagine-cta"
+              onClick={fireImagineRain}
+            >
+              imagine
+            </button>
+            ,{' '}
             <span className="word">we&rsquo;ll</span>{' '}
             <span className="word">make</span> <span className="word">it</span>{' '}
             <span className="word accent">run itself.</span>
-          </div>
-          <div className="intro-ja">
-            あなたが描くビジネスを、自走するシステムへ。
           </div>
         </div>
 
@@ -1375,7 +1477,7 @@ export default function DxV3Page() {
                       </div>
                       {c.lottie ? (
                         <div className="cap-video">
-                          <CapLottie />
+                          <CapLottie src={c.lottie} />
                         </div>
                       ) : c.video ? (
                         <div className="cap-video">
@@ -1397,6 +1499,13 @@ export default function DxV3Page() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* MODELS SHOWCASE — the existing 3D scene (desk + monitor + GIFT
+          logo on the screen), relocated from the hero to a dedicated
+          section between capabilities and pains. */}
+      <section className="models-showcase" id="models-showcase">
+        <Hero3D />
       </section>
 
       {/* PAINS — scroll-scrubbed spotlight. Heading + questions both
@@ -1523,8 +1632,15 @@ export default function DxV3Page() {
           </div>
         </div>
 
+        {/* Overlapping scroll-scrubbed slider. Cards stack at the same
+            position; scrolling advances which one is "front" while the
+            neighbors peek behind with reduced scale + opacity. */}
+        <div className="cases-slider-stack">
+          <div className="cases-slider-pin">
+            <div className="cases-slider-track">
+
         {/* Case 01 */}
-        <div className="case-block">
+        <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
             <div className="num">01</div>
             <div className="label">Case 01 / Telecom</div>
@@ -1559,10 +1675,10 @@ export default function DxV3Page() {
               </div>
             </div>
           </div>
-        </div>
+        </div></div>
 
         {/* Case 02 */}
-        <div className="case-block">
+        <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
             <div className="num">02</div>
             <div className="label">Case 02 / Beauty</div>
@@ -1597,10 +1713,10 @@ export default function DxV3Page() {
               </div>
             </div>
           </div>
-        </div>
+        </div></div>
 
         {/* Case 03 */}
-        <div className="case-block">
+        <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
             <div className="num">03</div>
             <div className="label">Case 03 / Local</div>
@@ -1633,6 +1749,10 @@ export default function DxV3Page() {
                   <span className="ja">地域</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div></div>
+
             </div>
           </div>
         </div>

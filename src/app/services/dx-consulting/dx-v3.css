@@ -16,6 +16,8 @@
   --blue-glow: #b3a9ff;
   --sky: #cfc8ff;
   --cobalt: #4a3fe0;
+  --purple: #7c3aed;
+  --purple-deep: #6d28d9;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   background: var(--paper);
@@ -100,7 +102,51 @@
   inset: 0;
   z-index: 0;
 }
+/* Showcase section that hosts the same 3D scene the hero used to render.
+   .hero-3d is position:absolute inset:0, so the parent must establish
+   a positioning context and an explicit height. */
+.dx-v3 .models-showcase {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: var(--paper);
+  overflow: hidden;
+}
+@media (max-width: 899px) {
+  .dx-v3 .models-showcase {
+    height: 70vh;
+  }
+}
 .dx-v3 .hero-3d canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* Particle-cloud version of the GIFT brand mark. Lives inside the hero
+   as a decorative WebGL backdrop with the masthead text floating above
+   (the text has higher z-index via .hero-stage-inner). */
+.dx-v3 .hero-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.dx-v3 .hero-particles canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* Igloo column — same shape as .hero-particles. The hero-stage uses a
+   Tailwind grid (single column on mobile, two columns on md+) so each
+   visual lives in its own relative-positioned grid cell, and both fill
+   it with absolute inset:0. */
+.dx-v3 .hero-igloo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: auto; /* clicks need to reach the igloo to explode it */
+}
+.dx-v3 .hero-igloo canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
@@ -217,13 +263,48 @@
 .dx-v3 .masthead .row {
   font-family: 'Noto Sans JP', 'General Sans', sans-serif;
   font-weight: 700;
-  /* Overlay-sized — title is a label/headline above the 3D model,
-     not a centerpiece. Stays small enough that the model behind
-     remains the dominant visual. */
-  font-size: clamp(34px, 4.4vw, 68px);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  /* Bumped up so the editorial DX + italic-serif Consulting reads as
+     a real headline, not a tag overlay. */
+  font-size: clamp(48px, 6.6vw, 96px);
+  line-height: 1;
+  letter-spacing: -0.04em;
   color: var(--ink);
+}
+.dx-v3 .masthead .row .dx {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+.dx-v3 .masthead .row .consulting {
+  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--purple);
+  letter-spacing: -0.015em;
+  /* Italic serif renders slightly smaller than bold sans at the same
+     px — bump for visual balance. */
+  font-size: 1.1em;
+}
+.dx-v3 .masthead .row .dx {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  color: var(--ink);
+}
+.dx-v3 .masthead .row .consulting {
+  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-style: italic;
+  font-weight: 400;
+  /* Bumped slightly so the serif feels editorial rather than secondary. */
+  font-size: 1.08em;
+  letter-spacing: -0.012em;
+  color: var(--purple);
+}
+/* The hero scramble effect splits each row into <span class="ch"> per
+   character on mount. Those child spans must also pick up the purple,
+   otherwise they inherit the parent's color and disappear. */
+.dx-v3 .masthead .row .consulting .ch {
+  color: var(--purple);
 }
 .dx-v3 .masthead .row.r1,
 .dx-v3 .masthead .row.r2 {
@@ -490,15 +571,58 @@
   color: rgba(11, 19, 64, 0.18);
   letter-spacing: -0.012em;
   word-break: keep-all;
+  /* Center the manifesto copy on every viewport. max-width keeps the
+     line-length comfortable on wide desktops; auto margins center the
+     block horizontally inside .intro .wrap. */
+  text-align: center;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-inline: clamp(8px, 4vw, 24px);
 }
 .dx-v3 .intro .text .word {
   display: inline-block;
 }
 .dx-v3 .intro .text .word.accent {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
+  /* Same font as the rest of the line — no serif italic switch. The
+     scroll animation already tints accent words blue (vs ink) for
+     emphasis, so the font no longer needs to carry that weight. */
   font-weight: 400;
-  letter-spacing: -0.005em;
+}
+/* "imagine," = clickable pill that fires an emoji rain on click.
+   Styled like the homepage RecruitCta button but sized to sit
+   inline within the manifesto sentence. */
+.dx-v3 .intro .text .imagine-cta {
+  appearance: none;
+  border: none;
+  background: var(--blue);
+  color: #fff !important; /* override the GSAP scroll-color tween */
+  font: inherit;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.18em 0.55em 0.24em;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms ease,
+    box-shadow 220ms ease;
+  box-shadow: 0 12px 28px -16px rgba(99, 91, 255, 0.6);
+}
+.dx-v3 .intro .text .imagine-cta:hover {
+  transform: translateY(-2px);
+  background: var(--ink);
+  box-shadow: 0 18px 36px -18px rgba(11, 19, 64, 0.6);
+}
+.dx-v3 .intro .text .imagine-cta:active {
+  transform: translateY(0);
+}
+.dx-v3 .intro .text .imagine-cta:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
 }
 .dx-v3 .intro-ja {
   margin-top: 32px;
@@ -1068,6 +1192,39 @@
     --orbit-ry: 130px;
   }
 }
+/* Mobile: kill the ~50vh dead band between the lead copy and the
+   first card. The tile anchor lives on .caps-orbit (the inner grid),
+   not the frame, so we override `place-items` there to pull tiles
+   to the top of the sticky frame. We also tighten the intro margins
+   and pull the sticky a bit upward via negative top so the orbit
+   doesn't pin with a fat empty zone above it. */
+@media (max-width: 899px) {
+  /* Trim section padding — 160px top was pushing the intro half a
+     screen down on its own. */
+  .dx-v3 .caps-section {
+    padding: 48px 20px;
+  }
+  .dx-v3 .caps-intro {
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .dx-v3 .caps-orbit-stack {
+    margin-top: 0;
+    height: 240vh;
+  }
+  .dx-v3 .caps-orbit-frame {
+    height: 88vh;
+    /* GSAP front-tile transform is y = cos(0) * --orbit-ry. Dropping
+       ry from 90 → 8 pulls the focused card right up against the lead
+       copy instead of leaving a ~90px dead band above it. */
+    --orbit-ry: 8px;
+    --orbit-rx: 280px;
+  }
+  .dx-v3 .caps-orbit {
+    place-items: start center;
+    padding-top: 4px;
+  }
+}
 .dx-v3 .caps-orbit {
   position: relative;
   width: 100%;
@@ -1135,18 +1292,70 @@
     min-height: 300px;
   }
 }
-/* Lottie wrapper. The Bodymovin comp has empty padding around the
-   artwork, so we zoom into where the art actually lives (~43% × 35%
-   of the canvas). Scale is gentler on mobile so portrait containers
-   don't crop the edges of the art. */
-.dx-v3 .cap-card .cap-video .cap-lottie {
+/* Lottie wrapper. Per-Lottie variants get their own transform so
+   each Bodymovin comp can be framed correctly given where its art
+   actually sits in its canvas. CapLottie sets a `.cap-lottie--<name>`
+   class derived from the JSON filename. */
+
+/* animation.json — L-Step illustration. Art clusters in the
+   upper-left of a 1938×1098 canvas (≈43%, 35%). Zoom in and anchor
+   the transform-origin there so the empty padding gets cropped by
+   the .cap-video container's overflow:hidden. */
+.dx-v3 .cap-card .cap-video .cap-lottie--animation {
   transform: scale(1.6);
   transform-origin: 45% 32%;
 }
 @media (min-width: 900px) {
-  .dx-v3 .cap-card .cap-video .cap-lottie {
+  .dx-v3 .cap-card .cap-video .cap-lottie--animation {
     transform: scale(1.5);
     transform-origin: 45% 48%;
+  }
+}
+
+/* datab-animation.json — database / cloud / envelopes illustration
+   for the RPA capability. Art clusters center-right of the canvas
+   (≈47% X, 45% Y), so the origin sits a touch right of center and
+   the scale is slightly higher since the art occupies less of the
+   canvas (~20% × 24%). */
+.dx-v3 .cap-card .cap-video .cap-lottie--datab-animation {
+  transform: scale(1.8);
+  transform-origin: 48% 42%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--datab-animation {
+    transform: scale(1.7);
+    transform-origin: 48% 45%;
+  }
+}
+
+/* robot-animation.json — AI robot illustration. The art is tightly
+   centered in a 1938×1098 canvas (≈45%, 44%) and only occupies about
+   ~8% × ~15% of the canvas, so we need a much heavier zoom than the
+   other variants to bring the robot up to a comparable on-card size. */
+.dx-v3 .cap-card .cap-video .cap-lottie--robot-animation {
+  transform: scale(3);
+  transform-origin: 45% 44%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--robot-animation {
+    transform: scale(2.8);
+    transform-origin: 45% 44%;
+  }
+}
+
+/* saas-animation.json — PC + cloud + phone composition. The art
+   spreads ~36% × 51% of the 1938×1098 canvas and the cloud sits near
+   the top edge, so we pair a gentler scale with a downward translate
+   to shift the whole composition into the visible band instead of
+   relying on transform-origin tricks (which kept clipping the cloud). */
+.dx-v3 .cap-card .cap-video .cap-lottie--saas-animation {
+  transform: translateY(8%) scale(1.35);
+  transform-origin: 50% 50%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--saas-animation {
+    transform: translateY(18%) scale(1.05);
+    transform-origin: 50% 50%;
   }
 }
 .dx-v3 .cap-card .cap-video video {
@@ -1301,6 +1510,23 @@
 .dx-v3 .pains-pin-content .sec-head {
   display: block;
   margin: 0;
+}
+/* Mobile: the default sec-head h2 clamp min of 40px is too wide for narrow
+   viewports, so "The questions you ask" wraps mid-word. Tighten the size
+   and pin the English line to nowrap; the .ja span is block so it still
+   breaks onto its own line below. */
+@media (max-width: 899px) {
+  .dx-v3 .pains-pin-content .sec-head h2 {
+    font-size: clamp(22px, 7.5vw, 38px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+  }
+  .dx-v3 .pains-pin-content .sec-head h2 .ja {
+    white-space: normal;
+    font-size: 0.5em;
+    margin-top: 10px;
+  }
 }
 .dx-v3 .pains-pin-frame .pains-list {
   display: flex;
@@ -1691,6 +1917,69 @@
 .dx-v3 .cases-wrap {
   background: var(--paper);
 }
+
+/* Cases overlapping slider. Cards stack at the same position; JS
+   transforms in DxV3Page.tsx position them per scroll progress.
+   .cases-slider-stack is a tall scroll runway, .cases-slider-pin is
+   sticky-pinned inside it, .cases-slider-track holds the cards. */
+.dx-v3 .cases-slider-stack {
+  position: relative;
+  /* ~75vh dwell per case feels right for reading without dragging. */
+  height: 230vh;
+}
+.dx-v3 .cases-slider-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dx-v3 .cases-slider-track {
+  position: relative;
+  width: min(94vw, 1180px);
+  height: min(78vh, 640px);
+}
+.dx-v3 .case-card {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px -28px rgba(11, 19, 64, 0.32);
+}
+.dx-v3 .case-card .case-block {
+  height: 100%;
+  border-top: none;
+}
+.dx-v3 .case-card .case-block .left {
+  padding: 48px 40px;
+  overflow: hidden;
+}
+.dx-v3 .case-card .case-block .left .num {
+  font-size: clamp(72px, 9vw, 140px);
+  margin-bottom: 16px;
+}
+.dx-v3 .case-card .case-block .right .case-vis {
+  height: 100%;
+}
+@media (max-width: 899px) {
+  .dx-v3 .cases-slider-stack { height: 260vh; }
+  .dx-v3 .cases-slider-track {
+    width: 92vw;
+    height: min(82vh, 600px);
+  }
+  .dx-v3 .case-card .case-block .left {
+    padding: 28px 22px;
+  }
+  .dx-v3 .case-card .case-block .left .num {
+    font-size: clamp(56px, 14vw, 90px);
+    margin-bottom: 10px;
+  }
+}
+
 .dx-v3 .case-block {
   display: grid;
   grid-template-columns: 1fr;
@@ -1703,42 +1992,45 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-.dx-v3 .case-block:nth-child(odd) .left {
+/* Per-card alternating palette. Cards are now wrapped in .case-card
+   so each .case-block is first-child of its parent — :nth-child must
+   target .case-card directly instead. */
+.dx-v3 .case-card:nth-child(odd) .case-block .left {
   background: var(--paper);
 }
-.dx-v3 .case-block:nth-child(odd) .right {
+.dx-v3 .case-card:nth-child(odd) .case-block .right {
   background: var(--paper-3);
 }
-.dx-v3 .case-block:nth-child(even) .left {
+.dx-v3 .case-card:nth-child(even) .case-block .left {
   background: var(--paper-2);
 }
-.dx-v3 .case-block:nth-child(even) .right {
+.dx-v3 .case-card:nth-child(even) .case-block .right {
   background: var(--blue);
   color: #fff;
 }
 @media (min-width: 900px) {
-  .dx-v3 .case-block:nth-child(even) .left {
+  .dx-v3 .case-card:nth-child(even) .case-block .left {
     order: 2;
   }
-  .dx-v3 .case-block:nth-child(even) .right {
+  .dx-v3 .case-card:nth-child(even) .case-block .right {
     order: 1;
   }
 }
-.dx-v3 .case-block:nth-child(even) .right .badge {
+.dx-v3 .case-card:nth-child(even) .case-block .right .badge {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.08);
 }
-.dx-v3 .case-block:nth-child(even) .right .big-num {
+.dx-v3 .case-card:nth-child(even) .case-block .right .big-num {
   -webkit-text-stroke-color: rgba(255, 255, 255, 0.55);
 }
-.dx-v3 .case-block:nth-child(even) .right .theme .en {
+.dx-v3 .case-card:nth-child(even) .case-block .right .theme .en {
   color: #fff;
 }
-.dx-v3 .case-block:nth-child(even) .right .theme .ja {
+.dx-v3 .case-card:nth-child(even) .case-block .right .theme .ja {
   color: rgba(255, 255, 255, 0.7);
 }
-.dx-v3 .case-block:nth-child(even) .right .case-vis {
+.dx-v3 .case-card:nth-child(even) .case-block .right .case-vis {
   background-image: repeating-linear-gradient(
     180deg,
     transparent 0,

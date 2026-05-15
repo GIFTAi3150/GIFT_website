@@ -3,14 +3,29 @@
 import { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
 
-// Bodymovin/Lottie animation served from /public/lottie/animation.json.
-// Fetched at runtime (not bundled) so the JSON stays a static asset.
-export default function CapLottie() {
+type Props = {
+  /** Path to the Bodymovin JSON, served from /public. */
+  src: string;
+};
+
+// Derive a CSS variant token from the JSON filename so each Lottie
+// can be tuned (scale, transform-origin) independently in CSS without
+// rendering logic per src. e.g. /lottie/datab-animation.json → "datab-animation".
+const variantFromSrc = (src: string) => {
+  const m = src.match(/\/([^/]+)\.json(?:\?.*)?$/);
+  return m ? m[1] : 'default';
+};
+
+// Bodymovin/Lottie animation served from /public/lottie/*.json.
+// Fetched at runtime (not bundled) so the JSONs stay static assets
+// and we can swap them per capability via the `src` prop.
+export default function CapLottie({ src }: Props) {
   const [data, setData] = useState<unknown>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/lottie/animation.json')
+    setData(null);
+    fetch(src)
       .then((r) => r.json())
       .then((json) => {
         if (!cancelled) setData(json);
@@ -19,20 +34,20 @@ export default function CapLottie() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [src]);
 
   if (!data) return null;
 
-  // The Bodymovin comp has lots of empty padding around the artwork
-  // (gear/PC/phone clustered in the upper-left of a 1938x1098 canvas).
-  // The visual zoom that compensates for that whitespace lives in CSS
-  // (.cap-lottie) so it can be tuned per breakpoint without re-rendering.
+  // The visual zoom that compensates for empty padding in some Bodymovin
+  // comps lives in CSS (.cap-lottie + .cap-lottie--<variant>) so it can
+  // be tuned per breakpoint AND per Lottie file without re-rendering.
+  const variant = variantFromSrc(src);
   return (
     <Lottie
       animationData={data}
       loop
       autoplay
-      className="cap-lottie"
+      className={`cap-lottie cap-lottie--${variant}`}
       style={{ width: '100%', height: '100%' }}
       rendererSettings={{ preserveAspectRatio: 'xMidYMid meet' }}
     />
