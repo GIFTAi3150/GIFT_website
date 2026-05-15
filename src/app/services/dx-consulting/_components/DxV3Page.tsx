@@ -1279,18 +1279,11 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* Two 3D scenes side-by-side: the GIFT particle logo on the
-              left, the click-to-explode igloo on the right. On mobile
-              they stack vertically. Each scene fills its grid cell —
-              .hero-particles and .igloo-scene are both absolute inset:0
-              so they fill their relative-parent columns. */}
-          <div className="absolute inset-0 z-0 grid grid-cols-1 md:grid-cols-2">
-            <div className="relative w-full h-full">
-              <GiftLogoParticles />
-            </div>
-            <div className="relative w-full h-full">
-              <IglooScene />
-            </div>
+          {/* Igloo fills the full hero for now. The particle logo is
+              hidden (kept in the imports/component tree so it's easy to
+              re-introduce later when we find another home for it). */}
+          <div className="absolute inset-0 z-0">
+            <IglooScene />
           </div>
           <div className="hero-stage-inner">
             <div className="masthead">

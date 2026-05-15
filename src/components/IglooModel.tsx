@@ -11,11 +11,16 @@ const IGLOO_PATH = '/models/igloo.glb';
 const ICE_COLOR = '#DCE8F0';
 const RIM_COLOR = '#E8F4FF';
 
-// How far each brick rises when the cursor is over the igloo. Subtle —
-// the dome should ripple, not bloom. Per-frame lerp factor below
-// controls how fast it settles in/out.
-const HOVER_LIFT = 0.1;
-const LIFT_LERP = 0.18;
+// How far each brick rises when the cursor is over the igloo. Bumped
+// up so the lift is visibly noticeable; tune down if too dramatic.
+// Per-frame lerp factor controls how fast it settles in/out.
+const HOVER_LIFT = 0.22;
+const LIFT_LERP = 0.22;
+// Radius of the invisible hit sphere that captures pointer events for
+// the whole igloo (see HitSphere below). Should be large enough to
+// surround the dome + tunnel without being so large that hover triggers
+// nowhere near the model.
+const HIT_SPHERE_RADIUS = 1.6;
 
 // Seconds the bricks fly free before they start tweening back. Matches
 // the user's spec (4s post-explosion).
@@ -382,18 +387,25 @@ export default function IglooModel({
       position={position}
       scale={scale}
       onClick={handleClick}
-      onPointerOver={(e) => {
-        // stopPropagation prevents the event bubbling to the canvas and
-        // re-triggering for nested meshes. We only want one "enter" per
-        // hover so setHovered is idempotent and cheap.
-        e.stopPropagation();
-        setHovered(true);
-      }}
-      onPointerOut={(e) => {
-        e.stopPropagation();
-        setHovered(false);
-      }}
     >
+      {/* Invisible hit-sphere — captures pointer enter/leave for the
+          whole igloo. R3F's pointer events on nested <primitive> GLTF
+          meshes are unreliable; this gives us one consistent target.
+          The mesh stays in the scene graph for raycasting but is fully
+          transparent so it doesn't render. */}
+      <mesh
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          setHovered(false);
+        }}
+      >
+        <sphereGeometry args={[HIT_SPHERE_RADIUS, 16, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
       <Physics gravity={[0, -9.81, 0]}>
         {/* Visible dome + tunnel come from the GLTF scene — bricks were
             marked invisible during parsing so they don't double-render. */}

@@ -16,7 +16,10 @@ export default function IglooScene() {
         // igloo, looking at the centroid. Done at the camera (not the
         // group) because rotating the group would desync rapier's
         // world-space physics from the rendered transform.
-        camera={{ position: [2.6, 1.6, 3.4], fov: 38, near: 0.1, far: 50 }}
+        // 3/4 view roughly matching the Blender reference: pulled to
+        // the right + elevated so the dome top is visible and the
+        // tunnel is offset on the right side of the frame.
+        camera={{ position: [2.9, 1.9, 3.8], fov: 36, near: 0.1, far: 50 }}
         onCreated={({ camera }) => {
           camera.lookAt(0, 0, 0);
           camera.updateProjectionMatrix();
