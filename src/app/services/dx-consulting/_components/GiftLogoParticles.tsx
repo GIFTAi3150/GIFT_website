@@ -25,8 +25,8 @@ const G_Z_OFFSET = 5;
 // Fewer particles than the sprite version: each is now a lit 3D sphere
 // (12-tri icosahedron × 14k instances ≈ 168k tris/frame — heavier than
 // 28k flat sprites but well within budget for an idle hero).
-const SHIELD_COUNT = 9000;
-const G_COUNT = 5500;
+const SHIELD_COUNT = 14000;
+const G_COUNT = 8500;
 const TOTAL_COUNT = SHIELD_COUNT + G_COUNT;
 
 // Slate-silver palette. Darker than near-white so the kick → glow lerp
@@ -51,19 +51,54 @@ const GLOW_COLOR = new THREE.Color('#dfeefc');
 // not a giant hole carved through the cloud.
 const KICK_RADIUS = 0.18;
 const KICK_BASE = 0.4;
-// Speed amplification still helps fast sweeps register, but the cap is
-// lower so even a violent swipe doesn't blow particles off the canvas.
-const KICK_SPEED_GAIN = 1.8;
+// Speed amplification — the kick is now PURELY proportional to cursor
+// speed (no constant baseline). At rest the cursor has no effect; the
+// faster it moves, the stronger the displacement, up to a cap.
+const KICK_SPEED_GAIN = 2.6;
 const KICK_SPEED_CAP = 3.5;
-// Soft spring + light damping so particles drift more freely at idle.
-// A weaker spring lets the idle noise carry beads further from rest →
-// visible flowing motion, matching the reference's "alive" particle field.
-const SPRING_K = 28;
-const DAMPING = 8;
-// Idle jitter strength. With the softer spring above, this produces
-// visible per-particle drift (not just shimmer) — the wispy moving
-// edges in the reference image come from this.
-const IDLE_FORCE = 0.9;
+// Minimum cursor speed (world units/sec) below which we skip the kick
+// entirely. Cuts hand-jitter / micro-tremor at "rest" so a stationary
+// cursor truly does nothing — matches the reference behavior where
+// particles only respond when the cursor is actively moving.
+const MIN_CURSOR_SPEED = 0.04;
+// FIXED-HOME spring. Each particle springs toward ITS OWN assigned
+// basePosition — never some other point. This is what guarantees the
+// silhouette holds: 22,500 particles, 22,500 unique anchors, no two
+// particles can pool onto the same spot.
+//
+// (Igloo.inc gets uniform fill without per-particle homes because they
+// use a continuous SDF on the GPU — every point on the surface is
+// equally attractive. Without an SDF, our only way to guarantee uniform
+// fill is fixed assignments. We make up for the "particles can't migrate"
+// constraint via a high-spatial-frequency flow field — see below.)
+const SPRING_K = 18;
+const DAMPING = 4.5;
+// PER-PARTICLE NOISE — replaces the previous spatial flow field. The
+// spatial flow gave NEIGHBORING particles similar force vectors, which
+// the eye read as visible waves passing through the cloud. Independent
+// per-particle oscillation (each at its own unique frequency derived
+// from its random seed) eliminates that coordination: with thousands
+// of unique clocks, no two particles ever sync up, so the motion stays
+// individually chaotic instead of forming waves.
+//
+//   INDIV_AMP — noise force magnitude. Peak displacement per particle
+//     ≈ INDIV_AMP × |H(ω_i)| where H is the spring's transfer function.
+//     Particles whose ω_i happens to land near √SPRING_K ≈ 4.2 rad/s
+//     resonate and get amplified excursions — those naturally become
+//     the beads that "venture outside the form and come back," matching
+//     the reference's individual-energy look.
+//   INDIV_FREQ_BASE / SPREAD — per-particle oscillation rate range,
+//     in rad/s. With base 1.8 and spread 1.5, frequencies span 1.8–11.2
+//     rad/s, straddling resonance for natural amplitude variety.
+const INDIV_AMP = 1.6;
+const INDIV_FREQ_BASE = 1.8;
+const INDIV_FREQ_SPREAD = 1.5;
+// Visual-layer wobble — small high-frequency per-particle jitter on top
+// of the flow/spring physics. Adds fine sparkle so individual beads look
+// alive even when their physics-level flow is gentle.
+const WOBBLE_AMP = 0.012;
+const WOBBLE_BASE_FREQ = 4.0;
+const WOBBLE_FREQ_SPREAD = 1.4;
 // Velocity magnitude that maps to full glow. Low enough that even a
 // gentle nudge lights up the bead — the position physics is now subtle,
 // so we want the color signal to do most of the visual work.
@@ -203,7 +238,15 @@ function ParticleLogo() {
   // per-particle base tint. baseColors is the immutable "rest" tint
   // each particle returns to; instanceColors is the live buffer that
   // gets lerped toward GLOW_COLOR when the particle is displaced.
-  const { basePositions, currentPositions, velocities, scales, instanceColors, baseColors, randoms } = useMemo(() => {
+  const {
+    basePositions,
+    currentPositions,
+    velocities,
+    scales,
+    instanceColors,
+    baseColors,
+    randoms,
+  } = useMemo(() => {
     const shieldGeos = buildBeveledGeometries(parseShapes(SHIELD_PATH), SHIELD_DEPTH);
     const gGeos = [
       ...buildBeveledGeometries(parseShapes(G_PATH_1), G_DEPTH),
@@ -330,39 +373,56 @@ function ParticleLogo() {
     const cx = cursorWorld.current.x;
     const cy = cursorWorld.current.y;
     const kr2 = KICK_RADIUS * KICK_RADIUS;
+    // Speed factor is now PURELY proportional to cursor velocity — no
+    // baseline of 1, so a stationary cursor produces no kick at all.
     const speedFactor = Math.min(
-      1 + KICK_SPEED_GAIN * cursorVel.current.mag,
+      KICK_SPEED_GAIN * cursorVel.current.mag,
       KICK_SPEED_CAP
     );
+    const cursorMoving = cursorActive && cursorVel.current.mag > MIN_CURSOR_SPEED;
     const cvx = cursorVel.current.x;
     const cvy = cursorVel.current.y;
 
     // ---- Per-particle physics step -----------------------------------
     for (let i = 0; i < TOTAL_COUNT; i++) {
       const i3 = i * 3;
+      const px = currentPositions[i3];
+      const py = currentPositions[i3 + 1];
+      const pz = currentPositions[i3 + 2];
+
+      // Fixed home — each particle springs back to ITS OWN assigned
+      // basePosition. Uniform distribution across the logo is guaranteed
+      // because every particle has a unique anchor; no two particles can
+      // pool onto the same spot.
       const bx = basePositions[i3];
       const by = basePositions[i3 + 1];
       const bz = basePositions[i3 + 2];
 
-      // Spring force pulling back toward rest position.
-      const sx = bx - currentPositions[i3];
-      const sy = by - currentPositions[i3 + 1];
-      const sz = bz - currentPositions[i3 + 2];
+      // Spring + damping pulling toward the fixed home.
+      const sx = bx - px;
+      const sy = by - py;
+      const sz = bz - pz;
       let fx = SPRING_K * sx - DAMPING * velocities[i3];
       let fy = SPRING_K * sy - DAMPING * velocities[i3 + 1];
       let fz = SPRING_K * sz - DAMPING * velocities[i3 + 2];
 
-      // Idle drift — slow, large-amplitude per-particle noise. The
-      // frequencies are low (≤0.5 Hz) so beads visibly *flow* between
-      // positions instead of buzzing in place. Three different periods
-      // per axis with per-particle phase seeds means no two beads move
-      // in sync, giving the cloud its organic shifting quality.
-      const seedX = randoms[i3];
-      const seedY = randoms[i3 + 1];
-      const seedZ = randoms[i3 + 2];
-      fx += Math.sin(t * 0.45 + seedX * 2.1) * IDLE_FORCE;
-      fy += Math.cos(t * 0.37 + seedY * 2.3) * IDLE_FORCE;
-      fz += Math.sin(t * 0.52 + seedZ * 1.7) * IDLE_FORCE * 0.7;
+      // PER-PARTICLE INDEPENDENT NOISE. Each particle has its OWN
+      // oscillation frequency and phase, both derived from its random
+      // seeds. Two neighboring particles see uncorrelated force vectors
+      // → no wave-like coordination → motion reads as individual chaos
+      // (the look the reference has, particles each doing their own
+      // thing). Particles whose frequency is near the spring's natural
+      // ≈4.2 rad/s resonate and get larger excursions automatically —
+      // those are the "beads that venture outside the form."
+      const sX = randoms[i3];
+      const sY = randoms[i3 + 1];
+      const sZ = randoms[i3 + 2];
+      const fXrate = INDIV_FREQ_BASE + sX * INDIV_FREQ_SPREAD;
+      const fYrate = INDIV_FREQ_BASE + sY * INDIV_FREQ_SPREAD;
+      const fZrate = INDIV_FREQ_BASE + sZ * INDIV_FREQ_SPREAD;
+      fx += Math.sin(t * fXrate + sX * 7.0) * INDIV_AMP;
+      fy += Math.cos(t * fYrate + sY * 7.0) * INDIV_AMP;
+      fz += Math.sin(t * fZrate + sZ * 7.0) * INDIV_AMP * 0.6;
 
       // Integrate spring + damping + idle.
       velocities[i3] += fx * dt;
@@ -373,7 +433,10 @@ function ParticleLogo() {
       // it doesn't depend on dt). Direction = particle's rest position
       // pushed away from cursor + a touch of the cursor's velocity
       // vector so sweeping motion drags beads along the gesture.
-      if (cursorActive) {
+      // Gated on `cursorMoving` so a STATIONARY cursor never disturbs
+      // particles — matches the reference where the cloud only reacts
+      // when the cursor is actively in motion.
+      if (cursorMoving) {
         const cdx = bx - cx;
         const cdy = by - cy;
         const cdist2 = cdx * cdx + cdy * cdy;
@@ -384,8 +447,10 @@ function ParticleLogo() {
           // Radial component (push outward).
           velocities[i3] += (cdx / cdist) * impulse;
           velocities[i3 + 1] += (cdy / cdist) * impulse;
-          // Z-pop toward camera so the kick feels like a 3D punch.
-          velocities[i3 + 2] += falloff * falloff * KICK_BASE * 0.4;
+          // Z-pop toward camera so the kick feels like a 3D punch — also
+          // scaled by speedFactor so a still cursor doesn't pop particles
+          // forward just by being inside the canvas.
+          velocities[i3 + 2] += falloff * falloff * KICK_BASE * 0.4 * speedFactor;
           // Cursor-velocity component (drag along the sweep direction).
           velocities[i3] += cvx * falloff * 0.35;
           velocities[i3 + 1] += cvy * falloff * 0.35;
@@ -397,11 +462,28 @@ function ParticleLogo() {
       currentPositions[i3 + 1] += velocities[i3 + 1] * dt;
       currentPositions[i3 + 2] += velocities[i3 + 2] * dt;
 
+      // Visual-layer wobble — per-particle high-frequency oscillation
+      // added to render position ONLY (not to velocity / current state).
+      // Each particle's frequency comes from its seed, so the cloud has
+      // ~14k independent micro-motions instead of one synchronized sway.
+      // Spring physics (above) and cursor kicks still work normally:
+      // they drive currentPositions, then we add wobble on top at draw.
+      const wobX =
+        Math.sin(t * (WOBBLE_BASE_FREQ + sX * WOBBLE_FREQ_SPREAD) + sX * 5.0) *
+        WOBBLE_AMP;
+      const wobY =
+        Math.cos(t * (WOBBLE_BASE_FREQ * 0.9 + sY * WOBBLE_FREQ_SPREAD) + sY * 5.0) *
+        WOBBLE_AMP;
+      const wobZ =
+        Math.sin(t * (WOBBLE_BASE_FREQ * 0.8 + sZ * WOBBLE_FREQ_SPREAD) + sZ * 5.0) *
+        WOBBLE_AMP *
+        0.5;
+
       // Write the matrix for this instance.
       dummy.position.set(
-        currentPositions[i3],
-        currentPositions[i3 + 1],
-        currentPositions[i3 + 2]
+        currentPositions[i3] + wobX,
+        currentPositions[i3 + 1] + wobY,
+        currentPositions[i3 + 2] + wobZ
       );
       dummy.scale.setScalar(scales[i]);
       dummy.updateMatrix();

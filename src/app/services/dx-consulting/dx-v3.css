@@ -135,6 +135,25 @@
   display: block;
   width: 100% !important;
   height: 100% !important;
+  /* Canvas stays pointer-events: none (inherited) so touches pass through
+     to the page → vertical swipes can still scroll past the hero on
+     mobile. Touch capture for particle interaction is handled by a small
+     centered .hero-particles-touch overlay that only covers the visible
+     logo region — see GiftLogoFluid.tsx. */
+}
+/* Touch-capture overlay sized to roughly the logo's visible footprint.
+   Sits above the canvas in z-order but stays invisible. ONLY this region
+   blocks scroll and captures touches for the particle interaction. */
+.dx-v3 .hero-particles .hero-particles-touch {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(60vw, 60vh);
+  height: min(60vw, 60vh);
+  pointer-events: auto;
+  touch-action: none;
+  z-index: 1;
 }
 /* Igloo column — same shape as .hero-particles. The hero-stage uses a
    Tailwind grid (single column on mobile, two columns on md+) so each
@@ -1601,6 +1620,13 @@
   color: var(--blue);
 }
 .dx-v3 .pain .q {
+  /* Explicit block so offsetWidth reports the grid-track width on every
+     viewport. Without this, .q stays inline (it's a <span>); on mobile
+     where white-space wraps to multiple lines, inline offsetWidth
+     returns the WIDEST line's width instead of the full track, and the
+     pain-selector brackets end up sized to a narrow strip instead of
+     the whole question. */
+  display: block;
   font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 500;
   font-size: clamp(22px, 4.4vw, 56px);
@@ -1916,6 +1942,18 @@
 ============================================================ */
 .dx-v3 .cases-wrap {
   background: var(--paper);
+  /* The previous .sec sections (pains, features) are part of a
+     sticky-stack and remain pinned at top:0 of the viewport even while
+     the user has scrolled into cases-wrap. Without an explicit
+     stacking context here, the sticky features section bleeds through
+     the cases-wrap when its transparent regions overlap (i.e., the
+     "Six tools, one platform" headline shows through above the case
+     cards). Position:relative + z-index puts cases-wrap on its own
+     layer above the sticky-stack, so it cleanly covers what's behind.
+     isolation:isolate ensures inner stacking contexts don't escape. */
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
 }
 
 /* Cases overlapping slider. Cards stack at the same position; JS
@@ -2183,6 +2221,14 @@
   padding: 140px 32px;
   background: var(--paper);
   border-top: 1px solid var(--line);
+  /* Same stacking-context fix as .cases-wrap: the previous sticky
+     section (features) and its inner cascade-pin-frame can still be
+     rendering behind this section's content if their transparent
+     regions overlap. Put .rpa on its own layer above the sticky-stack
+     so its paper background cleanly covers anything underneath. */
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
 }
 .dx-v3 .rpa .wrap {
   max-width: 1400px;
@@ -2312,7 +2358,11 @@
 .dx-v3 .rpa-trio .item {
   display: grid;
   grid-template-columns: 32px 1fr;
-  gap: 16px;
+  /* Two rows so h4 and p stack in the second column rather than the
+     auto-flow placing the paragraph back into the narrow 32px icon
+     column underneath the icon (which crushed the description text). */
+  grid-template-rows: auto auto;
+  gap: 4px 16px;
   padding: 4px 0;
 }
 .dx-v3 .rpa-trio .item .ic {
@@ -2325,6 +2375,8 @@
   color: var(--blue);
   background: rgba(99, 91, 255, 0.08);
   flex-shrink: 0;
+  /* Icon spans both rows on the left; h4 sits in row 1 col 2, p in row 2 col 2. */
+  grid-row: 1 / span 2;
 }
 .dx-v3 .rpa-trio .item h4 {
   font-family: 'Noto Sans JP', sans-serif;
@@ -2568,13 +2620,15 @@
    Combined with Lenis smooth scroll, you "flip through pages"
    while staying on the same document.
 
-   Caps-section and cases-wrap are intentionally NOT sticky —
-   each contains a vertical list (4 cap-rows / 3 case blocks)
-   that exceeds 100vh, so they need natural scroll to reveal
-   every item. The stack pauses there and resumes after.
+   Caps-section, cases-wrap, AND .rpa are intentionally NOT
+   sticky — each contains a vertical list (4 cap-rows / 3 case
+   blocks / 2 RPA cards + a 3-item trio) that exceeds 100vh,
+   especially on mobile single-column layouts. Sticky-pinning
+   them at 100vh would hide everything past the first viewport,
+   so they need natural scroll to reveal every item. The stack
+   pauses there and resumes after.
 ============================================================ */
 .dx-v3 > section.sec,
-.dx-v3 .rpa,
 .dx-v3 .ai,
 .dx-v3 .final {
   position: sticky;

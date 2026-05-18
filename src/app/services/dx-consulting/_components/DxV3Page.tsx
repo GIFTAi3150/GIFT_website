@@ -13,6 +13,12 @@ import dynamic from 'next/dynamic';
 const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
 // Particle-cloud version of the GIFT brand mark. Lives in the hero as a
 // decorative background layer, with the masthead text floating above.
+// GiftLogoFluid is the GPU-compute version (curl-noise advection on the
+// GPU, ~16k particles in float textures). GiftLogoParticles is the older
+// CPU spring-mass version, kept around as a fallback if the GPU sim
+// misbehaves on a given device.
+const GiftLogoFluid = dynamic(() => import('./GiftLogoFluid'), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GiftLogoParticles = dynamic(() => import('./GiftLogoParticles'), { ssr: false });
 // Companion 3D igloo (next to the particle logo in the hero). Pulls in
 // rapier physics → load client-only to avoid SSR + WASM mismatch.
@@ -709,7 +715,14 @@ export default function DxV3Page() {
 
         // Corner-bracket selector — lerp between the cursor's two
         // bracketing questions so the box smoothly slides AND resizes
-        // as the cursor walks down the list.
+        // as the cursor walks down the list. Opacity is tied directly
+        // to scroll progress (fades in over the first 5% of the pin)
+        // so the brackets are guaranteed invisible at progress=0,
+        // regardless of whether ScrollTrigger fires onUpdate at the
+        // pre-pin state. Earlier we tried gating with a revealSelector
+        // flag, but ScrollTrigger fires its initial onUpdate with
+        // progress=0 on create/refresh and that re-set opacity to 1
+        // before the user had scrolled in.
         if (painSelector) {
           const idxA = clamp(Math.floor(cursor), 0, count - 1);
           const idxB = clamp(idxA + 1, 0, count - 1);
@@ -728,14 +741,16 @@ export default function DxV3Page() {
               left: left - SEL_PAD_X,
               width: width + SEL_PAD_X * 2,
               height: height + SEL_PAD_Y * 2,
-              opacity: 1,
+              opacity: clamp(progress * 20, 0, 1),
             });
           }
         }
       };
 
       // Seed initial layout so items aren't all full-opacity before
-      // the first scroll event fires.
+      // the first scroll event fires. progress=0 → opacity=0 so the
+      // corner-bracket selector stays hidden until the user actually
+      // scrolls into the pains section.
       applyFocus(0);
 
       const pinTrigger = ScrollTrigger.create({
@@ -1279,11 +1294,11 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* Igloo fills the full hero for now. The particle logo is
-              hidden (kept in the imports/component tree so it's easy to
-              re-introduce later when we find another home for it). */}
+          {/* GIFT particle logo fills the hero. Igloo is hidden for now
+              (kept in the imports/component tree so it's easy to re-introduce
+              later when we find another home for it). */}
           <div className="absolute inset-0 z-0">
-            <IglooScene />
+            <GiftLogoFluid />
           </div>
           <div className="hero-stage-inner">
             <div className="masthead">
