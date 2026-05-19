@@ -37,3 +37,6 @@ next-env.d.ts
 
 # design references / scratch (Osmo snippets, design ZIPs)
 /_design-assets/
+
+# Blender render outputs — not used by the site at runtime
+/blender_renders/

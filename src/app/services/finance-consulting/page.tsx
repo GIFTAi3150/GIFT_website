@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import FinanceScripts from './_components/FinanceScripts';
+import BinaryCubeHero from './_components/BinaryCubeHero';
 import { bricolage, inter, jetbrains } from './fonts';
 import './finance.css';
 
@@ -106,109 +107,13 @@ export default function FinanceConsultingPage() {
                 </div>
               </div>
 
-              {/* ROTATING CUBE */}
-              <div className="cube-stage">
-                <div className="cube">
-                  {/* FRONT — yen */}
-                  <div className="face f-front">
-                    <div className="corner">
-                      <span>01 · GIFT.FIN</span>
-                      <span className="ch">●</span>
-                    </div>
-                    <div className="yen">¥</div>
-                    <div className="yen-sub">FINANCE CONSULTING / 財務</div>
-                  </div>
-
-                  {/* RIGHT — approval rate */}
-                  <div className="face f-right">
-                    <div className="corner">
-                      <span>02 · APPROVAL</span>
-                      <span className="ch">▲</span>
-                    </div>
-                    <div className="big" data-cube-count="90">
-                      90<sup>%+</sup>
-                    </div>
-                    <div className="lbl">融資承認率</div>
-                  </div>
-
-                  {/* BACK — capital with sparkline */}
-                  <div className="face f-back">
-                    <div className="corner">
-                      <span>03 · CAPITAL</span>
-                      <span className="ch">▲ +23.6%</span>
-                    </div>
-                    <div>
-                      <div className="chart-val">¥10億+</div>
-                      <div
-                        className="lbl"
-                        style={{ fontSize: 10, marginTop: 6, color: 'rgba(243,241,231,.4)' }}
-                      >
-                        累計融資調達額
-                      </div>
-                    </div>
-                    <svg className="spark" viewBox="0 0 200 60" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="finance-cube-fill" x1="0" x2="0" y1="0" y2="1">
-                          <stop offset="0%" stopColor="#e63946" stopOpacity=".5" />
-                          <stop offset="100%" stopColor="#e63946" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-                      <path
-                        d="M0,50 L20,46 L40,48 L60,40 L80,42 L100,32 L120,34 L140,22 L160,24 L180,12 L200,8 L200,60 L0,60 Z"
-                        fill="url(#finance-cube-fill)"
-                      />
-                      <path
-                        d="M0,50 L20,46 L40,48 L60,40 L80,42 L100,32 L120,34 L140,22 L160,24 L180,12 L200,8"
-                        fill="none"
-                        stroke="#e63946"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-
-                  {/* LEFT — portfolio */}
-                  <div className="face f-left">
-                    <div className="corner">
-                      <span>04 · PORTFOLIO</span>
-                      <span className="ch">▲</span>
-                    </div>
-                    <div className="big">
-                      30<sup>社+</sup>
-                    </div>
-                    <div className="lbl">支援企業 / portfolio</div>
-                  </div>
-
-                  {/* TOP — GIFT mark */}
-                  <div className="face f-top">
-                    <div className="corner">
-                      <span>05 · BRAND</span>
-                      <span className="ch">●</span>
-                    </div>
-                    <div className="mark">
-                      GIFT<span className="dot"></span>
-                    </div>
-                    <div className="lbl" style={{ textAlign: 'center' }}>
-                      株式会社 GIFT · est. 2018
-                    </div>
-                  </div>
-
-                  {/* BOTTOM — pulse dots */}
-                  <div className="face f-bottom">
-                    <div className="corner">
-                      <span>06 · LIVE</span>
-                      <span className="ch">REAL-TIME</span>
-                    </div>
-                    <div className="pulse-dots">
-                      {Array.from({ length: 18 }).map((_, i) => (
-                        <div key={i} />
-                      ))}
-                    </div>
-                    <div className="lbl" style={{ textAlign: 'right' }}>
-                      FINANCE × DATA × HUMAN
-                    </div>
-                  </div>
-                </div>
+              {/* BINARY CUBE — 3D model swap. The previous CSS cube (six
+                  styled faces with KPI content) is replaced by the
+                  binary-cube.glb asset, rendered via R3F. The stage
+                  container keeps the same square box so the hero grid
+                  layout is unchanged. */}
+              <div className="cube-stage cube-stage--3d">
+                <BinaryCubeHero />
               </div>
             </div>
 
@@ -242,9 +147,7 @@ export default function FinanceConsultingPage() {
         <section className="pad">
           <div className="wrap">
             <div className="section-tag in-view">
-              <span>
-                <span className="num">01 /</span> Thesis
-              </span>
+              <span>Thesis</span>
               <span>株式会社 GIFT</span>
             </div>
             <h2 className="bighead in-view">
@@ -305,9 +208,7 @@ export default function FinanceConsultingPage() {
         <section className="pad" style={{ paddingTop: 0 }} id="services">
           <div className="wrap">
             <div className="section-tag in-view">
-              <span>
-                <span className="num">02 /</span> Services
-              </span>
+              <span>Services</span>
               <span>2 pillars</span>
             </div>
             <h2 className="bighead in-view">
@@ -323,10 +224,8 @@ export default function FinanceConsultingPage() {
                         <path d="M3 21h18M5 21V10l7-4 7 4v11M9 21v-6h6v6" />
                       </svg>
                     </div>
-                    <span>Pillar 01</span>
                     <span className="badge">融資・資金調達</span>
                   </div>
-                  <span className="arr">↗</span>
                 </div>
                 <div className="body">
                   <h3>
@@ -347,10 +246,8 @@ export default function FinanceConsultingPage() {
                         <path d="M3 17l6-6 4 4 8-8M14 7h7v7" />
                       </svg>
                     </div>
-                    <span>Pillar 02</span>
                     <span className="badge">経営コンサル</span>
                   </div>
-                  <span className="arr">↗</span>
                 </div>
                 <div className="body">
                   <h3>
@@ -371,9 +268,7 @@ export default function FinanceConsultingPage() {
         <section className="pad approach">
           <div className="wrap">
             <div className="section-tag in-view">
-              <span>
-                <span className="num">03 /</span> Approach
-              </span>
+              <span>Approach</span>
               <span>伴走型</span>
             </div>
             <h2 className="bighead in-view">
@@ -399,7 +294,6 @@ export default function FinanceConsultingPage() {
                       <h4>{s.title}</h4>
                       <p>{s.body}</p>
                     </div>
-                    <span className="step-arr">↗</span>
                   </div>
                 ))}
               </div>
@@ -455,7 +349,6 @@ export default function FinanceConsultingPage() {
                   <li key={line}>
                     <span className="n">{String(i + 1).padStart(2, '0')}</span>
                     <span className="t">{line}</span>
-                    <span className="a">→</span>
                   </li>
                 ))}
               </ul>
@@ -467,9 +360,7 @@ export default function FinanceConsultingPage() {
         <section className="pad cta" id="contact">
           <div className="wrap">
             <div className="section-tag in-view">
-              <span>
-                <span className="num">04 /</span> Contact
-              </span>
+              <span>Contact</span>
               <span>Let&apos;s talk</span>
             </div>
             <h2 className="cta-h in-view">
@@ -479,22 +370,8 @@ export default function FinanceConsultingPage() {
             </h2>
             <div className="cta-actions in-view">
               <a href="/contact" className="btn btn-pri">
-                無料相談を予約 <span className="a">→</span>
+                無料相談を予約
               </a>
-            </div>
-            <div className="cta-meta in-view">
-              <div>
-                <b>株式会社 GIFT</b>Finance Consulting
-              </div>
-              <div>
-                <b>info@gift-inc.org</b>Email
-              </div>
-              <div>
-                <b>Tokyo · JP</b>Headquarters
-              </div>
-              <div>
-                <b>FY 2026 / Q3</b>Fiscal period
-              </div>
             </div>
           </div>
         </section>

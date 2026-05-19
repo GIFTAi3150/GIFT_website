@@ -122,6 +122,98 @@
   width: 100% !important;
   height: 100% !important;
 }
+/* Editorial labels floating above the 3D scene. The monitor lives in
+   the left half of the canvas (MONITOR_POS.x = -0.25) and the ramen
+   on the right (RAMEN_POS.x = +0.25), so the labels track those zones
+   from above. Type cadence (caps tracking + script subtitle) matches
+   the rest of the page — keeps the section reading editorial, not
+   "annotation layer." */
+.dx-v3 .hero-3d-label {
+  position: absolute;
+  top: 7%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  pointer-events: none;
+  text-align: center;
+}
+/* Thin blurple accent rule above each label — same visual signature
+   the section heads use, repurposed at smaller scale here so the
+   labels read as section-style chrome rather than floating captions. */
+.dx-v3 .hero-3d-label .rule {
+  display: block;
+  width: 36px;
+  height: 2px;
+  background: var(--blue);
+  border-radius: 1px;
+}
+/* English line — mixed type: sans for the connecting words, italic
+   serif for the noun. Mirrors the masthead pattern ("Real outcomes,
+   real businesses.") so the label feels native to the page. */
+.dx-v3 .hero-3d-label .en {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, 2.4vw, 34px);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.dx-v3 .hero-3d-label .en em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--blue);
+  /* Italic serif sits slightly taller than the sans baseline at the
+     same px size — bump it up a touch and tuck the letter-spacing
+     so the two scripts feel weighted equal. */
+  font-size: 1.08em;
+  letter-spacing: -0.02em;
+}
+/* Japanese subtitle — the previous version was 11–13px with 0.18em
+   tracking on top of a muted gray. Kanji at that size with wide
+   tracking is genuinely unreadable. Bump the size, drop the tracking
+   to something kanji-friendly (kana can tolerate wide spacing; kanji
+   cannot), darken the color, and bring the weight up so strokes
+   read against the light blue gradient behind. */
+.dx-v3 .hero-3d-label .ja {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 1.25vw, 18px);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.dx-v3 .hero-3d-label-tv {
+  left: 14%;
+  transform: translateX(-50%);
+}
+.dx-v3 .hero-3d-label-ramen {
+  right: 14%;
+  transform: translateX(50%);
+}
+@media (max-width: 899px) {
+  .dx-v3 .hero-3d-label {
+    top: 5%;
+    gap: 8px;
+  }
+  .dx-v3 .hero-3d-label .rule {
+    width: 28px;
+  }
+  .dx-v3 .hero-3d-label-tv {
+    left: 24%;
+  }
+  .dx-v3 .hero-3d-label-ramen {
+    right: 24%;
+  }
+  .dx-v3 .hero-3d-label .en {
+    font-size: 19px;
+  }
+  .dx-v3 .hero-3d-label .ja {
+    font-size: 13px;
+  }
+}
 /* Particle-cloud version of the GIFT brand mark. Lives inside the hero
    as a decorative WebGL backdrop with the masthead text floating above
    (the text has higher z-index via .hero-stage-inner). */
@@ -938,6 +1030,14 @@
   padding: 140px 32px;
   background: var(--paper);
 }
+@media (max-width: 899px) {
+  /* 140px above the heading is too much on a phone — tighten it so
+     the heading and the pinned slider sit closer together. */
+  .dx-v3 #features.sec {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
 .dx-v3 .sec.tinted {
   background: var(--paper-2);
 }
@@ -1699,6 +1799,17 @@
   align-items: center;
   justify-content: center;
 }
+@media (max-width: 899px) {
+  /* On mobile the section heading sits in static flow above the
+     pin-frame, so centering the card in a 100vh frame leaves a ~50vh
+     gap between the headline and the first card when the section
+     first enters the viewport. Anchor the slider near the top of the
+     frame on mobile to close that gap. */
+  .dx-v3 .cascade-pin-frame {
+    align-items: flex-start;
+    padding-top: 24px;
+  }
+}
 .dx-v3 .cascade-slider {
   position: relative;
   width: 100%;
@@ -2004,10 +2115,18 @@
   height: 100%;
 }
 @media (max-width: 899px) {
-  .dx-v3 .cases-slider-stack { height: 260vh; }
+  /* The card stacks .left text + .right image vertically on mobile.
+     Content height is roughly: 56px padding + ~80px num + ~25px label
+     + ~110px h3 (2 lines) + ~130px desc (3 lines) + ~120px bullets
+     ≈ 520px for .left, plus ~200px for the 16:9 image = ~720-760px
+     total. The previous 600px cap clipped the second bullet and let
+     the image overlap the text. Give the track enough room to fit
+     everything, and bump the scroll runway proportionally so the
+     scrub-slider still feels paced. */
+  .dx-v3 .cases-slider-stack { height: 300vh; }
   .dx-v3 .cases-slider-track {
     width: 92vw;
-    height: min(82vh, 600px);
+    height: clamp(740px, 95vh, 880px);
   }
   .dx-v3 .case-card .case-block .left {
     padding: 28px 22px;
@@ -2015,6 +2134,13 @@
   .dx-v3 .case-card .case-block .left .num {
     font-size: clamp(56px, 14vw, 90px);
     margin-bottom: 10px;
+  }
+  /* On mobile the case-block stacks vertically — drop the 520px
+     min-height that was forcing the photo panel to be portrait-tall,
+     and lock it to 16:9 so the landscape images fit with no crop. */
+  .dx-v3 .case-card .case-block .right {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -2030,52 +2156,17 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-/* Per-card alternating palette. Cards are now wrapped in .case-card
-   so each .case-block is first-child of its parent — :nth-child must
-   target .case-card directly instead. */
-.dx-v3 .case-card:nth-child(odd) .case-block .left {
+/* Uniform palette for every case card. We used to alternate the
+   right panel to dark blue on even cards (and swap left/right on
+   desktop), but now that every card shows a real photo on the right
+   the alternating overrides just made Case 02 look inconsistent —
+   the white-on-dark badge style was the giveaway. Single light
+   palette across all three cards. */
+.dx-v3 .case-card .case-block .left {
   background: var(--paper);
 }
-.dx-v3 .case-card:nth-child(odd) .case-block .right {
+.dx-v3 .case-card .case-block .right {
   background: var(--paper-3);
-}
-.dx-v3 .case-card:nth-child(even) .case-block .left {
-  background: var(--paper-2);
-}
-.dx-v3 .case-card:nth-child(even) .case-block .right {
-  background: var(--blue);
-  color: #fff;
-}
-@media (min-width: 900px) {
-  .dx-v3 .case-card:nth-child(even) .case-block .left {
-    order: 2;
-  }
-  .dx-v3 .case-card:nth-child(even) .case-block .right {
-    order: 1;
-  }
-}
-.dx-v3 .case-card:nth-child(even) .case-block .right .badge {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.08);
-}
-.dx-v3 .case-card:nth-child(even) .case-block .right .big-num {
-  -webkit-text-stroke-color: rgba(255, 255, 255, 0.55);
-}
-.dx-v3 .case-card:nth-child(even) .case-block .right .theme .en {
-  color: #fff;
-}
-.dx-v3 .case-card:nth-child(even) .case-block .right .theme .ja {
-  color: rgba(255, 255, 255, 0.7);
-}
-.dx-v3 .case-card:nth-child(even) .case-block .right .case-vis {
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0,
-    transparent 55px,
-    rgba(255, 255, 255, 0.1) 55px,
-    rgba(255, 255, 255, 0.1) 56px
-  );
 }
 .dx-v3 .case-block .left {
   padding: 96px 48px;
@@ -2212,6 +2303,25 @@
   border-radius: 99px;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(6px);
+  /* Sits above the case-image. */
+  z-index: 2;
+}
+/* Real case photo — fills the right column, cropping to fit so any
+   aspect ratio looks clean. The badge above (z-index: 2) and the
+   .case-vis horizontal-rule pattern (rendered as background-image on
+   .case-vis itself) sit on top; this image sits on the layer below. */
+.dx-v3 .case-vis .case-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Photos are 16:9 with the subject framed slightly above center —
+     pull the crop window up a touch so the face stays anchored when
+     the right column is portrait-ish on desktop. */
+  object-position: 50% 38%;
+  z-index: 1;
+  display: block;
 }
 
 /* ============================================================

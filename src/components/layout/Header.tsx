@@ -255,13 +255,13 @@ export default function Header() {
           aria-current={isActive('/company') ? 'page' : undefined}
         >
           <span
-            className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+            className={`inline-block w-[170px] font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
               justClicked('/company') ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
             }`}
           >
             ABOUT
           </span>
-          <span aria-hidden className="h-6 w-px bg-[var(--nav-border)]" />
+          <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
           <span className="font-sans text-[15px] font-medium text-gift-silver">
             会社概要
           </span>
@@ -274,13 +274,13 @@ export default function Header() {
             className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked('/services') ? 'opacity-60' : ''}`}
           >
             <span
-              className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+              className={`inline-block w-[170px] text-left font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
                 justClicked('/services') ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
               }`}
             >
               SERVICE
             </span>
-            <span aria-hidden className="h-6 w-px bg-[var(--nav-border)]" />
+            <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
             <span className="font-sans text-[15px] font-medium text-gift-silver">
               事業内容
             </span>
@@ -329,13 +329,13 @@ export default function Header() {
             aria-current={isActive(item.href) ? 'page' : undefined}
           >
             <span
-              className={`font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+              className={`inline-block w-[170px] font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
                 justClicked(item.href) ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
               }`}
             >
               {item.en}
             </span>
-            <span aria-hidden className="h-6 w-px bg-[var(--nav-border)]" />
+            <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
             <span className="font-sans text-[15px] font-medium text-gift-silver">
               {item.ja}
             </span>

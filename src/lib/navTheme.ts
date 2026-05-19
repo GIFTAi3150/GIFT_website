@@ -73,10 +73,30 @@ const DX_CONSULTING_THEME: NavTheme = {
   logoInner: '#f5f7ff',                     // paper cutout — reads as negative space
 };
 
+// Mirrors the .finance-page CSS palette in
+// src/app/services/finance-consulting/finance.css:
+//   --paper #f3f1e7 / --ink #0a0908 / --cherry #e63946.
+// The finance design is editorial-print: warm off-white background,
+// near-black ink, cherry red as the accent voice. Header + Footer
+// inherit the same palette so chrome reads as one piece with the page.
+const FINANCE_THEME: NavTheme = {
+  bg: '#f3f1e7',                            // paper
+  bgAlpha: 'rgba(243, 241, 231, 0.95)',
+  bgFull: '#f3f1e7',
+  accent: '#e63946',                        // cherry — page's signature accent
+  accentDeep: '#c1232f',                    // cherry-deep — hover-on-hover
+  border: '#d6d2c2',                        // warm hairline that reads on paper
+  bgAlt: '#e8e5d6',                         // paper-2 — dropdown hover band
+  ink: '#0a0908',                           // near-black ink
+  muted: '#454238',                         // ink-soft
+  logoShield: '#e63946',                    // cherry — page brand stays primary
+  logoInner: '#f3f1e7',                     // paper cutout — reads as negative space
+};
+
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],
-  // Add more service themes here as they get designed (Finance, …).
+  [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
 ];
 
 export function getNavThemeForPath(pathname: string): NavTheme {

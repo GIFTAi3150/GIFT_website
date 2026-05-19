@@ -989,6 +989,26 @@ export default function Hero3D() {
 
   return (
     <div className="hero-3d" aria-hidden>
+      {/* Editorial labels floating above the 3D scene. Each one
+          anchors to the rough screen position of its subject (monitor
+          on the left, ramen on the right) and stays put while the
+          camera spins — they're page chrome, not 3D annotations.
+          pointer-events:none keeps the canvas drag-to-rotate working
+          through the label area. */}
+      <div className="hero-3d-label hero-3d-label-tv">
+        <span className="rule" aria-hidden />
+        <span className="en">
+          Built in <em>Hokkaido.</em>
+        </span>
+        <span className="ja">北海道で、つくる。</span>
+      </div>
+      <div className="hero-3d-label hero-3d-label-ramen">
+        <span className="rule" aria-hidden />
+        <span className="en">
+          Fueled by <em>ramen.</em>
+        </span>
+        <span className="ja">ラーメンで、動く。</span>
+      </div>
       <Canvas
         // Camera starts wide — <Bounds fit> below repositions it
         // automatically once the model loads to frame the scene.

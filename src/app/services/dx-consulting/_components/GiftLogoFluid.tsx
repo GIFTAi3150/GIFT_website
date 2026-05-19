@@ -1416,8 +1416,6 @@ export default function GiftLogoFluid() {
   // smoothly toward this index's target row each frame, so every step
   // plays as a particle-flow cross-fade between two forms.
   const [formIdx, setFormIdx] = useState(0);
-  const stepForm = (delta: number) =>
-    setFormIdx((i) => (i + delta + FORM_VALUES.length) % FORM_VALUES.length);
 
   // Pause the GPU sim when the hero is off-screen. Without this the
   // FBO ping-pong keeps running all the way down the page, contending
@@ -1437,9 +1435,31 @@ export default function GiftLogoFluid() {
     return () => io.disconnect();
   }, []);
 
+  // Auto-cycle the form every 12 seconds while the hero is on-screen.
+  // Gated on frameloop so when the user scrolls past, we stop firing
+  // setState (would otherwise keep ticking and re-rendering invisibly).
+  useEffect(() => {
+    if (frameloop !== 'always') return;
+    const id = window.setInterval(() => {
+      setFormIdx((i) => (i + 1) % FORM_VALUES.length);
+    }, 12_000);
+    return () => window.clearInterval(id);
+  }, [frameloop]);
+
+  // Mount guard. R3F's <Canvas> serializes to an empty <canvas> on
+  // the server but the client hydrator immediately attaches WebGL
+  // state, sets DPR-scaled width/height, and registers pointer
+  // listeners — that delta blows up hydration with a "server HTML
+  // doesn't match client" error. Deferring the Canvas mount until
+  // after first client render keeps SSR output and the initial
+  // client output identical (both: just the heroRef'd div).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   return (
     <>
       <div className="hero-particles" ref={heroRef}>
+        {mounted && (
         <Canvas
           frameloop={frameloop}
           camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
@@ -1466,6 +1486,7 @@ export default function GiftLogoFluid() {
             <FluidParticles formIdx={formIdx} />
           </Suspense>
         </Canvas>
+        )}
         {/* Touch-capture overlay — invisible, sized via CSS to roughly the
             logo's visible region. Inside this rect, touch-action: none
             keeps the gesture for the particles (vertical swipes register
@@ -1474,60 +1495,6 @@ export default function GiftLogoFluid() {
             page and scroll normally. */}
         <div className="hero-particles-touch" aria-hidden />
       </div>
-      {/* Left/right arrow controls — cycle through FORM_VALUES.
-          - SIBLINGS of .hero-particles so they're not under that wrapper's
-            pointer-events: none cascade.
-          - `position: absolute` (not fixed) so the buttons are anchored
-            to the hero region — they scroll out of view once the user
-            leaves the hero, instead of riding the viewport down to the
-            footer. The nearest positioned ancestor is the hero stage
-            (DxV3Page wraps GiftLogoFluid in `<div className="absolute
-            inset-0">`, which gives us a 100vh stacking box to attach to).
-          - top-1/2 -translate-y-1/2 vertically centres them within the
-            hero. z-30 puts them above the canvas but stays inside the
-            hero's local stacking context. */}
-      <button
-        type="button"
-        onClick={() => stepForm(-1)}
-        style={{ pointerEvents: 'auto' }}
-        className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gift-ink/30 bg-white/90 text-gift-ink shadow-lg backdrop-blur-sm transition-colors hover:bg-white sm:left-6 sm:h-12 sm:w-12"
-        aria-label="Previous form"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-      <button
-        type="button"
-        onClick={() => stepForm(1)}
-        style={{ pointerEvents: 'auto' }}
-        className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gift-ink/30 bg-white/90 text-gift-ink shadow-lg backdrop-blur-sm transition-colors hover:bg-white sm:right-6 sm:h-12 sm:w-12"
-        aria-label="Next form"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </button>
     </>
   );
 }

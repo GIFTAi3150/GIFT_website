@@ -945,8 +945,46 @@ export default function DxV3Page() {
     // then locks to its final letter after a short duration. Stagger
     // per char gives the "matrix decoding" cascade. Works on any
     // group of pre-split character spans.
-    const scrambleGlyphs =
-      '!<>-_\\/[]{}=+*^?#█▓░ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+    //
+    // Per-script pools: each character only decodes through glyphs
+    // that match its own script, so English chars only pass through
+    // Latin letters (uppercase/lowercase preserved) and Japanese chars
+    // only pass through hiragana/katakana. Without this the scramble
+    // would mix box-drawing chars, katakana, and digits into every
+    // word, which looked incoherent next to the clean editorial type.
+    const SCRAMBLE_LATIN_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const SCRAMBLE_LATIN_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+    const SCRAMBLE_DIGIT = '0123456789';
+    const SCRAMBLE_HIRA = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
+    const SCRAMBLE_KATA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    const pickGlyph = (finalChar: string): string => {
+      const code = finalChar.charCodeAt(0);
+      // Hiragana U+3040-309F
+      if (code >= 0x3040 && code <= 0x309f) {
+        return SCRAMBLE_HIRA[Math.floor(Math.random() * SCRAMBLE_HIRA.length)];
+      }
+      // Katakana U+30A0-30FF
+      if (code >= 0x30a0 && code <= 0x30ff) {
+        return SCRAMBLE_KATA[Math.floor(Math.random() * SCRAMBLE_KATA.length)];
+      }
+      // CJK kanji U+3400-9FFF — pool from kana (random kanji would be
+      // a huge set and would change the apparent reading too wildly).
+      if (code >= 0x3400 && code <= 0x9fff) {
+        const pool = SCRAMBLE_HIRA + SCRAMBLE_KATA;
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+      if (code >= 0x30 && code <= 0x39) {
+        return SCRAMBLE_DIGIT[Math.floor(Math.random() * SCRAMBLE_DIGIT.length)];
+      }
+      if (code >= 0x41 && code <= 0x5a) {
+        return SCRAMBLE_LATIN_UPPER[Math.floor(Math.random() * SCRAMBLE_LATIN_UPPER.length)];
+      }
+      if (code >= 0x61 && code <= 0x7a) {
+        return SCRAMBLE_LATIN_LOWER[Math.floor(Math.random() * SCRAMBLE_LATIN_LOWER.length)];
+      }
+      // Punctuation, symbols, anything else — leave untouched.
+      return finalChar;
+    };
     const scrambleSpans = (
       charSpans: HTMLElement[],
       opts: { startDelay?: number; charDuration?: number; stagger?: number } = {}
@@ -966,8 +1004,7 @@ export default function DxV3Page() {
 
         for (let t = 0; t < ticks; t++) {
           gsap.delayedCall(startTime + t * tickInterval, () => {
-            span.textContent =
-              scrambleGlyphs[Math.floor(Math.random() * scrambleGlyphs.length)];
+            span.textContent = pickGlyph(finalChar);
           });
         }
         gsap.delayedCall(startTime + charDuration, () => {
@@ -1624,18 +1661,12 @@ export default function DxV3Page() {
         <div className="sec" style={{ paddingBottom: 0, background: 'var(--paper)' }}>
           <div className="wrap">
             <div className="sec-head">
-              <div className="num">04 — Case Studies</div>
               <h2>
                 Real outcomes,
                 <br />
                 <em>real businesses.</em>
                 <span className="ja">活用事例</span>
               </h2>
-              <div className="meta">
-                03 cases
-                <br />
-                Selected
-              </div>
             </div>
           </div>
         </div>
@@ -1674,13 +1705,12 @@ export default function DxV3Page() {
           <div className="right">
             <div className="case-vis">
               <div className="badge">CASE 01 / TELECOM</div>
-              <div className="case-poster">
-                <div className="big-num">01</div>
-                <div className="theme">
-                  <span className="en">TELECOM</span>
-                  <span className="ja">通信</span>
-                </div>
-              </div>
+              <img
+                className="case-image"
+                src="/img/cases/wifi_2_50.png"
+                alt="光回線の開通手続きの自動案内"
+                loading="lazy"
+              />
             </div>
           </div>
         </div></div>
@@ -1712,13 +1742,12 @@ export default function DxV3Page() {
           <div className="right">
             <div className="case-vis">
               <div className="badge">CASE 02 / BEAUTY</div>
-              <div className="case-poster">
-                <div className="big-num">02</div>
-                <div className="theme">
-                  <span className="en">BEAUTY</span>
-                  <span className="ja">美容</span>
-                </div>
-              </div>
+              <img
+                className="case-image"
+                src="/img/cases/remainder_2_50.png"
+                alt="エステサロンの予約管理をLステップで一元化"
+                loading="lazy"
+              />
             </div>
           </div>
         </div></div>
@@ -1750,13 +1779,12 @@ export default function DxV3Page() {
           <div className="right">
             <div className="case-vis">
               <div className="badge">CASE 03 / LOCAL</div>
-              <div className="case-poster">
-                <div className="big-num">03</div>
-                <div className="theme">
-                  <span className="en">LOCAL</span>
-                  <span className="ja">地域</span>
-                </div>
-              </div>
+              <img
+                className="case-image"
+                src="/img/cases/coupon_2_50.png"
+                alt="地域限定のクーポン・お得情報の配信"
+                loading="lazy"
+              />
             </div>
           </div>
         </div></div>
@@ -1907,22 +1935,6 @@ export default function DxV3Page() {
           <div className="row">
             <a href="/contact" className="btn primary">
               <span>無料相談を予約</span>
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14" />
-                <path d="m13 5 7 7-7 7" />
-              </svg>
-            </a>
-            <a href="/contact" className="btn ghost">
-              <span>資料をダウンロード</span>
             </a>
           </div>
         </div>

@@ -6,6 +6,12 @@ import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
 import HistoryCarousel from '@/components/sections/HistoryCarousel';
 import FadeUpText from '@/components/ui/FadeUpText';
+import dynamic from 'next/dynamic';
+
+// R3F globe — client-only. Dynamic-import with ssr:false avoids the
+// same hydration mismatch the BinaryCubeHero hit when a <Canvas> got
+// server-rendered.
+const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
 
 export const metadata: Metadata = {
   title: '会社概要',
@@ -596,16 +602,12 @@ export default function CompanyPage() {
                   </a>
                 </div>
                 <div className="lg:col-span-3">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-gift-border">
-                    <iframe
-                      src={`https://maps.google.com/maps?q=${encodeURIComponent('北海道札幌市中央区南一条西7丁目21番地1 サントービル')}&t=&z=17&ie=UTF8&iwloc=&output=embed`}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="absolute inset-0 h-full w-full"
-                      style={{ border: 0 }}
-                      title="GIFT office map"
-                      allowFullScreen
-                    />
+                  {/* Interactive R3F globe. Replaces the previous
+                      Google Maps iframe — the directions button on
+                      the left column still opens the real map in a
+                      new tab, so we don't lose the practical link. */}
+                  <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-gift-border bg-[#04101c] sm:aspect-[16/10]">
+                    <AccessGlobe />
                   </div>
                 </div>
               </div>
