@@ -6,11 +6,14 @@ import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
 import HistoryCarousel from '@/components/sections/HistoryCarousel';
 import FadeUpText from '@/components/ui/FadeUpText';
+import CeoMessageReveal from './_components/CeoMessageReveal';
 import dynamic from 'next/dynamic';
 
 // R3F globe — client-only. Dynamic-import with ssr:false avoids the
-// same hydration mismatch the BinaryCubeHero hit when a <Canvas> got
-// server-rendered.
+// hydration mismatch you get when an R3F <Canvas> is server-rendered
+// (the server emits an empty <canvas>, then the client hydrator
+// immediately attaches WebGL state + DPR-scaled attributes — those
+// don't match and React errors out).
 const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
 
 export const metadata: Metadata = {
@@ -310,7 +313,7 @@ export default function CompanyPage() {
 
         {/* CEO Message */}
         <Reveal>
-          <section className="relative overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
             {/* Giant faded logo as background watermark */}
             <div
               aria-hidden
@@ -367,12 +370,14 @@ export default function CompanyPage() {
               </p>
 
               <p
+                data-ceo-text
                 className="mb-6 font-sans font-light text-gift-silver"
                 style={{ lineHeight: '2' }}
               >
                 かつて、自分の人生について深く考えたのは、ある出来事がキッカケだった。
               </p>
               <p
+                data-ceo-text
                 className="mb-6 font-sans font-light text-gift-silver"
                 style={{ lineHeight: '2' }}
               >
@@ -381,6 +386,7 @@ export default function CompanyPage() {
                 それら全てが「キッカケ」という貴重なギフトだと気づいた。
               </p>
               <p
+                data-ceo-text
                 className="mb-6 font-sans font-light text-gift-silver"
                 style={{ lineHeight: '2' }}
               >
@@ -388,9 +394,15 @@ export default function CompanyPage() {
                 株式会社GIFTを設立し『人と企業の人生に寄り添いながら』事業を展開していくこと。
                 そして、誰かの人生を変えるような「キッカケ」というギフトを与え続けること。
               </p>
-              <p className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+              <p data-ceo-text className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
                 そんな会社を目指し、今日も私たちは前進する。
               </p>
+              {/* Side-effect-only client component — splits the
+                  data-ceo-text paragraphs above into clause spans and
+                  scrubs each one's opacity/scale/blur against scroll
+                  position, so every scroll tick "bumps forward" the
+                  next clause into a fully readable state. */}
+              <CeoMessageReveal />
               <p className="mt-8 font-sans text-normal text-gift-ink">
                 株式会社GIFT 代表取締役
                 <br />

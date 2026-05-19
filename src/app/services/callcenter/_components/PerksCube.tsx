@@ -520,7 +520,7 @@ function MetaRow({ p }: { p: Perk }) {
       </div>
       {p.stat && (
         <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-          <div style={styles.bigStat}>{p.stat}</div>
+          <div className="pc-bigstat" style={styles.bigStat}>{p.stat}</div>
           <div
             style={{
               fontFamily: 'var(--font-display)',
@@ -556,7 +556,7 @@ function PerkSwitch({ p }: { p: Perk }) {
   if (p.anim === 'wordsUp') {
     const words = p.title.split(/(?<=[、。])/);
     return (
-      <div style={styles.perkArea}>
+      <div className="pc-perkarea" style={styles.perkArea}>
         <h3 style={styles.perkTitle}>
           {words.map((w, i) => (
             <span
@@ -581,7 +581,7 @@ function PerkSwitch({ p }: { p: Perk }) {
   if (p.anim === 'lettersIn') {
     const chars = [...p.title];
     return (
-      <div style={styles.perkArea}>
+      <div className="pc-perkarea" style={styles.perkArea}>
         <h3 style={{ ...styles.perkTitle, overflow: 'hidden' }}>
           {chars.map((c, i) => (
             <span
@@ -605,7 +605,7 @@ function PerkSwitch({ p }: { p: Perk }) {
 
   if (p.anim === 'maskRight') {
     return (
-      <div style={styles.perkArea}>
+      <div className="pc-perkarea" style={styles.perkArea}>
         <h3
           style={{
             ...styles.perkTitle,
@@ -642,7 +642,7 @@ function PerkSwitch({ p }: { p: Perk }) {
 
   if (p.anim === 'typeIn') {
     return (
-      <div style={styles.perkArea}>
+      <div className="pc-perkarea" style={styles.perkArea}>
         <h3 style={{ ...styles.perkTitle, animation: 'twPcWordsUp .6s ease both' }}>{p.title}</h3>
         <p style={styles.perkBody}>
           {shown}
@@ -667,7 +667,7 @@ function PerkSwitch({ p }: { p: Perk }) {
 
   if (p.anim === 'tiltFlip') {
     return (
-      <div style={styles.perkArea}>
+      <div className="pc-perkarea" style={styles.perkArea}>
         <h3
           style={{
             ...styles.perkTitle,
@@ -693,7 +693,7 @@ function PerkSwitch({ p }: { p: Perk }) {
 
   // fadeBlur (default)
   return (
-    <div style={styles.perkArea}>
+    <div className="pc-perkarea" style={styles.perkArea}>
       <h3
         style={{
           ...styles.perkTitle,

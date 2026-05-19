@@ -34,11 +34,20 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js';
 
-// Head GLB — same model the HeadSkullScene test page uses. Has a Skull
-// sub-mesh + a stack of face meshes; we sample particles ONLY from the
-// face meshes so the cloud renders as the outer head silhouette.
-const HEAD_PATH = '/face-skull.glb';
+// The "head" form is split between TWO GLBs now:
+//   - HEAD_PATH (bob-marley.glb): single mesh "BobMarleyBust" — the
+//     particle silhouette samples from here, so the cloud renders as
+//     Bob Marley's bust on land/head form. (Previously this was
+//     face-skull.glb's face meshes — a women's head — which is now
+//     unused for particle sampling.)
+//   - SKULL_PATH (face-skull.glb): still the source of the gold
+//     "Skull" sub-mesh that ramps in on cursor-hover. Bob-marley.glb
+//     has no internal skull mesh, so the hover-reveal skull stays
+//     wired to face-skull.glb.
+const HEAD_PATH = '/models/bob-marley.glb';
+const SKULL_PATH = '/face-skull.glb';
 useGLTF.preload(HEAD_PATH);
+useGLTF.preload(SKULL_PATH);
 
 // ---- Logo geometry (same SVG paths the CPU version uses, kept identical
 // so the silhouette matches and we can hot-swap components) ----------------
@@ -572,7 +581,12 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
   // Head silhouette comes from a GLB. useGLTF suspends until the asset
   // loads (handled by the <Suspense> boundary wrapped around this
   // component); after that the scene is available synchronously.
+  // We pull from two separate GLBs:
+  //   - bobScene (bob-marley.glb) for the particle silhouette
+  //   - skullScene (face-skull.glb) for the gold "Skull" sub-mesh
+  //     used on hover-reveal — bob-marley.glb has no such sub-mesh.
   const { scene: headScene } = useGLTF(HEAD_PATH);
+  const { scene: skullScene } = useGLTF(SKULL_PATH);
 
   // Mirror the form index prop into a ref so useFrame can read it
   // without re-subscribing on every prop change. Indices map to the
@@ -704,7 +718,7 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
     // Read-only home position textures (the velocity shader samples them
     // every frame to compute the spring target). We bake THREE — one for
     // the GIFT logo silhouette, one for the pet (PixelRobot) shape, and
-    // one for the head (face-skull.glb) — and blend between them via the
+    // one for the head (bob-marley.glb) — and blend between them via the
     // per-form weight uniforms (uWLogo, uWPet, uWHead) which useFrame
     // animates whenever the user steps the form arrow.
     const homeData = new Float32Array(PARTICLE_COUNT * 4);
@@ -746,15 +760,17 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
     );
     petHomeTex.needsUpdate = true;
 
-    // Head shape — sampled from the face-skull.glb. We sample only from
-    // non-"Skull" meshes so the particle cloud forms the outer head
-    // silhouette (the underlying skull is never rendered here). Particles
-    // are distributed across face meshes in proportion to vertex count,
-    // mirroring how HeadSkullScene does it.
+    // Head shape — sampled from bob-marley.glb. The model is a single
+    // mesh ("BobMarleyBust") with no internal sub-meshes to exclude,
+    // so we sample from every mesh the scene exposes. Particles are
+    // distributed across meshes in proportion to vertex count — same
+    // weighting strategy the previous face-skull head used, kept here
+    // so the code generalises if a future GLB has multiple sub-meshes
+    // (e.g. hair vs face).
     const headPositions = new Float32Array(PARTICLE_COUNT * 3);
     const faceMeshes: THREE.Mesh[] = [];
     headScene.traverse((obj) => {
-      if (obj instanceof THREE.Mesh && obj.name !== 'Skull') {
+      if (obj instanceof THREE.Mesh) {
         faceMeshes.push(obj);
       }
     });
@@ -873,7 +889,11 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
     // a clone of the skull so the cached GLB stays clean.
     let skullObject: THREE.Mesh | null = null;
     const skullMaterials: Array<THREE.Material & { opacity: number }> = [];
-    headScene.traverse((obj) => {
+    // Source the Skull sub-mesh from face-skull.glb (skullScene) — the
+    // primary head silhouette is now sampled from bob-marley.glb,
+    // which has no Skull mesh of its own. The skull stays as the
+    // hover-reveal layer with its original animation.
+    skullScene.traverse((obj) => {
       if (obj instanceof THREE.Mesh && obj.name === 'Skull') {
         obj.updateMatrixWorld(true);
         const cloned = obj.clone();
@@ -881,6 +901,39 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
         // mesh can be re-parented without losing its in-scene placement.
         cloned.geometry = obj.geometry.clone();
         cloned.geometry.applyMatrix4(obj.matrixWorld);
+        // Normalize the skull to live at origin with unit half-extent.
+        // Previously the skull's native face-skull.glb coordinates
+        // happened to overlap the particle silhouette's (also from
+        // face-skull.glb) so passing Bob's headOffset/headFitScale
+        // to the primitive worked. Now the silhouette comes from
+        // bob-marley.glb — completely different coordinate space —
+        // so applying Bob's transform to face-skull-space geometry
+        // dropped the skull onto Bob's chin. Normalizing here means
+        // the skull lives in a known reference frame; the render below
+        // places it explicitly inside Bob's bust with a Y offset and
+        // a smaller scale (since a skull is INSIDE the head, not the
+        // size of the whole bust including shoulders).
+        cloned.geometry.computeBoundingBox();
+        const sBox = cloned.geometry.boundingBox;
+        if (sBox) {
+          const sCenter = new THREE.Vector3();
+          sBox.getCenter(sCenter);
+          const sSize = new THREE.Vector3();
+          sBox.getSize(sSize);
+          const sHalfExtent = Math.max(sSize.x, sSize.y, sSize.z) / 2;
+          if (sHalfExtent > 1e-4) {
+            cloned.geometry.applyMatrix4(
+              new THREE.Matrix4().makeTranslation(-sCenter.x, -sCenter.y, -sCenter.z)
+            );
+            cloned.geometry.applyMatrix4(
+              new THREE.Matrix4().makeScale(
+                1 / sHalfExtent,
+                1 / sHalfExtent,
+                1 / sHalfExtent
+              )
+            );
+          }
+        }
         cloned.position.set(0, 0, 0);
         cloned.rotation.set(0, 0, 0);
         cloned.scale.set(1, 1, 1);
@@ -1043,7 +1096,7 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
       headFitScale,
       headHalfExtent: headHalfExtent * headFitScale,
     };
-  }, [gl, headScene]);
+  }, [gl, headScene, skullScene]);
 
   // Instanced geometry: each instance has a baked UV pointing to its slot
   // in the GPU position texture. The vertex shader uses that UV to look up
@@ -1384,8 +1437,17 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
       {sim.skullObject && (
         <primitive
           object={sim.skullObject}
-          position={sim.headOffset}
-          scale={sim.headFitScale}
+          // Skull is now origin-centered with unit half-extent (see
+          // normalization in the useMemo above). Bob's bust spans
+          // ±sim.headHalfExtent on its dominant axis with the head
+          // occupying the upper portion — the +Y offset (~30% of the
+          // half-extent) places the skull inside Bob's head instead
+          // of his chin/center, and the scale (~40% of the half-extent)
+          // sizes it as a skull-inside-head rather than skull-the-size-
+          // of-bust. Tune these two constants if the skull lands too
+          // high/low or too big/small relative to Bob's silhouette.
+          position={[0, sim.headHalfExtent * 0.3, 0]}
+          scale={sim.headHalfExtent * 0.4}
         />
       )}
     </group>
@@ -1404,7 +1466,7 @@ function SceneLights() {
 }
 
 // Available particle forms in display order. 0 = head (sampled from
-// face-skull.glb, the default landing form), 1 = GIFT logo silhouette,
+// bob-marley.glb, the default landing form), 1 = GIFT logo silhouette,
 // 2 = pet (PixelRobot) silhouette. Left/right arrows step through this
 // list and wrap around at the ends. Extend the array to add more forms
 // later — the shader takes one weight uniform per form and the

@@ -2,8 +2,13 @@ import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import FinanceScripts from './_components/FinanceScripts';
-import BinaryCubeHero from './_components/BinaryCubeHero';
+import dynamic from 'next/dynamic';
 import { bricolage, inter, jetbrains } from './fonts';
+
+// R3F hero — dynamic-imported with ssr:false to dodge the <Canvas>
+// hydration mismatch (server emits empty <canvas>, client hydrator
+// attaches WebGL state — those differ).
+const DollarSignHero = dynamic(() => import('./_components/DollarSignHero'), { ssr: false });
 import './finance.css';
 
 export const metadata: Metadata = {
@@ -99,7 +104,7 @@ export default function FinanceConsultingPage() {
 
                 <div className="hero-actions">
                   <a href="/contact" className="btn btn-pri">
-                    無料相談を予約 <span className="a">→</span>
+                    無料相談を予約
                   </a>
                   <a href="#services" className="btn btn-ghost">
                     <u>提供内容を見る</u>
@@ -107,13 +112,13 @@ export default function FinanceConsultingPage() {
                 </div>
               </div>
 
-              {/* BINARY CUBE — 3D model swap. The previous CSS cube (six
-                  styled faces with KPI content) is replaced by the
-                  binary-cube.glb asset, rendered via R3F. The stage
-                  container keeps the same square box so the hero grid
-                  layout is unchanged. */}
+              {/* Hero asset: cherry-finished 3D "$" glyph from
+                  /models/dollar-sign.glb. Auto-rotates, can be grabbed
+                  and dragged on desktop + mobile. The .cube-stage
+                  wrapper preserves the square box from the original
+                  CSS-cube design so the hero grid layout is unchanged. */}
               <div className="cube-stage cube-stage--3d">
-                <BinaryCubeHero />
+                <DollarSignHero />
               </div>
             </div>
 

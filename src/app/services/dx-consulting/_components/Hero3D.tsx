@@ -8,6 +8,7 @@ import {
   Center,
   Bounds,
   OrbitControls,
+  Html,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -106,20 +107,14 @@ function DeskScene({
     const monitorBox = new THREE.Box3().setFromObject(monitorScene);
     const monitorSize = new THREE.Vector3();
     monitorBox.getSize(monitorSize);
-    // eslint-disable-next-line no-console
-    console.log(
-      `[Hero3D] ramen native: ${fmt(ramenSize)} (× ${RAMEN_SCALE} scale) — monitor: ${fmt(monitorSize)}`
-    );
-    // Dump the monitor's mesh names so we can identify clickable parts
-    // (power button, screen, etc.) and wire interactions to them.
-    // eslint-disable-next-line no-console
-    console.log('[Hero3D] monitor meshes:');
-    monitorScene.traverse((obj) => {
-      if ((obj as THREE.Mesh).isMesh) {
-        // eslint-disable-next-line no-console
-        console.log(`  · ${obj.name || '(unnamed)'} [${obj.type}]`);
-      }
-    });
+    // Diagnostic logging removed — it produced noisy mount-time output
+    // (model bbox dimensions, full mesh-name dump) that's no longer
+    // useful now that the model is identified and wired up. fmt() and
+    // the bbox calculation above are kept inert so re-introducing logs
+    // (or programmatic scaling) is a one-line edit.
+    void fmt;
+    void ramenSize;
+    void monitorSize;
   }, [ramenScene, monitorScene]);
 
   // Capture the default camera/target once Bounds has fitted them.
@@ -147,6 +142,34 @@ function DeskScene({
   const planarUvsRef = useRef<THREE.BufferAttribute | null>(null);
   const logoTextureRef = useRef<THREE.Texture | null>(null);
   const screenOnMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
+
+  // World positions of the two working buttons (tv004 = logo channel,
+  // tv005 = pixel/snake channel). Persistent "1" and "2" badges anchor
+  // here via drei <Html> so visitors immediately see WHICH parts of
+  // the monitor are interactive — without it the buttons read as
+  // decoration and the click-tooltip pattern made it look like every
+  // mesh was clickable. Computed once on mount from the monitor scene
+  // graph, then offset slightly along Z so the badge floats just in
+  // front of the button face rather than co-planar with it.
+  const [buttonPositions, setButtonPositions] = useState<{
+    logo: [number, number, number] | null;
+    pixel: [number, number, number] | null;
+  }>({ logo: null, pixel: null });
+  useEffect(() => {
+    const logoMesh = monitorScene.getObjectByName(LOGO_BUTTON_MESH_NAME);
+    const pixelMesh = monitorScene.getObjectByName(PIXEL_BUTTON_MESH_NAME);
+    const getPos = (m: THREE.Object3D | null | undefined): [number, number, number] | null => {
+      if (!m) return null;
+      m.updateMatrixWorld(true);
+      const v = new THREE.Vector3();
+      m.getWorldPosition(v);
+      return [v.x, v.y, v.z];
+    };
+    setButtonPositions({
+      logo: getPos(logoMesh),
+      pixel: getPos(pixelMesh),
+    });
+  }, [monitorScene]);
 
   // Locate the screen mesh, stash its native material, and compute a
   // PLANAR UV set we can swap in when the screen is "on." The mesh's
@@ -195,10 +218,6 @@ function DeskScene({
       uvData[i * 2 + 1] = v;
     }
     planarUvsRef.current = new THREE.BufferAttribute(uvData, 2);
-    // eslint-disable-next-line no-console
-    console.log(
-      `[Hero3D] planar UVs computed for screen mesh (axes ${uIdx},${vIdx}, ${positions.count} verts)`
-    );
   }, [monitorScene]);
 
   // Build the "screen on" texture once. Fetches the GIFT logo SVG,
@@ -224,19 +243,13 @@ function DeskScene({
           .replace(/#234a2d/gi, BRAND_SHIELD)
           .replace(/#ffffff/gi, BRAND_INNER)
           .replace(/#fff(?![0-9a-f])/gi, BRAND_INNER);
-        // eslint-disable-next-line no-console
-        console.log('[Hero3D] themed SVG length:', themed.length, 'first 240 chars:', themed.slice(0, 240));
         const dataUrl =
           'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(themed);
 
         const img = new window.Image();
         img.crossOrigin = 'anonymous';
         await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            // eslint-disable-next-line no-console
-            console.log(`[Hero3D] logo image loaded: ${img.naturalWidth}×${img.naturalHeight}`);
-            resolve();
-          };
+          img.onload = () => resolve();
           img.onerror = () => reject(new Error('logo image load failed'));
           img.src = dataUrl;
         });
@@ -837,16 +850,13 @@ function DeskScene({
       onPointerOut={() => setHovered(false)}
       onClick={(e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-        const name = (e.object as THREE.Object3D).name || 'object';
-        onClickMesh({
-          name,
-          clientX: e.nativeEvent.clientX,
-          clientY: e.nativeEvent.clientY,
-        });
         // Walk up the parent chain to find which "button" mesh was
         // hit, if any. tv004 toggles the logo channel, tv005 toggles
         // the pixel-grid channel. Other tv* parts (frame, knobs,
-        // speaker, antenna) just show the tooltip and do nothing.
+        // speaker, antenna, ground plane) are inert — we used to fire
+        // a tooltip with the raw mesh name on every click, but it
+        // surfaced strings like "tv001_low_tv_0" which read as noise.
+        // Now we only call onClickMesh when an actual button is hit.
         let current: THREE.Object3D | null = e.object;
         let buttonHit: 'logo' | 'pixels' | null = null;
         let buttonMesh: THREE.Object3D | null = null;
@@ -879,8 +889,6 @@ function DeskScene({
             ease: 'power2.inOut',
           });
         }
-        // eslint-disable-next-line no-console
-        console.log(`[Hero3D] click on "${name}" — buttonHit=${buttonHit}`);
         if (buttonHit) {
           // If the press is going to turn the current channel OFF
           // (user clicked the same button twice), zoom OUT to the
@@ -922,6 +930,125 @@ function DeskScene({
           material via a useEffect above — no JSX element needed. The
           material with the logo texture IS the screen, so it fits
           perfectly with zero gap. */}
+      {/* Button affordance badges — "1" and "2" labels pinned to the
+          world position of each working button so visitors instantly
+          spot which parts of the monitor do something on click. The
+          rest of the monitor (knobs, frame, antenna, ground) stays
+          passive (no click feedback). drei <Html> portals these to
+          the DOM as overlays, so they stay readable at any camera
+          angle and aren't depth-tested against the 3D meshes.
+
+          Each badge has TWO concentric elements:
+            - An outer halo that scale-pulses on a loop, drawing the
+              eye to the clickable region (especially important for
+              button 2 which previously got lost on the small-screen
+              bottom edge of the monitor).
+            - An inner solid disc with the number — the actual badge.
+          The keyframes are defined once inside the first badge's
+          <Html> portal (which is real DOM, so <style> is valid there —
+          a bare <style> as a direct child of <Canvas> would crash R3F
+          with "Style is not part of the THREE namespace"). Once the
+          @keyframes rule lands in document styles, both badges can
+          reference it; staggering button 2 by half a cycle prevents
+          the two pulses from feeling synchronized. */}
+      {buttonPositions.logo && (
+        <Html position={buttonPositions.logo} center zIndexRange={[20, 0]}>
+          <style>{`
+            @keyframes hero3dBadgePulse {
+              0%, 100% { transform: scale(1); opacity: 0.7; }
+              50%      { transform: scale(1.7); opacity: 0; }
+            }
+          `}</style>
+          <div
+            style={{
+              position: 'relative',
+              width: 34,
+              height: 34,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          >
+            {/* Pulsing halo */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background: 'rgba(99, 91, 255, 0.55)',
+                animation: 'hero3dBadgePulse 1.8s ease-out infinite',
+              }}
+            />
+            {/* Inner badge */}
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                background: 'rgba(99, 91, 255, 0.98)',
+                border: '2px solid #fff',
+                color: '#fff',
+                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                fontWeight: 800,
+                fontSize: 15,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 6px 16px rgba(11, 19, 64, 0.5)',
+              }}
+            >
+              1
+            </div>
+          </div>
+        </Html>
+      )}
+      {buttonPositions.pixel && (
+        <Html position={buttonPositions.pixel} center zIndexRange={[20, 0]}>
+          <div
+            style={{
+              position: 'relative',
+              width: 34,
+              height: 34,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          >
+            {/* Pulsing halo — half-cycle offset from button 1 so the
+                two badges don't pulse in lock-step. */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background: 'rgba(255, 77, 109, 0.55)',
+                animation: 'hero3dBadgePulse 1.8s ease-out infinite',
+                animationDelay: '0.9s',
+              }}
+            />
+            {/* Inner badge */}
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                background: 'rgba(255, 77, 109, 0.98)',
+                border: '2px solid #fff',
+                color: '#fff',
+                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                fontWeight: 800,
+                fontSize: 15,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 6px 16px rgba(11, 19, 64, 0.5)',
+              }}
+            >
+              2
+            </div>
+          </div>
+        </Html>
+      )}
     </group>
   );
 }

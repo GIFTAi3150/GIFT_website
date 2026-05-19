@@ -410,6 +410,13 @@
   font-size: 1.08em;
   letter-spacing: -0.012em;
   color: var(--purple);
+  /* Keep "Consulting." atomic — the scramble effect wraps each letter in
+     <span class="ch"> with display: inline-block, so without this the
+     browser is free to break between any letter and we saw "Consultin"
+     / "g." at narrower widths. The line still breaks cleanly at the
+     space after "DX". */
+  display: inline-block;
+  white-space: nowrap;
 }
 /* The hero scramble effect splits each row into <span class="ch"> per
    character on mount. Those child spans must also pick up the purple,

@@ -20,10 +20,6 @@ const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
 const GiftLogoFluid = dynamic(() => import('./GiftLogoFluid'), { ssr: false });
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GiftLogoParticles = dynamic(() => import('./GiftLogoParticles'), { ssr: false });
-// Companion 3D igloo (next to the particle logo in the hero). Pulls in
-// rapier physics → load client-only to avoid SSR + WASM mismatch.
-const IglooScene = dynamic(() => import('@/components/IglooScene'), { ssr: false });
-
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
 
