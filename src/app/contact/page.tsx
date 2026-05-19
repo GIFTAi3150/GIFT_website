@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -20,6 +20,12 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [inquiryType, setInquiryType] = useState('');
+
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get('inquiry');
+    if (v && inquiryTypes.some((t) => t.value === v)) setInquiryType(v);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -127,7 +133,13 @@ export default function ContactPage() {
                       </div>
 
                       <Field label="お問い合わせ種別" required>
-                        <select name="inquiryType" required className="contact-input" defaultValue="">
+                        <select
+                          name="inquiryType"
+                          required
+                          className="contact-input"
+                          value={inquiryType}
+                          onChange={(e) => setInquiryType(e.target.value)}
+                        >
                           <option value="" disabled>選択してください</option>
                           {inquiryTypes.map((t) => (
                             <option key={t.value} value={t.value}>{t.label}</option>

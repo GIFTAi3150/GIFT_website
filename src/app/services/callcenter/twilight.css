@@ -1,0 +1,208 @@
+/* Twilight palette — scoped to .twilight-scope only.
+   Sourced from Claude Design "GIFT Recruit (Warm v2)" UI kit.
+   These tokens override the green ones inside the wrapper so the
+   ported components inherit indigo/magenta/gold without polluting
+   the rest of the site. */
+
+.twilight-scope {
+  /* Stops the marquee's giant ghost type and any other oversized children
+     from inducing a horizontal scrollbar on the page (especially mobile). */
+  overflow-x: clip;
+
+  /* Core */
+  --r-cream:    #F2EBDC;
+  --r-ivory:    #F8F2E4;
+  --r-paper:    #FFFCF3;
+
+  --r-indigo:    #3D2EC4;
+  --r-indigo-d:  #2A1F94;
+  --r-indigo-l:  #6E5BE8;
+
+  --r-magenta:   #E5347A;
+  --r-magenta-d: #B81E5B;
+  --r-magenta-l: #F26AA1;
+
+  --r-gold:      #F2B441;
+  --r-gold-d:    #CE8E1F;
+
+  --r-mint:      #62C8A9;
+  --r-mint-d:    #2C9376;
+
+  --r-ink:       #0E0A24;
+  --r-mocha:     #221945;
+  --r-clay:      #B89478;
+
+  /* Backwards-compat aliases used by ported components */
+  --r-butter:   var(--r-gold);
+  --r-butter-d: var(--r-gold-d);
+  --r-coral:    var(--r-magenta);
+  --r-coral-d:  var(--r-magenta-d);
+  --r-coral-l:  var(--r-magenta-l);
+  --r-espresso: var(--r-ink);
+
+  /* Local serif alias (the kit references --font-serif) */
+  --font-serif: var(--font-mincho);
+
+  background: var(--r-cream);
+  color: var(--r-ink);
+}
+
+/* Container helper used by some sections */
+.twilight-scope .tw-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* Eyebrow */
+.twilight-scope .tw-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--r-magenta);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.twilight-scope .tw-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 2px;
+  background: var(--r-magenta);
+  display: inline-block;
+}
+
+/* Buttons */
+.twilight-scope .tw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all .35s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+}
+.twilight-scope .tw-btn.solid {
+  background: var(--r-indigo);
+  color: #fff;
+}
+.twilight-scope .tw-btn.solid:hover {
+  background: var(--r-indigo-d);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(61,46,196,0.55);
+}
+.twilight-scope .tw-btn.butter {
+  background: var(--r-gold);
+  color: var(--r-ink);
+}
+.twilight-scope .tw-btn.butter:hover {
+  background: var(--r-gold-d);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(242,180,65,0.7);
+}
+.twilight-scope .tw-btn.magenta {
+  background: var(--r-magenta);
+  color: #fff;
+}
+.twilight-scope .tw-btn.magenta:hover {
+  background: var(--r-magenta-d);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(229,52,122,0.55);
+}
+.twilight-scope .tw-btn.ghost-light {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.7);
+}
+.twilight-scope .tw-btn.ghost-light:hover {
+  background: #fff;
+  color: var(--r-ink);
+}
+
+/* Reveal */
+.twilight-scope .tw-reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity .9s cubic-bezier(0.22,1,0.36,1),
+    transform .9s cubic-bezier(0.22,1,0.36,1);
+}
+.twilight-scope .tw-reveal.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.twilight-scope .tw-reveal.from-left  { transform: translateX(-48px); }
+.twilight-scope .tw-reveal.from-right { transform: translateX( 48px); }
+.twilight-scope .tw-reveal.from-left.is-in,
+.twilight-scope .tw-reveal.from-right.is-in { transform: translateX(0); }
+
+/* Marquee keyframes */
+@keyframes twSm  { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+@keyframes twSmr { from { transform: translateX(-33.333%); } to { transform: translateX(0); } }
+
+/* PerksCube keyframes */
+@keyframes twPcArrowDown { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+@keyframes twPcBeat       { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+@keyframes twPcTickHour   { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes twPcTickMin    { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes twPcWordsUp    { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes twPcLettersIn  { from { opacity: 0; transform: translateY(60%) rotate(8deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }
+@keyframes twPcMaskRight  { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes twPcTypeBlink  { 50% { opacity: 0; } }
+@keyframes twPcTiltFlip   { from { opacity: 0; transform: perspective(800px) rotateX(-65deg) translateY(40px); transform-origin: top; } to { opacity: 1; transform: perspective(800px) rotateX(0) translateY(0); } }
+@keyframes twPcFadeBlur   { from { opacity: 0; filter: blur(12px); transform: scale(1.04); } to { opacity: 1; filter: blur(0); transform: scale(1); } }
+@keyframes twPcUnderline  { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Mobile guards for cube */
+@media (max-width: 900px) {
+  .twilight-scope .pc-sticky { grid-template-columns: 1fr !important; grid-template-rows: auto 1fr; }
+  .twilight-scope .pc-left   { padding: clamp(20px, 5vw, 32px) !important; height: auto !important; justify-content: flex-start !important; padding-top: clamp(40px, 8vw, 56px) !important; }
+  /* Stage: allow rotation overflow (a rotating cube extends ~√2× its box),
+     give the cube vertical breathing room, and push it down so the top
+     never sits against the perk chips. */
+  .twilight-scope .pc-stage  {
+    height: 100% !important;
+    overflow: visible !important;
+    padding: clamp(48px, 9vw, 88px) 0 clamp(32px, 6vw, 56px) !important;
+    align-items: flex-start !important;
+  }
+  .twilight-scope .pc-cube {
+    --cube-size: min(32vh, 50vw, 280px) !important;
+    --half: calc(min(32vh, 50vw, 280px) / 2) !important;
+  }
+  .twilight-scope .pc-eyebrow-line { display: none; }
+}
+
+/* Mobile guards for the Day-in-the-Life deck — hide the side rail and tighten
+   the title so the deck has room. Animation itself runs on every viewport. */
+@media (max-width: 720px) {
+  .twilight-scope .dayinlife-rail { display: none !important; }
+}
+
+/* Mobile guards for PinnedNumbers — single column, no sticky pin, headline
+   gets enough width to wrap properly, num+label stack instead of squeezing. */
+@media (max-width: 720px) {
+  .twilight-scope .pn-root { padding: 64px 0 !important; }
+  .twilight-scope .pn-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .twilight-scope .pn-sticky { position: static !important; top: auto !important; }
+  .twilight-scope .pn-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .twilight-scope .pn-num { font-size: clamp(56px, 18vw, 96px) !important; }
+  .twilight-scope .pn-label {
+    max-width: none !important;
+    text-align: left !important;
+    font-size: 16px !important;
+  }
+}

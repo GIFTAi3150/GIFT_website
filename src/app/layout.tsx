@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { notoSansJP, poppins } from './fonts';
 import '../styles/globals.css';
+import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -48,6 +49,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="ja"
       className={`${notoSansJP.variable} ${poppins.variable}`}
+      // Browsers serialize inline-style hex colors as rgb(), which
+      // React reads back as a different string than its JSX source —
+      // produces a noisy but harmless hydration warning. Suppress it.
+      suppressHydrationWarning
       style={{ backgroundColor: '#F0F4F9', colorScheme: 'light' }}
     >
       <head>
@@ -78,13 +83,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body style={{ backgroundColor: '#F0F4F9' }}>
+      <body suppressHydrationWarning style={{ backgroundColor: '#F0F4F9' }}>
         {/* SSR-rendered dark cover. Present in the very first HTML byte the
             browser receives, so it can paint before any React/JS runs.
             Inline script fades it out once the page is ready. */}
         <div
           id="page-cover"
           aria-hidden
+          // The inline script below mutates this div's style attribute
+          // (opacity: 0) before React hydrates, which makes the
+          // post-script DOM diverge from React's JSX. suppressHydrationWarning
+          // tells React this mismatch is intentional and shouldn't error.
+          suppressHydrationWarning
           style={{
             position: 'fixed',
             inset: 0,
@@ -132,6 +142,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         {children}
+        <CtaHoverHydrator />
       </body>
     </html>
   );

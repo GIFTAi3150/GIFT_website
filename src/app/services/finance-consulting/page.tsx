@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import Reveal from '@/components/ui/Reveal';
-import FadeUpText from '@/components/ui/FadeUpText';
+import FinanceScripts from './_components/FinanceScripts';
+import BinaryCubeHero from './_components/BinaryCubeHero';
+import { bricolage, inter, jetbrains } from './fonts';
+import './finance.css';
 
 export const metadata: Metadata = {
   title: '財務コンサル事業',
@@ -12,314 +13,370 @@ export const metadata: Metadata = {
   alternates: { canonical: '/services/finance-consulting' },
 };
 
+const kpis = [
+  { num: '01', label: 'Portfolio', value: 30, suffix: '社+', sub: '支援企業' },
+  { num: '02', label: 'Capital', value: 10, prefix: '¥', suffix: '億+', sub: '累計融資調達額' },
+  { num: '03', label: 'Approval', value: 90, suffix: '%+', sub: '融資承認率' },
+  { num: '04', label: 'Alliance', value: null, raw: '01', suffix: '社', sub: '財務パートナーズ' },
+] as const;
+
+const steps = [
+  {
+    n: '01',
+    title: '月次の伴走',
+    body: '毎月の数字を一緒に読み、次の打ち手を経営者と共に決めます。',
+  },
+  {
+    n: '02',
+    title: '計画 × 資金繰り',
+    body: '事業計画と資金繰り表のギャップを毎月キャリブレーション。',
+  },
+  {
+    n: '03',
+    title: '金融機関リレーション',
+    body: '銀行・公庫・信金との関係性を、長期で共に育てます。',
+  },
+  {
+    n: '04',
+    title: '専門家アライアンス',
+    body: '税理士・会計士・士業との横断サポートで死角を埋めます。',
+  },
+];
+
+const audience = [
+  '融資の枠を、もう一段押し上げたい',
+  '資金繰りを"勘"から外したい',
+  '月次決算を経営判断に効かせたい',
+  '事業計画書を、銀行に通る形に磨きたい',
+  '攻めの財務相手が欲しい',
+  'KPIを経営会議の言語にしたい',
+];
+
 export default function FinanceConsultingPage() {
   return (
     <>
       <Header />
-      <main className="bg-gift-near-black">
-        {/* Hero — "Rising curve": a line chart draws itself across the dark hero on page load,
-             with data-point dots pulsing along it. Visual metaphor for financial growth. */}
-        <section className="relative overflow-hidden bg-gift-ink">
-          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-gift-green/15 blur-[120px]" />
-            <div className="absolute -bottom-40 -right-40 h-[520px] w-[520px] rounded-full bg-gift-green-teal/10 blur-[120px]" />
+      <main className={`finance-page ${bricolage.variable} ${inter.variable} ${jetbrains.variable}`}>
+        {/* HERO */}
+        <section className="hero">
+          <div className="wrap">
+            <div className="hero-grid">
+              <div>
+                <div className="hero-eye">
+                  <span>Service / 03 · Finance Consulting</span>
+                  <span className="live">受付中</span>
+                </div>
 
-            {/* Trading-platform-style faint grid in background */}
-            <div className="dx-hero-grid absolute inset-0 opacity-60" />
+                <h1 className="h1">
+                  <span className="reveal d1">
+                    <span className="row">Data-Driven</span>
+                  </span>
+                  <span className="reveal d2">
+                    <span className="row">
+                      <span className="ch">Finance.</span>
+                    </span>
+                  </span>
+                  <span className="reveal d3">
+                    <span
+                      className="row"
+                      style={{
+                        fontSize: '.45em',
+                        color: 'var(--ink-soft)',
+                        fontWeight: 400,
+                        letterSpacing: '-.02em',
+                        marginTop: '.3em',
+                      }}
+                    >
+                      数字を、経営の武器に。
+                    </span>
+                  </span>
+                </h1>
 
-            {/* Mobile-only rising-curve: covers the whole hero (same as desktop) using the SAME
-                draw-in animation. preserveAspectRatio="xMidYMax slice" anchors the curve to the bottom
-                and crops empty space off the top, so the rising line reads from bottom-left to upper-right
-                with no visible container edge. Text/badge/CTA sit on top via z-10. */}
-            <svg
-              className="absolute inset-0 h-full w-full md:hidden"
-              viewBox="0 0 200 120"
-              preserveAspectRatio="xMidYMax slice"
-              aria-hidden
-            >
-              <defs>
-                <linearGradient id="finance-fill-grad-m" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#25D366" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#25D366" stopOpacity="0" />
-                </linearGradient>
-              </defs>
+                <p className="dek">
+                  融資調達から KPI 設計まで。<strong>「財務パートナーズ」</strong>と業務提携し、
+                  <span className="hl">経営者に並走する</span>伴走型コンサルティング。
+                </p>
 
-              <path
-                d="M 10 95 C 40 92, 60 88, 80 80 S 120 68, 145 52 S 180 22, 195 12 L 195 105 L 10 105 Z"
-                fill="url(#finance-fill-grad-m)"
-                className="finance-fill"
-              />
+                <div className="hero-actions">
+                  <a href="/contact" className="btn btn-pri">
+                    無料相談を予約 <span className="a">→</span>
+                  </a>
+                  <a href="#services" className="btn btn-ghost">
+                    <u>提供内容を見る</u>
+                  </a>
+                </div>
+              </div>
 
-              <path
-                d="M 10 95 C 40 92, 60 88, 80 80 S 120 68, 145 52 S 180 22, 195 12"
-                stroke="#25D366"
-                strokeWidth="1.6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="finance-curve"
-              />
-
-              <circle cx="40" cy="92" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '0.9s, 1.6s' }} />
-              <circle cx="80" cy="80" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '1.5s, 2.2s' }} />
-              <circle cx="145" cy="52" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '2.1s, 2.8s' }} />
-              <circle cx="195" cy="12" r="2.4" fill="#25D366" className="finance-point" style={{ animationDelay: '2.6s, 3.3s' }} />
-            </svg>
-
-            {/* Rising curve SVG — desktop only. On narrow mobile screens the slice would expose just the steep
-                final ascent, which reads as a random diagonal streak rather than "growth" — so we hide it
-                and let the dark bg + glows + grid carry the hero on mobile. */}
-            <svg
-              className="absolute inset-0 hidden h-full w-full md:block"
-              viewBox="0 0 200 120"
-              preserveAspectRatio="xMidYMid slice"
-              aria-hidden
-            >
-              {/* Axis hint lines — very subtle */}
-              <line x1="10" y1="105" x2="195" y2="105" stroke="rgba(255,255,255,0.06)" strokeWidth="0.25" />
-              <line x1="10" y1="12" x2="10" y2="105" stroke="rgba(255,255,255,0.06)" strokeWidth="0.25" />
-
-              {/* Gradient for the area under the curve */}
-              <defs>
-                <linearGradient id="finance-fill-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#25D366" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#25D366" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-
-              {/* Area fill beneath the curve */}
-              <path
-                d="M 10 95 C 40 92, 60 88, 80 80 S 120 68, 145 52 S 180 22, 195 12 L 195 105 L 10 105 Z"
-                fill="url(#finance-fill-grad)"
-                className="finance-fill"
-              />
-
-              {/* The curve itself — draws from left to right via stroke-dashoffset */}
-              <path
-                d="M 10 95 C 40 92, 60 88, 80 80 S 120 68, 145 52 S 180 22, 195 12"
-                stroke="#25D366"
-                strokeWidth="1.2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="finance-curve"
-              />
-
-              {/* Data-point markers — fade in progressively, then keep gently pulsing */}
-              <circle cx="40" cy="92" r="1.4" fill="#25D366" className="finance-point" style={{ animationDelay: '0.9s, 1.6s' }} />
-              <circle cx="80" cy="80" r="1.4" fill="#25D366" className="finance-point" style={{ animationDelay: '1.5s, 2.2s' }} />
-              <circle cx="145" cy="52" r="1.4" fill="#25D366" className="finance-point" style={{ animationDelay: '2.1s, 2.8s' }} />
-              <circle cx="195" cy="12" r="1.8" fill="#25D366" className="finance-point" style={{ animationDelay: '2.6s, 3.3s' }} />
-            </svg>
-          </div>
-
-          <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-container flex-col justify-center px-4 py-s-80 md:px-6 lg:px-8">
-            <p
-              className="nav-reveal mb-5 font-display text-small font-bold uppercase tracking-widest text-gift-green"
-              style={{ ['--reveal-delay' as string]: '100ms' } as React.CSSProperties}
-            >
-              FINANCIAL CONSULTING
-            </p>
-
-            <h1
-              className="font-sans font-extrabold text-white"
-              style={{ fontSize: 'clamp(44px, 7vw, 76px)', lineHeight: '1.05' }}
-            >
-              <FadeUpText text="財務コンサル" delayMs={250} />
-              <span className="text-gift-green">
-                <FadeUpText text="事業" delayMs={520} />
-              </span>
-            </h1>
-
-            <p
-              className="nav-reveal mt-8 max-w-2xl font-mincho font-light text-white/75"
-              style={
-                {
-                  fontSize: 'clamp(16px, 1.7vw, 19px)',
-                  lineHeight: '2',
-                  ['--reveal-delay' as string]: '900ms',
-                } as React.CSSProperties
-              }
-            >
-              融資調達から財務戦略まで—「財務パートナーズ」との業務提携で、経営者に寄り添う伴走型コンサルティングをご提供します。
-            </p>
-
-            <div
-              className="nav-reveal mt-10"
-              style={{ ['--reveal-delay' as string]: '1300ms' } as React.CSSProperties}
-            >
-              <Link href="/contact" className="cta-btn">
-                <span>お問い合わせ</span>
-              </Link>
+              {/* BINARY CUBE — 3D model swap. The previous CSS cube (six
+                  styled faces with KPI content) is replaced by the
+                  binary-cube.glb asset, rendered via R3F. The stage
+                  container keeps the same square box so the hero grid
+                  layout is unchanged. */}
+              <div className="cube-stage cube-stage--3d">
+                <BinaryCubeHero />
+              </div>
             </div>
 
-            {/* Glass partner badge — same pattern as DX hero, scaled-down 財務パートナーズ card */}
-            <div
-              className="nav-reveal mt-12 flex max-w-md items-center gap-4 self-start rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-md"
-              style={{ ['--reveal-delay' as string]: '1600ms' } as React.CSSProperties}
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth={1.5} className="h-6 w-6">
-                  <polyline points="3 17 9 11 13 15 21 7" strokeLinecap="round" strokeLinejoin="round" />
-                  <polyline points="14 7 21 7 21 14" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-sans text-[15px] font-bold text-white">財務パートナーズ</p>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gift-green/20 px-2.5 py-0.5">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} className="h-2.5 w-2.5 text-gift-green">
-                      <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <span className="font-display text-[10px] font-bold text-gift-green">業務提携パートナー</span>
-                  </span>
+            {/* KPI strip */}
+            <div className="kpi-strip">
+              {kpis.map((k) => (
+                <div className="kpi" key={k.num}>
+                  <div className="k">
+                    <span>
+                      {k.num} · {k.label}
+                    </span>
+                    <span className="up">▲</span>
+                  </div>
+                  <div className="v">
+                    {'prefix' in k && k.prefix ? k.prefix : null}
+                    {k.value !== null ? (
+                      <span data-count={k.value}>0</span>
+                    ) : (
+                      (k as { raw: string }).raw
+                    )}
+                    <sup>{k.suffix}</sup>
+                  </div>
+                  <div className="l">{k.sub}</div>
                 </div>
-                <p className="mt-1 font-sans text-[12px] leading-relaxed text-white/60">
-                  融資・資金調達のプロフェッショナル集団
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* THESIS */}
+        <section className="pad">
+          <div className="wrap">
+            <div className="section-tag in-view">
+              <span>Thesis</span>
+              <span>株式会社 GIFT</span>
+            </div>
+            <h2 className="bighead in-view">
+              <span className="light">財務は、</span>経営判断の
+              <span className="ch">解像度</span>を上げる。
+            </h2>
+
+            <div className="thesis in-view">
+              <div className="thesis-text">
+                <p>
+                  融資の枠を一段押し上げる。資金繰りを<em>&quot;勘&quot;</em>から外す。月次決算を、経営判断に効かせる。
                 </p>
+                <p>
+                  <strong>GIFT × 財務パートナーズ</strong>は、単発のアドバイスではなく、月次で並走する伴走型のスタイル。事業計画と資金繰り表を共にキャリブレーションし、銀行に通る形に磨きます。
+                </p>
+              </div>
+              <div className="thesis-side">
+                <div className="row">
+                  <div className="b">
+                    30<sup>+</sup>
+                  </div>
+                  <div className="t">
+                    支援企業の累計実績
+                    <small>portfolio companies</small>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="b">
+                    ¥10<sup>億+</sup>
+                  </div>
+                  <div className="t">
+                    累計融資調達額
+                    <small>capital raised</small>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="b">
+                    90<sup>%+</sup>
+                  </div>
+                  <div className="t">
+                    融資承認率
+                    <small>approval rate</small>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="b">月次</div>
+                  <div className="t">
+                    伴走スタイル
+                    <small>monthly cadence</small>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats — Alliance track record (placeholders, swap with real numbers when shared) */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-70">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
-                <div className="text-center">
-                  {/* TODO: replace with real number from 財務パートナーズ */}
-                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
-                    30<span className="text-[32px]">社+</span>
-                  </div>
-                  <p className="mt-3 font-sans text-small font-light text-gift-silver">支援企業</p>
-                </div>
-                <div className="text-center">
-                  {/* TODO: replace with real number from 財務パートナーズ */}
-                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
-                    ¥10<span className="text-[32px]">億+</span>
-                  </div>
-                  <p className="mt-3 font-sans text-small font-light text-gift-silver">累計融資調達額</p>
-                </div>
-                <div className="text-center">
-                  {/* TODO: replace with real number from 財務パートナーズ */}
-                  <div className="font-display text-[64px] font-extrabold leading-none text-gift-green">
-                    90<span className="text-[32px]">%+</span>
-                  </div>
-                  <p className="mt-3 font-sans text-small font-light text-gift-silver">融資承認率</p>
-                </div>
-              </div>
+        {/* SERVICES */}
+        <section className="pad" style={{ paddingTop: 0 }} id="services">
+          <div className="wrap">
+            <div className="section-tag in-view">
+              <span>Services</span>
+              <span>2 pillars</span>
             </div>
-          </section>
-        </Reveal>
+            <h2 className="bighead in-view">
+              <span className="light">提供する、</span>2つの柱。
+            </h2>
 
-        {/* What we offer */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-white py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                WHAT WE OFFER
-              </p>
-              <h2
-                className="mb-5 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-              >
-                提供内容
-              </h2>
-              <p
-                className="mb-12 max-w-3xl font-sans font-light text-gift-silver"
-                style={{ fontSize: 'clamp(15px, 1.6vw, 17px)', lineHeight: '2' }}
-              >
-                財務コンサルティングは、提携パートナー「財務パートナーズ」との業務提携によりご提供しております。両社の連携体制で、以下の支援をお届けします。
-              </p>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {[
-                  {
-                    title: '融資支援・資金調達',
-                    body: '財務パートナーズの豊富な融資実行実績をもとに、事業フェーズに応じた最適な資金調達プランをご提案します。',
-                  },
-                  {
-                    title: '経営コンサル',
-                    body: '財務パートナーズと連携し、財務戦略・KPI設計を軸に、経営判断に必要な数値と視点を経営者と共に整えます。',
-                  },
-                ].map((s) => (
-                  <div key={s.title} className="gift-card !p-8">
-                    <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">{s.title}</h3>
-                    <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver">
-                      {s.body}
-                    </p>
+            <div className="svc-grid in-view">
+              <a href="#" className="svc">
+                <div className="top">
+                  <div className="top-left">
+                    <div className="icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} width={20} height={20}>
+                        <path d="M3 21h18M5 21V10l7-4 7 4v11M9 21v-6h6v6" />
+                      </svg>
+                    </div>
+                    <span className="badge">融資・資金調達</span>
+                  </div>
+                </div>
+                <div className="body">
+                  <h3>
+                    融資支援・
+                    <br />
+                    <span className="ch">資金調達</span>。
+                  </h3>
+                  <p>
+                    事業フェーズに応じた最適な資金調達プランをご提案。金融機関の選定から計画書のチューニングまで、承認に至るプロセスを伴走します。
+                  </p>
+                </div>
+              </a>
+              <a href="#" className="svc small">
+                <div className="top">
+                  <div className="top-left">
+                    <div className="icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} width={20} height={20}>
+                        <path d="M3 17l6-6 4 4 8-8M14 7h7v7" />
+                      </svg>
+                    </div>
+                    <span className="badge">経営コンサル</span>
+                  </div>
+                </div>
+                <div className="body">
+                  <h3>
+                    経営戦略・
+                    <br />
+                    <span className="ch">KPI 設計</span>。
+                  </h3>
+                  <p>
+                    財務戦略と KPI 設計で、経営判断に必要な数値基盤を経営者と共に整えます。
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* APPROACH */}
+        <section className="pad approach">
+          <div className="wrap">
+            <div className="section-tag in-view">
+              <span>Approach</span>
+              <span>伴走型</span>
+            </div>
+            <h2 className="bighead in-view">
+              <span className="light">単発じゃない。</span>
+              <br />
+              毎月、一緒に走る。
+            </h2>
+
+            <div className="approach-grid in-view">
+              <div className="approach-sticky">
+                数字を読み、
+                <br />
+                次の打ち手を
+                <br />
+                <strong>共に決める。</strong>
+                <span className="meta">Monthly cadence · 月次伴走</span>
+              </div>
+              <div className="steps">
+                {steps.map((s) => (
+                  <div className="step" key={s.n}>
+                    <span className="n">{s.n}</span>
+                    <div>
+                      <h4>{s.title}</h4>
+                      <p>{s.body}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-          </section>
-        </Reveal>
+          </div>
+        </section>
 
-        {/* Approach */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-10 lg:grid-cols-4 lg:gap-16">
-                <div className="lg:col-span-1">
-                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                    APPROACH
-                  </p>
-                  <h2
-                    className="font-sans font-extrabold text-gift-ink"
-                    style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                  >
-                    伴走型スタイル
-                  </h2>
-                </div>
-                <div className="lg:col-span-3">
-                  <p
-                    className="font-sans font-light text-gift-silver"
-                    style={{ fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '2' }}
-                  >
-                    単発のアドバイスではなく、経営者と並走しながら数字と戦略を共に描く伴走型スタイルが私たちの特長です。外部の税理士・会計士・金融機関との連携によるアライアンス体制で、広く深いサポートを実現します。
-                  </p>
-                </div>
+        {/* PARTNER */}
+        <section className="pad">
+          <div className="wrap">
+            <div className="section-tag in-view">
+              <span>ALLIANCE</span>
+              <span>Strategic partner</span>
+            </div>
+            <h2 className="bighead in-view" style={{ marginBottom: 50 }}>
+              <span className="light">業務提携、</span>財務<span className="ch">パートナーズ</span>。
+            </h2>
+
+            <div className="partner-card in-view">
+              <div className="partner-mark">¥</div>
+              <div className="partner-info">
+                <h4>財務パートナーズ</h4>
+                <div className="en">ZAIMU PARTNERS · K.K.</div>
+                <p>
+                  融資・資金調達のプロフェッショナル集団。業務提携により、GIFT
+                  のお客様にも直接サービスを提供。経営戦略から数字の設計までを伴走します。
+                </p>
               </div>
+              <a href="#" className="partner-cta">
+                詳細を見る <span>→</span>
+              </a>
             </div>
-          </section>
-        </Reveal>
+          </div>
+        </section>
 
-        {/* Target */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-white py-s-80">
-            <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                WHO IT'S FOR
-              </p>
-              <h2
-                className="mb-6 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.2' }}
-              >
-                成長期の中小企業経営者の方へ
-              </h2>
-              <p className="mx-auto max-w-2xl font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
-                融資ニーズがある、財務戦略を整えたい、経営判断の数値基盤を固めたい——そうした成長期の経営者の方と共に走ります。
-              </p>
+        {/* WHO */}
+        <section className="pad" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <div className="section-tag in-view">
+              <span>AUDIENCE</span>
+              <span>こんな経営者へ</span>
             </div>
-          </section>
-        </Reveal>
+
+            <div className="who-grid in-view">
+              <h2 className="who-h">
+                <span className="light">成長期の、</span>
+                <span className="ja">
+                  <span className="ch">中小企業</span>へ。
+                </span>
+              </h2>
+              <ul className="who-list">
+                {audience.map((line, i) => (
+                  <li key={line}>
+                    <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="t">{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
 
         {/* CTA */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
-            <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
-              <h2
-                className="mb-8 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
-              >
-                財務コンサルのご相談はこちらから
-              </h2>
-              <Link href="/contact" className="cta-btn">
-                <span>お問い合わせ</span>
-              </Link>
+        <section className="pad cta" id="contact">
+          <div className="wrap">
+            <div className="section-tag in-view">
+              <span>Contact</span>
+              <span>Let&apos;s talk</span>
             </div>
-          </section>
-        </Reveal>
+            <h2 className="cta-h in-view">
+              <span className="light">数字を、</span>
+              <br />
+              経営の<span className="ch">武器</span>に。
+            </h2>
+            <div className="cta-actions in-view">
+              <a href="/contact" className="btn btn-pri">
+                無料相談を予約
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <FinanceScripts />
       </main>
       <Footer />
     </>

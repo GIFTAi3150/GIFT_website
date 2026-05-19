@@ -796,9 +796,13 @@
   transform: scale(0.95) rotateZ(1.7deg);
 }
 
-/* CTA button — radial box-shadow wipe on hover (Uiverse/mrhyddenn).
+/* CTA button — Osmo-style directional hover: a colored circle grows from
+   the cursor's entry point and shrinks back from wherever it exits. The
+   circle's center is positioned by --cta-x / --cta-y (set per-button by
+   CtaHoverHydrator on mouseenter/mousemove); keyboard focus falls back to
+   50%/50% so the circle expands from the center.
    Usage: <a class="cta-btn"><span>Label</span></a>
-   Variants: .cta-btn--deep (deep teal), .cta-btn--on-green (white → transparent for use on green bands) */
+   Variants: .cta-btn--deep (deep teal), .cta-btn--on-green (white fill for use on green bands) */
 .cta-btn {
   background: transparent;
   position: relative;
@@ -815,7 +819,7 @@
   outline: none;
   overflow: hidden;
   color: #25D366;
-  transition: color 0.3s 0.1s ease-out;
+  transition: color 0.3s 0.05s ease-out, border-color 0.3s ease-out;
   text-align: center;
 }
 .cta-btn > span {
@@ -828,20 +832,24 @@
   z-index: 1;
 }
 .cta-btn::before {
-  position: absolute;
-  top: 0;
-  left: -5em;
-  right: 0;
-  bottom: 0;
-  margin: auto;
   content: '';
-  border-radius: 50%;
+  position: absolute;
+  top: var(--cta-y, 50%);
+  left: var(--cta-x, 50%);
   display: block;
-  width: 20em;
-  height: 20em;
-  text-align: center;
-  transition: box-shadow 0.5s ease-out;
+  width: 25em;
+  height: 25em;
+  border-radius: 50%;
+  background-color: #25D366;
+  transform: translate(-50%, -50%) scale(0);
+  /* Scale is the visible morph; top/left ease so the circle smoothly
+     trails the cursor while hovered instead of teleporting. */
+  transition:
+    transform 0.55s cubic-bezier(0.625, 0.05, 0, 1),
+    top 0.3s ease-out,
+    left 0.3s ease-out;
   z-index: 0;
+  pointer-events: none;
 }
 .cta-btn:hover,
 .cta-btn:focus-visible {
@@ -850,7 +858,7 @@
 }
 .cta-btn:hover::before,
 .cta-btn:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #25D366;
+  transform: translate(-50%, -50%) scale(1);
 }
 .cta-btn:active {
   transform: scale(0.97);
@@ -861,13 +869,12 @@
   border-color: #128C7E;
   color: #128C7E;
 }
+.cta-btn--deep::before {
+  background-color: #128C7E;
+}
 .cta-btn--deep:hover,
 .cta-btn--deep:focus-visible {
   border-color: #128C7E;
-}
-.cta-btn--deep:hover::before,
-.cta-btn--deep:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #128C7E;
 }
 
 /* On-green-band variant (white outline → white fill, green text on hover) */
@@ -875,14 +882,33 @@
   border-color: #ffffff;
   color: #ffffff;
 }
+.cta-btn--on-green::before {
+  background-color: #ffffff;
+}
 .cta-btn--on-green:hover,
 .cta-btn--on-green:focus-visible {
   color: #128C7E;
   border-color: #ffffff;
 }
-.cta-btn--on-green:hover::before,
-.cta-btn--on-green:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #ffffff;
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-btn::before {
+    transition: transform 0.15s ease-out;
+  }
+}
+
+/* Hides the native horizontal scrollbar while keeping the element
+   scrollable. Used on swipe-through card rails where the bar adds visual
+   noise — users still get the affordance from the partially-visible
+   neighbor card and from physical scroll/drag. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 :root {
@@ -1228,4 +1254,32 @@ h6 {
 }
 @media (prefers-reduced-motion: reduce) {
   .dx-node { animation: none; }
+}
+
+/* ==========================================================
+   Emoji rain — Osmo Supply pattern adapted for unicode emojis.
+   The container is a viewport-fixed overlay, pointer-events
+   off so it never blocks clicks. JS injects .single-rain-emoji
+   children at click-time and animates them upward via GSAP.
+========================================================== */
+.emoji-rain-container {
+  z-index: 150;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+.single-rain-emoji {
+  will-change: transform;
+  width: max(80px, 8vw);
+  position: absolute;
+  top: 0;
+}
+.single-rain-emoji-text {
+  width: 100%;
+  text-align: center;
+  font-size: clamp(48px, 7vw, 110px);
+  line-height: 1;
 }

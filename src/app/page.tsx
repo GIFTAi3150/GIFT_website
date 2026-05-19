@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
-import PhotoCarousel from '@/components/sections/PhotoCarousel';
 import WhoWeAre from '@/components/sections/WhoWeAre';
-import CaseStudy from '@/components/sections/CaseStudy';
 import ServicesCards from '@/components/sections/ServicesCards';
+import CaseStudy from '@/components/sections/CaseStudy';
 import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
+import RecruitCta from '@/components/sections/RecruitCta';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles } from '@/lib/notion';
 
@@ -43,29 +43,45 @@ export default async function HomePage() {
       <Header />
       <main>
         <Hero />
+
+        {/* ABOUT */}
         <Reveal>
           <WhoWeAre />
         </Reveal>
+
+        {/* HOW WE WORK */}
         <Reveal>
-          <PhotoCarousel />
+          <ProcessFlow />
         </Reveal>
+
+        {/* SERVICE — ServicesCards handles its own pinned scroll-driven
+            entrance, so no Reveal wrapper (Reveal applies a transform
+            which would break GSAP's position: fixed pinning). */}
+        <ServicesCards />
+
+        {/* WORKS — icon-led editorial achievement cards. Each row
+            alternates icon position (left vs right) for a magazine
+            rhythm; metric numbers count up on scroll-in. */}
         <Reveal>
           <CaseStudy />
         </Reveal>
         <Reveal>
-          <ServicesCards />
-        </Reveal>
-        <Reveal>
-          <ProcessFlow />
-        </Reveal>
-        <Reveal>
           <Clients />
         </Reveal>
+
+        {/* RECRUIT — CTA with emoji rain on click (Osmo Supply pattern) */}
         <Reveal>
-          <SocialLinks />
+          <RecruitCta />
         </Reveal>
+
+        {/* NEWS */}
         <Reveal>
           <Column articles={articles} />
+        </Reveal>
+
+        {/* CONTACT (social-adjacent) */}
+        <Reveal>
+          <SocialLinks />
         </Reveal>
       </main>
       <Footer />
