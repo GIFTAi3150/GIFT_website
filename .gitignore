@@ -40,3 +40,4 @@ next-env.d.ts
 
 # Blender render outputs — not used by the site at runtime
 /blender_renders/
+.claude
