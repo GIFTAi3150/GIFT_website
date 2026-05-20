@@ -891,6 +891,23 @@
   border-color: #ffffff;
 }
 
+/* Member-page variant — terracotta outline, white text on hover when
+   the button fills with terracotta. Used on the /member Recruit CTA
+   so the button matches the warm cream + terracotta palette instead
+   of the global green. */
+.cta-btn--member {
+  border-color: #D96B43;
+  color: #D96B43;
+}
+.cta-btn--member::before {
+  background-color: #D96B43;
+}
+.cta-btn--member:hover,
+.cta-btn--member:focus-visible {
+  border-color: #D96B43;
+  color: #ffffff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cta-btn::before {
     transition: transform 0.15s ease-out;

@@ -164,7 +164,19 @@
 
 /* Mobile guards for cube */
 @media (max-width: 900px) {
-  .twilight-scope .pc-sticky { grid-template-columns: 1fr !important; grid-template-rows: auto 1fr; }
+  /* Sticky uses dvh (dynamic viewport height) so the frame matches
+     the actually-visible area, not the URL-bar-included 100vh. On
+     iOS Safari with the URL bar showing, 100vh > visible area by
+     ~80-110px, which pushed the big H2 above the screen and let the
+     cube + stat block clip off the bottom. dvh fixes this on every
+     mobile browser shipped since 2022. The 100vh line is the fallback
+     for older user agents. */
+  .twilight-scope .pc-sticky {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    height: 100dvh;
+  }
   /* Tighter padding on the left column — was 40-56px top, which
      combined with the big title pushed the cube off the bottom of
      the 100vh sticky frame on perks 3 (TRAINING) and 6 (COMP) where
@@ -215,6 +227,29 @@
   .twilight-scope .pc-left .pc-perkarea {
     min-height: 0 !important;
     margin-top: 20px !important;
+  }
+}
+/* iPhone SE / very narrow phones — the 900px guard above still left
+   the big H2, perkArea, and 180px cube too tall on a 375x667 / 320x568
+   viewport, so the top of the left panel scrolled out of the sticky
+   frame. Pull every block down a notch so the section reads as one
+   screen on the smallest common viewports. */
+@media (max-width: 480px) {
+  .twilight-scope .pc-left > h2 {
+    font-size: clamp(24px, 7vw, 34px) !important;
+    line-height: 1.05 !important;
+  }
+  .twilight-scope .pc-left .pc-bigstat {
+    font-size: clamp(28px, 8vw, 44px) !important;
+  }
+  .twilight-scope .pc-cube {
+    --cube-size: min(24vh, 44vw, 200px) !important;
+    --half: calc(min(24vh, 44vw, 200px) / 2) !important;
+  }
+  /* Stage padding can go to 0 — the cube already centers via flex,
+     and the sticky boundary is doing the visual containment. */
+  .twilight-scope .pc-stage {
+    padding: 8px 0 12px !important;
   }
 }
 

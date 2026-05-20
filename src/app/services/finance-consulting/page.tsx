@@ -69,7 +69,6 @@ export default function FinanceConsultingPage() {
               <div>
                 <div className="hero-eye">
                   <span>Service / 03 · Finance Consulting</span>
-                  <span className="live">受付中</span>
                 </div>
 
                 <h1 className="h1">
@@ -127,9 +126,7 @@ export default function FinanceConsultingPage() {
               {kpis.map((k) => (
                 <div className="kpi" key={k.num}>
                   <div className="k">
-                    <span>
-                      {k.num} · {k.label}
-                    </span>
+                    <span>{k.label}</span>
                     <span className="up">▲</span>
                   </div>
                   <div className="v">
@@ -328,7 +325,7 @@ export default function FinanceConsultingPage() {
                 </p>
               </div>
               <a href="#" className="partner-cta">
-                詳細を見る <span>→</span>
+                詳細を見る
               </a>
             </div>
           </div>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
-import MemberGrid, { type MemberCard } from './MemberGrid';
+import TeamGreet, { type MemberCard } from './TeamGreet';
 import { getPublishedMembers } from '@/lib/notion';
 import staticMembers from '@/data/members.json';
 
@@ -40,21 +40,27 @@ export default async function MemberPage() {
   return (
     <>
       <Header />
-      <main className="bg-gift-near-black">
+      {/* Warm cream + terracotta palette local to /member. Magazine /
+          editorial print feel — the pixel HELLO in TeamGreet reads as
+          a terracotta print stamp on cream paper. Hex values are
+          inlined as arbitrary Tailwind utilities so this page can
+          diverge from the global palette without polluting the
+          Tailwind config. */}
+      <main className="bg-[#F4EFE6]">
         {/* Hero */}
-        <section className="border-b border-gift-border py-s-80">
+        <section className="border-b border-[#DDD0BA] py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#D96B43]">
               MEMBERS
             </p>
             <h1
-              className="font-sans font-extrabold text-gift-ink"
+              className="font-sans font-extrabold text-[#2A2520]"
               style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: '1.1' }}
             >
               メンバー
             </h1>
             <p
-              className="mt-6 max-w-3xl font-sans text-normal font-light text-gift-silver"
+              className="mt-6 max-w-3xl font-sans text-normal font-light text-[#6B5F52]"
               style={{ lineHeight: '2' }}
             >
               GIFTの経営陣と主要メンバーをご紹介します。一人ひとりが独自の専門性を持ち、力を合わせてお客様と社会に価値をお届けしています。
@@ -62,23 +68,27 @@ export default async function MemberPage() {
           </div>
         </section>
 
-        {/* Filter + grid (client component) */}
-        <MemberGrid members={members} />
+        {/* Portrait grid with a "Hello." reveal on hover — pattern
+            from neu-ad.jp/team. Grayscale portraits go to color, a
+            greeting fades in from the top-left, and the name jumps
+            one size step. */}
+        <TeamGreet members={members} />
 
-        {/* Recruit CTA */}
+        {/* Recruit CTA — slightly deeper cream surface so the CTA
+            reads as a distinct section without leaving the palette. */}
         <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section className="border-t border-[#DDD0BA] bg-[#EBE3D2] py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#D96B43]">
                 JOIN US
               </p>
               <h2
-                className="mb-8 font-sans font-extrabold text-gift-ink"
+                className="mb-8 font-sans font-extrabold text-[#2A2520]"
                 style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
               >
                 仲間を募集しています
               </h2>
-              <Link href="/recruit" className="cta-btn">
+              <Link href="/recruit" className="cta-btn cta-btn--member">
                 <span>採用情報を見る</span>
               </Link>
             </div>

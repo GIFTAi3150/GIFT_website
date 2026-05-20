@@ -370,14 +370,14 @@ export default function CompanyPage() {
               </p>
 
               <p
-                data-ceo-text
+                data-highlight-text
                 className="mb-6 font-sans font-light text-gift-silver"
                 style={{ lineHeight: '2' }}
               >
                 かつて、自分の人生について深く考えたのは、ある出来事がキッカケだった。
               </p>
               <p
-                data-ceo-text
+                data-highlight-text
                 className="mb-6 font-sans font-light text-gift-silver"
                 style={{ lineHeight: '2' }}
               >
@@ -386,7 +386,7 @@ export default function CompanyPage() {
                 それら全てが「キッカケ」という貴重なギフトだと気づいた。
               </p>
               <p
-                data-ceo-text
+                data-highlight-text
                 className="mb-6 font-sans font-light text-gift-silver"
                 style={{ lineHeight: '2' }}
               >
@@ -394,14 +394,13 @@ export default function CompanyPage() {
                 株式会社GIFTを設立し『人と企業の人生に寄り添いながら』事業を展開していくこと。
                 そして、誰かの人生を変えるような「キッカケ」というギフトを与え続けること。
               </p>
-              <p data-ceo-text className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+              <p data-highlight-text className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
                 そんな会社を目指し、今日も私たちは前進する。
               </p>
               {/* Side-effect-only client component — splits the
-                  data-ceo-text paragraphs above into clause spans and
-                  scrubs each one's opacity/scale/blur against scroll
-                  position, so every scroll tick "bumps forward" the
-                  next clause into a fully readable state. */}
+                  [data-highlight-text] paragraphs into characters and
+                  scrubs each character's opacity (0.2 → 1) against scroll
+                  position. Osmo "highlight text on scroll" pattern. */}
               <CeoMessageReveal />
               <p className="mt-8 font-sans text-normal text-gift-ink">
                 株式会社GIFT 代表取締役

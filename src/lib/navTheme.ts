@@ -93,10 +93,31 @@ const FINANCE_THEME: NavTheme = {
   logoInner: '#f3f1e7',                     // paper cutout — reads as negative space
 };
 
+// Mirrors the warm-cream + terracotta palette applied to the /member
+// page (src/app/member/page.tsx and TeamGreet.tsx):
+//   bg #F4EFE6 / surface #EBE3D2 / ink #2A2520 / terracotta #D96B43.
+// Magazine / risograph print feel — the Header and Footer wear the
+// same paper-and-ink palette as the page so the chrome reads as part
+// of the spread rather than floating above it.
+const MEMBER_THEME: NavTheme = {
+  bg: '#F4EFE6',                            // warm cream paper
+  bgAlpha: 'rgba(244, 239, 230, 0.95)',
+  bgFull: '#F4EFE6',
+  accent: '#D96B43',                        // terracotta — page accent
+  accentDeep: '#B85530',                    // terracotta-deep — hover-on-hover
+  border: '#DDD0BA',                        // warm hairline
+  bgAlt: '#EBE3D2',                         // deeper cream — dropdown hover band
+  ink: '#2A2520',                           // warm ink
+  muted: '#6B5F52',                         // warm gray
+  logoShield: '#D96B43',                    // terracotta — page brand stays primary
+  logoInner: '#F4EFE6',                     // cream cutout — matches page bg
+};
+
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
+  [/^\/member(\/|$)/, MEMBER_THEME],
 ];
 
 export function getNavThemeForPath(pathname: string): NavTheme {

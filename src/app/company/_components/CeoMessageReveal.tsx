@@ -3,100 +3,95 @@
 import { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
-// Scroll-scrubbed clause-by-clause reveal for the CEO message section.
-// Each Japanese clause (split at 、 and 。 punctuation) starts dim,
-// blurred, and slightly translated back. As it enters the upper half
-// of the viewport, scroll progress is scrubbed onto opacity/scale/blur
-// so the clause "bumps forward" smoothly into a fully readable state.
-// Reads as: every scroll step reveals more, and the reader is gently
-// pulled to keep moving through the message.
+// Char-by-char scroll reveal — ported from fukujo.ac.jp/university/kansei-media
+// (conceptAnimation). Each character of the [data-highlight-text]
+// paragraphs starts invisible and 30px below + 10px right of its final
+// position; as the user scrolls past the mission block, chars settle
+// into place one by one. Single scrubbed timeline runs through every
+// char in reading order, scrub 1.5 gives an analog trailing feel that
+// doesn't snap to the playhead.
 //
-// Mounts as a sibling of the message section — no markup changes
-// beyond adding data-ceo-text to the body paragraphs in page.tsx.
-// Returns null (renders nothing); all behavior is side-effect.
+// Replaces the earlier Osmo "highlight text on scroll" pattern (chars
+// dim → bright). The site looked for a more cinematic reveal so the
+// mission section feels like a deliberate moment, not a contrast
+// puzzle.
+
+const FUKUJO_Y_OFFSET = 30; // px char starts below its final position
+const FUKUJO_X_OFFSET = 10; // px char starts to the right of final
+const FUKUJO_DURATION = 1.2; // each char's tween length
+const FUKUJO_STAGGER = 0.04; // gap between consecutive chars firing
+const FUKUJO_SCRUB = 1.5; // analog lag — chars trail scroll by 1.5s
+
 export default function CeoMessageReveal() {
   useEffect(() => {
-    // Scope to the explicit section id so this never picks up
-    // unrelated [data-ceo-text] elsewhere.
     const root = document.querySelector<HTMLElement>('#ceo-message');
     if (!root) return;
 
     const paragraphs = Array.from(
-      root.querySelectorAll<HTMLParagraphElement>('[data-ceo-text]')
+      root.querySelectorAll<HTMLElement>('[data-highlight-text]'),
     );
     if (!paragraphs.length) return;
 
-    const triggers: ScrollTrigger[] = [];
-    // Cache the original HTML so cleanup can restore it — important
-    // because Next.js client-side route transitions don't unmount
-    // the section's React tree, but our useEffect cleanup needs to
-    // undo the DOM mutations so re-running this effect on remount
-    // doesn't double-split the text into spans-within-spans.
-    const originalHTML = new Map<HTMLElement, string>();
+    // Respect prefers-reduced-motion — leave text fully visible.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
 
-    paragraphs.forEach((p) => {
-      originalHTML.set(p, p.innerHTML);
+    type Instance = { ctx?: gsap.Context; split?: SplitText };
+    const instance: Instance = {};
 
-      // Split at the END of every Japanese clause separator (、 and 。)
-      // so the punctuation stays attached to the clause it belongs to.
-      // Lookbehind preserves the delimiter on the previous chunk.
-      const text = p.textContent ?? '';
-      const clauses = text.split(/(?<=[、。])/).filter((c) => c.trim().length);
+    // One SplitText across all paragraphs gives us a single flat array
+    // of chars (`self.chars`) in document order. With autoSplit, GSAP
+    // re-splits on resize/font-load and re-runs onSplit so the spans
+    // stay attached to the current layout.
+    const split = SplitText.create(paragraphs, {
+      type: 'words, chars',
+      autoSplit: true,
+      onSplit(self) {
+        instance.ctx?.revert();
+        const ctx = gsap.context(() => {
+          const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
-      // Replace the paragraph content with one span per clause. inline-block
-      // so the transform doesn't break Japanese line-wrapping.
-      p.innerHTML = '';
-      const spans: HTMLSpanElement[] = [];
-      clauses.forEach((c) => {
-        const s = document.createElement('span');
-        s.textContent = c;
-        s.style.display = 'inline-block';
-        s.style.willChange = 'transform, opacity, filter';
-        p.appendChild(s);
-        spans.push(s);
-      });
+          gsap.set(self.chars, {
+            display: 'inline-block',
+            opacity: 0,
+            y: FUKUJO_Y_OFFSET,
+            x: FUKUJO_X_OFFSET,
+            willChange: 'transform, opacity',
+          });
 
-      spans.forEach((s) => {
-        // The actual "bump forward" tween. Each span scrubs from
-        // dim+blurred+back → bright+sharp+slightly-forward as it
-        // travels from the bottom 80% of the viewport up to roughly
-        // viewport-center. Ease 'none' because scrub IS the easing.
-        const tween = gsap.fromTo(
-          s,
-          {
-            opacity: 0.22,
-            scale: 0.94,
-            y: 14,
-            filter: 'blur(3px)',
-          },
-          {
-            opacity: 1,
-            scale: 1.04,
-            y: 0,
-            filter: 'blur(0px)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: s,
-              start: 'top 82%',
-              end: 'top 48%',
-              scrub: 0.4,
-            },
-          }
-        );
-        if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
-      });
+          gsap
+            .timeline({
+              scrollTrigger: {
+                trigger: paragraphs[0],
+                start: isMobile ? 'top 80%' : 'top 75%',
+                endTrigger: paragraphs[paragraphs.length - 1],
+                end: isMobile ? 'bottom 70%' : 'bottom 50%',
+                scrub: FUKUJO_SCRUB,
+              },
+            })
+            .to(self.chars, {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              duration: FUKUJO_DURATION,
+              stagger: FUKUJO_STAGGER,
+              ease: 'power1.inOut',
+            });
+        }, root);
+        instance.ctx = ctx;
+      },
     });
 
+    instance.split = split;
+
     return () => {
-      triggers.forEach((t) => t.kill());
-      // Restore the original innerHTML so the paragraphs don't
-      // accumulate span wrappers across remounts.
-      originalHTML.forEach((html, p) => {
-        p.innerHTML = html;
-      });
+      instance.ctx?.revert();
+      instance.split?.revert();
     };
   }, []);
 

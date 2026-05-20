@@ -133,7 +133,14 @@ export default function DollarSignHero() {
       <directionalLight position={[-3, 2, -3]} intensity={0.45} color="#fff4e6" />
       <Suspense fallback={null}>
         <Environment preset="studio" />
-        <Bounds fit clip observe margin={1.5}>
+        {/* `observe` removed intentionally — it makes Bounds refit the
+            camera on every canvas-size change, and on mobile the URL
+            bar sliding in/out during scroll counts as a size change.
+            Combined with the per-frame position.y float in
+            SpinningDollar, that produced a visible up-and-down glitch
+            while scrolling. The initial fit still runs once on mount,
+            which is all we need because the model never changes size. */}
+        <Bounds fit clip margin={1.5}>
           <Center>
             <SpinningDollar pauseRef={pauseRef} />
           </Center>
