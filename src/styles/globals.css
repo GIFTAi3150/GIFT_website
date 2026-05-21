@@ -931,6 +931,10 @@
 :root {
   --font-mincho: '游明朝', 'Yu Mincho', 'Hiragino Mincho ProN W3', 'ヒラギノ明朝 ProN W3', serif;
   color-scheme: light;
+  /* Espacio La Nube design tokens — cloud blue + deep teal */
+  --nube-cloud: 176 224 233;
+  --nube-ink:   34 109 122;
+  --ease-out-soft: cubic-bezier(.22, 1, .36, 1);
 }
 
 html {
@@ -1299,4 +1303,40 @@ h6 {
   text-align: center;
   font-size: clamp(48px, 7vw, 110px);
   line-height: 1;
+}
+
+/* Espacio La Nube hero entrance — 1.6s slow fade-up sets the premium tone */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-enter { animation: hero-fade-up 1600ms cubic-bezier(.22, 1, .36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter { animation: none; }
+}
+
+/* ── Scroll-Reveal Spread (srs) ────────────────────────────────────────────
+   Sticky text section: the outer div stretches to give scroll room; the
+   inner .srs-stick stays pinned mid-viewport while you scroll through.
+   Add .srs-w to each word/phrase <span>; GSAP toggles .srs-lit on scroll. */
+.srs-spread { position: relative; }
+.srs-stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.srs-w {
+  display: inline-block;
+  color: rgba(34, 109, 122, 0.18);
+  filter: blur(6px);
+  transition:
+    color  0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.srs-w.srs-lit {
+  color: #226D7A;
+  filter: blur(0);
 }

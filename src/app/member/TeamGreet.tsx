@@ -98,33 +98,30 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
             className="font-sans font-extrabold text-[#2A2520]"
             style={{ fontSize: 'clamp(36px, 6vw, 64px)', lineHeight: 1.05 }}
           >
-            MEET&nbsp;/&nbsp;OUR&nbsp;/&nbsp;TEAM
+            MEET OUR TEAM
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl font-sans text-normal font-light text-[#6B5F52]">
-            ホバーするとメンバーの名前が大きく表示されます。クリックすると詳細をご覧いただけます。
-          </p>
+          <p className="mx-auto mt-5 max-w-2xl font-sans text-normal font-light text-[#6B5F52]"></p>
         </div>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-24 md:grid-cols-3 md:gap-x-6 md:gap-y-28 lg:grid-cols-4 lg:gap-x-7 lg:gap-y-32">
           {members.map((m, i) => {
-            const video =
-              m.video ?? PLACEHOLDER_VIDEOS[i % PLACEHOLDER_VIDEOS.length];
+            const video = m.video ?? PLACEHOLDER_VIDEOS[i % PLACEHOLDER_VIDEOS.length];
             return (
-            <Link
-              key={m.id}
-              href={`/member/${m.id}`}
-              data-idx={i}
-              className="group relative block"
-            >
-              {/* Pixel "HELLO" sitting ABOVE the card. Anchored to
+              <Link
+                key={m.id}
+                href={`/member/${m.id}`}
+                data-idx={i}
+                className="group relative block"
+              >
+                {/* Pixel "HELLO" sitting ABOVE the card. Anchored to
                   the top edge with bottom-full so it floats outside
                   the rounded video frame entirely. On mobile (< md)
                   it's permanently visible — touch has no hover state.
                   On md+ it's hidden by default and reveals on hover
                   with a soft rise + fade. pointer-events-none so it
                   never blocks the click target. */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-full z-20 mb-3 flex justify-center opacity-100 transition-all duration-500 ease-out translate-y-0 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
-                {/* Risograph-style two-color print: terracotta HELLO
+                <div className="pointer-events-none absolute inset-x-0 bottom-full z-20 mb-3 flex translate-y-2 justify-center opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-active:translate-y-0 group-active:opacity-100">
+                  {/* Risograph-style two-color print: terracotta HELLO
                     sits in front of a bright-teal offset clone. The
                     two are slightly off-register, mimicking a
                     misaligned silkscreen / risograph pass. Secondary
@@ -133,38 +130,38 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                     instead of disappearing into the page. Offset
                     bumped to 4px so the misregister is obvious at
                     every viewport size. */}
-                <p
-                  className={`${pressStart.className} whitespace-nowrap leading-none text-[#D96B43]`}
-                  style={{
-                    fontSize: 'clamp(18px, 3.4vw, 44px)',
-                    textShadow: '4px 4px 0 #06D6A0',
-                  }}
-                >
-                  {GREETING}
-                </p>
-              </div>
+                  <p
+                    className={`${pressStart.className} whitespace-nowrap leading-none text-[#D96B43]`}
+                    style={{
+                      fontSize: 'clamp(18px, 3.4vw, 44px)',
+                      textShadow: '4px 4px 0 #06D6A0',
+                    }}
+                  >
+                    {GREETING}
+                  </p>
+                </div>
 
-              {/* Looped color video — full saturation always, like
+                {/* Looped color video — full saturation always, like
                   neu-ad. The video plays continuously while the tile
                   is on screen; hover never pauses, restarts, or
                   filters it. */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#EBE3D2]">
-                <video
-                  ref={(el) => {
-                    videoRefs.current[i] = el;
-                  }}
-                  src={video}
-                  poster={m.image}
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                  aria-hidden
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]"
-                />
-              </div>
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#EBE3D2]">
+                  <video
+                    ref={(el) => {
+                      videoRefs.current[i] = el;
+                    }}
+                    src={video}
+                    poster={m.image}
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]"
+                  />
+                </div>
 
-              {/* Caption strip below the tile. Two-layer mask slide
+                {/* Caption strip below the tile. Two-layer mask slide
                   for both the name and the role: the small default
                   copy translates UP and out of the masked frame
                   while the larger hover copy rises UP into view from
@@ -172,68 +169,68 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                   ease (slow start, fast finish, no spring), and a
                   small stagger so the name leads and the role
                   follows. */}
-              <div className="px-1 pb-1 pt-4">
-                <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-[#D96B43]">
-                  {m.department}
-                </p>
+                <div className="px-1 pb-1 pt-4">
+                  <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-[#D96B43]">
+                    {m.department}
+                  </p>
 
-                {/* NAME — masked slide. The container is sized to the
+                  {/* NAME — masked slide. The container is sized to the
                     LARGER copy so there's room for the hover state to
                     occupy. Both layers share one grid cell so the
                     sliding doesn't shift surrounding content. */}
-                <div
-                  className="mt-2 grid overflow-hidden leading-tight text-[#2A2520]"
-                  style={{
-                    gridTemplateAreas: '"name"',
-                    minHeight: 'clamp(26px, 3.2vw, 36px)',
-                  }}
-                >
-                  <p
-                    className="font-sans font-extrabold transition-transform duration-[700ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full"
+                  <div
+                    className="mt-2 grid overflow-hidden leading-tight text-[#2A2520]"
                     style={{
-                      gridArea: 'name',
-                      fontSize: 'clamp(18px, 2vw, 22px)',
+                      gridTemplateAreas: '"name"',
+                      minHeight: 'clamp(26px, 3.2vw, 36px)',
                     }}
                   >
-                    {m.name}
-                  </p>
-                  <p
-                    className="translate-y-full font-sans font-extrabold transition-transform duration-[700ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0"
-                    style={{
-                      gridArea: 'name',
-                      fontSize: 'clamp(26px, 3.2vw, 36px)',
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
-                    {m.name}
-                  </p>
-                </div>
+                    <p
+                      className="font-sans font-extrabold transition-transform duration-[700ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full"
+                      style={{
+                        gridArea: 'name',
+                        fontSize: 'clamp(18px, 2vw, 22px)',
+                      }}
+                    >
+                      {m.name}
+                    </p>
+                    <p
+                      className="translate-y-full font-sans font-extrabold transition-transform duration-[700ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0"
+                      style={{
+                        gridArea: 'name',
+                        fontSize: 'clamp(26px, 3.2vw, 36px)',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {m.name}
+                    </p>
+                  </div>
 
-                {/* ROLE — same masked slide, smaller delta. Slight
+                  {/* ROLE — same masked slide, smaller delta. Slight
                     delay so the role enters after the name lands.
                     Default: warm gray. Hover: full warm ink. */}
-                <div
-                  className="mt-1 grid overflow-hidden text-[#8A7E72]"
-                  style={{
-                    gridTemplateAreas: '"role"',
-                    minHeight: '1.4em',
-                  }}
-                >
-                  <p
-                    className="font-sans text-sm font-light transition-transform duration-[700ms] [transition-delay:80ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full"
-                    style={{ gridArea: 'role' }}
+                  <div
+                    className="mt-1 grid overflow-hidden text-[#8A7E72]"
+                    style={{
+                      gridTemplateAreas: '"role"',
+                      minHeight: '1.4em',
+                    }}
                   >
-                    {m.role}
-                  </p>
-                  <p
-                    className="translate-y-full font-sans text-sm font-medium text-[#2A2520] transition-transform duration-[700ms] [transition-delay:80ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0"
-                    style={{ gridArea: 'role' }}
-                  >
-                    {m.role}
-                  </p>
+                    <p
+                      className="font-sans text-sm font-light transition-transform duration-[700ms] [transition-delay:80ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full"
+                      style={{ gridArea: 'role' }}
+                    >
+                      {m.role}
+                    </p>
+                    <p
+                      className="translate-y-full font-sans text-sm font-medium text-[#2A2520] transition-transform duration-[700ms] [transition-delay:80ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0"
+                      style={{ gridArea: 'role' }}
+                    >
+                      {m.role}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
             );
           })}
         </div>

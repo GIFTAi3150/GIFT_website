@@ -1604,7 +1604,7 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="sec-head">
             <h2>
-              Six tools, <em>one platform.</em>
+              Six tools, <em className="whitespace-nowrap">one platform.</em>
               <span className="ja">Lステップの機能</span>
             </h2>
           </div>
@@ -1677,7 +1677,6 @@ export default function DxV3Page() {
         {/* Case 01 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="num">01</div>
             <div className="label">Case 01 / Telecom</div>
             <h3>
               光回線の開通手続きの
@@ -1714,7 +1713,6 @@ export default function DxV3Page() {
         {/* Case 02 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="num">02</div>
             <div className="label">Case 02 / Beauty</div>
             <h3>
               エステサロンの予約管理を
@@ -1751,7 +1749,6 @@ export default function DxV3Page() {
         {/* Case 03 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="num">03</div>
             <div className="label">Case 03 / Local</div>
             <h3>
               地域限定のクーポン・

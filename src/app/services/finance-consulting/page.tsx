@@ -18,13 +18,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/services/finance-consulting' },
 };
 
-const kpis = [
-  { num: '01', label: 'Portfolio', value: 30, suffix: '社+', sub: '支援企業' },
-  { num: '02', label: 'Capital', value: 10, prefix: '¥', suffix: '億+', sub: '累計融資調達額' },
-  { num: '03', label: 'Approval', value: 90, suffix: '%+', sub: '融資承認率' },
-  { num: '04', label: 'Alliance', value: null, raw: '01', suffix: '社', sub: '財務パートナーズ' },
-] as const;
-
 const steps = [
   {
     n: '01',
@@ -119,28 +112,6 @@ export default function FinanceConsultingPage() {
               <div className="cube-stage cube-stage--3d">
                 <DollarSignHero />
               </div>
-            </div>
-
-            {/* KPI strip */}
-            <div className="kpi-strip">
-              {kpis.map((k) => (
-                <div className="kpi" key={k.num}>
-                  <div className="k">
-                    <span>{k.label}</span>
-                    <span className="up">▲</span>
-                  </div>
-                  <div className="v">
-                    {'prefix' in k && k.prefix ? k.prefix : null}
-                    {k.value !== null ? (
-                      <span data-count={k.value}>0</span>
-                    ) : (
-                      (k as { raw: string }).raw
-                    )}
-                    <sup>{k.suffix}</sup>
-                  </div>
-                  <div className="l">{k.sub}</div>
-                </div>
-              ))}
             </div>
           </div>
         </section>

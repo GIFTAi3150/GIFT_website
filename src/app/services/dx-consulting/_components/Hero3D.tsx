@@ -8,7 +8,6 @@ import {
   Center,
   Bounds,
   OrbitControls,
-  Html,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -17,8 +16,8 @@ import gsap from 'gsap';
 // mount so the canvas doesn't have to wait for them sequentially.
 const MODEL_RAMEN_URL = '/models/5427b7333c244dafb7c339f6b2e695d0.glb';
 const MODEL_MONITOR_URL = '/models/monitor_vi.glb';
-useGLTF.preload(MODEL_RAMEN_URL);
-useGLTF.preload(MODEL_MONITOR_URL);
+// Preload removed — GLBs now load on demand when the section mounts,
+// avoiding unnecessary network requests on initial page load.
 
 // Scale + placement for each model. The ramen .glb has a native bbox
 // of ~534 units (likely millimeters), while the monitor is ~1.19 units.
@@ -82,7 +81,7 @@ function DeskScene({
 }) {
   const { scene: ramenScene } = useGLTF(MODEL_RAMEN_URL);
   const { scene: monitorScene } = useGLTF(MODEL_MONITOR_URL);
-  const { camera, controls, size: viewportSize } = useThree();
+  const { camera, controls, gl, size: viewportSize } = useThree();
   // Screen logo position is now a manual offset relative to MONITOR_POS
   // (see SCREEN_LOGO_* constants up top). The mesh-lookup approach was
   // unreliable because the screen mesh's bbox extended past the visible
@@ -95,6 +94,21 @@ function DeskScene({
   const initialTarget = useRef<THREE.Vector3 | null>(null);
   // Whichever mesh is currently focused (zoomed in on). null = at rest.
   const focusedRef = useRef<THREE.Object3D | null>(null);
+
+  // OrbitControls forcibly sets touchAction:'none' on the canvas when it
+  // connects, blocking native page scroll on touch devices. Override it to
+  // 'pan-y' so vertical swipes scroll the page while horizontal drags still
+  // rotate the scene. Run after a short delay so OrbitControls has connected.
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const id = setTimeout(() => {
+      canvas.style.touchAction = 'pan-y';
+    }, 100);
+    return () => {
+      clearTimeout(id);
+      canvas.style.touchAction = '';
+    };
+  }, [gl.domElement]);
 
   // Log both models' bounding boxes so we can compare scales and
   // position the monitor relative to the desk accordingly.
@@ -142,34 +156,6 @@ function DeskScene({
   const planarUvsRef = useRef<THREE.BufferAttribute | null>(null);
   const logoTextureRef = useRef<THREE.Texture | null>(null);
   const screenOnMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
-
-  // World positions of the two working buttons (tv004 = logo channel,
-  // tv005 = pixel/snake channel). Persistent "1" and "2" badges anchor
-  // here via drei <Html> so visitors immediately see WHICH parts of
-  // the monitor are interactive — without it the buttons read as
-  // decoration and the click-tooltip pattern made it look like every
-  // mesh was clickable. Computed once on mount from the monitor scene
-  // graph, then offset slightly along Z so the badge floats just in
-  // front of the button face rather than co-planar with it.
-  const [buttonPositions, setButtonPositions] = useState<{
-    logo: [number, number, number] | null;
-    pixel: [number, number, number] | null;
-  }>({ logo: null, pixel: null });
-  useEffect(() => {
-    const logoMesh = monitorScene.getObjectByName(LOGO_BUTTON_MESH_NAME);
-    const pixelMesh = monitorScene.getObjectByName(PIXEL_BUTTON_MESH_NAME);
-    const getPos = (m: THREE.Object3D | null | undefined): [number, number, number] | null => {
-      if (!m) return null;
-      m.updateMatrixWorld(true);
-      const v = new THREE.Vector3();
-      m.getWorldPosition(v);
-      return [v.x, v.y, v.z];
-    };
-    setButtonPositions({
-      logo: getPos(logoMesh),
-      pixel: getPos(pixelMesh),
-    });
-  }, [monitorScene]);
 
   // Locate the screen mesh, stash its native material, and compute a
   // PLANAR UV set we can swap in when the screen is "on." The mesh's
@@ -930,125 +916,6 @@ function DeskScene({
           material via a useEffect above — no JSX element needed. The
           material with the logo texture IS the screen, so it fits
           perfectly with zero gap. */}
-      {/* Button affordance badges — "1" and "2" labels pinned to the
-          world position of each working button so visitors instantly
-          spot which parts of the monitor do something on click. The
-          rest of the monitor (knobs, frame, antenna, ground) stays
-          passive (no click feedback). drei <Html> portals these to
-          the DOM as overlays, so they stay readable at any camera
-          angle and aren't depth-tested against the 3D meshes.
-
-          Each badge has TWO concentric elements:
-            - An outer halo that scale-pulses on a loop, drawing the
-              eye to the clickable region (especially important for
-              button 2 which previously got lost on the small-screen
-              bottom edge of the monitor).
-            - An inner solid disc with the number — the actual badge.
-          The keyframes are defined once inside the first badge's
-          <Html> portal (which is real DOM, so <style> is valid there —
-          a bare <style> as a direct child of <Canvas> would crash R3F
-          with "Style is not part of the THREE namespace"). Once the
-          @keyframes rule lands in document styles, both badges can
-          reference it; staggering button 2 by half a cycle prevents
-          the two pulses from feeling synchronized. */}
-      {buttonPositions.logo && (
-        <Html position={buttonPositions.logo} center zIndexRange={[20, 0]}>
-          <style>{`
-            @keyframes hero3dBadgePulse {
-              0%, 100% { transform: scale(1); opacity: 0.7; }
-              50%      { transform: scale(1.7); opacity: 0; }
-            }
-          `}</style>
-          <div
-            style={{
-              position: 'relative',
-              width: 34,
-              height: 34,
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          >
-            {/* Pulsing halo */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                background: 'rgba(99, 91, 255, 0.55)',
-                animation: 'hero3dBadgePulse 1.8s ease-out infinite',
-              }}
-            />
-            {/* Inner badge */}
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                background: 'rgba(99, 91, 255, 0.98)',
-                border: '2px solid #fff',
-                color: '#fff',
-                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                fontWeight: 800,
-                fontSize: 15,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 6px 16px rgba(11, 19, 64, 0.5)',
-              }}
-            >
-              1
-            </div>
-          </div>
-        </Html>
-      )}
-      {buttonPositions.pixel && (
-        <Html position={buttonPositions.pixel} center zIndexRange={[20, 0]}>
-          <div
-            style={{
-              position: 'relative',
-              width: 34,
-              height: 34,
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          >
-            {/* Pulsing halo — half-cycle offset from button 1 so the
-                two badges don't pulse in lock-step. */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                background: 'rgba(255, 77, 109, 0.55)',
-                animation: 'hero3dBadgePulse 1.8s ease-out infinite',
-                animationDelay: '0.9s',
-              }}
-            />
-            {/* Inner badge */}
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                background: 'rgba(255, 77, 109, 0.98)',
-                border: '2px solid #fff',
-                color: '#fff',
-                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                fontWeight: 800,
-                fontSize: 15,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 6px 16px rgba(11, 19, 64, 0.5)',
-              }}
-            >
-              2
-            </div>
-          </div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -1064,7 +931,10 @@ function DeskScene({
 function ResponsiveBounds({ children }: { children: React.ReactNode }) {
   const { size } = useThree();
   const isMobile = size.width < 768;
-  const margin = isMobile ? 0.85 : 1.0;
+  // Smaller margin on mobile = camera sits closer = PC fills more of
+  // the screen. Was 0.85; dropped to 0.6 so the monitor reads at a
+  // useful size on phones instead of looking like a thumbnail.
+  const margin = isMobile ? 0.6 : 1.0;
   return (
     <Bounds
       key={isMobile ? 'mobile' : 'desktop'}
@@ -1094,17 +964,26 @@ function LoadingBox() {
 export default function Hero3D() {
   const [mounted, setMounted] = useState(false);
   const [tooltip, setTooltip] = useState<ClickPayload | null>(null);
-  // The PC's "screen" content. Toggled by clicking anywhere on the
-  // monitor model. Null when the screen is "off"; 'logo' when the
-  // GIFT logo is showing. Easy to extend later (e.g. boot-up text,
-  // animation frames) by adding more values.
   const [screen, setScreen] = useState<ScreenMode>('off');
-  // When true, the camera is zoomed into the TV and rotation is locked.
-  // A double-click anywhere fires resetView in DeskScene, which calls
-  // back with false once the camera has animated home.
   const [cameraLocked, setCameraLocked] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const isMobile = useRef(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    isMobile.current = window.innerWidth < 768;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!tooltip) return;
@@ -1115,7 +994,7 @@ export default function Hero3D() {
   if (!mounted) return null;
 
   return (
-    <div className="hero-3d" aria-hidden>
+    <div ref={heroRef} className="hero-3d" aria-hidden>
       {/* Editorial labels floating above the 3D scene. Each one
           anchors to the rough screen position of its subject (monitor
           on the left, ramen on the right) and stays put while the
@@ -1137,15 +1016,12 @@ export default function Hero3D() {
         <span className="ja">ラーメンで、動く。</span>
       </div>
       <Canvas
-        // Camera starts wide — <Bounds fit> below repositions it
-        // automatically once the model loads to frame the scene.
         camera={{ position: [4, 3, 6], fov: 40, near: 0.01, far: 200 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        // Soft tint behind everything so it's obvious if the canvas
-        // itself is mounting. Remove once the model is visible.
+        dpr={isMobile.current ? [1, 1.5] : [1, 2]}
+        gl={{ antialias: !isMobile.current, alpha: true }}
         style={{ background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)' }}
-        shadows
+        shadows={isMobile.current ? false : 'percentage'}
+        frameloop={heroVisible ? 'always' : 'never'}
       >
         <ambientLight intensity={0.5} />
         <directionalLight

@@ -113,11 +113,28 @@ const MEMBER_THEME: NavTheme = {
   logoInner: '#F4EFE6',                     // cream cutout — matches page bg
 };
 
+// Espacio La Nube palette — cloud-blue + deep-teal editorial style for /recruit page.
+// Matches the nube token system applied to src/app/recruit/page.tsx.
+const RECRUIT_THEME: NavTheme = {
+  bg: '#F5FBFC',                            // near-white cloud tint
+  bgAlpha: 'rgba(245, 251, 252, 0.96)',
+  bgFull: '#FFFFFF',                        // pure white mobile overlay
+  accent: '#226D7A',                        // nube-ink deep teal — accent/hover
+  accentDeep: '#1A5260',                    // darker teal — hover-on-hover
+  border: '#C2DDE2',                        // muted cloud hairline
+  bgAlt: '#EBF7FA',                         // lightest cloud — dropdown hover band
+  ink: '#0F2428',                           // near-black teal — headings + body
+  muted: '#5F6360',                         // nube-grey-soft
+  logoShield: '#226D7A',                    // deep teal — matches page accent
+  logoInner: '#F5FBFC',                     // light cloud cutout
+};
+
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
   [/^\/member(\/|$)/, MEMBER_THEME],
+  [/^\/recruit(\/|$)/, RECRUIT_THEME],
 ];
 
 export function getNavThemeForPath(pathname: string): NavTheme {
