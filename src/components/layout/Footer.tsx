@@ -64,7 +64,7 @@ export default function Footer() {
   const themeStyle = navThemeVars(theme) as CSSProperties;
   return (
     <footer
-      className="bg-[var(--nav-bg)] text-gift-ink/80"
+      className="bg-[var(--nav-bg)] text-[var(--nav-text)]"
       style={themeStyle}
     >
       <div className="mx-auto max-w-container px-4 py-s-80 md:px-6 lg:px-8">
@@ -81,10 +81,10 @@ export default function Footer() {
                 className="h-10 w-auto"
               />
             </Link>
-            <p className="font-sans text-normal text-gift-ink/60" style={{ lineHeight: '1.8' }}>
+            <p className="font-sans text-normal text-[var(--nav-text-muted)]" style={{ lineHeight: '1.8' }}>
               {company.address}
             </p>
-            <p className="font-sans text-normal text-gift-ink/60">TEL: {company.phone}</p>
+            <p className="font-sans text-normal text-[var(--nav-text-muted)]">TEL: {company.phone}</p>
 
             {/* Socials — themed via the same nav tokens so they swap palette
                 per page (was using global .cta-btn which is hard-coded green). */}
@@ -124,11 +124,11 @@ export default function Footer() {
                   href={item.href}
                   className="group flex items-center gap-3 whitespace-nowrap leading-none"
                 >
-                  <span className="w-20 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink transition-colors duration-150 group-hover:text-[var(--nav-accent)]">
+                  <span className="w-20 font-display text-[13px] font-bold uppercase tracking-[0.15em] text-[var(--nav-text)] transition-colors duration-150 group-hover:text-[var(--nav-accent)]">
                     {item.en}
                   </span>
                   <span aria-hidden className="h-4 w-px bg-white/20" />
-                  <span className="font-sans text-small font-light text-gift-silver transition-colors duration-150 group-hover:text-[var(--nav-accent)]">
+                  <span className="font-sans text-small font-light text-[var(--nav-text-muted)] transition-colors duration-150 group-hover:text-[var(--nav-accent)]">
                     {item.ja}
                   </span>
                 </Link>
@@ -136,14 +136,14 @@ export default function Footer() {
             </nav>
 
             <nav aria-label="事業内容ナビゲーション" className="flex flex-col gap-3">
-              <span className="font-display text-[13px] font-bold uppercase tracking-[0.15em] text-gift-ink">
+              <span className="font-display text-[13px] font-bold uppercase tracking-[0.15em] text-[var(--nav-text)]">
                 SERVICE
               </span>
               {footerServices.map((s) => (
                 <Link
                   key={s.href}
                   href={s.href}
-                  className="font-sans text-small font-light text-gift-silver transition-colors duration-150 hover:text-[var(--nav-accent)]"
+                  className="font-sans text-small font-light text-[var(--nav-text-muted)] transition-colors duration-150 hover:text-[var(--nav-accent)]"
                 >
                   {s.label}
                 </Link>
@@ -153,12 +153,12 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-3 border-t border-[var(--nav-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-sans text-small text-gift-ink/40">
+          <p className="font-sans text-small text-[var(--nav-text-faint)]">
             &copy; Copyright 2026 GIFT inc. All Rights Reserved.
           </p>
           <Link
             href="/privacy"
-            className="font-sans text-small text-gift-silver transition-colors hover:text-gift-ink"
+            className="font-sans text-small text-[var(--nav-text-faint)] transition-colors hover:text-[var(--nav-text)]"
           >
             プライバシーポリシー
           </Link>

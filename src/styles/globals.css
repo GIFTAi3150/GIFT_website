@@ -1320,6 +1320,12 @@ h6 {
    Sticky text section: the outer div stretches to give scroll room; the
    inner .srs-stick stays pinned mid-viewport while you scroll through.
    Add .srs-w to each word/phrase <span>; GSAP toggles .srs-lit on scroll. */
+/* Step slideshow pill fill animation */
+@keyframes stepFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
 .srs-spread { position: relative; }
 .srs-stick {
   position: sticky;
@@ -1330,13 +1336,14 @@ h6 {
 }
 .srs-w {
   display: inline-block;
-  color: rgba(34, 109, 122, 0.18);
-  filter: blur(6px);
+  opacity: 0;
+  transform: translateY(16px);
   transition:
-    color  0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity   0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .srs-w.srs-lit {
-  color: #226D7A;
-  filter: blur(0);
+  opacity: 1;
+  transform: translateY(0);
 }
+

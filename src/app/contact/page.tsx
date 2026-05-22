@@ -57,7 +57,9 @@ export default function ContactPage() {
 
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '送信に失敗しました。時間をおいて再度お試しください。');
+      setError(
+        err instanceof Error ? err.message : '送信に失敗しました。時間をおいて再度お試しください。',
+      );
     } finally {
       setLoading(false);
     }
@@ -82,9 +84,7 @@ export default function ContactPage() {
             <p
               className="mt-6 max-w-2xl font-sans text-normal font-light text-gift-silver"
               style={{ lineHeight: '2' }}
-            >
-              事業に関するご相談、お見積り、採用のご応募まで、どんなお問い合わせでも下記フォームよりお気軽にご連絡ください。通常2〜3営業日以内に担当者よりご返信いたします。
-            </p>
+            ></p>
           </div>
         </section>
 
@@ -101,7 +101,10 @@ export default function ContactPage() {
                       <h2 className="mb-3 font-sans text-large font-extrabold text-gift-ink">
                         送信が完了しました
                       </h2>
-                      <p className="max-w-md font-sans text-normal font-light text-gift-silver" style={{ lineHeight: '1.8' }}>
+                      <p
+                        className="max-w-md font-sans text-normal font-light text-gift-silver"
+                        style={{ lineHeight: '1.8' }}
+                      >
                         お問い合わせありがとうございます。担当者より2〜3営業日以内にご返信いたします。今しばらくお待ちください。
                       </p>
                       <button
@@ -116,19 +119,41 @@ export default function ContactPage() {
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <Field label="お名前" required>
-                          <input type="text" name="name" required className="contact-input" placeholder="山田 太郎" />
+                          <input
+                            type="text"
+                            name="name"
+                            required
+                            className="contact-input"
+                            placeholder="山田 太郎"
+                          />
                         </Field>
                         <Field label="会社名">
-                          <input type="text" name="company" className="contact-input" placeholder="株式会社サンプル" />
+                          <input
+                            type="text"
+                            name="company"
+                            className="contact-input"
+                            placeholder="株式会社サンプル"
+                          />
                         </Field>
                       </div>
 
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <Field label="メールアドレス" required>
-                          <input type="email" name="email" required className="contact-input" placeholder="name@example.com" />
+                          <input
+                            type="email"
+                            name="email"
+                            required
+                            className="contact-input"
+                            placeholder="name@example.com"
+                          />
                         </Field>
                         <Field label="電話番号">
-                          <input type="tel" name="phone" className="contact-input" placeholder="090-0000-0000" />
+                          <input
+                            type="tel"
+                            name="phone"
+                            className="contact-input"
+                            placeholder="090-0000-0000"
+                          />
                         </Field>
                       </div>
 
@@ -140,9 +165,13 @@ export default function ContactPage() {
                           value={inquiryType}
                           onChange={(e) => setInquiryType(e.target.value)}
                         >
-                          <option value="" disabled>選択してください</option>
+                          <option value="" disabled>
+                            選択してください
+                          </option>
                           {inquiryTypes.map((t) => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
+                            <option key={t.value} value={t.value}>
+                              {t.label}
+                            </option>
                           ))}
                         </select>
                       </Field>
@@ -158,9 +187,19 @@ export default function ContactPage() {
                       </Field>
 
                       <label className="flex items-start gap-3 font-sans text-small font-light text-gift-silver">
-                        <input type="checkbox" name="privacy" required className="mt-1 h-4 w-4 accent-gift-green" />
+                        <input
+                          type="checkbox"
+                          name="privacy"
+                          required
+                          className="mt-1 h-4 w-4 accent-gift-green"
+                        />
                         <span>
-                          <a href="/privacy" className="text-gift-green underline underline-offset-2">プライバシーポリシー</a>
+                          <a
+                            href="/privacy"
+                            className="text-gift-green underline underline-offset-2"
+                          >
+                            プライバシーポリシー
+                          </a>
                           に同意の上、送信してください。
                         </span>
                       </label>
@@ -176,7 +215,13 @@ export default function ContactPage() {
                         disabled={loading}
                         className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-full bg-gift-ink px-10 py-4 font-sans text-normal font-semibold text-white transition-colors hover:bg-gift-green disabled:opacity-50"
                       >
-                        {loading ? '送信中...' : <>送信する <Send className="h-4 w-4" strokeWidth={2} /></>}
+                        {loading ? (
+                          '送信中...'
+                        ) : (
+                          <>
+                            送信する <Send className="h-4 w-4" strokeWidth={2} />
+                          </>
+                        )}
                       </button>
                     </form>
                   )}
@@ -201,7 +246,10 @@ export default function ContactPage() {
                         </a>
                       </ContactRow>
                       <ContactRow icon={Phone} label="Tel">
-                        <a href={`tel:${company.phone.replace(/-/g, '')}`} className="hover:text-gift-green">
+                        <a
+                          href={`tel:${company.phone.replace(/-/g, '')}`}
+                          className="hover:text-gift-green"
+                        >
                           {company.phone}
                         </a>
                       </ContactRow>

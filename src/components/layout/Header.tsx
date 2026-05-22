@@ -141,7 +141,7 @@ export default function Header() {
                           className={`block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
                             justClicked('/services')
                               ? 'text-[var(--nav-accent)]'
-                              : 'text-gift-ink/85 group-hover:text-[var(--nav-accent)]'
+                              : 'text-[var(--nav-text)] group-hover:text-[var(--nav-accent)]'
                           }`}
                         >
                           SERVICE
@@ -152,7 +152,7 @@ export default function Header() {
                       </span>
                     </span>
                     <ChevronDown
-                      className={`h-3.5 w-3.5 text-gift-ink/60 transition-transform duration-200 ${
+                      className={`h-3.5 w-3.5 text-[var(--nav-text-muted)] transition-transform duration-200 ${
                         serviceOpen ? 'rotate-180' : ''
                       }`}
                       strokeWidth={2.5}
@@ -180,7 +180,7 @@ export default function Header() {
                           <span className="font-display text-[11px] font-bold uppercase tracking-widest text-[var(--nav-accent)]">
                             {s.labelEn}
                           </span>
-                          <span className="font-sans text-[14px] font-medium text-gift-ink transition-colors group-hover/item:text-[var(--nav-accent-deep)]">
+                          <span className="font-sans text-[14px] font-medium text-[var(--nav-text)] transition-colors group-hover/item:text-[var(--nav-accent-deep)]">
                             {s.label}
                           </span>
                         </Link>
@@ -207,7 +207,7 @@ export default function Header() {
                       className={`block h-5 font-display text-[13px] font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
                         justClicked(item.href)
                           ? 'text-[var(--nav-accent)]'
-                          : 'text-gift-ink/85 group-hover:text-[var(--nav-accent)]'
+                          : 'text-[var(--nav-text)] group-hover:text-[var(--nav-accent)]'
                       }`}
                     >
                       {item.en}
@@ -225,7 +225,7 @@ export default function Header() {
         </nav>
 
         <button
-          className="nav-reveal relative z-10 flex h-10 w-10 items-center justify-center rounded-md text-gift-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-accent)] md:hidden"
+          className="nav-reveal relative z-10 flex h-10 w-10 items-center justify-center rounded-md text-[var(--nav-text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-accent)] md:hidden"
           style={{ ['--reveal-delay' as string]: '150ms' }}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
@@ -256,13 +256,13 @@ export default function Header() {
         >
           <span
             className={`inline-block w-[170px] font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
-              justClicked('/company') ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
+              justClicked('/company') ? 'text-[var(--nav-accent)]' : 'text-[var(--nav-text)] hover:text-[var(--nav-accent)]'
             }`}
           >
             ABOUT
           </span>
           <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
-          <span className="font-sans text-[15px] font-medium text-gift-silver">
+          <span className="font-sans text-[15px] font-medium text-[var(--nav-text-muted)]">
             会社概要
           </span>
         </Link>
@@ -275,17 +275,17 @@ export default function Header() {
           >
             <span
               className={`inline-block w-[170px] text-left font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
-                justClicked('/services') ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
+                justClicked('/services') ? 'text-[var(--nav-accent)]' : 'text-[var(--nav-text)] hover:text-[var(--nav-accent)]'
               }`}
             >
               SERVICE
             </span>
             <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
-            <span className="font-sans text-[15px] font-medium text-gift-silver">
+            <span className="font-sans text-[15px] font-medium text-[var(--nav-text-muted)]">
               事業内容
             </span>
             <svg
-              className={`ml-1 h-4 w-4 text-gift-silver transition-transform duration-200 ${mobileServiceOpen ? 'rotate-180' : ''}`}
+              className={`ml-1 h-4 w-4 text-[var(--nav-text-muted)] transition-transform duration-200 ${mobileServiceOpen ? 'rotate-180' : ''}`}
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -308,7 +308,7 @@ export default function Header() {
                   </span>
                   <span
                     className={`font-sans text-[16px] font-medium transition-colors duration-200 ${
-                      justClicked(s.href) ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
+                      justClicked(s.href) ? 'text-[var(--nav-accent)]' : 'text-[var(--nav-text)] hover:text-[var(--nav-accent)]'
                     }`}
                   >
                     {s.label}
@@ -330,13 +330,13 @@ export default function Header() {
           >
             <span
               className={`inline-block w-[170px] font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
-                justClicked(item.href) ? 'text-[var(--nav-accent)]' : 'text-gift-ink hover:text-[var(--nav-accent)]'
+                justClicked(item.href) ? 'text-[var(--nav-accent)]' : 'text-[var(--nav-text)] hover:text-[var(--nav-accent)]'
               }`}
             >
               {item.en}
             </span>
             <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
-            <span className="font-sans text-[15px] font-medium text-gift-silver">
+            <span className="font-sans text-[15px] font-medium text-[var(--nav-text-muted)]">
               {item.ja}
             </span>
           </Link>
