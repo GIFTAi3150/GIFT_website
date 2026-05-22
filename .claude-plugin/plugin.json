@@ -1,0 +1,8 @@
+{
+  "name": "GIFT_website",
+  "version": "0.1.0",
+  "description": "GIFT Inc corporate website — Next.js + Tailwind + TS rebuild from WordPress",
+  "skills": [
+    "./skills/"
+  ]
+}

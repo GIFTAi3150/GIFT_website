@@ -172,10 +172,16 @@ export default function ServicesCards() {
           </p>
         </div>
 
-        {/* Slideshow frame — overflow:hidden clips the parallax. */}
+        {/* Slideshow frame — overflow:hidden clips the parallax.
+            Mobile aspect ratio is 3:5 (taller than wide) so the long
+            Japanese body copy + tag + h3 + button stack fits inside the
+            text panel without spilling past the top edge. The previous
+            4:5 was only ~429px tall on iPhone SE — content needed ~380px
+            after padding, and with items-end (content anchored to the
+            bottom) the title got clipped at the top. */}
         <div
           ref={wheelTargetRef}
-          className="relative w-full overflow-hidden rounded-2xl bg-black aspect-[4/5] sm:aspect-[16/10] touch-pan-y select-none"
+          className="relative w-full overflow-hidden rounded-2xl bg-black aspect-[3/5] sm:aspect-[16/10] touch-pan-y select-none"
         >
           {services.map((s, i) => (
             <div

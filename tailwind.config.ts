@@ -37,6 +37,24 @@ export default {
           warning: '#D98B1F',
           announcement: '#128C7E',
         },
+        // Espacio La Nube palette — cloud blue + deep teal editorial style for /member page
+        nube: {
+          cloud:        '#B0E0E9',
+          ink:          '#226D7A',
+          paper:        '#FFFFFF',
+          black:        '#000000',
+          offwhite:     '#EFEFEF',
+          'grey-light': '#ABABAB',
+          'grey-mid':   '#3E3E3E',
+          'grey-soft':  '#5F6360',
+        },
+        accent: {
+          yellow:    '#FFCB05',
+          red:       '#ED1C24',
+          turquoise: '#12B7B3',
+          cyan:      '#00B4FF',
+          blue:      '#0088CB',
+        },
         // WhatsApp-inspired palette — extracted from whatsapp.com production CSS 2026-04-16
         // Discipline: two greens (bright + deep teal). No third color.
         line: {
@@ -56,6 +74,8 @@ export default {
         sans: ['var(--font-noto-jp)', 'sans-serif'],
         display: ['var(--font-poppins)', 'sans-serif'],
         mincho: ['var(--font-mincho)'],
+        'nube-display': ['var(--font-anton)', 'Impact', 'sans-serif'],
+        'nube-sans':    ['var(--font-open-sans)', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         small: ['16px', { lineHeight: '1.5' }],
@@ -63,6 +83,17 @@ export default {
         medium: ['24px', { lineHeight: '1.5' }],
         large: ['40px', { lineHeight: '1.25' }],
         xlarge: ['46px', { lineHeight: '1.15' }],
+        // Espacio La Nube type scale
+        'display-xs': ['23px', { lineHeight: '1.4' }],
+        'display-sm': ['37px', { lineHeight: '1.4' }],
+        'display-md': ['40px', { lineHeight: '1.4' }],
+        'display-lg': ['51px', { lineHeight: '1.4' }],
+        'display-xl': ['60px', { lineHeight: '1.4' }],
+        'body-2xs':   ['10px', { lineHeight: '1.4' }],
+        'body-xs':    ['12px', { lineHeight: '1.4' }],
+        'body-sm':    ['13px', { lineHeight: '1.4' }],
+        'body':       ['16px', { lineHeight: '1.4' }],
+        'body-lg':    ['18px', { lineHeight: '1.4' }],
       },
       borderRadius: {
         pill: '9999px',
@@ -87,6 +118,17 @@ export default {
       },
       maxWidth: {
         container: '72rem',
+        fit:       '1240px',
+      },
+      transitionTimingFunction: {
+        'ease-out-soft':     'cubic-bezier(.22, 1, .36, 1)',
+        'ease-inout-strong': 'cubic-bezier(.87, 0, .13, 1)',
+        'ease-inout-sine':   'cubic-bezier(.37, 0, .63, 1)',
+        'ease-in-heavy':     'cubic-bezier(.64, 0, .78, 0)',
+        'ease-out-quick':    'cubic-bezier(0, 0, .2, 1)',
+      },
+      transitionDuration: {
+        '1600': '1600ms',
       },
       keyframes: {
         marquee: {

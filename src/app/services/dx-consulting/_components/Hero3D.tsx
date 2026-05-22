@@ -16,8 +16,8 @@ import gsap from 'gsap';
 // mount so the canvas doesn't have to wait for them sequentially.
 const MODEL_RAMEN_URL = '/models/5427b7333c244dafb7c339f6b2e695d0.glb';
 const MODEL_MONITOR_URL = '/models/monitor_vi.glb';
-useGLTF.preload(MODEL_RAMEN_URL);
-useGLTF.preload(MODEL_MONITOR_URL);
+// Preload removed — GLBs now load on demand when the section mounts,
+// avoiding unnecessary network requests on initial page load.
 
 // Scale + placement for each model. The ramen .glb has a native bbox
 // of ~534 units (likely millimeters), while the monitor is ~1.19 units.
@@ -81,7 +81,7 @@ function DeskScene({
 }) {
   const { scene: ramenScene } = useGLTF(MODEL_RAMEN_URL);
   const { scene: monitorScene } = useGLTF(MODEL_MONITOR_URL);
-  const { camera, controls, size: viewportSize } = useThree();
+  const { camera, controls, gl, size: viewportSize } = useThree();
   // Screen logo position is now a manual offset relative to MONITOR_POS
   // (see SCREEN_LOGO_* constants up top). The mesh-lookup approach was
   // unreliable because the screen mesh's bbox extended past the visible
@@ -95,6 +95,21 @@ function DeskScene({
   // Whichever mesh is currently focused (zoomed in on). null = at rest.
   const focusedRef = useRef<THREE.Object3D | null>(null);
 
+  // OrbitControls forcibly sets touchAction:'none' on the canvas when it
+  // connects, blocking native page scroll on touch devices. Override it to
+  // 'pan-y' so vertical swipes scroll the page while horizontal drags still
+  // rotate the scene. Run after a short delay so OrbitControls has connected.
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const id = setTimeout(() => {
+      canvas.style.touchAction = 'pan-y';
+    }, 100);
+    return () => {
+      clearTimeout(id);
+      canvas.style.touchAction = '';
+    };
+  }, [gl.domElement]);
+
   // Log both models' bounding boxes so we can compare scales and
   // position the monitor relative to the desk accordingly.
   useEffect(() => {
@@ -106,20 +121,14 @@ function DeskScene({
     const monitorBox = new THREE.Box3().setFromObject(monitorScene);
     const monitorSize = new THREE.Vector3();
     monitorBox.getSize(monitorSize);
-    // eslint-disable-next-line no-console
-    console.log(
-      `[Hero3D] ramen native: ${fmt(ramenSize)} (× ${RAMEN_SCALE} scale) — monitor: ${fmt(monitorSize)}`
-    );
-    // Dump the monitor's mesh names so we can identify clickable parts
-    // (power button, screen, etc.) and wire interactions to them.
-    // eslint-disable-next-line no-console
-    console.log('[Hero3D] monitor meshes:');
-    monitorScene.traverse((obj) => {
-      if ((obj as THREE.Mesh).isMesh) {
-        // eslint-disable-next-line no-console
-        console.log(`  · ${obj.name || '(unnamed)'} [${obj.type}]`);
-      }
-    });
+    // Diagnostic logging removed — it produced noisy mount-time output
+    // (model bbox dimensions, full mesh-name dump) that's no longer
+    // useful now that the model is identified and wired up. fmt() and
+    // the bbox calculation above are kept inert so re-introducing logs
+    // (or programmatic scaling) is a one-line edit.
+    void fmt;
+    void ramenSize;
+    void monitorSize;
   }, [ramenScene, monitorScene]);
 
   // Capture the default camera/target once Bounds has fitted them.
@@ -195,10 +204,6 @@ function DeskScene({
       uvData[i * 2 + 1] = v;
     }
     planarUvsRef.current = new THREE.BufferAttribute(uvData, 2);
-    // eslint-disable-next-line no-console
-    console.log(
-      `[Hero3D] planar UVs computed for screen mesh (axes ${uIdx},${vIdx}, ${positions.count} verts)`
-    );
   }, [monitorScene]);
 
   // Build the "screen on" texture once. Fetches the GIFT logo SVG,
@@ -224,19 +229,13 @@ function DeskScene({
           .replace(/#234a2d/gi, BRAND_SHIELD)
           .replace(/#ffffff/gi, BRAND_INNER)
           .replace(/#fff(?![0-9a-f])/gi, BRAND_INNER);
-        // eslint-disable-next-line no-console
-        console.log('[Hero3D] themed SVG length:', themed.length, 'first 240 chars:', themed.slice(0, 240));
         const dataUrl =
           'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(themed);
 
         const img = new window.Image();
         img.crossOrigin = 'anonymous';
         await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            // eslint-disable-next-line no-console
-            console.log(`[Hero3D] logo image loaded: ${img.naturalWidth}×${img.naturalHeight}`);
-            resolve();
-          };
+          img.onload = () => resolve();
           img.onerror = () => reject(new Error('logo image load failed'));
           img.src = dataUrl;
         });
@@ -837,16 +836,13 @@ function DeskScene({
       onPointerOut={() => setHovered(false)}
       onClick={(e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-        const name = (e.object as THREE.Object3D).name || 'object';
-        onClickMesh({
-          name,
-          clientX: e.nativeEvent.clientX,
-          clientY: e.nativeEvent.clientY,
-        });
         // Walk up the parent chain to find which "button" mesh was
         // hit, if any. tv004 toggles the logo channel, tv005 toggles
         // the pixel-grid channel. Other tv* parts (frame, knobs,
-        // speaker, antenna) just show the tooltip and do nothing.
+        // speaker, antenna, ground plane) are inert — we used to fire
+        // a tooltip with the raw mesh name on every click, but it
+        // surfaced strings like "tv001_low_tv_0" which read as noise.
+        // Now we only call onClickMesh when an actual button is hit.
         let current: THREE.Object3D | null = e.object;
         let buttonHit: 'logo' | 'pixels' | null = null;
         let buttonMesh: THREE.Object3D | null = null;
@@ -879,8 +875,6 @@ function DeskScene({
             ease: 'power2.inOut',
           });
         }
-        // eslint-disable-next-line no-console
-        console.log(`[Hero3D] click on "${name}" — buttonHit=${buttonHit}`);
         if (buttonHit) {
           // If the press is going to turn the current channel OFF
           // (user clicked the same button twice), zoom OUT to the
@@ -937,7 +931,10 @@ function DeskScene({
 function ResponsiveBounds({ children }: { children: React.ReactNode }) {
   const { size } = useThree();
   const isMobile = size.width < 768;
-  const margin = isMobile ? 0.85 : 1.0;
+  // Smaller margin on mobile = camera sits closer = PC fills more of
+  // the screen. Was 0.85; dropped to 0.6 so the monitor reads at a
+  // useful size on phones instead of looking like a thumbnail.
+  const margin = isMobile ? 0.6 : 1.0;
   return (
     <Bounds
       key={isMobile ? 'mobile' : 'desktop'}
@@ -967,17 +964,26 @@ function LoadingBox() {
 export default function Hero3D() {
   const [mounted, setMounted] = useState(false);
   const [tooltip, setTooltip] = useState<ClickPayload | null>(null);
-  // The PC's "screen" content. Toggled by clicking anywhere on the
-  // monitor model. Null when the screen is "off"; 'logo' when the
-  // GIFT logo is showing. Easy to extend later (e.g. boot-up text,
-  // animation frames) by adding more values.
   const [screen, setScreen] = useState<ScreenMode>('off');
-  // When true, the camera is zoomed into the TV and rotation is locked.
-  // A double-click anywhere fires resetView in DeskScene, which calls
-  // back with false once the camera has animated home.
   const [cameraLocked, setCameraLocked] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const isMobile = useRef(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    isMobile.current = window.innerWidth < 768;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!tooltip) return;
@@ -988,7 +994,7 @@ export default function Hero3D() {
   if (!mounted) return null;
 
   return (
-    <div className="hero-3d" aria-hidden>
+    <div ref={heroRef} className="hero-3d" aria-hidden>
       {/* Editorial labels floating above the 3D scene. Each one
           anchors to the rough screen position of its subject (monitor
           on the left, ramen on the right) and stays put while the
@@ -1010,15 +1016,12 @@ export default function Hero3D() {
         <span className="ja">ラーメンで、動く。</span>
       </div>
       <Canvas
-        // Camera starts wide — <Bounds fit> below repositions it
-        // automatically once the model loads to frame the scene.
         camera={{ position: [4, 3, 6], fov: 40, near: 0.01, far: 200 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        // Soft tint behind everything so it's obvious if the canvas
-        // itself is mounting. Remove once the model is visible.
+        dpr={isMobile.current ? [1, 1.5] : [1, 2]}
+        gl={{ antialias: !isMobile.current, alpha: true }}
         style={{ background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)' }}
-        shadows
+        shadows={isMobile.current ? false : 'percentage'}
+        frameloop={heroVisible ? 'always' : 'never'}
       >
         <ambientLight intensity={0.5} />
         <directionalLight

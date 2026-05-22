@@ -371,6 +371,24 @@
     max-width: 100%;
   }
 }
+/* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
+   was wider than "DX Consulting." (~14 chars) could fit at 375px with
+   24px side padding (327px usable). Drop the min so the row scales
+   down on truly small viewports. Hero-stats gap is also tightened so
+   the three stats fit on one line where possible. */
+@media (max-width: 480px) {
+  .dx-v3 .masthead .row {
+    font-size: clamp(32px, 9vw, 48px);
+  }
+  .dx-v3 .hero-stats {
+    left: 20px;
+    right: 20px;
+    gap: 14px;
+  }
+  .dx-v3 .hero-stat .v {
+    font-size: clamp(20px, 5.6vw, 28px);
+  }
+}
 .dx-v3 .masthead .row {
   font-family: 'Noto Sans JP', 'General Sans', sans-serif;
   font-weight: 700;
@@ -410,6 +428,13 @@
   font-size: 1.08em;
   letter-spacing: -0.012em;
   color: var(--purple);
+  /* Keep "Consulting." atomic — the scramble effect wraps each letter in
+     <span class="ch"> with display: inline-block, so without this the
+     browser is free to break between any letter and we saw "Consultin"
+     / "g." at narrower widths. The line still breaks cleanly at the
+     space after "DX". */
+  display: inline-block;
+  white-space: nowrap;
 }
 /* The hero scramble effect splits each row into <span class="ch"> per
    character on mount. Those child spans must also pick up the purple,
@@ -618,11 +643,12 @@
   background: linear-gradient(180deg, #f8fafe 0%, #eef2fb 40%, #dfe7f5 80%, #d2ddf0 100%);
   padding: 120px 32px 80px;
   position: relative;
-  /* overflow: visible so the manifesto-scene's centerpiece sphere can
-     bleed past the section edge into stats — no visible "container"
-     line between the two sections. .dx-v3 root has overflow-x: clip
-     so horizontal page overflow is still contained. */
-  overflow: visible;
+  /* overflow: clip — keep the manifesto-scene PNGs (especially the
+     60vw centerpiece sphere) contained within intro so they don't
+     overlap the stats numbers below. Combined with intro's
+     padding-bottom and stats' padding-top, this gives a clean gap
+     between the PNG cluster and the stat numbers. */
+  overflow: clip;
 }
 .dx-v3 .intro::before,
 .dx-v3 .intro::after {
@@ -951,10 +977,14 @@
    bottom edge (visually heavier "cut" on small screens). */
 @media (max-width: 640px) {
   /* Tighten intro padding so the text + cluster read as one
-     continuous composition instead of stacked blocks. */
+     continuous composition instead of stacked blocks. Side padding
+     also drops from 32px → 20px so the manifesto sentence has more
+     line-width on iPhone SE (327px vs 311px usable). */
   .dx-v3 .intro {
     padding-top: 72px;
+    padding-right: 20px;
     padding-bottom: 32px;
+    padding-left: 20px;
   }
   .dx-v3 .manifesto-scene {
     /* Gap between headline and PNG cluster on mobile too — smaller
@@ -1311,39 +1341,6 @@
     --orbit-ry: 130px;
   }
 }
-/* Mobile: kill the ~50vh dead band between the lead copy and the
-   first card. The tile anchor lives on .caps-orbit (the inner grid),
-   not the frame, so we override `place-items` there to pull tiles
-   to the top of the sticky frame. We also tighten the intro margins
-   and pull the sticky a bit upward via negative top so the orbit
-   doesn't pin with a fat empty zone above it. */
-@media (max-width: 899px) {
-  /* Trim section padding — 160px top was pushing the intro half a
-     screen down on its own. */
-  .dx-v3 .caps-section {
-    padding: 48px 20px;
-  }
-  .dx-v3 .caps-intro {
-    gap: 16px;
-    margin-bottom: 0;
-  }
-  .dx-v3 .caps-orbit-stack {
-    margin-top: 0;
-    height: 240vh;
-  }
-  .dx-v3 .caps-orbit-frame {
-    height: 88vh;
-    /* GSAP front-tile transform is y = cos(0) * --orbit-ry. Dropping
-       ry from 90 → 8 pulls the focused card right up against the lead
-       copy instead of leaving a ~90px dead band above it. */
-    --orbit-ry: 8px;
-    --orbit-rx: 280px;
-  }
-  .dx-v3 .caps-orbit {
-    place-items: start center;
-    padding-top: 4px;
-  }
-}
 .dx-v3 .caps-orbit {
   position: relative;
   width: 100%;
@@ -1585,6 +1582,81 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
+/* Mobile: kill the ~50vh dead band between the lead copy and the
+   first card, and make every cap-card fit inside the sticky orbit
+   frame on small phones. This block lives AFTER the orbit defaults
+   on purpose — media queries don't add specificity, so an earlier
+   mobile override would lose to a later default (e.g. the default
+   `.cap-card { align-content: center; height: 100% }` was beating
+   the mobile `align-content: start` and recentering the card so
+   its top — including the first line of the title — slipped above
+   the cap-card's overflow:hidden clip). */
+@media (max-width: 899px) {
+  .dx-v3 .caps-section {
+    padding: 48px 20px;
+  }
+  .dx-v3 .caps-intro {
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .dx-v3 .caps-intro h2 em {
+    display: none;
+  }
+  .dx-v3 .caps-orbit-stack {
+    margin-top: 0;
+    height: 240vh;
+  }
+  .dx-v3 .caps-orbit-frame {
+    /* Sticky pins below the fixed Header (h-20 = 80px) instead of
+       under it — the card title was hiding behind the navbar on
+       phones where the orbit-tile fills the whole frame.
+       svh (small viewport height) sizes the frame against the
+       bars-visible viewport on iOS Safari — using plain vh meant
+       the frame believed it had ~88px more room than the user
+       actually sees while the URL bar is showing. */
+    top: 80px;
+    height: calc(100svh - 80px);
+    /* GSAP front-tile transform is y = cos(0) * --orbit-ry. Dropping
+       ry from 90 → 8 pulls the focused card right up against the lead
+       copy instead of leaving a ~90px dead band above it. */
+    --orbit-ry: 8px;
+    --orbit-rx: 280px;
+  }
+  .dx-v3 .caps-orbit {
+    place-items: start center;
+    padding-top: 4px;
+  }
+  /* Let tile + card grow to fit content — GSAP orbit only uses CSS
+     transforms (x/y/scale) so auto-height doesn't break the animation. */
+  .dx-v3 .orbit-tile {
+    height: auto;
+    min-height: min(420px, 56svh);
+  }
+  .dx-v3 .cap-card {
+    height: auto;
+    align-content: start;
+    gap: 12px;
+    padding: 20px 18px;
+  }
+  .dx-v3 .cap-card .cap-video {
+    min-height: 110px;
+    height: 110px;
+  }
+  /* Tighten typography so the AI活用 card (longest body copy) fits
+     inside the sticky frame on small phones like iPhone SE. */
+  .dx-v3 .orbit-tile h3 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+  .dx-v3 .orbit-tile .body {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .dx-v3 .orbit-tile .tags {
+    margin-top: 12px;
+  }
+}
+
 /* ============================================================
    PAINS
 ============================================================ */
@@ -1599,9 +1671,9 @@
    state per scroll lives in DxV3Page.tsx (applyFocus). */
 .dx-v3 .pains-pin-stack {
   position: relative;
-  /* Total scroll runway. ~80vh per question feels like enough dwell
-     for the visitor to actually read each one. */
-  height: 320vh;
+  /* Total scroll runway. ~50vh per question gives enough dwell to
+     read without exhausting the user's scroll hand. */
+  height: 160vh;
 }
 .dx-v3 .pains-pin-frame {
   position: sticky;
@@ -1635,13 +1707,31 @@
    and pin the English line to nowrap; the .ja span is block so it still
    breaks onto its own line below. */
 @media (max-width: 899px) {
+  /* Pull the whole pinned frame up — the default 12vh padding-top combined
+     with multi-line wrapping questions pushes Q.04 below the visible area
+     on iOS Safari (where 100vh = expanded viewport, not current visible h). */
+  .dx-v3 .pains-pin-frame {
+    padding-top: clamp(32px, 5vh, 64px);
+  }
+  /* Tighten the gap between the heading and the questions list. */
+  .dx-v3 .pains-pin-content {
+    gap: clamp(14px, 2.5vh, 28px);
+  }
+  /* Tighten the gap between individual questions. */
+  .dx-v3 .pains-pin-frame .pains-list {
+    gap: clamp(12px, 2.5vh, 28px);
+  }
   .dx-v3 .pains-pin-content .sec-head h2 {
     font-size: clamp(22px, 7.5vw, 38px);
-    line-height: 1.02;
+    line-height: 1.1;
     letter-spacing: -0.04em;
+    /* .ch character spans are display:inline-block which allows mid-word
+       breaks. white-space:nowrap prevents that; at clamp(22px,7.5vw) the
+       phrase comfortably fits even on 320px iPhone SE viewports. */
     white-space: nowrap;
   }
   .dx-v3 .pains-pin-content .sec-head h2 .ja {
+    display: block;
     white-space: normal;
     font-size: 0.5em;
     margin-top: 10px;
@@ -1734,9 +1824,11 @@
   line-height: 1.35;
   letter-spacing: -0.02em;
   word-break: keep-all;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Allow natural wrapping on every viewport. The previous nowrap +
+     ellipsis safety net cut off the Japanese sentence on phones in
+     landscape and devices between 600px and the desktop breakpoint —
+     wrapping reads better than truncation in every case here, since
+     the Q lines are short enough to fit one line on real desktops. */
 }
 @media (max-width: 600px) {
   .dx-v3 .pain {
@@ -1744,9 +1836,9 @@
     gap: 18px;
   }
   .dx-v3 .pain .q {
-    /* On narrow phones, allow up to 2 lines instead of an ellipsis
-       cut-off so the JP question stays readable. */
-    white-space: normal;
+    /* keep-all blocks CJK character-boundary wrapping; on mobile the
+       Japanese questions overflow the track — normal lets them wrap. */
+    word-break: normal;
   }
 }
 .dx-v3 .pain-end {
@@ -2105,7 +2197,6 @@
 }
 .dx-v3 .case-card .case-block .left {
   padding: 48px 40px;
-  overflow: hidden;
 }
 .dx-v3 .case-card .case-block .left .num {
   font-size: clamp(72px, 9vw, 140px);
@@ -2141,6 +2232,35 @@
   .dx-v3 .case-card .case-block .right {
     min-height: 0;
     aspect-ratio: 16 / 9;
+  }
+}
+/* Iphone SE / narrow phones — the 740px track min above is taller
+   than the 667px viewport, so the bottom of each card sits below the
+   fold and the sticky pin never lets the user scroll past. Compress
+   content (padding, type, margins) so a 95vh card actually fits, and
+   drop the track min in lockstep. */
+@media (max-width: 480px) {
+  .dx-v3 .cases-slider-track {
+    height: clamp(580px, 95vh, 740px);
+  }
+  .dx-v3 .case-card .case-block .left {
+    padding: 20px 18px;
+  }
+  .dx-v3 .case-block .left h3 {
+    font-size: clamp(20px, 5.4vw, 28px);
+    margin-bottom: 14px;
+  }
+  .dx-v3 .case-block .left .desc {
+    font-size: 14px;
+    line-height: 1.75;
+    margin-bottom: 18px;
+  }
+  .dx-v3 .case-block .left .points {
+    gap: 12px;
+  }
+  .dx-v3 .case-block .left .pt p {
+    font-size: 12px;
+    line-height: 1.7;
   }
 }
 
@@ -2385,6 +2505,20 @@
   letter-spacing: -0.05em;
   pointer-events: none;
 }
+@media (max-width: 480px) {
+  /* On iPhone SE the rpa-card sits at ~330px wide. The 96px clamp min
+     of rpa-card-num was eating ~1/3 of the card width and dwarfing
+     the actual content. Tighten the card padding too so the heading
+     and stats line up properly inside the now-smaller card. */
+  .dx-v3 .rpa-card {
+    padding: 36px 24px 32px;
+  }
+  .dx-v3 .rpa-card .rpa-card-num {
+    top: 16px;
+    right: 16px;
+    font-size: clamp(56px, 14vw, 80px);
+  }
+}
 .dx-v3 .rpa-card .top {
   display: flex;
   align-items: center;
@@ -2598,6 +2732,36 @@
 .dx-v3 .ai-ticker .strip .star {
   color: rgba(255, 255, 255, 0.3);
 }
+/* Mobile: reduce AI section padding so all body copy fits within the
+   sticky viewport. At 160px padding the total height exceeds 100vh on
+   phones, and since .ai is position:sticky the user can never scroll
+   to reveal the hidden bottom content. */
+@media (max-width: 899px) {
+  .dx-v3 .ai {
+    padding: 80px 24px;
+  }
+  .dx-v3 .ai-headline {
+    margin-bottom: 32px;
+  }
+  .dx-v3 .ai-grid {
+    gap: 32px;
+  }
+}
+@media (max-width: 480px) {
+  .dx-v3 .ai {
+    padding: 64px 20px;
+  }
+  .dx-v3 .ai-headline {
+    margin-bottom: 24px;
+  }
+  .dx-v3 .ai .body p {
+    font-size: clamp(15px, 4vw, 18px);
+    line-height: 1.75;
+  }
+  .dx-v3 .ai-grid {
+    gap: 24px;
+  }
+}
 
 /* ============================================================
    FINAL CTA
@@ -2649,11 +2813,19 @@
 .dx-v3 .final h2 {
   font-family: 'General Sans', 'Noto Sans JP', sans-serif;
   font-weight: 600;
-  font-size: clamp(48px, 11vw, 200px);
+  /* Min dropped from 48 → 36 so "Let's build." doesn't push past the
+     375px viewport on iPhone SE (with 32px side padding, only 311px
+     was usable — 48px text wanted ~340px). */
+  font-size: clamp(36px, 11vw, 200px);
   line-height: 0.92;
   letter-spacing: -0.05em;
   color: var(--ink);
   margin-bottom: 32px;
+}
+@media (max-width: 480px) {
+  .dx-v3 .final {
+    padding: 96px 20px 72px;
+  }
 }
 .dx-v3 .final h2 em {
   font-family: 'Instrument Serif', serif;

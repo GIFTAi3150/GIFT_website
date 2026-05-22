@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { notoSansJP, poppins } from './fonts';
+import { anton, notoSansJP, openSans, poppins } from './fonts';
 import '../styles/globals.css';
 import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
+import ScrollToTopOnRouteChange from '@/components/util/ScrollToTopOnRouteChange';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="ja"
-      className={`${notoSansJP.variable} ${poppins.variable}`}
+      className={`${notoSansJP.variable} ${poppins.variable} ${anton.variable} ${openSans.variable}`}
       // Browsers serialize inline-style hex colors as rgb(), which
       // React reads back as a different string than its JSX source —
       // produces a noisy but harmless hydration warning. Suppress it.
@@ -143,6 +144,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {children}
         <CtaHoverHydrator />
+        <ScrollToTopOnRouteChange />
       </body>
     </html>
   );

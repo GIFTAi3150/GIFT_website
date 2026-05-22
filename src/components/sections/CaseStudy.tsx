@@ -163,23 +163,6 @@ export default function CaseStudy() {
                   </div>
                 ))}
               </div>
-              <div className="mt-8 inline-flex items-center gap-2 font-display text-small font-bold uppercase tracking-widest text-gift-green transition-colors duration-200 group-hover:text-gift-ink">
-                <span>詳しく見る</span>
-                <svg
-                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  aria-hidden
-                >
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
             </div>
           </Link>
 
@@ -234,23 +217,6 @@ export default function CaseStudy() {
                         </p>
                       </div>
                     ))}
-                  </div>
-                  <div className="mt-5 inline-flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-widest text-gift-green transition-colors duration-200 group-hover:text-gift-ink">
-                    <span>詳しく見る</span>
-                    <svg
-                      className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      aria-hidden
-                    >
-                      <path
-                        d="M5 12h14M12 5l7 7-7 7"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
                   </div>
                 </div>
               </Link>

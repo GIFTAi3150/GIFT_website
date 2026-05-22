@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import ScrollRevealText from '@/components/ui/ScrollRevealText';
 
 export default function WhoWeAre() {
   return (
-    <section className="relative w-full overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
+    <section id="who-we-are" className="relative w-full overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
       {/* Bob Marley lyrics drifting across the background */}
       <div
         aria-hidden
@@ -53,6 +54,7 @@ export default function WhoWeAre() {
           <div className="mb-8 h-0.5 w-12 bg-gift-green" />
 
           <p
+            data-highlight-text
             className="mb-6 font-sans font-light text-gift-silver"
             style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '2' }}
           >
@@ -62,6 +64,7 @@ export default function WhoWeAre() {
           </p>
 
           <p
+            data-highlight-text
             className="mb-10 font-sans font-light text-gift-silver"
             style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '2' }}
           >
@@ -74,6 +77,7 @@ export default function WhoWeAre() {
           </Link>
         </div>
       </div>
+      <ScrollRevealText sectionId="who-we-are" />
     </section>
   );
 }

@@ -164,22 +164,93 @@
 
 /* Mobile guards for cube */
 @media (max-width: 900px) {
-  .twilight-scope .pc-sticky { grid-template-columns: 1fr !important; grid-template-rows: auto 1fr; }
-  .twilight-scope .pc-left   { padding: clamp(20px, 5vw, 32px) !important; height: auto !important; justify-content: flex-start !important; padding-top: clamp(40px, 8vw, 56px) !important; }
-  /* Stage: allow rotation overflow (a rotating cube extends ~√2× its box),
-     give the cube vertical breathing room, and push it down so the top
-     never sits against the perk chips. */
+  /* Sticky uses dvh (dynamic viewport height) so the frame matches
+     the actually-visible area, not the URL-bar-included 100vh. On
+     iOS Safari with the URL bar showing, 100vh > visible area by
+     ~80-110px, which pushed the big H2 above the screen and let the
+     cube + stat block clip off the bottom. dvh fixes this on every
+     mobile browser shipped since 2022. The 100vh line is the fallback
+     for older user agents. */
+  .twilight-scope .pc-sticky {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* Tighter padding on the left column — was 40-56px top, which
+     combined with the big title pushed the cube off the bottom of
+     the 100vh sticky frame on perks 3 (TRAINING) and 6 (COMP) where
+     a big-stat block adds another ~60px below the chips. */
+  .twilight-scope .pc-left   { padding: clamp(16px, 4vw, 28px) !important; height: auto !important; justify-content: flex-start !important; padding-top: clamp(24px, 5vw, 36px) !important; }
+  /* Stage: tightened padding (was 48-88px top, 32-56px bottom) so the
+     cube has more vertical room within the squeezed lower half of
+     the frame. align-items: center brings it back to the visual
+     middle of whatever space remains, which is more forgiving than
+     anchoring to the top when the left column shrinks/grows
+     per-perk. */
   .twilight-scope .pc-stage  {
     height: 100% !important;
     overflow: visible !important;
-    padding: clamp(48px, 9vw, 88px) 0 clamp(32px, 6vw, 56px) !important;
-    align-items: flex-start !important;
+    padding: clamp(16px, 4vw, 28px) 0 clamp(20px, 4vw, 32px) !important;
+    align-items: center !important;
   }
   .twilight-scope .pc-cube {
-    --cube-size: min(32vh, 50vw, 280px) !important;
-    --half: calc(min(32vh, 50vw, 280px) / 2) !important;
+    --cube-size: min(28vh, 48vw, 240px) !important;
+    --half: calc(min(28vh, 48vw, 240px) / 2) !important;
   }
   .twilight-scope .pc-eyebrow-line { display: none; }
+  /* Type sizing for mobile — the inline-style clamps in PerksCube.tsx
+     all use a desktop-sized minimum (h2 56px, h3 28px, body 15px, big
+     stat 56px). Override here so the left column actually fits the
+     half-viewport budget on perks 3 and 6 where the stat block lives. */
+  .twilight-scope .pc-left > h2 {
+    font-size: clamp(30px, 7vw, 48px) !important;
+    line-height: 1.05 !important;
+  }
+  .twilight-scope .pc-left h3 {
+    font-size: clamp(20px, 5vw, 28px) !important;
+    line-height: 1.2 !important;
+    margin: 8px 0 12px !important;
+  }
+  .twilight-scope .pc-left p {
+    font-size: 13.5px !important;
+    line-height: 1.7 !important;
+  }
+  /* The big stat (98% / ¥270K) — was 56-88px, untouched on small
+     screens. Bring it down so it doesn't dominate the metaRow and
+     push the cube further off-screen. */
+  .twilight-scope .pc-left .pc-bigstat {
+    font-size: clamp(34px, 8vw, 56px) !important;
+  }
+  /* Shrink the bottom min-height on the perk area so cards without
+     stats don't waste vertical space the cube could use. */
+  .twilight-scope .pc-left .pc-perkarea {
+    min-height: 0 !important;
+    margin-top: 20px !important;
+  }
+}
+/* iPhone SE / very narrow phones — the 900px guard above still left
+   the big H2, perkArea, and 180px cube too tall on a 375x667 / 320x568
+   viewport, so the top of the left panel scrolled out of the sticky
+   frame. Pull every block down a notch so the section reads as one
+   screen on the smallest common viewports. */
+@media (max-width: 480px) {
+  .twilight-scope .pc-left > h2 {
+    font-size: clamp(24px, 7vw, 34px) !important;
+    line-height: 1.05 !important;
+  }
+  .twilight-scope .pc-left .pc-bigstat {
+    font-size: clamp(28px, 8vw, 44px) !important;
+  }
+  .twilight-scope .pc-cube {
+    --cube-size: min(24vh, 44vw, 200px) !important;
+    --half: calc(min(24vh, 44vw, 200px) / 2) !important;
+  }
+  /* Stage padding can go to 0 — the cube already centers via flex,
+     and the sticky boundary is doing the visual containment. */
+  .twilight-scope .pc-stage {
+    padding: 8px 0 12px !important;
+  }
 }
 
 /* Mobile guards for the Day-in-the-Life deck — hide the side rail and tighten

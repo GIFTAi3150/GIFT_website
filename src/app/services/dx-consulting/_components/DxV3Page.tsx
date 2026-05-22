@@ -20,10 +20,6 @@ const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
 const GiftLogoFluid = dynamic(() => import('./GiftLogoFluid'), { ssr: false });
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GiftLogoParticles = dynamic(() => import('./GiftLogoParticles'), { ssr: false });
-// Companion 3D igloo (next to the particle logo in the hero). Pulls in
-// rapier physics → load client-only to avoid SSR + WASM mismatch.
-const IglooScene = dynamic(() => import('@/components/IglooScene'), { ssr: false });
-
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
 
@@ -1608,7 +1604,7 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="sec-head">
             <h2>
-              Six tools, <em>one platform.</em>
+              Six tools, <em className="whitespace-nowrap">one platform.</em>
               <span className="ja">Lステップの機能</span>
             </h2>
           </div>
@@ -1681,7 +1677,6 @@ export default function DxV3Page() {
         {/* Case 01 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="num">01</div>
             <div className="label">Case 01 / Telecom</div>
             <h3>
               光回線の開通手続きの
@@ -1718,7 +1713,6 @@ export default function DxV3Page() {
         {/* Case 02 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="num">02</div>
             <div className="label">Case 02 / Beauty</div>
             <h3>
               エステサロンの予約管理を
@@ -1755,7 +1749,6 @@ export default function DxV3Page() {
         {/* Case 03 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="num">03</div>
             <div className="label">Case 03 / Local</div>
             <h3>
               地域限定のクーポン・
