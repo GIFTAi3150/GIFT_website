@@ -58,6 +58,9 @@ export default function HistoryCarousel({ items }: { items: HistoryItem[] }) {
         el.style.opacity = String(opacity);
         el.style.transform = `translate3d(0, ${yOffset}px, 0) scale(${scale})`;
         el.style.pointerEvents = abs < 0.3 ? 'auto' : 'none';
+        // Only promote the active + neighbouring items as compositor layers.
+        // Setting willChange on all 6 items statically wastes GPU memory.
+        el.style.willChange = abs < 1.2 ? 'opacity, transform' : 'auto';
       }
     };
 
@@ -131,13 +134,12 @@ export default function HistoryCarousel({ items }: { items: HistoryItem[] }) {
                   i === 0
                     ? 'translate3d(0, 0, 0) scale(1)'
                     : 'translate3d(0, 80px, 0) scale(0.92)',
-                willChange: 'opacity, transform',
                 pointerEvents: i === 0 ? 'auto' : 'none',
                 backfaceVisibility: 'hidden',
               }}
             >
-              {/* Thin green accent line above */}
-              <div className="mb-8 h-[2px] w-16 bg-gift-green" />
+              {/* Thin accent line above */}
+              <div className="mb-8 h-[2px] w-16 bg-[#7B2D26]" />
 
               {/* Year — big and clean */}
               <p
@@ -149,10 +151,10 @@ export default function HistoryCarousel({ items }: { items: HistoryItem[] }) {
 
               {/* NOW badge */}
               {item.isPresent && (
-                <span className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-gift-green/10 px-4 py-2 font-display text-[11px] font-bold uppercase tracking-[0.25em] text-gift-green">
+                <span className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-[#7B2D26]/10 px-4 py-2 font-display text-[11px] font-bold uppercase tracking-[0.25em] text-[#7B2D26]">
                   <span aria-hidden className="relative inline-flex h-1.5 w-1.5">
-                    <span className="absolute inset-0 animate-ping rounded-full bg-gift-green/60" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gift-green" />
+                    <span className="absolute inset-0 animate-ping rounded-full bg-[#7B2D26]/60" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#7B2D26]" />
                   </span>
                   Now
                 </span>

@@ -40,13 +40,6 @@ const styles: Record<string, CSSProperties> = {
     objectPosition: 'center',
     display: 'block',
   },
-  fallback: {
-    position: 'absolute',
-    inset: 0,
-    backgroundImage: 'url(/callcenter-hero.svg)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-  },
   // Diagonal gradient on desktop keeps the left side dark for the headline.
   scrim: {
     position: 'absolute',
@@ -156,18 +149,14 @@ export default function HeroScene() {
 
   return (
     <section style={styles.root} aria-label="コールセンター事業 — Hero">
-      {/* Full-bleed background video. SVG fallback sits behind in case the
-          video can't decode. preload="metadata" keeps the initial mobile
-          payload light — the browser only fetches the bytes once it starts. */}
+      {/* Full-bleed background video. Dark root background shows while video loads. */}
       <div style={styles.videoLayer} aria-hidden>
-        <div style={styles.fallback} />
         <video
           autoPlay
           muted
           loop
           playsInline
           preload="metadata"
-          poster="/callcenter-hero.svg"
           style={styles.video}
         >
           <source src="/img/callcenter-hero.mp4" type="video/mp4" />

@@ -10,8 +10,10 @@ import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
 import RecruitCta from '@/components/sections/RecruitCta';
+import MembersPreview from '@/components/sections/MembersPreview';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles } from '@/lib/notion';
+import membersData from '@/data/members.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,6 +67,12 @@ export default async function HomePage() {
         <Reveal>
           <CaseStudy />
         </Reveal>
+
+        {/* MEMBERS — dark ink section with video-frost reveal cards.
+            Not wrapped in Reveal because the dark bg creates its own
+            visual break; adding a transform would clip the video cards. */}
+        <MembersPreview members={membersData} />
+
         <Reveal>
           <Clients />
         </Reveal>

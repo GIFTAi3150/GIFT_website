@@ -41,12 +41,14 @@ export default function Reveal({ children, delay = 0, className = '', from = 'bo
       ref={ref}
       style={{
         transitionDelay: `${delay}ms`,
-        transitionDuration: '900ms',
+        transitionDuration: '600ms',
         transitionProperty: 'opacity, transform',
         transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
-        willChange: 'opacity, transform',
+        // Release the compositor hint once animation is done — keeping willChange
+        // permanently on every section burns GPU layers for nothing.
+        willChange: visible ? 'auto' : 'opacity, transform',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translate(0, 0)' : hiddenTransform,
+        transform: visible ? 'translateY(0)' : hiddenTransform,
       }}
       className={className}
     >

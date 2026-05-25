@@ -166,6 +166,7 @@
 }
 @keyframes ach-pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.55; transform:scale(1.4); } }
 
+.achievements-page .hero-3d-spacer { display: none; }
 .achievements-page .hero h1 { max-width: 14ch; margin-top: 10px; }
 .achievements-page .hero h1 .word {
   display: inline-block; vertical-align: top; overflow: hidden;
@@ -591,7 +592,9 @@
   .achievements-page .wrap { padding: 0 24px; }
   .achievements-page .ach-nav .logo img { height: 22px; }
   .achievements-page .ach-nav .apply { padding: 10px 18px; font-size: 12px; }
-  .achievements-page .hero { padding: 120px 0 60px; min-height: auto; }
+  .achievements-page .hero { padding: 0 0 60px; min-height: 100dvh; align-items: flex-start; }
+  .achievements-page .hero .wrap { display: flex; flex-direction: column; gap: 20px; }
+  .achievements-page .hero-3d-spacer { display: block; height: 50vh; flex-shrink: 0; }
   .achievements-page h1 { font-size: clamp(40px, 11vw, 72px); }
   .achievements-page h2 { font-size: clamp(30px, 7vw, 48px); }
   .achievements-page .hero .sub { font-size: 16px; }
@@ -606,10 +609,12 @@
   .achievements-page .quote .body { font-size: clamp(24px, 6vw, 42px); }
   .achievements-page .quote .mark { font-size: clamp(80px, 22vw, 140px); margin-bottom: -24px; }
   .achievements-page .tick { gap: 18px; font-size: 10px; }
+  .achievements-page .ach-cta .btn { max-width: 100%; }
 }
 @media (max-width: 540px) {
   .achievements-page .wrap { padding: 0 20px; }
-  .achievements-page .hero { padding: 100px 0 48px; }
+  .achievements-page .hero { padding: 0 0 48px; }
+  .achievements-page .hero-3d-spacer { height: 48vh; }
   .achievements-page h1 { font-size: clamp(36px, 12.5vw, 64px); }
   .achievements-page .hero .sub br { display: none; }
   .achievements-page .hero .actions { flex-direction: column; align-items: stretch; }
@@ -620,4 +625,6 @@
   .achievements-page .v-grid { grid-template-columns: 1fr; }
   .achievements-page .quote .body { font-size: clamp(22px, 7vw, 36px); }
   .achievements-page .hero-strip { padding: 0 20px; flex-direction: column; align-items: flex-start; }
+  .achievements-page .ach-cta .actions { flex-direction: column; align-items: center; }
+  .achievements-page .ach-cta .btn { width: 100%; max-width: 340px; justify-content: center; }
 }

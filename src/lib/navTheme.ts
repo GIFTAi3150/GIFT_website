@@ -160,7 +160,26 @@ const ACHIEVEMENTS_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
+// Atelier High-Key Bone — warm bone bg, oxblood accent. Matches the /company page palette.
+const COMPANY_THEME: NavTheme = {
+  bg: '#F6F2EA',
+  bgAlpha: 'rgba(246, 242, 234, 0.95)',
+  bgFull: '#F6F2EA',
+  accent: '#7B2D26',
+  accentDeep: '#5C1D18',
+  border: '#DDD8CD',
+  bgAlt: '#EBE5D6',
+  ink: '#1A1B1E',
+  muted: '#6B6760',
+  logoShield: '#7B2D26',
+  logoInner: '#F6F2EA',
+  text: '#1A1B1E',
+  textMuted: '#6B6760',
+  textFaint: 'rgba(26, 27, 30, 0.40)',
+};
+
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
+  [/^\/company(\/|$)/, COMPANY_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
