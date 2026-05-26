@@ -6,6 +6,14 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import staticMembers from '@/data/members.json';
 import { getPublishedMembers } from '@/lib/notion';
+import OtherMembersGrid from '../OtherMembersGrid';
+import MemberHeroClient from './MemberHeroClient';
+
+const PLACEHOLDER_VIDEOS = [
+  '/video/cc-vid.mp4',
+  '/video/dx-consulting-vid.mp4',
+  '/video/financial-consulting-vid.mp4',
+];
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +48,7 @@ type MemberRecord = {
   department: string;
   image: string;
   bio: string;
+  video?: string;
 };
 
 export default async function MemberDetailPage({
@@ -74,6 +83,7 @@ export default async function MemberDetailPage({
   if (index === -1) notFound();
 
   const member = members[index];
+  const memberVideo = member.video ?? PLACEHOLDER_VIDEOS[index % PLACEHOLDER_VIDEOS.length];
   const fromFilter = searchParams.from ?? 'All';
   const scopedToDept = fromFilter !== 'All' && fromFilter === member.department;
 
@@ -105,47 +115,15 @@ export default async function MemberDetailPage({
 
         {/* Hero image with prev/next arrows on sides + overlapping info band */}
         <section className="relative pb-12 md:pb-16">
-          <div className="relative h-[60vh] min-h-[460px] w-full overflow-hidden bg-gift-near-black">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={member.image}
-              alt={member.name}
-              className="h-full w-full object-cover object-center"
-            />
-
-            {prev ? (
-              <Link
-                href={`/member/${prev.id}?from=${encodeURIComponent(fromFilter)}`}
-                aria-label={`前のメンバー: ${prev.name}`}
-                className="member-nav-arrow member-nav-arrow--left"
-              >
-                <span aria-hidden>←</span>
-              </Link>
-            ) : (
-              <span
-                aria-hidden
-                className="member-nav-arrow member-nav-arrow--left member-nav-arrow--disabled"
-              >
-                ←
-              </span>
-            )}
-            {next ? (
-              <Link
-                href={`/member/${next.id}?from=${encodeURIComponent(fromFilter)}`}
-                aria-label={`次のメンバー: ${next.name}`}
-                className="member-nav-arrow member-nav-arrow--right"
-              >
-                <span aria-hidden>→</span>
-              </Link>
-            ) : (
-              <span
-                aria-hidden
-                className="member-nav-arrow member-nav-arrow--right member-nav-arrow--disabled"
-              >
-                →
-              </span>
-            )}
-          </div>
+          <MemberHeroClient
+            memberVideo={memberVideo}
+            memberImage={member.image}
+            memberId={member.id}
+            prevHref={prev ? `/member/${prev.id}?from=${encodeURIComponent(fromFilter)}` : null}
+            prevName={prev?.name ?? null}
+            nextHref={next ? `/member/${next.id}?from=${encodeURIComponent(fromFilter)}` : null}
+            nextName={next?.name ?? null}
+          />
 
           {/* White info band — overlaps the bottom of the image */}
           <Reveal className="relative -mt-24 md:-mt-32">
@@ -167,7 +145,7 @@ export default async function MemberDetailPage({
                       {member.nameEn}
                     </p>
                   </div>
-                  <div className="shrink-0 pt-1 font-display text-medium font-bold tabular-nums text-gift-green">
+                  <div className="shrink-0 pt-1 font-display text-medium font-bold tabular-nums text-[#D96B43]">
                     {String(scopeIndex + 1).padStart(2, '0')}{' '}
                     <span className="text-gift-silver/40">/</span>{' '}
                     {String(scope.length).padStart(2, '0')}
@@ -185,44 +163,20 @@ export default async function MemberDetailPage({
           </Reveal>
         </section>
 
-        {/* Other members — circular avatars */}
+        {/* Other members — video cards matching listing page style */}
         <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section className="border-t border-gift-border bg-[#F4EFE6] py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#D96B43]">
                 {scopedToDept ? member.department : 'OTHER MEMBERS'}
               </p>
               <h2
-                className="mb-10 font-sans font-extrabold text-gift-ink"
+                className="mb-16 font-sans font-extrabold text-[#2A2520]"
                 style={{ fontSize: 'clamp(24px, 3vw, 32px)', lineHeight: '1.25' }}
               >
                 {scopedToDept ? '同じ事業部のメンバー' : '他のメンバー'}
               </h2>
-              <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-10">
-                {others.map((m, i) => (
-                  <Reveal key={m.id} delay={(i % 5) * 80}>
-                    <Link
-                      href={`/member/${m.id}?from=${encodeURIComponent(fromFilter)}`}
-                      className="member-card group"
-                    >
-                      <div className="member-card-outer">
-                        <div className="member-card-image-wrap">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={m.image} alt={m.name} className="member-card-image" />
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                          {m.department}
-                        </p>
-                        <h3 className="mt-1 font-sans text-small font-bold text-gift-ink">
-                          {m.name}
-                        </h3>
-                      </div>
-                    </Link>
-                  </Reveal>
-                ))}
-              </div>
+              <OtherMembersGrid members={others} fromFilter={fromFilter} />
             </div>
           </section>
         </Reveal>

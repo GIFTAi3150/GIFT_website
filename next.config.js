@@ -4,6 +4,18 @@ const nextConfig = {
 
   // 301 redirects from the old WordPress URLs to the new site structure.
   // Preserves SEO value (rankings, backlinks) after the domain cutover.
+  async headers() {
+    return [
+      {
+        source: '/video/:path*',
+        headers: [
+          { key: 'Accept-Ranges', value: 'bytes' },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
+  },
+
   async redirects() {
     return [
       { source: '/about', destination: '/company', permanent: true },

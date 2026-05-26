@@ -292,7 +292,6 @@
 
 /* Lift text-bearing elements above the canvas */
 .dx-v3 .hero-stage-inner,
-.dx-v3 .hero-stats,
 .dx-v3 .hero-foot,
 .dx-v3 .hero-meta {
   position: relative;
@@ -379,14 +378,6 @@
 @media (max-width: 480px) {
   .dx-v3 .masthead .row {
     font-size: clamp(32px, 9vw, 48px);
-  }
-  .dx-v3 .hero-stats {
-    left: 20px;
-    right: 20px;
-    gap: 14px;
-  }
-  .dx-v3 .hero-stat .v {
-    font-size: clamp(20px, 5.6vw, 28px);
   }
 }
 .dx-v3 .masthead .row {
@@ -487,51 +478,6 @@
   display: inline-block;
 }
 
-/* Stats row — sits between masthead and foot. Mono numbers + tiny labels.
-   Three stats separated by hairlines; reads like a dashboard footer for
-   the headline above. Pinned bottom-area but above the .hero-foot. */
-.dx-v3 .hero-stats {
-  position: absolute;
-  left: 32px;
-  right: 32px;
-  bottom: 116px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  pointer-events: none;
-  flex-wrap: wrap;
-}
-.dx-v3 .hero-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.dx-v3 .hero-stat .v {
-  font-family: 'General Sans', sans-serif;
-  font-weight: 600;
-  font-size: clamp(24px, 2.4vw, 32px);
-  line-height: 1;
-  letter-spacing: -0.025em;
-  color: var(--ink);
-}
-.dx-v3 .hero-stat .v i {
-  font-style: normal;
-  color: var(--blue);
-  margin-left: 2px;
-}
-.dx-v3 .hero-stat .k {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  color: var(--silver);
-  text-transform: uppercase;
-}
-.dx-v3 .hero-stat-sep {
-  width: 1px;
-  height: 28px;
-  background: var(--line);
-}
 
 .dx-v3 .hero-foot {
   position: absolute;
@@ -1595,6 +1541,9 @@
   .dx-v3 .caps-section {
     padding: 48px 20px;
   }
+  .dx-v3 .orbit-tile {
+    will-change: transform, opacity;
+  }
   .dx-v3 .caps-intro {
     gap: 16px;
     margin-bottom: 0;
@@ -1712,6 +1661,9 @@
      on iOS Safari (where 100vh = expanded viewport, not current visible h). */
   .dx-v3 .pains-pin-frame {
     padding-top: clamp(32px, 5vh, 64px);
+  }
+  .dx-v3 .pain {
+    will-change: transform, opacity;
   }
   /* Tighten the gap between the heading and the questions list. */
   .dx-v3 .pains-pin-content {

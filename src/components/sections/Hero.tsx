@@ -5,7 +5,7 @@ import DotsGrid from '@/components/ui/DotsGrid';
 export default function Hero() {
   return (
     <section
-      className="relative flex w-full items-center justify-center overflow-hidden"
+      className="relative flex w-full items-start justify-center overflow-x-hidden lg:items-center"
       style={{ minHeight: '100vh', backgroundColor: '#F8FAF8' }}
     >
       {/* Decorative drifting blobs — adds depth behind the hero content */}
@@ -18,7 +18,7 @@ export default function Hero() {
           Dots light up gift-green near the cursor, get pushed by fast
           mouse movement, and ripple on click. Decorative only. */}
       <DotsGrid className="absolute inset-0 z-[1]" />
-      <div className="relative z-10 mx-auto w-full max-w-container px-4 py-16 md:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-container px-4 py-8 md:py-16 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
           {/* Text — left on desktop, top on mobile */}
           <div className="order-2 flex flex-col items-start gap-6 text-left lg:order-1 lg:col-span-2">

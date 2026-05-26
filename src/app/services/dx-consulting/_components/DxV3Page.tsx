@@ -240,12 +240,19 @@ export default function DxV3Page() {
     gsap.registerPlugin(ScrollTrigger);
     const triggers: ScrollTrigger[] = [];
 
+    // When Next.js client-side navigates here from another page (e.g., call-center
+    // footer link), window.scrollY can still be at the previous page's position at
+    // mount time. Every ScrollTrigger fires an initial onUpdate with the current
+    // scroll state, so all animations would complete instantly. Reset to 0 first.
+    window.scrollTo(0, 0);
+    const isMobile = window.matchMedia('(max-width: 899px)').matches;
+
     // ---- Lenis smooth scroll (page-scoped: destroyed on unmount) ----
     // Lenis runs the actual page scroll through requestAnimationFrame, so the
     // motion is buttered. We hook ScrollTrigger.update into Lenis's scroll
     // event so all the GSAP triggers stay in sync.
     const lenis = new Lenis({
-      duration: 1.3,
+      duration: isMobile ? 0.8 : 1.3,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
@@ -433,7 +440,7 @@ export default function DxV3Page() {
           {
             y: 0,
             opacity: 1,
-            duration: 0.8,
+            duration: 0.5,
             ease: 'power3.out',
             scrollTrigger: { trigger: el, start: 'top 88%', once: true },
           }
@@ -455,9 +462,9 @@ export default function DxV3Page() {
           yPercent: 0,
           opacity: 1,
           rotate: 0,
-          duration: 0.9,
+          duration: 0.6,
           ease: 'power3.out',
-          stagger: 0.025,
+          stagger: 0.016,
           scrollTrigger: {
             trigger: '.dx-v3 .caps-intro h2',
             start: 'top 82%',
@@ -478,9 +485,9 @@ export default function DxV3Page() {
         {
           y: 0,
           opacity: 1,
-          duration: 0.9,
+          duration: 0.6,
           ease: 'power3.out',
-          stagger: 0.18,
+          stagger: 0.1,
           scrollTrigger: {
             trigger: '.dx-v3 .caps-intro',
             start: 'top 75%',
@@ -529,13 +536,12 @@ export default function DxV3Page() {
           const front = (Math.cos(angle) + 1) / 2; // 0..1
           const scale = 0.55 + 0.45 * front;
           const opacity = 0.25 + 0.75 * front;
-          const blur = 10 * (1 - front);
           gsap.set(tile, {
             x,
             y,
             scale,
             opacity,
-            filter: `blur(${blur.toFixed(2)}px)`,
+            ...(isMobile ? {} : { filter: `blur(${(10 * (1 - front)).toFixed(2)}px)` }),
             zIndex: Math.round(front * 100),
           });
         });
@@ -578,9 +584,9 @@ export default function DxV3Page() {
       const totalLabel = cascadePinStack.querySelector<HTMLElement>('.cascade-total');
       if (totalLabel) totalLabel.textContent = String(slides.length).padStart(2, '0');
 
+      let slideW = slides[0].offsetWidth || 400;
       const layoutCascade = (cursor: number) => {
         if (!slides.length) return;
-        const slideW = slides[0].offsetWidth || 400;
         const peek = Math.min(70, Math.max(36, slideW * 0.13));
         const gap = 12;
         const innerStep = peek + 6;
@@ -638,6 +644,9 @@ export default function DxV3Page() {
         end: 'bottom bottom',
         scrub: 0.4,
         invalidateOnRefresh: true,
+        onRefresh: () => {
+          slideW = slides[0].offsetWidth || 400;
+        },
         onUpdate: (self) => {
           const cursor = self.progress * (slides.length - 1);
           layoutCascade(cursor);
@@ -688,6 +697,13 @@ export default function DxV3Page() {
         };
       };
 
+      // Pre-cache .q element references and computed positions so applyFocus
+      // doesn't query the DOM or traverse offsetParent on every scroll frame.
+      const painQEls = pains.map((p) => p.querySelector<HTMLElement>('.q'));
+      const qRects: { top: number; left: number; width: number; height: number }[] = painQEls.map(
+        (q) => (q ? measureQ(q) : { top: 0, left: 0, width: 0, height: 0 })
+      );
+
       const applyFocus = (progress: number) => {
         // Spread the focus cursor from 0 to count-1 across the pin.
         const cursor = progress * (count - 1);
@@ -701,12 +717,12 @@ export default function DxV3Page() {
           const reveal = clamp(cursor - i + 1, 0, 1);
           const opacity = reveal * (0.22 + focus * 0.78);
           const scale = 0.94 + focus * 0.08;
-          const blur = (1 - focus) * 2.2;
-          gsap.set(el, {
-            opacity,
-            scale,
-            filter: `blur(${blur.toFixed(2)}px)`,
-          });
+          if (isMobile) {
+            gsap.set(el, { opacity, scale });
+          } else {
+            const blur = (1 - focus) * 2.2;
+            gsap.set(el, { opacity, scale, filter: `blur(${blur.toFixed(2)}px)` });
+          }
         });
 
         // Corner-bracket selector — lerp between the cursor's two
@@ -723,11 +739,9 @@ export default function DxV3Page() {
           const idxA = clamp(Math.floor(cursor), 0, count - 1);
           const idxB = clamp(idxA + 1, 0, count - 1);
           const t = cursor - idxA;
-          const qA = pains[idxA].querySelector<HTMLElement>('.q');
-          const qB = pains[idxB].querySelector<HTMLElement>('.q');
-          if (qA && qB) {
-            const a = measureQ(qA);
-            const b = measureQ(qB);
+          if (painQEls[idxA] && painQEls[idxB]) {
+            const a = qRects[idxA];
+            const b = qRects[idxB];
             const top = lerp(a.top, b.top, t);
             const left = lerp(a.left, b.left, t);
             const width = lerp(a.width, b.width, t);
@@ -755,6 +769,11 @@ export default function DxV3Page() {
         end: 'bottom bottom',
         scrub: 0.5,
         invalidateOnRefresh: true,
+        onRefresh: () => {
+          painQEls.forEach((q, i) => {
+            qRects[i] = q ? measureQ(q) : { top: 0, left: 0, width: 0, height: 0 };
+          });
+        },
         onUpdate: (self) => applyFocus(self.progress),
       });
       triggers.push(pinTrigger);
@@ -986,9 +1005,9 @@ export default function DxV3Page() {
       opts: { startDelay?: number; charDuration?: number; stagger?: number } = {}
     ) => {
       const startDelay = opts.startDelay ?? 0;
-      const charDuration = opts.charDuration ?? 2.0;
-      const stagger = opts.stagger ?? 0.09;
-      const tickInterval = 0.09;
+      const charDuration = opts.charDuration ?? 1.0;
+      const stagger = opts.stagger ?? 0.05;
+      const tickInterval = 0.055;
 
       charSpans.forEach((span, i) => {
         const finalChar = span.textContent ?? '';
@@ -1024,9 +1043,9 @@ export default function DxV3Page() {
       const chars = Array.from(row.querySelectorAll<HTMLElement>('.ch'));
       if (!chars.length) return;
       scrambleSpans(chars, {
-        startDelay: i * 0.7,
-        stagger: 0.09,
-        charDuration: 2.2,
+        startDelay: i * 0.18,
+        stagger: 0.03,
+        charDuration: 0.5,
       });
     });
 
@@ -1043,15 +1062,15 @@ export default function DxV3Page() {
             yPercent: 0,
             opacity: 1,
             rotate: 0,
-            duration: 0.85,
+            duration: 0.55,
             ease: 'power3.out',
-            stagger: 0.022,
+            stagger: 0.014,
             // Kick off the scramble at the same moment the fade-in
             // starts, so the chars decode while they rise into place.
             onStart: () =>
               scrambleSpans(charsArr, {
-                stagger: 0.08,
-                charDuration: 1.8,
+                stagger: 0.025,
+                charDuration: 0.45,
               }),
             scrollTrigger: { trigger: h, start: 'top 82%', once: true },
           }
@@ -1103,7 +1122,7 @@ export default function DxV3Page() {
         // Optional dot rides the FIRST strand as it draws (lead path).
         const dot = svg.querySelector<SVGCircleElement>('[data-draw-scroll-dot]');
         const ridePath = paths[0];
-        if (dot && ridePath) {
+        if (dot && ridePath && !isMobile) {
           const rideLen = ridePath.getTotalLength();
           const dotTrigger = ScrollTrigger.create({
             trigger: drawTrigger,
@@ -1345,24 +1364,6 @@ export default function DxV3Page() {
               </div>
             </div>
           </div>
-
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <span className="v">50<i>+</i></span>
-              <span className="k">DX Supported</span>
-            </div>
-            <span className="hero-stat-sep" aria-hidden />
-            <div className="hero-stat">
-              <span className="v">1,000h<i>+</i></span>
-              <span className="k">Hours Saved</span>
-            </div>
-            <span className="hero-stat-sep" aria-hidden />
-            <div className="hero-stat">
-              <span className="v">04</span>
-              <span className="k">Capabilities</span>
-            </div>
-          </div>
-
 
         </div>
       </section>

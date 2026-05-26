@@ -161,117 +161,34 @@ export default function CompanyPage() {
   return (
     <>
       <Header />
-      <main className="bg-gift-near-black">
-        {/* Hero — "Constellation of values": deep teal gradient (between green and blue), distinct from the
-             three other gift-ink heroes. Green nodes + electric lines feel right against a teal ocean. */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#0F3845] via-[#0C2D36] to-[#0A242D]">
-          {/* Background layers */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            {/* Corner glows */}
-            <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-gift-green/15 blur-[120px]" />
-            <div className="absolute -bottom-40 -right-40 h-[520px] w-[520px] rounded-full bg-gift-green-teal/20 blur-[120px]" />
+      <main className="company-palette bg-[#F6F2EA]">
+        {/* Hero — full-bleed video background */}
+        <section className="relative overflow-hidden bg-[#111111]">
+          {/* Video — covers the full section on all breakpoints */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover"
+            src="/video/company-vid-cutt.mp4"
+          />
 
-            {/* Mobile-only constellation — covers the whole hero (no corner-tucked mini), uses the
-                SAME single-traveling-pulse animation as desktop. viewBox is tightly framed around the
-                constellation so it appears prominent and centered behind the hero text. */}
-            <svg
-              className="absolute inset-0 h-full w-full md:hidden"
-              viewBox="73 0 90 90"
-              preserveAspectRatio="xMidYMid meet"
-              aria-hidden
-            >
-              {/* Dim base path — single Eulerian circuit covering all 7 original constellation edges:
-                  機会→挑戦→成長→人→未来→信頼→成長→機会 */}
-              <path
-                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
-                stroke="rgba(37,211,102,0.25)"
-                strokeWidth="0.45"
-                fill="none"
-              />
-              {/* Bright traveling-pulse overlay — single dash that slides along the whole loop */}
-              <path
-                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
-                pathLength="100"
-                stroke="#25D366"
-                strokeWidth="0.7"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="constellation-trail"
-              />
-
-              {/* Glowing nodes — animation-delay timed to the % of path length where each one sits */}
-              <circle cx="112" cy="16" className="constellation-glow-node" style={{ animationDelay: '0s' }} />
-              <circle cx="144" cy="10" className="constellation-glow-node" style={{ animationDelay: '1.06s' }} />
-              <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '2.34s' }} />
-              <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '6.89s' }} />
-              <circle cx="90" cy="80" className="constellation-glow-node" style={{ animationDelay: '4s' }} />
-              <circle cx="118" cy="80" className="constellation-glow-node" style={{ animationDelay: '4.92s' }} />
-              <circle cx="146" cy="72" className="constellation-glow-node" style={{ animationDelay: '5.86s' }} />
-            </svg>
-
-            {/* Desktop constellation — same single-traveling-pulse animation, but using the wider 160x90
-                viewBox with the constellation anchored to the right (xMaxYMid slice) so it sits in the
-                right half of the hero, with the kanji labels visible next to each node. */}
-            <svg
-              className="absolute inset-0 hidden h-full w-full md:block"
-              viewBox="0 0 160 90"
-              preserveAspectRatio="xMaxYMid slice"
-              aria-hidden
-            >
-              {/* Dim base path — single Eulerian circuit covering all 7 original constellation edges */}
-              <path
-                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
-                stroke="rgba(37,211,102,0.25)"
-                strokeWidth="0.18"
-                fill="none"
-              />
-              {/* Bright traveling-pulse overlay */}
-              <path
-                d="M 112 16 L 144 10 L 128 46 L 90 80 L 118 80 L 146 72 L 128 46 L 112 16"
-                pathLength="100"
-                stroke="#25D366"
-                strokeWidth="0.4"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="constellation-trail"
-              />
-
-              {/* Nodes with kanji labels — circles glow when the pulse passes; labels stay static.
-                  The 成長 node has TWO circles because the Eulerian path visits it twice (once at 29.29%
-                  through the loop = 2.34s, and again at 86.16% = 6.89s). */}
-              <g>
-                <circle cx="112" cy="16" className="constellation-glow-node" style={{ animationDelay: '0s' }} />
-                <text x="114.5" y="17.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">機会</text>
-              </g>
-              <g>
-                <circle cx="144" cy="10" className="constellation-glow-node" style={{ animationDelay: '1.06s' }} />
-                <text x="146.5" y="11.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">挑戦</text>
-              </g>
-              <g>
-                <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '2.34s' }} />
-                <circle cx="128" cy="46" className="constellation-glow-node" style={{ animationDelay: '6.89s' }} />
-                <text x="130.5" y="47.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">成長</text>
-              </g>
-              <g>
-                <circle cx="146" cy="72" className="constellation-glow-node" style={{ animationDelay: '5.86s' }} />
-                <text x="148.5" y="73.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">信頼</text>
-              </g>
-              <g>
-                <circle cx="90" cy="80" className="constellation-glow-node" style={{ animationDelay: '4s' }} />
-                <text x="85" y="83.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">人</text>
-              </g>
-              <g>
-                <circle cx="118" cy="80" className="constellation-glow-node" style={{ animationDelay: '4.92s' }} />
-                <text x="120.5" y="81.5" fill="rgba(255,255,255,0.6)" fontSize="3.2" fontWeight="500" fontFamily="var(--font-noto-jp), sans-serif">未来</text>
-              </g>
-            </svg>
-          </div>
+          {/* Overlay — dark gradient anchored left so text stays readable;
+              bottom fade softens the transition into the next section */}
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/20"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 to-transparent"
+          />
 
           <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-container flex-col justify-center px-4 py-s-80 md:px-6 lg:px-8">
             <p
-              className="nav-reveal mb-5 font-display text-small font-bold uppercase tracking-widest text-gift-green"
+              className="nav-reveal mb-5 font-display text-small font-bold uppercase tracking-widest text-[#E8C5BE]"
               style={{ ['--reveal-delay' as string]: '100ms' } as React.CSSProperties}
             >
               COMPANY
@@ -282,7 +199,7 @@ export default function CompanyPage() {
               style={{ fontSize: 'clamp(44px, 7vw, 76px)', lineHeight: '1.05' }}
             >
               <FadeUpText text="会社" delayMs={250} />
-              <span className="text-gift-green">
+              <span className="text-[#E8C5BE]">
                 <FadeUpText text="概要" delayMs={520} />
               </span>
             </h1>
@@ -304,7 +221,7 @@ export default function CompanyPage() {
               className="nav-reveal mt-10"
               style={{ ['--reveal-delay' as string]: '1300ms' } as React.CSSProperties}
             >
-              <Link href="/contact" className="cta-btn">
+              <Link href="/contact" className="cta-btn cta-btn--company">
                 <span>お問い合わせ</span>
               </Link>
             </div>
@@ -313,7 +230,7 @@ export default function CompanyPage() {
 
         {/* CEO Message */}
         <Reveal>
-          <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border bg-[#F6F2EA] py-s-80">
             {/* Giant faded logo as background watermark */}
             <div
               aria-hidden
@@ -327,7 +244,7 @@ export default function CompanyPage() {
               >
                 {/* Shield outer */}
                 <path
-                  fill="#2d6b3f"
+                  fill="#7B2D26"
                   d="M727.19,290.25l-13.54-46.64c-.07-.28-.14-.57-.21-.85-9.97-47.12,10.79-74.96,10.79-74.96l37.27-50.14c3.15-4.23,2.63-10.15-1.21-13.77l-100.68-94.91c-4.16-3.92-10.68-3.74-14.64.38-24.77,25.82-88.99,49.59-130.64,51.21-37.93,1.48-65.98-9.51-82.17-18.37-.2-.15-.41-.28-.65-.4l-13.24-6.4c-1.02-.49-2.2-.49-3.22,0l-13.24,6.4c-.24.12-.45.25-.65.4-16.19,8.85-44.25,19.85-82.17,18.37-41.65-1.62-105.86-25.39-130.64-51.21-3.96-4.12-10.48-4.3-14.64-.38l-100.68,94.91c-3.84,3.62-4.36,9.54-1.21,13.77l37.27,50.14s20.76,27.85,10.79,74.96c-.07.28-.14.57-.21.85l-13.54,46.64c-.07.2-.13.4-.2.6-3.38,9.39-88.7,250.57,18.19,350.22,109.02,101.63,218.75,95.68,249.63,119.21,21.61,16.46,39.82,24.15,42.91,33.57,0,0,0,.01,0,.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.02,3.09-9.42,21.3-17.11,42.91-33.57,30.88-23.53,140.61-17.58,249.63-119.21,106.89-99.65,21.57-340.82,18.19-350.22-.07-.2-.13-.4-.2-.6Z"
                 />
                 {/* G — main shape */}
@@ -344,7 +261,7 @@ export default function CompanyPage() {
             </div>
 
             <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
-              <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+              <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
                 MISSION
               </p>
 
@@ -355,7 +272,7 @@ export default function CompanyPage() {
               >
                 関わるすべての人に、
                 <br className="hidden sm:inline" />
-                人生が変わる<span className="text-gift-green">きっかけ</span>を贈る。
+                人生が変わる<span className="text-[#7B2D26]">きっかけ</span>を贈る。
               </h2>
 
               {/* English brand line — subtitle, supporting */}
@@ -364,7 +281,7 @@ export default function CompanyPage() {
                 style={{ fontSize: 'clamp(17px, 1.8vw, 22px)', lineHeight: '1.2', letterSpacing: '0.02em' }}
               >
                 Gift an{' '}
-                <span className="font-medium text-[#7EE0B5]">
+                <span className="font-medium text-[#B86B5F]">
                   opportunity.
                 </span>
               </p>
@@ -417,7 +334,7 @@ export default function CompanyPage() {
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
-                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
                     VISION
                   </p>
                   <h2
@@ -434,7 +351,7 @@ export default function CompanyPage() {
                   >
                     AIが当たり前の時代にこそ、
                     <br className="hidden sm:inline" />
-                    <span className="text-[#7EE0B5]">人の心を動かす</span>会社であり続ける。
+                    <span className="text-[#B86B5F]">人の心を動かす</span>会社であり続ける。
                   </p>
                 </div>
               </div>
@@ -444,11 +361,11 @@ export default function CompanyPage() {
 
         {/* Values */}
         <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
                 <div className="lg:col-span-1">
-                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
                     VALUES
                   </p>
                   <h2
@@ -465,9 +382,9 @@ export default function CompanyPage() {
                       return (
                         <div
                           key={v.title}
-                          className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-gift-green/40 hover:shadow-[0_20px_40px_-12px_rgba(37,211,102,0.3),0_0_30px_-5px_rgba(37,211,102,0.2)] active:scale-[0.99]"
+                          className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#7B2D26]/40 hover:shadow-[0_20px_40px_-12px_rgba(123,45,38,0.18),0_0_30px_-5px_rgba(184,107,95,0.12)] active:scale-[0.99]"
                         >
-                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-300 group-hover:scale-110 group-hover:bg-gift-green/20">
+                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#7B2D26]/10 text-[#7B2D26] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#7B2D26]/20">
                             <Icon className="h-7 w-7" />
                           </span>
                           <h3 className="font-sans text-medium font-bold text-gift-ink [line-break:strict]">
@@ -481,12 +398,12 @@ export default function CompanyPage() {
                     })}
                   </div>
 
-                  {/* Anti-values — clean grey manifesto strip, intentional visual break */}
-                  <div className="relative mt-10 overflow-hidden rounded-2xl bg-[#6B6B6B] p-7 md:p-9">
+                  {/* Anti-values — espresso manifesto strip, deliberate dark punctuation on the bone page */}
+                  <div className="relative mt-10 overflow-hidden rounded-2xl bg-[#3C3633] p-7 md:p-9">
                     <div className="relative z-10">
                       <div className="mb-6 flex items-center gap-3">
-                        <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#FF4757]" />
-                        <p className="font-display text-small font-bold uppercase tracking-widest text-[#FF4757]">
+                        <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#8A1F2A]" />
+                        <p className="font-display text-small font-bold uppercase tracking-widest text-[#8A1F2A]">
                           We&apos;ll Never
                         </p>
                       </div>
@@ -501,9 +418,9 @@ export default function CompanyPage() {
                         {antiValues.map((item) => (
                           <div
                             key={item}
-                            className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#FF4757]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(255,71,87,0.4),0_0_30px_-5px_rgba(255,71,87,0.25)] active:scale-[0.99]"
+                            className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#8A1F2A]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(138,31,42,0.4),0_0_30px_-5px_rgba(138,31,42,0.25)] active:scale-[0.99]"
                           >
-                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FF4757] text-white shadow-[0_2px_8px_rgba(255,71,87,0.35)] transition-transform duration-300 group-hover:scale-110">
+                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#8A1F2A] text-white shadow-[0_2px_8px_rgba(138,31,42,0.35)] transition-transform duration-300 group-hover:scale-110">
                               <NoIcon className="h-6 w-6" />
                             </span>
                             <p className="pt-1 font-sans text-[15px] font-light leading-relaxed text-white/90">
@@ -525,7 +442,7 @@ export default function CompanyPage() {
           <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-12">
-                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
                   COMPANY INFORMATION
                 </p>
                 <h2
@@ -542,7 +459,7 @@ export default function CompanyPage() {
                     key={row.label}
                     className="grid grid-cols-1 border-b border-gift-border py-5 sm:grid-cols-4 sm:gap-6"
                   >
-                    <dt className="mb-1 font-display text-small uppercase tracking-widest text-gift-green sm:mb-0 sm:col-span-1">
+                    <dt className="mb-1 font-display text-small uppercase tracking-widest text-[#7B2D26] sm:mb-0 sm:col-span-1">
                       {row.label}
                     </dt>
                     <dd className="font-sans text-normal font-light text-gift-ink sm:col-span-3">
@@ -555,33 +472,33 @@ export default function CompanyPage() {
           </section>
         </Reveal>
 
-        {/* History */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="mb-12">
-                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                  HISTORY
-                </p>
-                <h2
-                  className="font-sans font-extrabold text-gift-ink"
-                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                >
-                  沿革
-                </h2>
-              </div>
-
-              <HistoryCarousel items={history} />
+        {/* History — no Reveal wrapper: HistoryCarousel uses getBoundingClientRect()
+             for scroll progress; a translateY transition on the parent corrupts those
+             measurements and causes the items to jump chaotically during the reveal. */}
+        <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
+          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+            <div className="mb-12">
+              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
+                HISTORY
+              </p>
+              <h2
+                className="font-sans font-extrabold text-gift-ink"
+                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+              >
+                沿革
+              </h2>
             </div>
-          </section>
-        </Reveal>
+
+            <HistoryCarousel items={history} />
+          </div>
+        </section>
 
         {/* Access */}
         <Reveal>
           <section className="border-t border-gift-border bg-white py-s-80">
             <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
               <div className="mb-10">
-                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
                   ACCESS
                 </p>
                 <h2
@@ -603,7 +520,7 @@ export default function CompanyPage() {
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="animated-button mt-6"
+                    className="animated-button animated-button--company mt-6"
                   >
                     <span className="text">Google Mapsで開く</span>
                     <span className="circle" />
@@ -628,7 +545,7 @@ export default function CompanyPage() {
 
         {/* CTA */}
         <Reveal>
-          <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+          <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
             <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <h2
                 className="mb-8 font-sans font-extrabold text-gift-ink"
@@ -636,7 +553,7 @@ export default function CompanyPage() {
               >
                 お気軽にお問い合わせください
               </h2>
-              <Link href="/contact" className="cta-btn">
+              <Link href="/contact" className="cta-btn cta-btn--company">
                 <span>お問い合わせ →</span>
               </Link>
             </div>

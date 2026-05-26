@@ -61,7 +61,6 @@ export default function CeoMessageReveal() {
             opacity: 0,
             y: FUKUJO_Y_OFFSET,
             x: FUKUJO_X_OFFSET,
-            willChange: 'transform, opacity',
           });
 
           gsap

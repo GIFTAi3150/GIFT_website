@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import * as THREE from 'three';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -176,177 +175,58 @@ export default function AchievementsClient() {
     pt.position.set(0, 0, 4);
     scene.add(pt);
 
-    const crystal = new THREE.Group();
-    scene.add(crystal);
+    // ---- Scroll group (keyframe-driven container) ----
+    const scrollGroup = new THREE.Group();
+    scene.add(scrollGroup);
 
-    const glowGeo = new THREE.IcosahedronGeometry(1.6, 1);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0xe8b04c,
-      transparent: true,
-      opacity: 0.1,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-    const glow = new THREE.Mesh(glowGeo, glowMat);
-    crystal.add(glow);
+    // ---- GLB mascot ----
+    let petBounce: THREE.Object3D | null = null;
 
-    // Voxel mascot
-    const mascotImg = new window.Image();
-    mascotImg.crossOrigin = 'anonymous';
-    mascotImg.onload = () => {
-      const c = document.createElement('canvas');
-      c.width = mascotImg.width;
-      c.height = mascotImg.height;
-      const ctx = c.getContext('2d');
-      if (!ctx) return;
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(mascotImg, 0, 0);
-      const data = ctx.getImageData(0, 0, c.width, c.height).data;
+    import('three/examples/jsm/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
+      const loader = new GLTFLoader();
+      loader.load(
+        '/models/GIFT_mascot_space.glb',
+        (gltf) => {
+          const model = gltf.scene;
+          model.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              (child as THREE.Mesh).castShadow = true;
+              (child as THREE.Mesh).receiveShadow = true;
+            }
+          });
 
-      const corner = (x: number, y: number): [number, number, number] => {
-        const i = (y * c.width + x) * 4;
-        return [data[i], data[i + 1], data[i + 2]];
-      };
-      const corners = [
-        corner(0, 0),
-        corner(c.width - 1, 0),
-        corner(0, c.height - 1),
-        corner(c.width - 1, c.height - 1),
-      ];
-      const bg = corners[0];
-      const isBg = (r: number, g: number, b: number) => {
-        const dr = r - bg[0],
-          dg = g - bg[1],
-          db = b - bg[2];
-        return Math.sqrt(dr * dr + dg * dg + db * db) < 30;
-      };
+          // Normalize model to a fixed world-unit size regardless of export scale
+          const bbox = new THREE.Box3().setFromObject(model);
+          const bsz = new THREE.Vector3();
+          bbox.getSize(bsz);
+          const maxDim = Math.max(bsz.x, bsz.y, bsz.z);
+          if (maxDim > 0) model.scale.setScalar(2.0 / maxDim);
 
-      let cell = Infinity;
-      for (let y = 0; y < c.height; y++) {
-        let runLen = 0,
-          curR = -1,
-          curG = -1,
-          curB = -1;
-        for (let x = 0; x <= c.width; x++) {
-          let r = -1,
-            g = -1,
-            b = -1,
-            fg = false;
-          if (x < c.width) {
-            const i = (y * c.width + x) * 4;
-            r = data[i];
-            g = data[i + 1];
-            b = data[i + 2];
-            fg = !isBg(r, g, b);
-          }
-          const same = fg && r === curR && g === curG && b === curB;
-          if (same) {
-            runLen++;
+          // Identify the pet as the child whose bounding-box centre sits
+          // highest in model space (above the sphere/world).
+          if (model.children.length >= 2) {
+            let topChild: THREE.Object3D | null = null;
+            let topY = -Infinity;
+            model.children.forEach((child) => {
+              const box = new THREE.Box3().setFromObject(child);
+              const center = new THREE.Vector3();
+              box.getCenter(center);
+              if (center.y > topY) {
+                topY = center.y;
+                topChild = child;
+              }
+            });
+            petBounce = topChild;
           } else {
-            if (curR >= 0 && runLen >= 3 && runLen < cell) cell = runLen;
-            curR = fg ? r : -1;
-            curG = fg ? g : -1;
-            curB = fg ? b : -1;
-            runLen = fg ? 1 : 0;
+            petBounce = model;
           }
-        }
-      }
-      if (!isFinite(cell) || cell < 1)
-        cell = Math.max(1, Math.round(Math.min(c.width, c.height) / 20));
 
-      const cols = Math.round(c.width / cell),
-        rows = Math.round(c.height / cell);
-      const cellW = c.width / cols,
-        cellH = c.height / rows;
-
-      const filled: { gx: number; gy: number; r: number; g: number; b: number }[] = [];
-      let minX = cols,
-        maxX = -1,
-        minY = rows,
-        maxY = -1;
-      for (let gy = 0; gy < rows; gy++) {
-        for (let gx = 0; gx < cols; gx++) {
-          const px = Math.floor(gx * cellW + cellW / 2),
-            py = Math.floor(gy * cellH + cellH / 2);
-          const i = (py * c.width + px) * 4;
-          const r = data[i],
-            g = data[i + 1],
-            b = data[i + 2],
-            a = data[i + 3];
-          if (a < 8 || isBg(r, g, b)) continue;
-          filled.push({ gx, gy, r, g, b });
-          if (gx < minX) minX = gx;
-          if (gx > maxX) maxX = gx;
-          if (gy < minY) minY = gy;
-          if (gy > maxY) maxY = gy;
-        }
-      }
-
-      const yellowish = (r: number, g: number, b: number) => r > 180 && g > 90 && g < 200 && b < 90;
-      const yellowVoxels = filled.filter((p) => yellowish(p.r, p.g, p.b));
-      if (yellowVoxels.length > 0) {
-        const yr = yellowVoxels[0].r,
-          yg = yellowVoxels[0].g,
-          yb = yellowVoxels[0].b;
-        let anchorY = -Infinity,
-          sumX = 0;
-        for (const v of yellowVoxels) {
-          if (v.gy > anchorY) anchorY = v.gy;
-          sumX += v.gx;
-        }
-        const cx = Math.round(sumX / yellowVoxels.length);
-        for (let i = filled.length - 1; i >= 0; i--) {
-          if (yellowish(filled[i].r, filled[i].g, filled[i].b)) filled.splice(i, 1);
-        }
-        const trophy: [number, number][] = [
-          [cx - 1, anchorY - 4],
-          [cx + 1, anchorY - 4],
-          [cx - 1, anchorY - 3],
-          [cx, anchorY - 3],
-          [cx + 1, anchorY - 3],
-          [cx - 1, anchorY - 2],
-          [cx, anchorY - 2],
-          [cx + 1, anchorY - 2],
-          [cx, anchorY - 1],
-          [cx - 1, anchorY],
-          [cx, anchorY],
-          [cx + 1, anchorY],
-        ];
-        for (const [gx, gy] of trophy) {
-          for (let i = filled.length - 1; i >= 0; i--) {
-            if (filled[i].gx === gx && filled[i].gy === gy) filled.splice(i, 1);
-          }
-          filled.push({ gx, gy, r: yr, g: yg, b: yb });
-          if (gx < minX) minX = gx;
-          if (gx > maxX) maxX = gx;
-          if (gy < minY) minY = gy;
-          if (gy > maxY) maxY = gy;
-        }
-      }
-
-      const spriteW = maxX - minX + 1,
-        spriteH = maxY - minY + 1;
-      const cubeSize = 2.6 / Math.max(spriteW, spriteH);
-      const geom = new THREE.BoxGeometry(cubeSize * 0.96, cubeSize * 0.96, cubeSize * 0.96);
-      const mascot = new THREE.Group();
-      filled.forEach(({ gx, gy, r, g, b }) => {
-        const color = new THREE.Color(r / 255, g / 255, b / 255);
-        const mat = new THREE.MeshStandardMaterial({
-          color,
-          emissive: color.clone().multiplyScalar(0.18),
-          roughness: 0.55,
-          metalness: 0.15,
-        });
-        const m = new THREE.Mesh(geom, mat);
-        m.position.x = (gx - (minX + spriteW / 2 - 0.5)) * cubeSize;
-        m.position.y = -((gy - (minY + spriteH / 2 - 0.5)) * cubeSize);
-        mascot.add(m);
-      });
-      mascot.name = 'mascot';
-      crystal.add(mascot);
-      crystal.userData.mascot = mascot;
-    };
-    mascotImg.src = '/achievements/mascot.png';
+          scrollGroup.add(model);
+        },
+        undefined,
+        (err) => console.error('GLB load error', err),
+      );
+    });
 
     // Particles
     const N = 380;
@@ -493,39 +373,43 @@ export default function AchievementsClient() {
       }
     };
 
-    // Scroll keyframes
+    // ---- Scroll keyframes ----
     const KF = [
-      { p: 0.0, x: 2.4, y: 0.4, z: 0.0, s: 1.2, spin: 0.7 },
-      { p: 0.12, x: 3.0, y: -1.0, z: -1.0, s: 0.95, spin: 0.5 },
+      { p: 0.0,  x:  2.4, y:  0.4, z:  0.0, s: 1.2,  spin: 0.7 },
+      { p: 0.12, x:  3.0, y: -1.0, z: -1.0, s: 0.95, spin: 0.5 },
       { p: 0.22, x: -2.6, y: -0.4, z: -0.5, s: 0.85, spin: 0.6 },
-      { p: 0.4, x: 4.5, y: 1.5, z: -3.5, s: 0.55, spin: 0.4 },
-      { p: 0.55, x: -3.4, y: 1.0, z: -1.5, s: 0.8, spin: 0.6 },
-      { p: 0.72, x: 3.0, y: 0.8, z: -2.0, s: 0.7, spin: 0.5 },
-      { p: 0.82, x: -3.2, y: -0.8, z: -3.0, s: 0.6, spin: 0.4 },
-      { p: 0.9, x: 0.0, y: 0.0, z: 1.0, s: 1.8, spin: 1.0 },
-      { p: 1.0, x: 0.0, y: -0.2, z: 0.5, s: 1.4, spin: 1.3 },
+      { p: 0.4,  x:  4.5, y:  1.5, z: -3.5, s: 0.60, spin: 0.4 },
+      { p: 0.55, x: -3.4, y:  1.0, z: -1.5, s: 0.8,  spin: 0.6 },
+      { p: 0.72, x:  3.0, y:  0.8, z: -2.0, s: 0.7,  spin: 0.5 },
+      { p: 0.82, x: -3.2, y: -0.8, z: -3.0, s: 0.6,  spin: 0.4 },
+      { p: 0.9,  x:  0.0, y:  0.0, z:  1.0, s: 1.65, spin: 1.0 },
+      { p: 1.0,  x:  0.0, y: -0.2, z:  0.5, s: 1.1,  spin: 1.3 },
     ];
 
     const sampleKF = (prog: number) => {
       prog = Math.max(0, Math.min(1, prog));
-      const xScale = window.innerWidth < 720 ? 0.45 : window.innerWidth < 1024 ? 0.7 : 1;
-      const sBoost = window.innerWidth < 720 ? 0.75 : 1;
+      const isMobile = window.innerWidth < 720;
+      const xScale  = isMobile ? 0.45 : window.innerWidth < 1024 ? 0.7 : 1;
+      const xOffset = isMobile ? -0.7 : 0;
+      const sBoost  = isMobile ? 0.75 : window.innerWidth < 1024 ? 0.82 : 1;
+      const yOffset = isMobile ? -0.2 : 0;
+      const zOffset = isMobile ? 1.0 : 0;
       for (let i = 0; i < KF.length - 1; i++) {
         if (prog >= KF[i].p && prog <= KF[i + 1].p) {
-          const a = KF[i],
-            b = KF[i + 1];
+          const a = KF[i], b = KF[i + 1];
           const t = (prog - a.p) / (b.p - a.p);
           const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
           return {
-            x: (a.x + (b.x - a.x) * e) * xScale,
-            y: a.y + (b.y - a.y) * e,
-            z: a.z + (b.z - a.z) * e,
+            x: (a.x + (b.x - a.x) * e) * xScale + xOffset,
+            y: a.y + (b.y - a.y) * e + yOffset,
+            z: a.z + (b.z - a.z) * e + zOffset,
             s: (a.s + (b.s - a.s) * e) * sBoost,
             spin: a.spin + (b.spin - a.spin) * e,
           };
         }
       }
-      return KF[KF.length - 1];
+      const last = KF[KF.length - 1];
+      return { ...last, x: last.x * xScale + xOffset, y: last.y + yOffset, z: last.z + zOffset, s: last.s * sBoost };
     };
 
     const clock = new THREE.Clock();
@@ -533,26 +417,53 @@ export default function AchievementsClient() {
 
     const animate = () => {
       animRafId = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime(),
-        dt = t - lastT;
+      const t = clock.getElapsedTime();
+      const dt = t - lastT;
       lastT = t;
+
+      // Scroll-driven keyframe: position / scale / spin
       const docH = document.documentElement.scrollHeight - window.innerHeight;
       const progress = docH > 0 ? window.scrollY / docH : 0;
       const kf = sampleKF(progress);
 
-      crystal.position.x += (kf.x - crystal.position.x) * 0.08;
-      crystal.position.y += (kf.y - crystal.position.y) * 0.08;
-      crystal.position.z += (kf.z - crystal.position.z) * 0.08;
-      const newS = crystal.scale.x + (kf.s - crystal.scale.x) * 0.08;
-      crystal.scale.set(newS, newS, newS);
-      crystal.rotation.y += 0.18 * dt * kf.spin;
-      crystal.rotation.x = Math.sin(t * 0.6) * 0.1;
-      crystal.rotation.z = Math.sin(t * 0.4) * 0.06;
-      glow.rotation.y += 0.1 * dt;
-      const mascot = crystal.userData.mascot as THREE.Group | undefined;
-      if (mascot) mascot.position.y = Math.sin(t * 1.8) * 0.06;
+      scrollGroup.position.x += (kf.x - scrollGroup.position.x) * 0.08;
+      scrollGroup.position.y += (kf.y - scrollGroup.position.y) * 0.08;
+      scrollGroup.position.z += (kf.z - scrollGroup.position.z) * 0.08;
+      const newS = scrollGroup.scale.x + (kf.s - scrollGroup.scale.x) * 0.08;
+      scrollGroup.scale.set(newS, newS, newS);
+      scrollGroup.rotation.y += 0.18 * dt * kf.spin;
+      scrollGroup.rotation.x = Math.sin(t * 0.6) * 0.1;
+      scrollGroup.rotation.z = Math.sin(t * 0.4) * 0.06;
+
+      // Pet bounce: physics arc + continuous squash-and-stretch
+      if (petBounce) {
+        const FREQ = 1.25;
+        const HEIGHT = 0.26;
+        const phase = (t * FREQ) % 1;
+
+        // easeOut rise (fast launch) → easeIn fall (gravity acceleration)
+        // gives snappy contact rather than the floaty smoothstep landing
+        let h: number;
+        if (phase < 0.45) {
+          const x = phase / 0.45;
+          h = 1 - (1 - x) * (1 - x);   // easeOutQuad
+        } else {
+          const x = (phase - 0.45) / 0.55;
+          h = 1 - x * x;               // easeInQuad (slightly longer fall)
+        }
+        petBounce.position.y = h * HEIGHT;
+
+        // Fully continuous squash-and-stretch — no binary snap
+        // h=0 (contact) → squash; h=1 (peak) → stretch
+        const stretchY = 1 + 0.12 * h - 0.20 * (1 - h) * (1 - h);
+        const stretchX = 1 / Math.sqrt(Math.max(0.5, stretchY));
+        petBounce.scale.set(stretchX, stretchY, stretchX);
+      }
+
+      // Background particles slow drift
       dots.rotation.y = t * 0.04;
       dots.rotation.x = Math.sin(t * 0.1) * 0.05;
+
       tickComets();
       renderer.render(scene, camera);
     };
@@ -586,6 +497,7 @@ export default function AchievementsClient() {
         {/* ── Hero ── */}
         <section className="hero" id="hero">
           <div className="wrap">
+            <div className="hero-3d-spacer" aria-hidden />
             <h1>
               <span className="word">
                 <span className="inner">築いてきた、</span>
@@ -613,12 +525,6 @@ export default function AchievementsClient() {
               <a href="#accolades" className="btn ghost">
                 受賞・認定を見る <span className="arr">↓</span>
               </a>
-            </div>
-          </div>
-          <div className="hero-strip">
-            <div className="grp">
-              <span>GIFT Inc. · 株式会社GIFT</span>
-              <span>FOUNDED / 2018</span>
             </div>
           </div>
         </section>
@@ -753,8 +659,8 @@ export default function AchievementsClient() {
               <span>SECTION / 02</span>
             </div>
             <div className="v-feature ach-rv">
-              <video autoPlay muted loop playsInline poster="/img/1.jpg">
-                <source src="/video/recruitment-hero-video.mp4" type="video/mp4" />
+              <video autoPlay muted loop playsInline>
+                <source src="/video/achievements-vid.mp4" type="video/mp4" />
               </video>
               <div className="veil" />
             </div>

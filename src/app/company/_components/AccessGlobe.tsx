@@ -25,7 +25,7 @@ import company from '@/data/company.json';
 // position — no DOM queries, no overlay buttons, no flickering.
 
 const SAPPORO: [number, number] = [43.0642, 141.3469];
-const MARKER_COLOR: [number, number, number] = [0.145, 0.827, 0.4]; // gift-green #25D366
+const MARKER_COLOR: [number, number, number] = [0.482, 0.176, 0.149]; // oxblood #7B2D26
 const GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
   company.address
 )}`;
@@ -313,7 +313,7 @@ export default function AccessGlobe() {
           </svg>
         </button>
 
-        <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.25em] text-gift-green">
+        <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.25em] text-[#7B2D26]">
           HQ · SAPPORO
         </p>
         <p className="mb-2 font-sans text-[15px] font-semibold leading-tight">
@@ -326,7 +326,7 @@ export default function AccessGlobe() {
           href={GMAPS_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-full bg-gift-green px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-gift-ink transition-transform hover:scale-[1.03]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#7B2D26] px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#F6F2EA] transition-transform hover:scale-[1.03]"
         >
           Google Mapsで開く
           <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>

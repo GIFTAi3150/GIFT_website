@@ -10,8 +10,10 @@ import SocialLinks from '@/components/sections/SocialLinks';
 import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
 import RecruitCta from '@/components/sections/RecruitCta';
+import MembersPreview from '@/components/sections/MembersPreview';
 import Reveal from '@/components/ui/Reveal';
-import { getPublishedArticles } from '@/lib/notion';
+import { getPublishedArticles, getPublishedMembers } from '@/lib/notion';
+import staticMembersData from '@/data/members.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +26,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   let articles: { slug: string; title: string; date: string; category: string; cover?: string }[] = [];
+  let membersData: typeof staticMembersData = staticMembersData;
 
   try {
     const notionArticles = await getPublishedArticles();
@@ -36,6 +39,23 @@ export default async function HomePage() {
     }));
   } catch {
     // Notion unavailable — show empty state
+  }
+
+  try {
+    const notionMembers = await getPublishedMembers();
+    if (notionMembers.length > 0) {
+      membersData = notionMembers.map((m) => ({
+        id: m.id,
+        name: m.name,
+        nameEn: m.nameEn,
+        role: m.role,
+        department: m.department,
+        image: m.image,
+        bio: m.bio ?? '',
+      }));
+    }
+  } catch {
+    // Notion unavailable — keep static fallback
   }
 
   return (
@@ -65,6 +85,12 @@ export default async function HomePage() {
         <Reveal>
           <CaseStudy />
         </Reveal>
+
+        {/* MEMBERS — dark ink section with video-frost reveal cards.
+            Not wrapped in Reveal because the dark bg creates its own
+            visual break; adding a transform would clip the video cards. */}
+        <MembersPreview members={membersData} />
+
         <Reveal>
           <Clients />
         </Reveal>

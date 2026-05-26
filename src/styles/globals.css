@@ -296,7 +296,7 @@
   transition: background 0.3s ease, transform 0.3s ease;
 }
 .member-nav-arrow:hover {
-  background: #25D366;
+  background: #D96B43;
   transform: translateY(-50%) scale(1.06);
 }
 .member-nav-arrow--disabled {
@@ -908,6 +908,40 @@
   color: #ffffff;
 }
 
+/* Company/about page variant — oxblood outline, white text on hover.
+   Used on /company so CTAs match the Atelier High-Key Bone editorial palette. */
+.cta-btn--company {
+  border-color: #7B2D26;
+  color: #7B2D26;
+}
+.cta-btn--company::before {
+  background-color: #7B2D26;
+}
+.cta-btn--company:hover,
+.cta-btn--company:focus-visible {
+  border-color: #7B2D26;
+  color: #ffffff;
+}
+
+/* Company/about page — animated-button in oxblood (Google Maps button in Access section).
+   Mirrors the base .animated-button but with oxblood replacing all #25D366. */
+.animated-button--company {
+  color: #7B2D26;
+  box-shadow: 0 0 0 2px #7B2D26;
+}
+.animated-button--company svg {
+  fill: #7B2D26;
+}
+.animated-button--company .circle {
+  background-color: #7B2D26;
+}
+.animated-button--company:hover {
+  color: #212121;
+}
+.animated-button--company:active {
+  box-shadow: 0 0 0 4px #7B2D26;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cta-btn::before {
     transition: transform 0.15s ease-out;
@@ -1102,88 +1136,6 @@ h6 {
   animation-delay: var(--reveal-delay, 0ms);
 }
 
-/* Company page hero — "constellation of values" dark mode.
-   Green dots softly pulse; labels stay put so they read as floating terms. */
-.constellation-node {
-  transform-origin: center;
-  animation: constellation-pulse 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-@keyframes constellation-pulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 6px rgba(37, 211, 102, 0.55));
-    opacity: 0.95;
-  }
-  50% {
-    filter: drop-shadow(0 0 14px rgba(37, 211, 102, 0.9));
-    opacity: 1;
-  }
-}
-
-/* Electric pulse wires — each line has a tiny bright dash sliding along it. The gap
-   (200 units) is much longer than any line (<52 units), so at most one pulse is visible
-   per line at any time. Combined with the base steady wires behind, this reads as
-   "current traveling through the wire" — not a flying dot. */
-.pulse-wave {
-  stroke-dasharray: 5 200;
-  stroke-dashoffset: 0;
-  animation: pulse-travel 2.4s linear infinite;
-  filter: drop-shadow(0 0 3px rgba(37, 211, 102, 0.95)) drop-shadow(0 0 6px rgba(37, 211, 102, 0.5));
-}
-@keyframes pulse-travel {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -55; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .constellation-node,
-  .pulse-wave { animation: none; }
-}
-
-/* Single traveling pulse around the constellation. The path is one continuous Eulerian circuit
-   visiting each constellation edge once. pathLength="100" normalizes timing — dasharray 6/100
-   means a 6%-long bright dash with 100%-long gap, so only ONE pulse is visible at a time as it
-   travels around the loop over 8s. */
-.constellation-trail {
-  stroke-dasharray: 6 100;
-  stroke-dashoffset: 0;
-  animation: constellation-trail-travel 8s linear infinite;
-  filter: drop-shadow(0 0 3px rgba(37, 211, 102, 0.95)) drop-shadow(0 0 6px rgba(37, 211, 102, 0.5));
-}
-@keyframes constellation-trail-travel {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -100; }
-}
-
-/* Each glow-node lights up briefly when the traveling pulse passes it, then dims back down.
-   Set inline style={{ animationDelay: 'Xs' }} on each circle — the delay equals (node position
-   along path / total path length) * 8s. Glow window is 6% of the cycle (~480ms). */
-.constellation-glow-node {
-  fill: rgba(37, 211, 102, 0.4);
-  r: 1;
-  animation: constellation-glow-flash 8s linear infinite;
-}
-@keyframes constellation-glow-flash {
-  0% {
-    fill: #ffffff;
-    r: 1.8;
-    filter: drop-shadow(0 0 5px #25D366) drop-shadow(0 0 10px rgba(37, 211, 102, 0.6));
-  }
-  6% {
-    fill: rgba(37, 211, 102, 0.4);
-    r: 1;
-    filter: none;
-  }
-  100% {
-    fill: rgba(37, 211, 102, 0.4);
-    r: 1;
-    filter: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .constellation-trail,
-  .constellation-glow-node { animation: none; }
-}
 
 /* Achievements/Works hero — pixel trophy with diagonal shine sweep.
    The shine is a thin white rect inside the trophy SVG, rotated 20° and translated across
@@ -1345,5 +1297,19 @@ h6 {
 .srs-w.srs-lit {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Members orbit marquee — diagonal infinite scroll strip */
+@keyframes orbit-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.orbit-track {
+  display: flex;
+  width: max-content;
+  animation: orbit-scroll var(--orbit-duration, 24s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-track { animation-play-state: paused; }
 }
 
