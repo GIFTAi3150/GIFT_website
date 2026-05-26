@@ -1,10 +1,19 @@
 'use client';
 
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, Component, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
+
+// Catches WebGL context-creation failures so a crashed 3D scene degrades
+// to nothing rather than breaking the whole page.
+class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { /* suppress console noise */ }
+  render() { return this.state.failed ? (this.props.fallback ?? null) : this.props.children; }
+}
 
 // Hero3D mounts WebGL via React Three Fiber. R3F + Next.js App Router
 // hits a Suspense hydration crash when rendered server-side, so import
@@ -235,16 +244,36 @@ export default function DxV3Page() {
     }, 2750);
   };
 
+  // ----- Reset scroll and hide manifesto PNGs before first paint -----
+  // useLayoutEffect fires synchronously after DOM commit but BEFORE the browser
+  // paints. On client-side navigation the old page's scroll position is still
+  // live at this point — resetting here means the first paint of the DX page
+  // is always at scroll=0, so GSAP scrubbed triggers never evaluate at a
+  // non-zero progress on mount. The .m-obj images are also hidden here so
+  // they don't flash at their CSS-positioned location before GSAP sets their
+  // transforms in the useEffect below.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    document
+      .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
+      .forEach((el) => el.style.setProperty('opacity', '0', 'important'));
+  }, []);
+
   // ----- All scroll-driven animations (single useEffect to share state) -----
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const triggers: ScrollTrigger[] = [];
 
-    // When Next.js client-side navigates here from another page (e.g., call-center
-    // footer link), window.scrollY can still be at the previous page's position at
-    // mount time. Every ScrollTrigger fires an initial onUpdate with the current
-    // scroll state, so all animations would complete instantly. Reset to 0 first.
+    // Belt-and-suspenders scroll reset in case Next.js scroll restoration fires
+    // between useLayoutEffect and useEffect (e.g., history.back() path).
     window.scrollTo(0, 0);
+
+    // Reveal manifesto PNG objects now that GSAP is in control of their
+    // transform. The useLayoutEffect above set opacity:0!important to prevent
+    // the flash-on-navigation; removing it here lets CSS opacity values apply.
+    document
+      .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
+      .forEach((el) => el.style.removeProperty('opacity'));
     const isMobile = window.matchMedia('(max-width: 899px)').matches;
 
     // ---- Lenis smooth scroll (page-scoped: destroyed on unmount) ----
@@ -1350,7 +1379,9 @@ export default function DxV3Page() {
               (kept in the imports/component tree so it's easy to re-introduce
               later when we find another home for it). */}
           <div className="absolute inset-0 z-0">
-            <GiftLogoFluid />
+            <WebGLBoundary>
+              <GiftLogoFluid />
+            </WebGLBoundary>
           </div>
           <div className="hero-stage-inner">
             <div className="masthead">
@@ -1547,7 +1578,9 @@ export default function DxV3Page() {
           logo on the screen), relocated from the hero to a dedicated
           section between capabilities and pains. */}
       <section className="models-showcase" id="models-showcase">
-        <Hero3D />
+        <WebGLBoundary>
+          <Hero3D />
+        </WebGLBoundary>
       </section>
 
       {/* PAINS — scroll-scrubbed spotlight. Heading + questions both

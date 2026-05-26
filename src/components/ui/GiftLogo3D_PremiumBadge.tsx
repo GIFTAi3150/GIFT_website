@@ -439,29 +439,25 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
       )}
       <Canvas
         camera={{ position: [0, 0, 6], fov: 40 }}
+        dpr={[1, 1.5]}
         gl={{
           antialias: true,
           alpha: true,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.9,
-          powerPreference: 'high-performance',
+          powerPreference: 'default',
         }}
         onCreated={({ gl }) => {
           gl.setClearColor('#000000', 0);
           const canvas = gl.domElement;
+          // Do NOT call e.preventDefault() here — doing so tells Chrome to
+          // attempt context restoration. If that fails repeatedly, Chrome
+          // permanently blocks ALL new WebGL context creation on this
+          // document ("Web page caused context loss and was blocked"), which
+          // breaks SPA-navigated pages. Just show the SVG fallback instead.
           canvas.addEventListener(
             'webglcontextlost',
-            (e) => {
-              e.preventDefault();
-              setContextLost(true);
-            },
-            false,
-          );
-          canvas.addEventListener(
-            'webglcontextrestored',
-            () => {
-              setContextLost(false);
-            },
+            () => { setContextLost(true); },
             false,
           );
         }}
