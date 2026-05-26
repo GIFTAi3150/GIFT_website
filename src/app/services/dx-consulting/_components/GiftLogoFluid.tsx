@@ -71,12 +71,16 @@ const ART_SCALE = 0.003;
 const G_Z_OFFSET = 25;
 
 // ---- Particle grid size ---------------------------------------------------
-// Positions live in a TEX_W × TEX_H float texture. 192² = 36,864 particles —
-// up from 128² so the shield outline reads denser. The compute pass scales
-// linearly with count, so per-frame cost roughly doubles vs 128², but on
-// a modern GPU that's still cheap.
-const TEX_W = 192;
-const TEX_H = 192;
+// Positions live in a TEX_W × TEX_H float texture. 128² = 16,384 particles.
+// We previously ran 192² (36,864) for a denser shield outline, but on
+// weaker GPUs (Intel iGPU + ANGLE, older driver stacks) the per-frame
+// GPGPU compute cost was a contributing factor in Chrome GPU-process
+// crashes — three full-resolution texture passes per frame (field,
+// velocity, position) plus vorticity confinement's 5 texture taps per
+// cell adds up fast. 128² keeps the silhouette legible while cutting
+// the compute work to ~44% of 192².
+const TEX_W = 128;
+const TEX_H = 128;
 const PARTICLE_COUNT = TEX_W * TEX_H;
 // Split between the shield outline and the inner G. Flipped from 0.55
 // to 0.45 so the G now gets the MAJORITY (~20.3k particles) and the
@@ -1518,10 +1522,18 @@ export default function GiftLogoFluid() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // Context-loss kill switch — see GiftLogo3D_PremiumBadge for the full
+  // rationale. Short version: if we let R3F's default handler call
+  // preventDefault() on webglcontextlost, Chrome's restoration loop runs,
+  // and a few failed restorations get the whole ORIGIN blocked with
+  // "Web page caused context loss and was blocked." Unmounting the
+  // Canvas (no restore attempt) is the clean exit.
+  const [contextLost, setContextLost] = useState(false);
+
   return (
     <>
       <div className="hero-particles" ref={heroRef}>
-        {mounted && (
+        {mounted && !contextLost && (
         <Canvas
           frameloop={frameloop}
           camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
@@ -1537,6 +1549,25 @@ export default function GiftLogoFluid() {
             powerPreference: 'default',
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 1.0,
+            // Drop stencil + allow software fallback so under-powered GPUs
+            // (Intel iGPU on ANGLE) don't fail with OES_packed_depth_stencil.
+            stencil: false,
+            failIfMajorPerformanceCaveat: false,
+          }}
+          onCreated={({ gl }) => {
+            // Capture-phase listener so we run BEFORE R3F's bubble-phase
+            // one. stopImmediatePropagation prevents R3F's listener (which
+            // calls preventDefault and triggers Chrome's restoration loop)
+            // from ever firing. We just unmount the Canvas instead — no
+            // restoration attempt, no "guilty" counter bump on the origin.
+            gl.domElement.addEventListener(
+              'webglcontextlost',
+              (e) => {
+                e.stopImmediatePropagation();
+                setContextLost(true);
+              },
+              true,
+            );
           }}
         >
           <SceneLights />

@@ -3,6 +3,21 @@
    Wrapped under .dx-v3 so the blue palette and bespoke type
    don't bleed into the rest of the site.
 ============================================================ */
+
+/* Defensive flash guard for client-side navigation.
+   When the user navigates to /services/dx-consulting from another route,
+   React commits the new page tree into the DOM. There is a narrow window
+   where the browser can paint the new page BEFORE the scroll position
+   resets to 0 — meaning whatever sits at the previous page's scroll Y
+   on THIS page briefly appears (the manifesto-scene sphere/cylinder PNGs
+   were the visible offender). We hide the .dx-v3 surface until the
+   page's own useLayoutEffect (which scrollTo(0,0)s) removes this
+   attribute. visibility:hidden preserves layout but skips paint, so
+   the swap is instant with no fade or pop-in. */
+.dx-v3[data-flash-guard] {
+  visibility: hidden;
+}
+
 .dx-v3 {
   --paper: #f5f7ff;
   --paper-2: #e6eeff;
