@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
@@ -540,12 +540,33 @@ function SceneLights() {
 }
 
 export default function GiftLogoParticles() {
+  // Context-loss kill switch — see GiftLogo3D_PremiumBadge for rationale.
+  // Unmount the Canvas rather than let R3F's default handler call
+  // preventDefault and trigger Chrome's restoration loop.
+  const [contextLost, setContextLost] = useState(false);
+  if (contextLost) return <div className="hero-particles" aria-hidden />;
   return (
     <div className="hero-particles" aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance',
+          stencil: false,
+          failIfMajorPerformanceCaveat: false,
+        }}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener(
+            'webglcontextlost',
+            (e) => {
+              e.stopImmediatePropagation();
+              setContextLost(true);
+            },
+            true,
+          );
+        }}
       >
         <SceneLights />
         <ParticleLogo />

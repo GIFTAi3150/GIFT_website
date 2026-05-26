@@ -103,13 +103,20 @@ export default function DollarSignHero() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // Context-loss kill switch — see GiftLogo3D_PremiumBadge for rationale.
+  // Unmount the Canvas rather than let R3F's default handler call
+  // preventDefault and trigger Chrome's restoration loop, which on
+  // repeated failure blocks the whole origin from creating any new
+  // WebGL contexts ("Web page caused context loss and was blocked").
+  const [contextLost, setContextLost] = useState(false);
+
   // Shared flag flipped on by OrbitControls.start / off by .end.
   // SpinningDollar reads this each frame and skips auto-rotate
   // while the user is actively dragging — keeps the gesture
   // 1:1 with the camera angle.
   const pauseRef = useRef(false);
 
-  if (!mounted) return null;
+  if (!mounted || contextLost) return null;
 
   return (
     <Canvas
@@ -120,6 +127,18 @@ export default function DollarSignHero() {
         alpha: true,
         toneMapping: THREE.ACESFilmicToneMapping,
         toneMappingExposure: 1.1,
+        stencil: false,
+        failIfMajorPerformanceCaveat: false,
+      }}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener(
+          'webglcontextlost',
+          (e) => {
+            e.stopImmediatePropagation();
+            setContextLost(true);
+          },
+          true,
+        );
       }}
       // touch-action: pan-y so vertical page scroll passes through
       // the canvas on mobile — only horizontal drags get captured

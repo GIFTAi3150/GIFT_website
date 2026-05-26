@@ -966,7 +966,20 @@ export default function Hero3D() {
   const [tooltip, setTooltip] = useState<ClickPayload | null>(null);
   const [screen, setScreen] = useState<ScreenMode>('off');
   const [cameraLocked, setCameraLocked] = useState(false);
-  const [heroVisible, setHeroVisible] = useState(true);
+  const [heroVisible, setHeroVisible] = useState(false);
+  // Defer canvas CREATION (not just frameloop pause) until the section
+  // approaches the viewport. On the DX page this component shares the
+  // page with GiftLogoFluid — if both Canvases mount on initial page
+  // load, two WebGL contexts get created in the same tick, which on
+  // weak GPUs can push the page past Chrome's "guilty context loss"
+  // threshold and trigger a full-origin block. Gating mount means the
+  // hero canvas is alone at the top of the page; this canvas only
+  // comes online once the user has scrolled most of the way to it.
+  const [shouldMount, setShouldMount] = useState(false);
+  // Context-loss kill switch — see GiftLogo3D_PremiumBadge for the full
+  // rationale. If the GPU evicts our context and we let R3F restore it,
+  // a few failed restores get the whole ORIGIN blocked. Unmount instead.
+  const [contextLost, setContextLost] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const isMobile = useRef(false);
 
@@ -978,8 +991,14 @@ export default function Hero3D() {
   useEffect(() => {
     if (!heroRef.current) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setHeroVisible(entry.isIntersecting),
-      { threshold: 0 },
+      ([entry]) => {
+        setHeroVisible(entry.isIntersecting);
+        if (entry.isIntersecting) setShouldMount(true);
+      },
+      // Pre-mount the canvas one viewport BEFORE the section reaches
+      // the screen, so the .glb loads in the background and the user
+      // doesn't see a pop-in when they finally scroll to it.
+      { threshold: 0, rootMargin: '100% 0px' },
     );
     observer.observe(heroRef.current);
     return () => observer.disconnect();
@@ -1015,12 +1034,47 @@ export default function Hero3D() {
         </span>
         <span className="ja">ラーメンで、動く。</span>
       </div>
+      {shouldMount && !contextLost && (
       <Canvas
         camera={{ position: [4, 3, 6], fov: 40, near: 0.01, far: 200 }}
-        dpr={isMobile.current ? [1, 1.5] : [1, 2]}
-        gl={{ antialias: !isMobile.current, alpha: true }}
+        // DPR cap was [1, 2] on desktop — at 2× on a 1440p screen the
+        // canvas rasterizes ~2880² pixels of fragment work per frame.
+        // On weaker GPUs this contributes to Chrome GPU-process crashes
+        // (this page already renders a second WebGL canvas via
+        // GiftLogoFluid). 1.5 cap still looks crisp on Retina laptops
+        // and halves the worst-case pixel fill.
+        dpr={[1, 1.5]}
+        gl={{
+          antialias: !isMobile.current,
+          alpha: true,
+          stencil: false,
+          failIfMajorPerformanceCaveat: false,
+        }}
+        onCreated={({ gl }) => {
+          // Capture-phase listener so we run BEFORE R3F's own bubble-phase
+          // one. stopImmediatePropagation prevents R3F from calling
+          // preventDefault on the contextlost event — which would trigger
+          // Chrome's restoration loop and, on repeated failure, get the
+          // whole origin blocked with "Web page caused context loss and
+          // was blocked." Unmount instead — no restore attempt.
+          gl.domElement.addEventListener(
+            'webglcontextlost',
+            (e) => {
+              e.stopImmediatePropagation();
+              setContextLost(true);
+            },
+            true,
+          );
+        }}
         style={{ background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)' }}
-        shadows={isMobile.current ? false : 'percentage'}
+        // Shadows were 'percentage' on desktop — that's PCSS-style soft
+        // shadow filtering, the most expensive shadow mode three.js
+        // ships, doing 16+ shadow taps per fragment per light. Disabling
+        // shadows entirely (matches the mobile path) is the single
+        // biggest fragment-shader win on this scene. The HDR
+        // environment + AO still ground the geometry; the only visible
+        // loss is hard shadow contact under the monitor stand.
+        shadows={false}
         frameloop={heroVisible ? 'always' : 'never'}
       >
         <ambientLight intensity={0.5} />
@@ -1073,6 +1127,7 @@ export default function Hero3D() {
           maxPolarAngle={Math.PI * 0.52}
         />
       </Canvas>
+      )}
       {tooltip && (
         <div
           className="hero-3d-tooltip"

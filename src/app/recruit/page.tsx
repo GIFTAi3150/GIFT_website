@@ -85,7 +85,7 @@ export default async function RecruitPage() {
       <main className="bg-white">
         {/* ── Hero ── dual-video crossfade, cinematic gradient, white text */}
         <VideoCrossfade
-          src1="/video/recruitment-hero-video.mp4"
+          src1="/video/call-center-vid-recruit.mp4"
           src2="/video/recruit-vid-2.mp4"
           className="flex min-h-[90vh] flex-col justify-center px-5 py-[120px] md:px-10"
         >

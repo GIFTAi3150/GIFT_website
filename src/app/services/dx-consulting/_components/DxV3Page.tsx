@@ -252,11 +252,20 @@ export default function DxV3Page() {
   // non-zero progress on mount. The .m-obj images are also hidden here so
   // they don't flash at their CSS-positioned location before GSAP sets their
   // transforms in the useEffect below.
+  //
+  // The [data-flash-guard] attribute (paired with a visibility:hidden rule in
+  // dx-v3.css) keeps the whole .dx-v3 surface invisible during this window so
+  // that even if React/Next's commit→paint timing slips and the page paints
+  // once before useLayoutEffect runs (concurrent rendering quirk), the user
+  // never sees the manifesto-scene PNGs at the previous page's scroll Y.
+  // Removing the attribute here un-hides the page in the same synchronous
+  // pre-paint pass, so there's no perceptible delay before the hero appears.
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
     document
       .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
       .forEach((el) => el.style.setProperty('opacity', '0', 'important'));
+    document.querySelector('.dx-v3')?.removeAttribute('data-flash-guard');
   }, []);
 
   // ----- All scroll-driven animations (single useEffect to share state) -----
@@ -1369,7 +1378,7 @@ export default function DxV3Page() {
   }, []);
 
   return (
-    <div className="dx-v3">
+    <div className="dx-v3" data-flash-guard="">
       {/* Emoji rain stage — fixed-position canvas the .imagine-cta pill
           spawns emoji into when clicked. Uses the same DOM class names
           as RecruitCta so the existing globals.css styles apply. */}

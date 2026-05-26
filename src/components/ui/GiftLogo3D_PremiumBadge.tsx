@@ -144,69 +144,6 @@ function useHalfShadowMaterial(
   return mat;
 }
 
-// --------------- ORBITING ROCKS ---------------
-function OrbitingRocks({ count = 6 }: { count?: number }) {
-  const rocks = useMemo(() => {
-    return Array.from({ length: count }, () => ({
-      angle: Math.random() * Math.PI * 2,
-      radius: 2.0 + Math.random() * 1.2,
-      y: (Math.random() - 0.5) * 1.5,
-      speed: 0.15 + Math.random() * 0.2,
-      size: 0.03 + Math.random() * 0.02,
-      spinSpeed: 0.5 + Math.random() * 1.5,
-    }));
-  }, [count]);
-
-  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    const BURST = 1.9; // metals burst out at the impact peak
-    if (t < BURST) return;
-
-    const since = t - BURST;
-    // Ease radius out from 0 to full over ~0.7s
-    const radiusEase = Math.min(since / 0.7, 1);
-    const r = 1 - Math.pow(1 - radiusEase, 3);
-
-    rocks.forEach((rock, i) => {
-      const mesh = meshRefs.current[i];
-      if (!mesh) return;
-      const angle = rock.angle + since * rock.speed;
-      const radius = rock.radius * r;
-      mesh.position.x = Math.cos(angle) * radius;
-      mesh.position.y = rock.y * r + Math.sin(t * 0.5 + i) * 0.1 * r;
-      mesh.position.z = Math.sin(angle) * radius;
-      mesh.rotation.x = t * rock.spinSpeed;
-      mesh.rotation.z = t * rock.spinSpeed * 0.7;
-      mesh.visible = true;
-    });
-  });
-
-  return (
-    <group>
-      {rocks.map((rock, i) => (
-        <mesh
-          key={i}
-          ref={(el) => {
-            meshRefs.current[i] = el;
-          }}
-          visible={false}
-        >
-          <icosahedronGeometry args={[rock.size, 0]} />
-          <meshStandardMaterial
-            color={'#888888'}
-            metalness={0.9}
-            roughness={0.15}
-            emissive={'#666666'}
-            emissiveIntensity={0.25}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
 // --------------- MAIN SCENE ---------------
 function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
   const frameCountRef = useRef(0);
@@ -384,7 +321,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
         </Text>
         </Suspense>
       </group>
-      <OrbitingRocks />
     </>
   );
 }
@@ -441,6 +377,14 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
               toneMapping: THREE.ACESFilmicToneMapping,
               toneMappingExposure: 1.9,
               powerPreference: 'default',
+              // Drop stencil — we don't use it, and requiring it forces
+              // OES_packed_depth_stencil on some GPUs (Intel iGPU + ANGLE),
+              // which fails context creation outright.
+              stencil: false,
+              // Allow Chrome's software fallback (SwiftShader) instead of
+              // refusing to create a context on under-powered hardware.
+              failIfMajorPerformanceCaveat: false,
+              preserveDrawingBuffer: false,
             }}
             onCreated={({ gl }) => {
               gl.setClearColor('#000000', 0);
