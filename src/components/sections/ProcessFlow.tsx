@@ -7,7 +7,7 @@ import PixelRobot from '@/components/ui/PixelRobot';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const VIDEO_SRC = '/video/dx-consulting/how-we-work.mp4';
+const VIDEO_SRC = '/video/how-we-work-vid.mp4';
 
 export default function ProcessFlow() {
   const sectionRef = useRef<HTMLElement | null>(null);

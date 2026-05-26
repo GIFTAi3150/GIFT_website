@@ -1299,3 +1299,17 @@ h6 {
   transform: translateY(0);
 }
 
+/* Members orbit marquee — diagonal infinite scroll strip */
+@keyframes orbit-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.orbit-track {
+  display: flex;
+  width: max-content;
+  animation: orbit-scroll var(--orbit-duration, 24s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-track { animation-play-state: paused; }
+}
+

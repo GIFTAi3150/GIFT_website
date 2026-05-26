@@ -1,7 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Component, type ReactNode } from 'react';
+
+class CanvasErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { /* suppress console noise */ }
+  render() { return this.state.failed ? this.props.fallback : this.props.children; }
+}
 
 const GiftLogo3D = dynamic(() => import('@/components/ui/GiftLogo3D_PremiumBadge'), {
   ssr: false,
@@ -60,5 +67,9 @@ export default function HeroLogoDelayed({ className }: { className?: string }) {
       </div>
     );
   }
-  return <GiftLogo3D className={className} />;
+  return (
+    <CanvasErrorBoundary fallback={<div className={className}><LogoPlaceholder /></div>}>
+      <GiftLogo3D className={className} />
+    </CanvasErrorBoundary>
+  );
 }
