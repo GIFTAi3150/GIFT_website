@@ -5,6 +5,7 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
 const BRAND_GREEN = '#2d6b3f';
 const GOLD = '#eeebe3';
@@ -371,36 +372,30 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
           <Canvas
             camera={{ position: [0, 0, 6], fov: 40 }}
             dpr={[1, 1.5]}
-            gl={{
-              antialias: true,
-              alpha: true,
-              toneMapping: THREE.ACESFilmicToneMapping,
-              toneMappingExposure: 1.9,
-              powerPreference: 'default',
-              // Drop stencil — we don't use it, and requiring it forces
-              // OES_packed_depth_stencil on some GPUs (Intel iGPU + ANGLE),
-              // which fails context creation outright.
-              stencil: false,
-              // Allow Chrome's software fallback (SwiftShader) instead of
-              // refusing to create a context on under-powered hardware.
-              failIfMajorPerformanceCaveat: false,
-              preserveDrawingBuffer: false,
-            }}
+            // Use makeSafeRenderer so OUR webglcontextlost listener is
+            // attached to the canvas BEFORE Three.js's constructor adds
+            // its own (preventDefault-calling) listener. See the helper
+            // for the full explanation of why registration order matters.
+            gl={makeSafeRenderer(
+              {
+                antialias: true,
+                alpha: true,
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.9,
+                powerPreference: 'default',
+                // Drop stencil — requiring it forces OES_packed_depth_stencil
+                // on some GPUs (Intel iGPU + ANGLE), which fails context
+                // creation outright.
+                stencil: false,
+                // Allow Chrome's software fallback (SwiftShader) instead of
+                // refusing to create a context on under-powered hardware.
+                failIfMajorPerformanceCaveat: false,
+                preserveDrawingBuffer: false,
+              },
+              () => setContextLost(true),
+            )}
             onCreated={({ gl }) => {
               gl.setClearColor('#000000', 0);
-              // Intercept context loss BEFORE R3F's own listener so we can
-              // call stopImmediatePropagation — this prevents R3F from calling
-              // preventDefault(), which would trigger Chrome's restoration loop
-              // and eventually cause "Web page caused context loss and was blocked".
-              // Unmounting the Canvas (via setContextLost) is the clean exit.
-              gl.domElement.addEventListener(
-                'webglcontextlost',
-                (e) => {
-                  e.stopImmediatePropagation();
-                  setContextLost(true);
-                },
-                true, // capture phase — fires before R3F's bubble-phase listener
-              );
             }}
             style={{
               background: 'transparent',

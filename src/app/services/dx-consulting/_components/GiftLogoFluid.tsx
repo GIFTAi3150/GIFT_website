@@ -33,6 +33,8 @@ import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js';
+import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
 // The "head" form is split between TWO GLBs now:
 //   - HEAD_PATH (bob-marley.glb): single mesh "BobMarleyBust" — the
@@ -1529,11 +1531,15 @@ export default function GiftLogoFluid() {
   // "Web page caused context loss and was blocked." Unmounting the
   // Canvas (no restore attempt) is the clean exit.
   const [contextLost, setContextLost] = useState(false);
+  // Probe WebGL availability before mounting (see useWebGLAvailable docs).
+  // Prevents "Error creating WebGL context with your selected attributes"
+  // when arriving from a page whose contexts haven't been released yet.
+  const webglStatus = useWebGLAvailable();
 
   return (
     <>
       <div className="hero-particles" ref={heroRef}>
-        {mounted && !contextLost && (
+        {mounted && !contextLost && webglStatus === 'ready' && (
         <Canvas
           frameloop={frameloop}
           camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
@@ -1543,32 +1549,20 @@ export default function GiftLogoFluid() {
           // looks like flat opaque mustard because there's no reflection
           // for the metallic channel to sample. Same setup HeadSkullScene
           // uses, ported here so the skull preserves its sheen.
-          gl={{
-            antialias: true,
-            alpha: true,
-            powerPreference: 'default',
-            toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.0,
-            // Drop stencil + allow software fallback so under-powered GPUs
-            // (Intel iGPU on ANGLE) don't fail with OES_packed_depth_stencil.
-            stencil: false,
-            failIfMajorPerformanceCaveat: false,
-          }}
-          onCreated={({ gl }) => {
-            // Capture-phase listener so we run BEFORE R3F's bubble-phase
-            // one. stopImmediatePropagation prevents R3F's listener (which
-            // calls preventDefault and triggers Chrome's restoration loop)
-            // from ever firing. We just unmount the Canvas instead — no
-            // restoration attempt, no "guilty" counter bump on the origin.
-            gl.domElement.addEventListener(
-              'webglcontextlost',
-              (e) => {
-                e.stopImmediatePropagation();
-                setContextLost(true);
-              },
-              true,
-            );
-          }}
+          gl={makeSafeRenderer(
+            {
+              antialias: true,
+              alpha: true,
+              powerPreference: 'default',
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: 1.0,
+              // Drop stencil + allow software fallback so under-powered GPUs
+              // (Intel iGPU on ANGLE) don't fail with OES_packed_depth_stencil.
+              stencil: false,
+              failIfMajorPerformanceCaveat: false,
+            },
+            () => setContextLost(true),
+          )}
         >
           <SceneLights />
           {/* Suspense boundary: useGLTF inside FluidParticles + the

@@ -5,6 +5,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
+import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
 // SVG path data — same shield + G mark the home-hero badge uses, so the
 // particle silhouette matches what visitors already know.
@@ -544,29 +546,28 @@ export default function GiftLogoParticles() {
   // Unmount the Canvas rather than let R3F's default handler call
   // preventDefault and trigger Chrome's restoration loop.
   const [contextLost, setContextLost] = useState(false);
-  if (contextLost) return <div className="hero-particles" aria-hidden />;
+  // Probe WebGL before mounting so we don't throw inside the renderer
+  // constructor when arriving on a page whose GPU is still releasing
+  // contexts from the previous route.
+  const webglStatus = useWebGLAvailable();
+  if (contextLost || webglStatus !== 'ready') {
+    return <div className="hero-particles" aria-hidden />;
+  }
   return (
     <div className="hero-particles" aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
         dpr={[1, 2]}
-        gl={{
-          antialias: true,
-          alpha: true,
-          powerPreference: 'high-performance',
-          stencil: false,
-          failIfMajorPerformanceCaveat: false,
-        }}
-        onCreated={({ gl }) => {
-          gl.domElement.addEventListener(
-            'webglcontextlost',
-            (e) => {
-              e.stopImmediatePropagation();
-              setContextLost(true);
-            },
-            true,
-          );
-        }}
+        gl={makeSafeRenderer(
+          {
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance',
+            stencil: false,
+            failIfMajorPerformanceCaveat: false,
+          },
+          () => setContextLost(true),
+        )}
       >
         <SceneLights />
         <ParticleLogo />

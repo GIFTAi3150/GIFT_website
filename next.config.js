@@ -5,6 +5,23 @@ const nextConfig = {
   // 301 redirects from the old WordPress URLs to the new site structure.
   // Preserves SEO value (rankings, backlinks) after the domain cutover.
   async headers() {
+    // `immutable` is a prod-only optimization. In dev the same /video/*.mp4
+    // path can be served with different bytes across re-encodes / dev-server
+    // restarts; combined with the byte-range requests <video> issues, the
+    // browser's disk cache hits an inconsistency mid-stitch and logs
+    // ERR_CACHE_OPERATION_NOT_SUPPORTED. Returning short, revalidating
+    // headers in dev avoids that whole class of error.
+    if (process.env.NODE_ENV !== 'production') {
+      return [
+        {
+          source: '/video/:path*',
+          headers: [
+            { key: 'Accept-Ranges', value: 'bytes' },
+            { key: 'Cache-Control', value: 'no-store' },
+          ],
+        },
+      ];
+    }
     return [
       {
         source: '/video/:path*',

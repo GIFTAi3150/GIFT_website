@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import createGlobe from 'cobe';
 import company from '@/data/company.json';
+import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
 
 // Interactive globe for the About page's Access section. Uses `cobe`
 // (https://cobe.vercel.app) — same lightweight WebGL globe Vercel runs
@@ -103,8 +104,14 @@ export default function AccessGlobe() {
   // tap, cleared by the × button).
   const [hovering, setHovering] = useState(false);
   const [pinned, setPinned] = useState(false);
+  // Probe WebGL before letting cobe construct the globe. createGlobe
+  // calls getContext('webgl') under the hood; if the GPU is still
+  // releasing contexts from a previous route, that returns null and
+  // cobe throws. The probe waits until WebGL is actually available.
+  const webglStatus = useWebGLAvailable();
 
   useEffect(() => {
+    if (webglStatus !== 'ready') return;
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -273,7 +280,7 @@ export default function AccessGlobe() {
       container.removeEventListener('pointermove', onContainerPointerMove);
       container.removeEventListener('pointerleave', onContainerPointerLeave);
     };
-  }, []);
+  }, [webglStatus]);
 
   const closeCard = () => {
     setPinned(false);

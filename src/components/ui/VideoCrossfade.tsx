@@ -118,7 +118,10 @@ export default function VideoCrossfade({
                 <video
                   ref={n === 1 ? t1 : t2}
                   autoPlay
-                  muted playsInline preload="auto"
+                  muted
+                  playsInline
+                  preload="metadata"
+                  disableRemotePlayback
                   className="absolute inset-0 h-full w-full object-cover"
                   src={n === 1 ? src1 : src2}
                 />

@@ -6,16 +6,39 @@
 
 /* Defensive flash guard for client-side navigation.
    When the user navigates to /services/dx-consulting from another route,
-   React commits the new page tree into the DOM. There is a narrow window
-   where the browser can paint the new page BEFORE the scroll position
-   resets to 0 — meaning whatever sits at the previous page's scroll Y
-   on THIS page briefly appears (the manifesto-scene sphere/cylinder PNGs
-   were the visible offender). We hide the .dx-v3 surface until the
-   page's own useLayoutEffect (which scrollTo(0,0)s) removes this
-   attribute. visibility:hidden preserves layout but skips paint, so
-   the swap is instant with no fade or pop-in. */
-.dx-v3[data-flash-guard] {
+   the page mounts and React commits its tree. Two paint hazards happen
+   in that window:
+     1. Whatever sits at the previous page's scroll Y can briefly appear
+        before scrollTo(0,0) lands (the manifesto-scene PNGs were the
+        original offender).
+     2. The page's GSAP fromTo initial states (opacity:0, y:80…) haven't
+        been applied yet, so all scroll-driven sections paint in their
+        FINAL state for one frame — visitors perceive the animations as
+        "already done" before they've even scrolled.
+   We hide every child of .dx-v3 with visibility:hidden until JS removes
+   the attribute at the END of useEffect (after all GSAP states are
+   applied). visibility:hidden preserves layout but suppresses paint,
+   so the swap is instant with no fade or pop-in.
+
+   The fixed ::after cover paints the page's --paper background across
+   the entire viewport while the guard is up. Without it, the body's
+   #EBEEF3 underlay would leak through (since .dx-v3 itself is hidden
+   and its background paint is suppressed too), producing a visible
+   color flash between loading.tsx unmounting and the guard releasing.
+   We explicitly set visibility:visible on the pseudo so it survives
+   the parent's hidden state. */
+.dx-v3[data-flash-guard] > *,
+.dx-v3[data-flash-guard]::before {
   visibility: hidden;
+}
+.dx-v3[data-flash-guard]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #f5f7ff;
+  visibility: visible;
+  pointer-events: none;
 }
 
 .dx-v3 {

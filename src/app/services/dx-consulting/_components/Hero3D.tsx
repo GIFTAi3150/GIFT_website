@@ -11,6 +11,8 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
 // Models live in /public/models/. Both .glb files are preloaded on
 // mount so the canvas doesn't have to wait for them sequentially.
@@ -980,6 +982,13 @@ export default function Hero3D() {
   // rationale. If the GPU evicts our context and we let R3F restore it,
   // a few failed restores get the whole ORIGIN blocked. Unmount instead.
   const [contextLost, setContextLost] = useState(false);
+  // Probe whether the browser can hand us a fresh WebGL context BEFORE
+  // we mount the R3F Canvas. Coming from another R3F-heavy page, the
+  // GPU process can still be holding the previous page's contexts when
+  // we arrive — `new WebGLRenderer()` then throws synchronously inside
+  // React commit. The probe retries with backoff so we mount only when
+  // the GPU is actually ready.
+  const webglStatus = useWebGLAvailable();
   const heroRef = useRef<HTMLDivElement>(null);
   const isMobile = useRef(false);
 
@@ -988,8 +997,15 @@ export default function Hero3D() {
     setMounted(true);
   }, []);
 
+  // Depends on `mounted` because the observed div lives behind
+  // `if (!mounted) return null;` — without this dep the effect runs
+  // once on first commit (when heroRef.current is still null because
+  // the div hasn't rendered yet), the early-return fires, and the
+  // observer never attaches. heroVisible + shouldMount then stay
+  // false forever and the Canvas never mounts. Re-running after
+  // mounted flips true gives the ref a chance to populate.
   useEffect(() => {
-    if (!heroRef.current) return;
+    if (!mounted || !heroRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         setHeroVisible(entry.isIntersecting);
@@ -1002,7 +1018,7 @@ export default function Hero3D() {
     );
     observer.observe(heroRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
     if (!tooltip) return;
@@ -1034,7 +1050,7 @@ export default function Hero3D() {
         </span>
         <span className="ja">ラーメンで、動く。</span>
       </div>
-      {shouldMount && !contextLost && (
+      {shouldMount && !contextLost && webglStatus === 'ready' && (
       <Canvas
         camera={{ position: [4, 3, 6], fov: 40, near: 0.01, far: 200 }}
         // DPR cap was [1, 2] on desktop — at 2× on a 1440p screen the
@@ -1044,28 +1060,15 @@ export default function Hero3D() {
         // GiftLogoFluid). 1.5 cap still looks crisp on Retina laptops
         // and halves the worst-case pixel fill.
         dpr={[1, 1.5]}
-        gl={{
-          antialias: !isMobile.current,
-          alpha: true,
-          stencil: false,
-          failIfMajorPerformanceCaveat: false,
-        }}
-        onCreated={({ gl }) => {
-          // Capture-phase listener so we run BEFORE R3F's own bubble-phase
-          // one. stopImmediatePropagation prevents R3F from calling
-          // preventDefault on the contextlost event — which would trigger
-          // Chrome's restoration loop and, on repeated failure, get the
-          // whole origin blocked with "Web page caused context loss and
-          // was blocked." Unmount instead — no restore attempt.
-          gl.domElement.addEventListener(
-            'webglcontextlost',
-            (e) => {
-              e.stopImmediatePropagation();
-              setContextLost(true);
-            },
-            true,
-          );
-        }}
+        gl={makeSafeRenderer(
+          {
+            antialias: !isMobile.current,
+            alpha: true,
+            stencil: false,
+            failIfMajorPerformanceCaveat: false,
+          },
+          () => setContextLost(true),
+        )}
         style={{ background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)' }}
         // Shadows were 'percentage' on desktop — that's PCSS-style soft
         // shadow filtering, the most expensive shadow mode three.js

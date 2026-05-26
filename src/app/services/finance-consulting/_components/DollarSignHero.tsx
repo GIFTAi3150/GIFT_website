@@ -10,6 +10,8 @@ import {
   OrbitControls,
 } from '@react-three/drei';
 import * as THREE from 'three';
+import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
 // Hero asset for /services/finance-consulting. A simple 3D "$" glyph
 // (177 KB, single "Text" mesh, originally gold) recolored to the
@@ -109,6 +111,9 @@ export default function DollarSignHero() {
   // repeated failure blocks the whole origin from creating any new
   // WebGL contexts ("Web page caused context loss and was blocked").
   const [contextLost, setContextLost] = useState(false);
+  // Probe WebGL before mounting so the renderer constructor doesn't
+  // throw when arriving on this page from another R3F-heavy route.
+  const webglStatus = useWebGLAvailable();
 
   // Shared flag flipped on by OrbitControls.start / off by .end.
   // SpinningDollar reads this each frame and skips auto-rotate
@@ -116,30 +121,23 @@ export default function DollarSignHero() {
   // 1:1 with the camera angle.
   const pauseRef = useRef(false);
 
-  if (!mounted || contextLost) return null;
+  if (!mounted || contextLost || webglStatus !== 'ready') return null;
 
   return (
     <Canvas
       camera={{ position: [0, 0, 3.4], fov: 35, near: 0.1, far: 50 }}
       dpr={[1, 2]}
-      gl={{
-        antialias: true,
-        alpha: true,
-        toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.1,
-        stencil: false,
-        failIfMajorPerformanceCaveat: false,
-      }}
-      onCreated={({ gl }) => {
-        gl.domElement.addEventListener(
-          'webglcontextlost',
-          (e) => {
-            e.stopImmediatePropagation();
-            setContextLost(true);
-          },
-          true,
-        );
-      }}
+      gl={makeSafeRenderer(
+        {
+          antialias: true,
+          alpha: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.1,
+          stencil: false,
+          failIfMajorPerformanceCaveat: false,
+        },
+        () => setContextLost(true),
+      )}
       // touch-action: pan-y so vertical page scroll passes through
       // the canvas on mobile — only horizontal drags get captured
       // by OrbitControls as rotation gestures.
