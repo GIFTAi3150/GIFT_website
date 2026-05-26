@@ -1525,7 +1525,7 @@ export default function GiftLogoFluid() {
         <Canvas
           frameloop={frameloop}
           camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
-          dpr={[1, 2]}
+          dpr={[1, 1.5]}
           // ACES tone mapping + an environment map make the skull's gold
           // PBR material actually read as metal. Without these the gold
           // looks like flat opaque mustard because there's no reflection
@@ -1534,7 +1534,7 @@ export default function GiftLogoFluid() {
           gl={{
             antialias: true,
             alpha: true,
-            powerPreference: 'high-performance',
+            powerPreference: 'default',
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 1.0,
           }}
