@@ -422,76 +422,65 @@ export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Prop
       className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
       style={{ width: '100%', backgroundColor: 'transparent' }}
     >
-      {/* Dark cover above the canvas — fades away once we know three.js has painted.
-          Protects against any initial white flash during WebGL context creation. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
-        style={{
-          backgroundColor: 'transparent',
-          opacity: ready && !contextLost ? 0 : 1,
-        }}
-      />
-      {contextLost && (
-        <div className="pointer-events-none absolute inset-0 z-40">
-          <LogoFallback />
-        </div>
+      {contextLost ? (
+        <LogoFallback />
+      ) : (
+        <>
+          {/* Cover div fades away once three.js has painted its first frame. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
+            style={{ opacity: ready ? 0 : 1 }}
+          />
+          <Canvas
+            camera={{ position: [0, 0, 6], fov: 40 }}
+            dpr={[1, 1.5]}
+            gl={{
+              antialias: true,
+              alpha: true,
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: 1.9,
+              powerPreference: 'default',
+            }}
+            onCreated={({ gl }) => {
+              gl.setClearColor('#000000', 0);
+              // Intercept context loss BEFORE R3F's own listener so we can
+              // call stopImmediatePropagation — this prevents R3F from calling
+              // preventDefault(), which would trigger Chrome's restoration loop
+              // and eventually cause "Web page caused context loss and was blocked".
+              // Unmounting the Canvas (via setContextLost) is the clean exit.
+              gl.domElement.addEventListener(
+                'webglcontextlost',
+                (e) => {
+                  e.stopImmediatePropagation();
+                  setContextLost(true);
+                },
+                true, // capture phase — fires before R3F's bubble-phase listener
+              );
+            }}
+            style={{
+              background: 'transparent',
+              opacity: ready ? 1 : 0,
+              transition: 'opacity 400ms ease-out',
+            }}
+          >
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
+            <directionalLight position={[3, 0, 3]} intensity={1.0} color={'#b0c0e0'} />
+            <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
+            <ShieldScene
+              onFirstFrame={() => {
+                setTimeout(() => {
+                  setReady(true);
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new Event('gift:logo-ready'));
+                  }
+                }, 250);
+              }}
+            />
+          </Canvas>
+        </>
       )}
-      <Canvas
-        camera={{ position: [0, 0, 6], fov: 40 }}
-        dpr={[1, 1.5]}
-        gl={{
-          antialias: true,
-          alpha: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.9,
-          powerPreference: 'default',
-        }}
-        onCreated={({ gl }) => {
-          gl.setClearColor('#000000', 0);
-          const canvas = gl.domElement;
-          // Do NOT call e.preventDefault() here — doing so tells Chrome to
-          // attempt context restoration. If that fails repeatedly, Chrome
-          // permanently blocks ALL new WebGL context creation on this
-          // document ("Web page caused context loss and was blocked"), which
-          // breaks SPA-navigated pages. Just show the SVG fallback instead.
-          canvas.addEventListener(
-            'webglcontextlost',
-            () => { setContextLost(true); },
-            false,
-          );
-        }}
-        style={{
-          background: 'transparent',
-          opacity: ready && !contextLost ? 1 : 0,
-          transition: 'opacity 400ms ease-out',
-        }}
-      >
-        {/* Light hitting the surface at an angle — this is what makes textures visible */}
-        {/* Cinematic three-point lighting */}
-
-        <ambientLight intensity={0.4} />
-
-        {/* KEY — main light, warm, from upper-left */}
-        <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
-
-        {/* FILL — softer, cool, from opposite side */}
-        <directionalLight position={[3, 0, 3]} intensity={1.0} color={'#b0c0e0'} />
-
-        {/* RIM — behind the object, edge separation */}
-        <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
-
-        <ShieldScene
-          onFirstFrame={() => {
-            setTimeout(() => {
-              setReady(true);
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new Event('gift:logo-ready'));
-              }
-            }, 250);
-          }}
-        />
-      </Canvas>
     </div>
   );
 }

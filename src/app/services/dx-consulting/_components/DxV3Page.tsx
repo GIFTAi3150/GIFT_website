@@ -285,7 +285,7 @@ export default function DxV3Page() {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on('scroll', () => ScrollTrigger.update());
     const lenisRaf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(lenisRaf);
     gsap.ticker.lagSmoothing(0);
@@ -1348,7 +1348,18 @@ export default function DxV3Page() {
       }
     );
 
+    // Fonts (General Sans + JetBrains Mono) are loaded from external CDN
+    // with display:swap. On Vercel production the swap happens AFTER GSAP
+    // has already measured all trigger positions, shifting content down and
+    // leaving ScrollTrigger with stale offsets. Refresh once fonts settle
+    // so every trigger recalculates against the final laid-out positions.
+    let fontsAlive = true;
+    document.fonts.ready.then(() => {
+      if (fontsAlive) ScrollTrigger.refresh();
+    });
+
     return () => {
+      fontsAlive = false;
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
       slideCleanups.forEach((fn) => fn());

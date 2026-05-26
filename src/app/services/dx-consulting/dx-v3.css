@@ -1820,6 +1820,20 @@
   color: var(--silver);
   margin-top: 12px;
 }
+/* Desktop: scale heading and question text with min(vw, vh) so all four
+   questions + heading always fit inside the 100vh sticky pains frame on
+   short-but-wide screens (e.g. 1440×900 laptops, 1920×1080 with chrome). */
+@media (min-width: 900px) {
+  .dx-v3 .pains-pin-frame {
+    padding-top: clamp(40px, 8vh, 96px);
+  }
+  .dx-v3 .pains-pin-content .sec-head h2 {
+    font-size: clamp(24px, min(3.5vw, 5vh), 52px);
+  }
+  .dx-v3 .pains-pin-frame .pain .q {
+    font-size: clamp(22px, min(3.8vw, 7vh), 52px);
+  }
+}
 
 /* ============================================================
    FEATURES — scroll-scrubbed cascading slider.
@@ -1891,6 +1905,19 @@
   .dx-v3 .cascade-slide {
     --slide-w: clamp(420px, 44vw, 600px);
     --slide-h: clamp(420px, 58vh, 540px);
+  }
+}
+/* Features sec-head has only h2 (no .num / .meta siblings). On desktop
+   the default auto 1fr auto grid puts h2 in an auto-sized column sized to
+   its max-content word width (~800px at 110px font), forcing the heading to
+   wrap at an arbitrary column boundary and leaving a visually odd block. Use
+   1fr so the heading spans the full wrap width and wraps naturally. */
+@media (min-width: 900px) {
+  .dx-v3 #features .sec-head {
+    grid-template-columns: 1fr;
+  }
+  .dx-v3 #features .sec-head h2 {
+    font-size: clamp(36px, 5vw, 80px);
   }
 }
 .dx-v3 .cascade-card {
