@@ -1,18 +1,19 @@
 'use client';
 
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useThree, useFrame, type ThreeEvent } from '@react-three/fiber';
+import { useThree, useFrame, type ThreeEvent } from '@react-three/fiber';
 import {
   useGLTF,
   Environment,
   Center,
   Bounds,
   OrbitControls,
+  View,
+  PerspectiveCamera,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
-import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
+import { useViewportMount } from '@/lib/useViewportMount';
 
 // Models live in /public/models/. Both .glb files are preloaded on
 // mount so the canvas doesn't have to wait for them sequentially.
@@ -968,57 +969,22 @@ export default function Hero3D() {
   const [tooltip, setTooltip] = useState<ClickPayload | null>(null);
   const [screen, setScreen] = useState<ScreenMode>('off');
   const [cameraLocked, setCameraLocked] = useState(false);
-  const [heroVisible, setHeroVisible] = useState(false);
-  // Defer canvas CREATION (not just frameloop pause) until the section
-  // approaches the viewport. On the DX page this component shares the
-  // page with GiftLogoFluid — if both Canvases mount on initial page
-  // load, two WebGL contexts get created in the same tick, which on
-  // weak GPUs can push the page past Chrome's "guilty context loss"
-  // threshold and trigger a full-origin block. Gating mount means the
-  // hero canvas is alone at the top of the page; this canvas only
-  // comes online once the user has scrolled most of the way to it.
-  const [shouldMount, setShouldMount] = useState(false);
-  // Context-loss kill switch — see GiftLogo3D_PremiumBadge for the full
-  // rationale. If the GPU evicts our context and we let R3F restore it,
-  // a few failed restores get the whole ORIGIN blocked. Unmount instead.
-  const [contextLost, setContextLost] = useState(false);
-  // Probe whether the browser can hand us a fresh WebGL context BEFORE
-  // we mount the R3F Canvas. Coming from another R3F-heavy page, the
-  // GPU process can still be holding the previous page's contexts when
-  // we arrive — `new WebGLRenderer()` then throws synchronously inside
-  // React commit. The probe retries with backoff so we mount only when
-  // the GPU is actually ready.
-  const webglStatus = useWebGLAvailable();
   const heroRef = useRef<HTMLDivElement>(null);
   const isMobile = useRef(false);
+
+  // Viewport mount gate keeps the heavy DeskScene (GLB loads + materials)
+  // from constructing until the user is near the section. Phase 2: this
+  // scene now renders into the app-shell shared canvas via drei <View>,
+  // so we no longer manage a per-component WebGL context or worry about
+  // context-loss recovery here — RootCanvas owns that.
+  const { shouldMount } = useViewportMount(heroRef, {
+    debugLabel: 'Hero3D',
+  });
 
   useEffect(() => {
     isMobile.current = window.innerWidth < 768;
     setMounted(true);
   }, []);
-
-  // Depends on `mounted` because the observed div lives behind
-  // `if (!mounted) return null;` — without this dep the effect runs
-  // once on first commit (when heroRef.current is still null because
-  // the div hasn't rendered yet), the early-return fires, and the
-  // observer never attaches. heroVisible + shouldMount then stay
-  // false forever and the Canvas never mounts. Re-running after
-  // mounted flips true gives the ref a chance to populate.
-  useEffect(() => {
-    if (!mounted || !heroRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setHeroVisible(entry.isIntersecting);
-        if (entry.isIntersecting) setShouldMount(true);
-      },
-      // Pre-mount the canvas one viewport BEFORE the section reaches
-      // the screen, so the .glb loads in the background and the user
-      // doesn't see a pop-in when they finally scroll to it.
-      { threshold: 0, rootMargin: '100% 0px' },
-    );
-    observer.observe(heroRef.current);
-    return () => observer.disconnect();
-  }, [mounted]);
 
   useEffect(() => {
     if (!tooltip) return;
@@ -1050,43 +1016,37 @@ export default function Hero3D() {
         </span>
         <span className="ja">ラーメンで、動く。</span>
       </div>
-      {shouldMount && !contextLost && webglStatus === 'ready' && (
-      <Canvas
-        camera={{ position: [4, 3, 6], fov: 40, near: 0.01, far: 200 }}
-        // DPR cap was [1, 2] on desktop — at 2× on a 1440p screen the
-        // canvas rasterizes ~2880² pixels of fragment work per frame.
-        // On weaker GPUs this contributes to Chrome GPU-process crashes
-        // (this page already renders a second WebGL canvas via
-        // GiftLogoFluid). 1.5 cap still looks crisp on Retina laptops
-        // and halves the worst-case pixel fill.
-        dpr={[1, 1.5]}
-        gl={makeSafeRenderer(
-          {
-            antialias: !isMobile.current,
-            alpha: true,
-            stencil: false,
-            failIfMajorPerformanceCaveat: false,
-          },
-          () => setContextLost(true),
-        )}
-        style={{ background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)' }}
-        // Shadows were 'percentage' on desktop — that's PCSS-style soft
-        // shadow filtering, the most expensive shadow mode three.js
-        // ships, doing 16+ shadow taps per fragment per light. Disabling
-        // shadows entirely (matches the mobile path) is the single
-        // biggest fragment-shader win on this scene. The HDR
-        // environment + AO still ground the geometry; the only visible
-        // loss is hard shadow contact under the monitor stand.
-        shadows={false}
-        frameloop={heroVisible ? 'always' : 'never'}
+      {shouldMount && (
+      // Drei <View> is the tracker div: the app-shell shared Canvas
+      // scissors itself to this rect and paints the scene here. The
+      // gradient background lives on this div (the shared Canvas has
+      // no per-View background of its own).
+      //
+      // Phase 2 notes vs. the old standalone <Canvas>:
+      //  - dpr / shadows / antialias / gl options are now owned by
+      //    RootCanvas (dpr [1, 1.5] matches the old setting).
+      //  - frameloop is owned by the shared Canvas (always); drei's
+      //    View internally skips its render call when the tracker is
+      //    offscreen, so the savings are similar.
+      //  - Context loss is handled centrally by RootCanvas.
+      <View
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)',
+        }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight
-          position={[6, 9, 5]}
-          intensity={1.1}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
+        <PerspectiveCamera
+          makeDefault
+          position={[4, 3, 6]}
+          fov={40}
+          near={0.01}
+          far={200}
         />
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[6, 9, 5]} intensity={1.1} />
         <directionalLight position={[-5, 3, -4]} intensity={0.3} />
         <Suspense fallback={<LoadingBox />}>
           <Environment preset="apartment" />
@@ -1129,7 +1089,7 @@ export default function Hero3D() {
           minPolarAngle={Math.PI * 0.18}
           maxPolarAngle={Math.PI * 0.52}
         />
-      </Canvas>
+      </View>
       )}
       {tooltip && (
         <div

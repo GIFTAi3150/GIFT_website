@@ -20,15 +20,13 @@ class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNod
 // it dynamically with SSR disabled — the component only ever appears
 // after client hydration.
 const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
-// Particle-cloud version of the GIFT brand mark. Lives in the hero as a
-// decorative background layer, with the masthead text floating above.
-// GiftLogoFluid is the GPU-compute version (curl-noise advection on the
-// GPU, ~16k particles in float textures). GiftLogoParticles is the older
-// CPU spring-mass version, kept around as a fallback if the GPU sim
-// misbehaves on a given device.
-const GiftLogoFluid = dynamic(() => import('./GiftLogoFluid'), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const GiftLogoParticles = dynamic(() => import('./GiftLogoParticles'), { ssr: false });
+// GiftLogoFluid (the GPU-compute particle face) is no longer rendered on
+// the live DX page — it crashed mid-tier GPUs by tripping Chrome's
+// "guilty origin" context-loss counter. The visual was baked to a video
+// loop and is served by the <video> element in the hero (search this
+// file for `dx-hero-loop`). GiftLogoFluid still exists in the tree and
+// is mounted by /dev/capture-dx-hero (development only) for regenerating
+// the video when the brand mark or morph sequence changes.
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
 
@@ -1457,13 +1455,35 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* GIFT particle logo fills the hero. Igloo is hidden for now
-              (kept in the imports/component tree so it's easy to re-introduce
-              later when we find another home for it). */}
-          <div className="absolute inset-0 z-0">
-            <WebGLBoundary>
-              <GiftLogoFluid />
-            </WebGLBoundary>
+          {/* PARKED until Friday: GiftLogoFluid (live GPGPU particle face)
+              crashed mid-tier GPUs by tripping Chrome's "guilty origin"
+              context-loss counter. Plan is to bake the visual to a video
+              loop and serve that — see /dev/capture-dx-hero and the
+              <video> wiring committed earlier in this branch's history.
+              In the meantime this static SVG silhouette stands in so the
+              hero is never empty. To restore the video path, swap this
+              block for the <video> element (or revert to the prior
+              commit on this file). */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+            <svg
+              viewBox="0 0 828 800"
+              preserveAspectRatio="xMidYMid meet"
+              style={{ width: '52%', maxWidth: 520, opacity: 0.85 }}
+              aria-hidden
+            >
+              <path
+                d="M727.19,290.25l-13.54-46.64c-.07-.28-.14-.57-.21-.85-9.97-47.12,10.79-74.96,10.79-74.96l37.27-50.14c3.15-4.23,2.63-10.15-1.21-13.77l-100.68-94.91c-4.16-3.92-10.68-3.74-14.64.38-24.77,25.82-88.99,49.59-130.64,51.21-37.93,1.48-65.98-9.51-82.17-18.37-.2-.15-.41-.28-.65-.4l-13.24-6.4c-1.02-.49-2.2-.49-3.22,0l-13.24,6.4c-.24.12-.45.25-.65.4-16.19,8.85-44.25,19.85-82.17,18.37-41.65-1.62-105.86-25.39-130.64-51.21-3.96-4.12-10.48-4.3-14.64-.38l-100.68,94.91c-3.84,3.62-4.36,9.54-1.21,13.77l37.27,50.14s20.76,27.85,10.79,74.96c-.07.28-.14.57-.21.85l-13.54,46.64c-.07.2-.13.4-.2.6-3.38,9.39-88.7,250.57,18.19,350.22,109.02,101.63,218.75,95.68,249.63,119.21,21.61,16.46,39.82,24.15,42.91,33.57,0,0,0,.01,0,.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.02,3.09-9.42,21.3-17.11,42.91-33.57,30.88-23.53,140.61-17.58,249.63-119.21,106.89-99.65,21.57-340.82,18.19-350.22-.07-.2-.13-.4-.2-.6Z"
+                fill="#635bff"
+              />
+              <path
+                d="M601.73,227.4h-226.7c-104.67,0-189.51,84.85-189.51,189.51s84.85,188.49,189.51,188.49h111.47c1.18,0,2.13-.96,2.13-2.13v-100.79c0-1.12-.9-2.02-2.02-2.02h-111.59v-168.12h226.71c1.12,0,2.03-.91,2.03-2.03v-100.87c0-1.13-.92-2.04-2.04-2.04Z"
+                fill="#f5f7ff"
+              />
+              <path
+                d="M601.77,385.58h-207.21c-1.91,0-2.85,2.33-1.48,3.66l103.46,100.02h105.16c1.15,0,2.08-.93,2.08-2.08v-99.58c0-1.11-.9-2.01-2.01-2.01Z"
+                fill="#f5f7ff"
+              />
+            </svg>
           </div>
           <div className="hero-stage-inner">
             <div className="masthead">

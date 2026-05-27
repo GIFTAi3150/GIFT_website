@@ -3,6 +3,7 @@ import { anton, notoSansJP, openSans, poppins } from './fonts';
 import '../styles/globals.css';
 import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
 import ScrollToTopOnRouteChange from '@/components/util/ScrollToTopOnRouteChange';
+import RootCanvasMount from '@/components/three/RootCanvasMount';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -145,6 +146,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CtaHoverHydrator />
         <ScrollToTopOnRouteChange />
+        <RootCanvasMount />
       </body>
     </html>
   );

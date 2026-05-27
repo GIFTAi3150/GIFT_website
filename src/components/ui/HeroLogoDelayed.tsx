@@ -1,8 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState, Component, type ReactNode } from 'react';
-import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
+import { useRef, useState, useCallback, Component, type ReactNode } from 'react';
+import { useViewportMount } from '@/lib/useViewportMount';
 
 // SVG paths for the static-fallback logo. Mirrors GiftLogo3D_PremiumBadge's
 // LogoFallback so the WebGL-off and WebGL-on visuals share a silhouette.
@@ -15,43 +15,34 @@ const G_PATH_2 =
 
 // Retry-with-backoff error boundary for R3F Canvas mounts.
 //
-// Three.js's WebGLRenderer constructor throws synchronously if
-// `canvas.getContext('webgl2', attributes)` returns null. We can't predict
-// this perfectly from a probe — the probe asks for a context with NO
-// attributes, but Three.js asks with antialias/alpha/etc, so the probe can
-// say "ready" while the real mount still fails (typical when the previous
-// page's R3F canvases are mid-disposal — R3F runs its dispose inside a
-// setTimeout(500) so the GPU resources are still bound when our Canvas
-// tries to claim a context).
+// Three.js's WebGLRenderer constructor throws synchronously if the browser
+// refuses the requested context attributes — typical Edge/Chromium failure
+// modes include the GPU process being "guilty" after prior context losses,
+// or ANGLE refusing depth+stencil attachment ("OES_packed_depth_stencil
+// support is required").
 //
-// Strategy: catch the throw, force a remount after a backoff, and try again.
-// Each retry waits longer to give R3F's lingering cleanup more time. After
-// MAX_RETRIES we surrender, mark the tab as "WebGL failed" in sessionStorage
-// (so future navigations skip straight to the static fallback instead of
-// re-stacking errors), and show the static SVG fallback permanently.
+// Strategy: ONE retry after a short backoff (covers the benign case where
+// the previous page's R3F canvases were still mid-disposal), then fall to
+// the static SVG fallback. Beyond one retry the failure is structural —
+// driver/origin-guilty state that won't clear without a browser restart —
+// so additional attempts only spam the console with identical stack traces.
 class CanvasErrorBoundary extends Component<
   { fallback: ReactNode; children: ReactNode },
   { failed: boolean; retryKey: number; retriesLeft: number }
 > {
-  state = { failed: false, retryKey: 0, retriesLeft: 4 };
+  state = { failed: false, retryKey: 0, retriesLeft: 3 };
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
 
   static getDerivedStateFromError() { return { failed: true } as Partial<typeof CanvasErrorBoundary.prototype.state>; }
   componentDidCatch() {
     if (this.state.retriesLeft <= 0) return;
-    // Backoff: 600ms, 1200ms, 2000ms, 3000ms. The first retry covers the
-    // typical case (R3F's 500ms cleanup just hadn't run yet); later retries
-    // cover GPU-driver stalls that need longer to clear.
-    const delays = [600, 1200, 2000, 3000];
-    const attempt = 4 - this.state.retriesLeft;
-    const delay = delays[Math.min(attempt, delays.length - 1)];
     this.retryTimer = setTimeout(() => {
       this.setState((s) => ({
         failed: false,
         retryKey: s.retryKey + 1,
         retriesLeft: s.retriesLeft - 1,
       }));
-    }, delay);
+    }, 2000);
   }
   componentWillUnmount() {
     if (this.retryTimer) clearTimeout(this.retryTimer);
@@ -126,43 +117,54 @@ function LogoStaticFallback() {
   );
 }
 
-// Minimum time the loading placeholder stays on screen before we attempt
-// the first Canvas mount. R3F's unmount cleanup is wrapped in
-// `setTimeout(..., 500)`, and when arriving from a multi-Canvas route
-// like /services/dx-consulting the previous page's contexts are still
-// holding GPU resources during that window. Bumped from 1200ms to 2000ms
-// because AMD iGPU (Ryzen integrated graphics) takes longer to actually
-// release the underlying GPU memory after the JS-side dispose runs —
-// at 1200ms we'd see the OES_packed_depth_stencil allocation failure
-// when the new context tried to grab a depth buffer.
-const MIN_PLACEHOLDER_MS = 2000;
+// Max consecutive context losses before giving up and showing the static SVG.
+const MAX_CONTEXT_LOSSES = 3;
 
 export default function HeroLogoDelayed({ className }: { className?: string }) {
-  const webglStatus = useWebGLAvailable();
-  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { shouldMount } = useViewportMount(containerRef);
 
-  useEffect(() => {
-    const t = setTimeout(() => setMinTimeElapsed(true), MIN_PLACEHOLDER_MS);
-    return () => clearTimeout(t);
+  const [logoKey, setLogoKey] = useState(0);
+  // When true the canvas is hidden immediately so its opaque-black cleared
+  // framebuffer can't block the DotsGrid behind it. The remount fires after
+  // 1.5s once the GPU has freed the slot.
+  const [contextLostPending, setContextLostPending] = useState(false);
+  const lossCountRef = useRef(0);
+  const [permanentFail, setPermanentFail] = useState(false);
+
+  // Vestigial after the shared-canvas refactor — the badge no longer fires
+  // onContextLost (RootCanvas owns context lifecycle). Kept wired so the
+  // static SVG fallback still has a code path it could be reached through
+  // if we add a "shared canvas died" signal later.
+  const handleContextLost = useCallback(() => {
+    lossCountRef.current += 1;
+    if (lossCountRef.current > MAX_CONTEXT_LOSSES) {
+      setPermanentFail(true);
+      return;
+    }
+    setContextLostPending(true);
+    setTimeout(() => {
+      setContextLostPending(false);
+      setLogoKey((k) => k + 1);
+    }, 1500);
   }, []);
 
-  if (webglStatus === 'unavailable') {
-    return (
-      <div className={className}>
-        <LogoStaticFallback />
-      </div>
+  let content: ReactNode;
+  if (permanentFail) {
+    content = <LogoStaticFallback />;
+  } else if (!shouldMount || contextLostPending) {
+    content = <LogoPlaceholder />;
+  } else {
+    content = (
+      <CanvasErrorBoundary fallback={<LogoStaticFallback />}>
+        <GiftLogo3D key={logoKey} onContextLost={handleContextLost} />
+      </CanvasErrorBoundary>
     );
   }
-  if (webglStatus === 'probing' || !minTimeElapsed) {
-    return (
-      <div className={className}>
-        <LogoPlaceholder />
-      </div>
-    );
-  }
+
   return (
-    <CanvasErrorBoundary fallback={<div className={className}><LogoStaticFallback /></div>}>
-      <GiftLogo3D className={className} />
-    </CanvasErrorBoundary>
+    <div ref={containerRef} className={className}>
+      {content}
+    </div>
   );
 }

@@ -39,6 +39,16 @@ export function makeSafeRenderer(
   onContextLost: () => void,
 ): (canvas: HTMLCanvasElement | OffscreenCanvas) => THREE.WebGLRenderer {
   return (canvas) => {
+    // `disposing` is flipped true by the wrapped dispose() below. When the
+    // R3F Canvas unmounts (route change, Strict Mode double-invoke, HMR),
+    // Three.js calls renderer.dispose() → forceContextLoss() → the browser
+    // fires `webglcontextlost`. That event is SYNTHETIC teardown noise, not
+    // a real driver loss, but our listener can't tell the difference
+    // without this flag. Without filtering, Strict Mode's mount→unmount→
+    // mount cycle in Next.js dev trips onContextLost on the first render
+    // and shared-canvas consumers see "all 3D gone" on a clean page load.
+    let disposing = false;
+
     // Attach OUR listener BEFORE constructing the renderer so we win
     // registration order at the target. stopImmediatePropagation blocks
     // Three.js's bubble-phase listener (which calls preventDefault) from
@@ -48,12 +58,23 @@ export function makeSafeRenderer(
     if (canvas instanceof HTMLCanvasElement) {
       canvas.addEventListener('webglcontextlost', (e) => {
         e.stopImmediatePropagation();
+        if (disposing) return;
         onContextLost();
       });
     }
 
     const { toneMapping, toneMappingExposure, ...rendererParams } = options;
     const renderer = new THREE.WebGLRenderer({ canvas, ...rendererParams });
+
+    // Wrap dispose so we know when teardown is in progress. The order is:
+    // someone calls renderer.dispose() → our wrapper flips `disposing` →
+    // delegate to the original dispose() → THREE.forceContextLoss() fires
+    // webglcontextlost → our listener short-circuits because disposing=true.
+    const origDispose = renderer.dispose.bind(renderer);
+    renderer.dispose = function () {
+      disposing = true;
+      origDispose();
+    };
 
     // R3F applies these defaults after constructing the renderer in its
     // internal createRendererInstance path. Custom `gl` factories bypass
