@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import '../achievements.css';
 
@@ -189,7 +188,6 @@ export default function AchievementsClient() {
 
   return (
     <>
-      <Header />
       <div className="achievements-page">
         <div className="ap-grain" aria-hidden />
 

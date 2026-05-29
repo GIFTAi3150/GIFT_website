@@ -973,6 +973,7 @@
 
 html {
   background-color: #EBEEF3;
+  overflow-x: hidden;
 }
 
 /* Canvas bg transparent so the hero shows through — no visible walls. */
@@ -987,7 +988,12 @@ body {
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   line-height: 1.8;
-  scroll-behavior: smooth;
+  /* NOTE: `scroll-behavior: smooth` was removed (2026-05-29). There are no
+     in-page `#` anchors that needed it, and a global smooth-scroll (a) makes
+     the on-route-change scrollTo(0,0) reset animate/get interrupted instead of
+     snapping to the top, and (b) directly conflicts with Lenis (DX +
+     achievements pages), which requires the native scroll-behavior to be
+     `auto`. Per-page smooth scrolling is handled by Lenis where wanted. */
 }
 
 /* Prevent orphan characters in headings (esp. Japanese).

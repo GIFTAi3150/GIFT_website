@@ -58,8 +58,26 @@ export function makeSafeRenderer(
     if (canvas instanceof HTMLCanvasElement) {
       canvas.addEventListener('webglcontextlost', (e) => {
         e.stopImmediatePropagation();
+        // DEBUG 2026-05-29: surface every loss so the crash leaves a trail.
+        // `disposing:true` = teardown noise (HMR / StrictMode / route change),
+        // NOT a real driver loss. A real loss has disposing:false.
+        // eslint-disable-next-line no-console
+        console.warn('[webgl-debug] webglcontextlost', {
+          disposing,
+          statusMessage: (e as WebGLContextEvent).statusMessage || '(none)',
+        });
         if (disposing) return;
         onContextLost();
+      });
+      // statusMessage here tells us WHY the GPU refused a context (e.g.
+      // "Too many active WebGL contexts" = the HMR/StrictMode leak;
+      // a driver/OOM message = a real hardware limit).
+      canvas.addEventListener('webglcontextcreationerror', (e) => {
+        // eslint-disable-next-line no-console
+        console.error(
+          '[webgl-debug] webglcontextcreationerror:',
+          (e as WebGLContextEvent).statusMessage || '(none)',
+        );
       });
     }
 

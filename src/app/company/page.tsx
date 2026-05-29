@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
@@ -160,7 +159,6 @@ const antiValues = [
 export default function CompanyPage() {
   return (
     <>
-      <Header />
       <main className="company-palette bg-[#F6F2EA]">
         {/* Hero — full-bleed video background */}
         <section className="relative overflow-hidden bg-[#111111]">

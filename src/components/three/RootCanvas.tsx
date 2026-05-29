@@ -123,7 +123,16 @@ export default function RootCanvas() {
           // the sessionStorage flag we rejected back in
           // project_webgl_session_failure_cache.md.
           lossCountRef.current += 1;
+          // DEBUG 2026-05-29: trace the remount/permanent-fail decision.
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[webgl-debug] RootCanvas REAL context loss #${lossCountRef.current}/${MAX_CONTEXT_LOSSES}`,
+          );
           if (lossCountRef.current >= MAX_CONTEXT_LOSSES) {
+            // eslint-disable-next-line no-console
+            console.error(
+              '[webgl-debug] RootCanvas permanentFail — every 3D surface on the site is now disabled until tab reload',
+            );
             setPermanentFail(true);
             return;
           }

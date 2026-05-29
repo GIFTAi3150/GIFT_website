@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import PixelRobot from '@/components/ui/PixelRobot';
@@ -67,7 +66,6 @@ export default function ContactPage() {
 
   return (
     <>
-      <Header />
       <main className="bg-gift-near-black">
         {/* Hero */}
         <section className="border-b border-gift-border py-s-80">

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import DxV3Page from './_components/DxV3Page';
 import './dx-v3.css';
@@ -39,7 +38,6 @@ export default function DxConsultingPage() {
   return (
     <>
       <DxFontsLink />
-      <Header />
       <DxV3Page />
       <Footer />
     </>

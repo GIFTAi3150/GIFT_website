@@ -3,40 +3,54 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
+// Snap the viewport to the very top. Different browsers treat either
+// documentElement or body as the scrolling root, so we clear all of them —
+// whichever one is actually scrolling, this sticks. `behavior: 'instant'`
+// bypasses any CSS scroll-behavior so the reset never animates.
+function resetScroll() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
+// Every route change lands the user at the top (the hero), never at the
+// previous page's — or the destination's previously-visited — scroll
+// position. The user wants this for ALL navigation site-wide (footer link,
+// header, back/forward), so we reset unconditionally on pathname change.
 export default function ScrollToTopOnRouteChange() {
   const pathname = usePathname();
 
-  // Disable the browser's automatic scroll restoration so it doesn't
-  // override our programmatic reset below. With history.scrollRestoration
-  // = 'auto' (the default), the browser restores the previous page's
-  // scroll position from History state — this fires AFTER React commits
-  // and silently undoes any effect-based scrollTo call. Setting 'manual'
-  // hands full scroll control to us.
+  // Disable the browser's automatic scroll restoration so it doesn't override
+  // our programmatic reset. With history.scrollRestoration = 'auto' (default)
+  // the browser restores the previous scroll position from History state AFTER
+  // React commits, silently undoing the reset. 'manual' hands us full control.
   useEffect(() => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
   }, []);
 
-  // useLayoutEffect fires synchronously after React's DOM mutations and
-  // BEFORE the browser paints. This guarantees the scroll position is
-  // corrected before the user sees the new page, eliminating the
-  // visible flash of the wrong position that useEffect could cause.
+  // Reset synchronously after DOM mutations and BEFORE paint, so the new page
+  // is never visibly drawn at the wrong position.
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    resetScroll();
   }, [pathname]);
 
-  // Belt-and-suspenders: Lenis (used on DX + achievements pages) runs its RAF
-  // loop between useLayoutEffect and useEffect cleanup. That RAF fires AFTER our
-  // useLayoutEffect scrollTo(0,0) and calls window.scrollTo back to its stored
-  // Y — overriding us. This useEffect runs AFTER all old-page cleanup effects
-  // (including lenis.destroy()), so Lenis is gone and the scrollTo sticks. The
-  // inner requestAnimationFrame covers any post-commit Next.js scroll restoration.
+  // Belt-and-suspenders against LATE re-positioning that runs after our layout
+  // effect: (a) Next's App Router scroll-restoration, which can re-apply a
+  // stored position on its own frame, and (b) a destroyed Lenis instance whose
+  // last RAF fires post-cleanup and calls window.scrollTo back to its stored Y.
+  // Re-assert the top across the next few frames so a late writer can't win.
+  // Every reset is instant and lands at 0, so there is no visible motion.
   useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    let frame = 0;
+    let raf = requestAnimationFrame(function tick() {
+      resetScroll();
+      frame += 1;
+      if (frame < 3) raf = requestAnimationFrame(tick);
     });
-    return () => cancelAnimationFrame(id);
+    return () => cancelAnimationFrame(raf);
   }, [pathname]);
 
   return null;

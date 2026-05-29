@@ -40,4 +40,9 @@ next-env.d.ts
 
 # Blender render outputs — not used by the site at runtime
 /blender_renders/
+
+# VAT bake pipeline — raw position dumps from /dev/capture-dx-vat. Large dev
+# artifacts (input to the Phase 2 compressor); only the compressed VAT in
+# /public ships. See vat-bake/README.md.
+/vat-bake/*.bin
 .claude

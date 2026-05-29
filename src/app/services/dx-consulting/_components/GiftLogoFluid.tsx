@@ -34,6 +34,7 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js';
 import { useViewportMount } from '@/lib/useViewportMount';
+import { vatCapture } from './_vatCapture';
 
 // The "head" form is split between TWO GLBs now:
 //   - HEAD_PATH (bob-marley.glb): single mesh "BobMarleyBust" — the
@@ -72,16 +73,18 @@ const ART_SCALE = 0.003;
 const G_Z_OFFSET = 25;
 
 // ---- Particle grid size ---------------------------------------------------
-// Positions live in a TEX_W × TEX_H float texture. 128² = 16,384 particles.
-// We previously ran 192² (36,864) for a denser shield outline, but on
-// weaker GPUs (Intel iGPU + ANGLE, older driver stacks) the per-frame
-// GPGPU compute cost was a contributing factor in Chrome GPU-process
-// crashes — three full-resolution texture passes per frame (field,
-// velocity, position) plus vorticity confinement's 5 texture taps per
-// cell adds up fast. 128² keeps the silhouette legible while cutting
-// the compute work to ~44% of 192².
-const TEX_W = 128;
-const TEX_H = 128;
+// Positions live in a TEX_W × TEX_H float texture. 96² = 9,216 particles.
+// History: 192² (36,864) → 128² (16,384) → 96². Each step cuts per-frame
+// GPGPU compute cost, which is the real crash driver on weaker GPUs (Intel
+// iGPU + ANGLE): three full-resolution texture passes per frame (field,
+// velocity, position) plus vorticity confinement's 5 texture taps per cell.
+// 96² is ~56% of 128²'s compute work and keeps the silhouette legible.
+// NOTE: this component now also only mounts on capable GPUs (useGpuTier
+// gates it in DxV3Page), so 96² is the headroom margin for the mid-tier
+// machines that pass the gate but are still marginal — see
+// project_giftlogofluid_crash.md.
+const TEX_W = 96;
+const TEX_H = 96;
 const PARTICLE_COUNT = TEX_W * TEX_H;
 // Split between the shield outline and the inner G. Flipped from 0.55
 // to 0.45 so the G now gets the MAJORITY (~20.3k particles) and the
@@ -592,6 +595,11 @@ function FluidParticles({ formIdx, paused }: { formIdx: number; paused: boolean 
   //     used on hover-reveal — bob-marley.glb has no such sub-mesh.
   const { scene: headScene } = useGLTF(HEAD_PATH);
   const { scene: skullScene } = useGLTF(SKULL_PATH);
+
+  // DEV-ONLY (VAT bake pipeline, Plans.md T-010/P1): reusable readback
+  // buffer for the position render target. Allocated lazily on first capture
+  // frame; never touched during normal site use.
+  const captureScratch = useRef<Float32Array | null>(null);
 
   // Mirror the form index prop into a ref so useFrame can read it
   // without re-subscribing on every prop change. Indices map to the
@@ -1368,6 +1376,29 @@ function FluidParticles({ formIdx, paused }: { formIdx: number; paused: boolean 
     // Compute new velocity, then new position (ping-pong handled internally).
     sim.gpu.compute();
 
+    // DEV-ONLY (VAT bake pipeline, Plans.md T-010/P1): when the dev recorder
+    // route has armed a capture, read the freshly computed position render
+    // target back to the CPU and hand the pixels to vatCapture. Gated behind
+    // `vatCapture.active`, so real visitors pay only one boolean check here.
+    // NOTE: assumes the GPUComputationRenderer RT is FloatType (true on the
+    // capable desktop where baking runs). If a machine falls back to
+    // HalfFloatType the read into Float32Array would mismatch — P2 concern.
+    if (vatCapture.active) {
+      const need = TEX_W * TEX_H * 4;
+      if (!captureScratch.current || captureScratch.current.length !== need) {
+        captureScratch.current = new Float32Array(need);
+      }
+      try {
+        const rt = sim.gpu.getCurrentRenderTarget(sim.posVar);
+        state.gl.readRenderTargetPixels(rt, 0, 0, TEX_W, TEX_H, captureScratch.current);
+        vatCapture.addFrame(captureScratch.current, TEX_W, TEX_H);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[vat-capture] readRenderTargetPixels failed:', err);
+        vatCapture.reset();
+      }
+    }
+
     // Wire the freshly-written position + velocity textures into the
     // render material. The vertex shader uses the position to place each
     // instance; the velocity drives the per-particle glow.
@@ -1487,10 +1518,17 @@ function SceneLights() {
 const FORM_VALUES = [0, 1, 2] as const;
 
 export default function GiftLogoFluid() {
+  // DEV-ONLY (VAT bake, Plans.md T-010/P2): when the recorder has pinned a
+  // form, start on it and suspend the auto-cycle so the capture records that
+  // ONE shape cleanly. Read once at mount; the recorder remounts this
+  // component (via key) after setting forcedForm, so this picks it up. null
+  // in all normal use → identical behavior for real visitors.
+  const forcedForm = vatCapture.forcedForm;
+
   // Index into FORM_VALUES. The Canvas animates the GPU weight uniforms
   // smoothly toward this index's target row each frame, so every step
   // plays as a particle-flow cross-fade between two forms.
-  const [formIdx, setFormIdx] = useState(0);
+  const [formIdx, setFormIdx] = useState(forcedForm ?? 0);
 
   // Viewport gate — frameloop-pause only, no unmount.
   //
@@ -1515,13 +1553,15 @@ export default function GiftLogoFluid() {
   // Auto-cycle the form every 12 seconds while the hero is on-screen.
   // Gated on visibility so when the user scrolls past, we stop firing
   // setState (would otherwise keep ticking and re-rendering invisibly).
+  // Suspended when a capture has pinned a form (forcedForm != null).
   useEffect(() => {
+    if (forcedForm != null) return;
     if (!isVisible) return;
     const id = window.setInterval(() => {
       setFormIdx((i) => (i + 1) % FORM_VALUES.length);
     }, 12_000);
     return () => window.clearInterval(id);
-  }, [isVisible]);
+  }, [isVisible, forcedForm]);
 
   return (
     <>
