@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { getPublishedArticles } from '@/lib/notion';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import NewsGrid from './NewsGrid';
 
@@ -40,7 +39,6 @@ export default async function NewsPage() {
 
   return (
     <>
-      <Header />
       <main className="bg-gift-near-black">
         {/* Hero */}
         <section className="border-b border-gift-border py-s-80">

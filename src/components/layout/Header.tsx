@@ -169,18 +169,18 @@ export default function Header() {
                     }`}
                     style={{ transform: serviceOpen ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-8px)' }}
                   >
-                    <div className="w-64 overflow-hidden rounded-xl border border-[var(--nav-border)] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                    <div className="w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
                       {serviceItems.map((s) => (
                         <Link
                           key={s.href}
                           href={s.href}
-                          className="group/item flex flex-col gap-0.5 border-b border-[var(--nav-border)]/50 px-5 py-3.5 transition-colors duration-150 last:border-0 hover:bg-[var(--nav-bg-alt)]"
+                          className="group/item flex flex-col gap-0.5 border-b border-gray-100 px-5 py-3.5 transition-colors duration-150 last:border-0 hover:bg-gray-50"
                           onClick={() => setServiceOpen(false)}
                         >
                           <span className="font-display text-[11px] font-bold uppercase tracking-widest text-[var(--nav-accent)]">
                             {s.labelEn}
                           </span>
-                          <span className="font-sans text-[14px] font-medium text-[var(--nav-text)] transition-colors group-hover/item:text-[var(--nav-accent-deep)]">
+                          <span className="font-sans text-[14px] font-medium text-gray-800 transition-colors group-hover/item:text-[var(--nav-accent)]">
                             {s.label}
                           </span>
                         </Link>

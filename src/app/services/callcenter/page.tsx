@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroScene from './_components/HeroScene';
 import ScrollMarquee from './_components/ScrollMarquee';
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
 export default function CallCenterPage() {
   return (
     <>
-      <Header />
       <main className="twilight-scope">
         <HeroScene />
         <ScrollMarquee />

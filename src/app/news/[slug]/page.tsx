@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles, getArticleBySlug } from '@/lib/notion';
@@ -49,7 +48,6 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
 
   return (
     <>
-      <Header />
       <main className="overflow-x-hidden bg-gift-near-black">
         {/* Back link */}
         <div className="border-b border-gift-border py-4">

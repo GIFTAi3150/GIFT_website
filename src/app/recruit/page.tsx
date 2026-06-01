@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import ScrollRevealSpread from '@/components/ui/ScrollRevealSpread';
@@ -80,7 +79,6 @@ export default async function RecruitPage() {
 
   return (
     <>
-      <Header />
       <ElasticPulseInit />
       <main className="bg-white">
         {/* ── Hero ── dual-video crossfade, cinematic gradient, white text */}

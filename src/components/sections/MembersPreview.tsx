@@ -1,9 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import gsap from 'gsap';
-import { Draggable } from 'gsap/Draggable';
 
 const PLACEHOLDER_VIDEOS = [
   '/video/cc-vid.mp4',
@@ -25,48 +22,6 @@ export interface MemberPreviewCard {
 }
 
 export default function MembersPreview({ members }: { members: MemberPreviewCard[] }) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const xRef = useRef(0);
-  const isDraggingRef = useRef(false);
-
-  // 4 copies so dragging right (and far left) never hits an edge
-  const track = [...members, ...members, ...members, ...members];
-  const singleW = members.length * (CARD_W + CARD_GAP);
-
-  useEffect(() => {
-    if (!trackRef.current || !containerRef.current || members.length === 0) return;
-
-    gsap.registerPlugin(Draggable);
-
-    const el = trackRef.current;
-    const container = containerRef.current;
-
-    // Start mid-track so user can drag in both directions
-    xRef.current = -singleW;
-    gsap.set(el, { x: xRef.current });
-
-    const [drag] = Draggable.create(el, {
-      type: 'x',
-      onDragStart() {
-        isDraggingRef.current = true;
-        container.style.cursor = 'grabbing';
-      },
-      onDragEnd() {
-        xRef.current = gsap.getProperty(el, 'x') as number;
-        while (xRef.current < -singleW * 3) xRef.current += singleW;
-        while (xRef.current > 0) xRef.current -= singleW;
-        gsap.set(el, { x: xRef.current });
-        isDraggingRef.current = false;
-        container.style.cursor = 'grab';
-      },
-    });
-
-    return () => {
-      drag.kill();
-    };
-  }, [members.length, singleW]);
-
   return (
     <section className="relative bg-[#111B21] overflow-hidden">
       {/* ── Header ── */}
@@ -95,56 +50,52 @@ export default function MembersPreview({ members }: { members: MemberPreviewCard
         </div>
       </div>
 
-      {/* ── Draggable slider strip ── */}
-      <div className="relative h-[340px] md:h-[420px] overflow-hidden">
+      {/* ── Horizontal scroll strip (native, single-pass) ── */}
+      <div
+        className="relative overflow-x-auto overflow-y-hidden no-scrollbar"
+        style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
+      >
         <div
-          ref={containerRef}
-          className="absolute inset-0 flex items-center"
-          style={{ cursor: 'grab' }}
+          className="flex items-center px-4 md:px-6 lg:px-8"
+          style={{ gap: CARD_GAP, width: 'max-content' }}
         >
-          <div
-            ref={trackRef}
-            className="flex will-change-transform"
-            style={{ gap: CARD_GAP, width: 'max-content' }}
-          >
-            {track.map((m, i) => {
-              const src = m.video ?? PLACEHOLDER_VIDEOS[i % PLACEHOLDER_VIDEOS.length];
-              return (
-                <Link
-                  key={`${m.id}-${i}`}
-                  href={`/member/${m.id}`}
-                  draggable={false}
-                  className="relative flex-none overflow-hidden rounded-2xl"
-                  style={{
-                    width: CARD_W,
-                    height: 280,
-                    boxShadow: '0 25px 50px rgba(0,0,0,0.55)',
-                  }}
-                >
-                  <video
-                    src={src}
-                    poster={m.image}
-                    muted
-                    loop
-                    playsInline
-                    autoPlay
-                    preload="none"
-                    className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-                  />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-4">
-                    <p className="font-display text-[9px] font-bold uppercase tracking-widest text-[#25D366] mb-0.5">
-                      {m.department}
-                    </p>
-                    <p className="font-sans text-sm font-bold leading-tight text-white">
-                      {m.name}
-                    </p>
-                    <p className="font-sans text-[11px] text-white/55">{m.role}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          {members.map((m, i) => {
+            const src = m.video ?? PLACEHOLDER_VIDEOS[i % PLACEHOLDER_VIDEOS.length];
+            return (
+              <Link
+                key={m.id}
+                href={`/member/${m.id}`}
+                className="relative flex-none overflow-hidden rounded-2xl"
+                style={{
+                  width: CARD_W,
+                  height: 280,
+                  scrollSnapAlign: 'start',
+                  boxShadow: '0 25px 50px rgba(0,0,0,0.55)',
+                }}
+              >
+                <video
+                  src={src}
+                  poster={m.image}
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  preload="none"
+                  className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <p className="font-display text-[9px] font-bold uppercase tracking-widest text-[#25D366] mb-0.5">
+                    {m.department}
+                  </p>
+                  <p className="font-sans text-sm font-bold leading-tight text-white">
+                    {m.name}
+                  </p>
+                  <p className="font-sans text-[11px] text-white/55">{m.role}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 

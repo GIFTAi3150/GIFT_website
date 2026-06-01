@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useMemo, useState, Suspense } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { useFrame, useLoader } from '@react-three/fiber';
+import { View, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 
@@ -40,10 +40,9 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
     const pos = geo.attributes.position;
     const norm = geo.attributes.normal;
 
-    // Add a couple of subtle dents on the front and back faces
     const dents = [
-      { cx: 350, cy: 320, r: 40, strength: -1.2 }, // front dent 1
-      { cx: 520, cy: 500, r: 30, strength: -0.8 }, // front dent 2
+      { cx: 350, cy: 320, r: 40, strength: -1.2 },
+      { cx: 520, cy: 500, r: 30, strength: -0.8 },
     ];
     const frontZ = depth;
     const backZ = 0;
@@ -54,14 +53,12 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
       const y = pos.getY(i);
       const z = pos.getZ(i);
 
-      // Only affect front face (nz > 0.9) or back face (nz < -0.9)
       if (Math.abs(nz) < 0.9) continue;
 
       const isFront = nz > 0.9;
       const faceZ = isFront ? frontZ : backZ;
       const dir = isFront ? 1 : -1;
 
-      // Check if near face
       if (Math.abs(z - faceZ) > 5) continue;
 
       for (const dent of dents) {
@@ -69,7 +66,6 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
         const dy = y - dent.cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < dent.r) {
-          // Smooth falloff from center of dent
           const t = 1 - dist / dent.r;
           const push = t * t * dent.strength * dir;
           pos.setZ(i, z + push);
@@ -79,7 +75,6 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
 
     pos.needsUpdate = true;
 
-    // UVs
     const uvs = new Float32Array(pos.count * 2);
     for (let i = 0; i < pos.count; i++) {
       uvs[i * 2] = pos.getX(i) / 800;
@@ -92,8 +87,6 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
 }
 
 // --------------- HALF-SHADOW MATERIAL ---------------
-// This injects a position-based shadow into Three.js's built-in physical material
-// so textures work perfectly AND we get the SpaceX half-dark effect
 function useHalfShadowMaterial(
   color: string,
   metalness: number,
@@ -116,7 +109,6 @@ function useHalfShadowMaterial(
       envMapIntensity: 0.02,
     });
 
-    // Blend color texture very subtly onto the base color
     m.userData.colorMap = colorMap;
     m.onBeforeCompile = (shader) => {
       shader.uniforms.uColorMap = { value: colorMap };
@@ -151,7 +143,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
   useFrame(() => {
     if (firedRef.current) return;
     frameCountRef.current += 1;
-    // Wait for 3 painted frames to guarantee the scene is on-screen
     if (frameCountRef.current >= 3) {
       firedRef.current = true;
       onFirstFrame?.();
@@ -159,7 +150,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
   });
   const groupRef = useRef<THREE.Group>(null);
 
-  // Parse SVG shapes
   const { shieldShapes, g1Shapes, g2Shapes } = useMemo(
     () => ({
       shieldShapes: parsePath(SHIELD_PATH),
@@ -169,19 +159,16 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
     [],
   );
 
-  // Build geometry
   const shieldGeos = useMemo(() => buildGeometry(shieldShapes, 30), [shieldShapes]);
   const g1Geos = useMemo(() => buildGeometry(g1Shapes, 35), [g1Shapes]);
   const g2Geos = useMemo(() => buildGeometry(g2Shapes, 35), [g2Shapes]);
 
-  // Load textures — base layer + clearcoat layer
   const [normalMap, roughnessMap, colorMap] = useLoader(THREE.TextureLoader, [
     '/textures/NormalGL.webp',
     '/textures/Roughness.webp',
     '/textures/Color.webp',
   ]);
 
-  // Configure texture tiling
   useMemo(() => {
     [normalMap, roughnessMap, colorMap].forEach((tex) => {
       tex.wrapS = THREE.RepeatWrapping;
@@ -190,7 +177,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
     });
   }, [normalMap, roughnessMap, colorMap]);
 
-  // Create materials — base: Metal056B, clearcoat scratches: PaintedMetal002
   const shieldMat = useHalfShadowMaterial(
     BRAND_GREEN,
     0.75,
@@ -202,67 +188,60 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
   );
   const goldMat = useHalfShadowMaterial(GOLD, 0.85, 0.25, normalMap, roughnessMap, colorMap, 1.0);
 
-  const textMatRef = useRef<THREE.MeshStandardMaterial>(null);
   const wholeGroupRef = useRef<THREE.Group>(null);
+  // The shared Canvas (RootCanvas) has been running since app boot, so
+  // clock.getElapsedTime() is wall-clock from boot, not from when this
+  // scene mounted. Capture the first-frame offset so the entrance
+  // animation always starts at t=0 when the user lands on the page.
+  const startTimeRef = useRef<number | null>(null);
 
   useFrame(({ clock }) => {
-    if (!groupRef.current || !wholeGroupRef.current || !textMatRef.current) return;
+    if (!groupRef.current || !wholeGroupRef.current) return;
 
-    const t = clock.getElapsedTime();
+    if (startTimeRef.current === null) {
+      startTimeRef.current = clock.getElapsedTime();
+    }
+    const t = clock.getElapsedTime() - startTimeRef.current;
 
-    // Phase 1 (0-2s): Logo sits centered, gentle scale up from 0
-    // Phase 2 (2-4s): Logo slides left, "ift Inc." fades in
-    // Phase 3 (4s+): Gentle rock animation
+    // Defensive: pin Y and Z to exactly 0 every frame. The animation only
+    // ever drives X (slide), scale, and rotation.y — but if anything
+    // upstream (drei <Bounds>, a parent transform, a stale tween) ever
+    // touches Y/Z, this overwrites it before it can paint.
+    let posX = 0;
+    let scaleS = 1;
 
     if (t < 1.6) {
-      // Scale up (no rotation — rotation happens after the entrance)
       const s = Math.min(t / 1.6, 1);
-      const eased = 1 - Math.pow(1 - s, 3);
-      wholeGroupRef.current.scale.setScalar(eased);
-      wholeGroupRef.current.position.x = 0;
-      textMatRef.current.opacity = 0;
+      scaleS = 1 - Math.pow(1 - s, 3);
       groupRef.current.rotation.y = 0;
     } else if (t < 1.9) {
-      // HARD PUNCH — zoom in fast to 1.28
       const p = (t - 1.6) / 0.3;
       const eased = 1 - Math.pow(1 - p, 2);
-      wholeGroupRef.current.scale.setScalar(1 + eased * 0.28);
-      wholeGroupRef.current.position.x = 0;
-      textMatRef.current.opacity = 0;
+      scaleS = 1 + eased * 0.28;
       groupRef.current.rotation.y = 0;
     } else if (t < 2.3) {
-      // SETTLE — snap back to 1.0 with a tiny overshoot bounce
       const p = (t - 1.9) / 0.4;
       const decay = Math.exp(-4 * p);
       const osc = Math.cos(p * Math.PI * 2.2);
-      const s = 1 + 0.28 * decay * osc;
-      wholeGroupRef.current.scale.setScalar(s);
-      wholeGroupRef.current.position.x = 0;
-      textMatRef.current.opacity = 0;
+      scaleS = 1 + 0.28 * decay * osc;
       groupRef.current.rotation.y = 0;
     } else if (t < 4) {
-      // Slide left + fade in text
-      wholeGroupRef.current.scale.setScalar(1);
       const p = (t - 2.3) / 1.7;
       const eased = 1 - Math.pow(1 - p, 3);
-      wholeGroupRef.current.position.x = eased * -0.8;
-      textMatRef.current.opacity = eased * 0.9;
+      posX = eased * -0.8;
       groupRef.current.rotation.y = 0;
     } else if (t < 19) {
-      // 180° Y-axis rotation over 15 seconds, ease in-out.
       const p = (t - 4) / 15;
       const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-      wholeGroupRef.current.scale.setScalar(1);
-      wholeGroupRef.current.position.x = -0.8;
-      textMatRef.current.opacity = 0.9;
+      posX = -0.8;
       groupRef.current.rotation.y = eased * Math.PI;
     } else {
-      // Stopped at 180°. Rocks keep orbiting independently in OrbitingRocks.
-      wholeGroupRef.current.scale.setScalar(1);
-      wholeGroupRef.current.position.x = -0.8;
-      textMatRef.current.opacity = 0.9;
+      posX = -0.8;
       groupRef.current.rotation.y = Math.PI;
     }
+
+    wholeGroupRef.current.position.set(posX, 0, 0);
+    wholeGroupRef.current.scale.setScalar(scaleS);
   });
 
   const cx = 414,
@@ -271,7 +250,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 
   return (
     <>
-      {/* No scene background — canvas is transparent so hero bg shows through */}
       <group ref={wholeGroupRef}>
         <group ref={groupRef}>
           <group scale={[scale, -scale, scale]}>
@@ -286,7 +264,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
                 <mesh key={`g2${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
               ))}
 
-              {/* Back face G — mirrored on Z axis */}
               <group position={[828, 0, 30]} scale={[-1, 1, -1]}>
                 {g1Geos.map((geo, i) => (
                   <mesh key={`g1b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
@@ -298,28 +275,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
             </group>
           </group>
         </group>
-
-        {/* "ift Inc." text that appears to the right of the logo */}
-        <Suspense fallback={null}>
-        <Text
-          position={[1.22, -0.1, 0]}
-          fontSize={0.42}
-          anchorX="left"
-          anchorY="middle"
-          letterSpacing={0.05}
-          font="/fonts/Poppins-Bold.ttf"
-        >
-          IFT INC.
-          <meshStandardMaterial
-            ref={textMatRef}
-            color={'#111B21'}
-            metalness={0.6}
-            roughness={0.3}
-            transparent
-            opacity={0}
-          />
-        </Text>
-        </Suspense>
       </group>
     </>
   );
@@ -329,6 +284,10 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 interface Props {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  /** Called when the WebGL context is lost. Parent should remount this
+   *  component (via key change) to recover. After too many losses the
+   *  parent should show a static fallback instead. */
+  onContextLost?: () => void;
 }
 
 const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
@@ -337,94 +296,95 @@ const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
   lg: 'h-[360px] sm:h-[460px] lg:h-[640px]',
 };
 
-function LogoFallback() {
-  return (
-    <div className="flex h-full w-full items-center justify-center">
-      <svg width="140" height="150" viewBox="0 0 828 800" style={{ opacity: 0.5 }}>
-        <path fill="#2d6b3f" d={SHIELD_PATH} />
-        <path fill="#eeebe3" d={G_PATH_1} />
-        <path fill="#eeebe3" d={G_PATH_2} />
-      </svg>
-    </div>
-  );
-}
-
-export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Props) {
+// `onContextLost` is accepted for API compatibility with HeroLogoDelayed
+// but is unused: context loss is now handled by the shared RootCanvas,
+// which remounts the entire canvas on loss. Per-View remount can't
+// recover from a lost surface — there is no surface left.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function GiftLogo3D_PremiumBadge({ className, size = 'lg', onContextLost: _onContextLost }: Props) {
   const [ready, setReady] = useState(false);
-  const [contextLost, setContextLost] = useState(false);
+  // "IFT INC." lives in the DOM, not inside the WebGL canvas, so it can
+  // never lose context. It fades in at the same time the 3D animation
+  // slides the shield left (t = 2.3s after the scene first renders).
+  const [textVisible, setTextVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ready) return;
+    const t = setTimeout(() => setTextVisible(true), 2300);
+    return () => clearTimeout(t);
+  }, [ready]);
 
   return (
     <div
       className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
       style={{ width: '100%', backgroundColor: 'transparent' }}
     >
-      {contextLost ? (
-        <LogoFallback />
-      ) : (
-        <>
-          {/* Cover div fades away once three.js has painted its first frame. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
-            style={{ opacity: ready ? 0 : 1 }}
-          />
-          <Canvas
-            camera={{ position: [0, 0, 6], fov: 40 }}
-            dpr={[1, 1.5]}
-            gl={{
-              antialias: true,
-              alpha: true,
-              toneMapping: THREE.ACESFilmicToneMapping,
-              toneMappingExposure: 1.9,
-              powerPreference: 'default',
-              // Drop stencil — we don't use it, and requiring it forces
-              // OES_packed_depth_stencil on some GPUs (Intel iGPU + ANGLE),
-              // which fails context creation outright.
-              stencil: false,
-              // Allow Chrome's software fallback (SwiftShader) instead of
-              // refusing to create a context on under-powered hardware.
-              failIfMajorPerformanceCaveat: false,
-              preserveDrawingBuffer: false,
-            }}
-            onCreated={({ gl }) => {
-              gl.setClearColor('#000000', 0);
-              // Intercept context loss BEFORE R3F's own listener so we can
-              // call stopImmediatePropagation — this prevents R3F from calling
-              // preventDefault(), which would trigger Chrome's restoration loop
-              // and eventually cause "Web page caused context loss and was blocked".
-              // Unmounting the Canvas (via setContextLost) is the clean exit.
-              gl.domElement.addEventListener(
-                'webglcontextlost',
-                (e) => {
-                  e.stopImmediatePropagation();
-                  setContextLost(true);
-                },
-                true, // capture phase — fires before R3F's bubble-phase listener
-              );
-            }}
-            style={{
-              background: 'transparent',
-              opacity: ready ? 1 : 0,
-              transition: 'opacity 400ms ease-out',
-            }}
-          >
-            <ambientLight intensity={0.4} />
-            <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
-            <directionalLight position={[3, 0, 3]} intensity={1.0} color={'#b0c0e0'} />
-            <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
-            <ShieldScene
-              onFirstFrame={() => {
-                setTimeout(() => {
-                  setReady(true);
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new Event('gift:logo-ready'));
-                  }
-                }, 250);
-              }}
-            />
-          </Canvas>
-        </>
-      )}
+      {/* Cover div fades away once three.js has painted its first frame. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
+        style={{ opacity: ready ? 0 : 1 }}
+      />
+      {/* drei's <View>, when rendered OUTSIDE a Canvas, ignores any `track`
+          prop and renders its OWN <div> as the tracker. The shared Canvas
+          (mounted in app/layout.tsx via RootCanvasMount) scissors itself
+          to this <View>'s bounding rect and paints the scene there. So
+          this <View> element IS the rectangle the 3D logo occupies. */}
+      <View
+        className="absolute inset-0"
+        style={{
+          opacity: ready ? 1 : 0,
+          transition: 'opacity 400ms ease-out',
+          // Force the tracker div onto its own compositor layer + isolate
+          // its layout. Without this, drei <View> reads the tracker's
+          // getBoundingClientRect every frame and any sub-pixel shift —
+          // smooth-scroll snapping, fractional layout settling, mobile
+          // address-bar collapse — moves the scissored paint rect on the
+          // shared canvas by ≤1px, which reads as the 3D logo "hopping"
+          // vertically while otherwise idle. translateZ(0) promotes the
+          // element so the browser pixel-snaps its painted position;
+          // `contain` stops layout/paint side-effects from rippling in.
+          transform: 'translateZ(0)',
+          contain: 'layout style paint',
+        }}
+      >
+        <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={40} />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
+        <directionalLight position={[3, 0, 3]} intensity={1.0} color={'#b0c0e0'} />
+        <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
+        <ShieldScene
+          onFirstFrame={() => {
+            setTimeout(() => {
+              setReady(true);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('gift:logo-ready'));
+              }
+            }, 250);
+          }}
+        />
+      </View>
+
+      {/* "IFT INC." rendered as DOM — not WebGL — so context loss never
+          makes the text disappear. Fades in sync with the 3D shield slide. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <span
+          className="absolute font-bold tracking-[0.05em] text-[35px] sm:text-[44px] lg:text-[62px]"
+          style={{
+            left: '58%',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#111B21',
+            opacity: textVisible ? 0.88 : 0,
+            transition: 'opacity 1700ms cubic-bezier(0.33, 1, 0.68, 1)',
+            fontFamily: 'var(--font-poppins), "Poppins", sans-serif',
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          IFT INC.
+        </span>
+      </div>
     </div>
   );
 }

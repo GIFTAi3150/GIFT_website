@@ -27,12 +27,14 @@
 // ============================================================================
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment, useGLTF } from '@react-three/drei';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Environment, useGLTF, View, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js';
+import { useViewportMount } from '@/lib/useViewportMount';
+import { vatCapture } from './_vatCapture';
 
 // The "head" form is split between TWO GLBs now:
 //   - HEAD_PATH (bob-marley.glb): single mesh "BobMarleyBust" — the
@@ -71,16 +73,18 @@ const ART_SCALE = 0.003;
 const G_Z_OFFSET = 25;
 
 // ---- Particle grid size ---------------------------------------------------
-// Positions live in a TEX_W × TEX_H float texture. 128² = 16,384 particles.
-// We previously ran 192² (36,864) for a denser shield outline, but on
-// weaker GPUs (Intel iGPU + ANGLE, older driver stacks) the per-frame
-// GPGPU compute cost was a contributing factor in Chrome GPU-process
-// crashes — three full-resolution texture passes per frame (field,
-// velocity, position) plus vorticity confinement's 5 texture taps per
-// cell adds up fast. 128² keeps the silhouette legible while cutting
-// the compute work to ~44% of 192².
-const TEX_W = 128;
-const TEX_H = 128;
+// Positions live in a TEX_W × TEX_H float texture. 96² = 9,216 particles.
+// History: 192² (36,864) → 128² (16,384) → 96². Each step cuts per-frame
+// GPGPU compute cost, which is the real crash driver on weaker GPUs (Intel
+// iGPU + ANGLE): three full-resolution texture passes per frame (field,
+// velocity, position) plus vorticity confinement's 5 texture taps per cell.
+// 96² is ~56% of 128²'s compute work and keeps the silhouette legible.
+// NOTE: this component now also only mounts on capable GPUs (useGpuTier
+// gates it in DxV3Page), so 96² is the headroom margin for the mid-tier
+// machines that pass the gate but are still marginal — see
+// project_giftlogofluid_crash.md.
+const TEX_W = 96;
+const TEX_H = 96;
 const PARTICLE_COUNT = TEX_W * TEX_H;
 // Split between the shield outline and the inner G. Flipped from 0.55
 // to 0.45 so the G now gets the MAJORITY (~20.3k particles) and the
@@ -570,7 +574,7 @@ const POSITION_SHADER = /* glsl */ `
 `;
 
 // ---- Inner component: runs inside the R3F Canvas ------------------------
-function FluidParticles({ formIdx }: { formIdx: number }) {
+function FluidParticles({ formIdx, paused }: { formIdx: number; paused: boolean }) {
   const { gl, camera, size } = useThree();
   const meshRef = useRef<THREE.InstancedMesh>(null);
   // Outer group owns the responsive scale + continuous Y rotation, so
@@ -591,6 +595,11 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
   //     used on hover-reveal — bob-marley.glb has no such sub-mesh.
   const { scene: headScene } = useGLTF(HEAD_PATH);
   const { scene: skullScene } = useGLTF(SKULL_PATH);
+
+  // DEV-ONLY (VAT bake pipeline, Plans.md T-010/P1): reusable readback
+  // buffer for the position render target. Allocated lazily on first capture
+  // frame; never touched during normal site use.
+  const captureScratch = useRef<Float32Array | null>(null);
 
   // Mirror the form index prop into a ref so useFrame can read it
   // without re-subscribing on every prop change. Indices map to the
@@ -1233,6 +1242,14 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
   const ndcVec = useRef(new THREE.Vector3());
 
   useFrame((state, dt) => {
+    // Phase 3: this scene now renders into the app-shell shared canvas
+    // (frameloop="always"), so this useFrame fires even when the hero
+    // section is scrolled out of view. The `paused` prop tracks the
+    // existing isVisible viewport gate — early-return when offscreen so
+    // we don't burn GPU on compute()/uniforms updates the user can't see.
+    // Drei View's own offscreen check already skips the visual render,
+    // but useFrames in the View's scene aren't paused by it.
+    if (paused) return;
     const safeDt = Math.min(dt, 1 / 30);
     const elapsed = state.clock.getElapsedTime();
 
@@ -1359,6 +1376,29 @@ function FluidParticles({ formIdx }: { formIdx: number }) {
     // Compute new velocity, then new position (ping-pong handled internally).
     sim.gpu.compute();
 
+    // DEV-ONLY (VAT bake pipeline, Plans.md T-010/P1): when the dev recorder
+    // route has armed a capture, read the freshly computed position render
+    // target back to the CPU and hand the pixels to vatCapture. Gated behind
+    // `vatCapture.active`, so real visitors pay only one boolean check here.
+    // NOTE: assumes the GPUComputationRenderer RT is FloatType (true on the
+    // capable desktop where baking runs). If a machine falls back to
+    // HalfFloatType the read into Float32Array would mismatch — P2 concern.
+    if (vatCapture.active) {
+      const need = TEX_W * TEX_H * 4;
+      if (!captureScratch.current || captureScratch.current.length !== need) {
+        captureScratch.current = new Float32Array(need);
+      }
+      try {
+        const rt = sim.gpu.getCurrentRenderTarget(sim.posVar);
+        state.gl.readRenderTargetPixels(rt, 0, 0, TEX_W, TEX_H, captureScratch.current);
+        vatCapture.addFrame(captureScratch.current, TEX_W, TEX_H);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[vat-capture] readRenderTargetPixels failed:', err);
+        vatCapture.reset();
+      }
+    }
+
     // Wire the freshly-written position + velocity textures into the
     // render material. The vertex shader uses the position to place each
     // instance; the velocity drives the per-particle glow.
@@ -1478,108 +1518,86 @@ function SceneLights() {
 const FORM_VALUES = [0, 1, 2] as const;
 
 export default function GiftLogoFluid() {
+  // DEV-ONLY (VAT bake, Plans.md T-010/P2): when the recorder has pinned a
+  // form, start on it and suspend the auto-cycle so the capture records that
+  // ONE shape cleanly. Read once at mount; the recorder remounts this
+  // component (via key) after setting forcedForm, so this picks it up. null
+  // in all normal use → identical behavior for real visitors.
+  const forcedForm = vatCapture.forcedForm;
+
   // Index into FORM_VALUES. The Canvas animates the GPU weight uniforms
   // smoothly toward this index's target row each frame, so every step
   // plays as a particle-flow cross-fade between two forms.
-  const [formIdx, setFormIdx] = useState(0);
+  const [formIdx, setFormIdx] = useState(forcedForm ?? 0);
 
-  // Pause the GPU sim when the hero is off-screen. Without this the
-  // FBO ping-pong keeps running all the way down the page, contending
-  // with Hero3D + the orbit-tile videos and visibly tanking framerate
-  // around the capabilities section. IntersectionObserver flips frameloop
-  // between 'always' (visible) and 'never' (R3F skips renders entirely).
+  // Viewport gate — frameloop-pause only, no unmount.
+  //
+  // Phase 2 changed the calculus here. The previous version unmounted the
+  // <Canvas> on scroll-release to avoid holding two WebGL contexts at once
+  // on DX (this one + Hero3D's). After phase 2, Hero3D renders into the
+  // app-shell shared canvas instead of its own context, so the "two
+  // contexts simultaneously" pressure is gone. Keeping this Canvas mounted
+  // across scroll trades a bit of GPU memory (particles + GPGPU targets
+  // stay resident) for the disappearing-on-scroll-back regression: the
+  // mount gate was tearing down the context on scroll-out, then having to
+  // re-probe + re-init on scroll-back, with a multi-second blank window
+  // visible to the user.
+  //
+  // isVisible (zero-margin) still drives frameloop, so the GPU is idle
+  // when the hero is offscreen — only memory stays held.
   const heroRef = useRef<HTMLDivElement>(null);
-  const [frameloop, setFrameloop] = useState<'always' | 'never'>('always');
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(
-      ([entry]) => setFrameloop(entry.isIntersecting ? 'always' : 'never'),
-      { threshold: 0, rootMargin: '200px' }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const { isVisible } = useViewportMount(heroRef, {
+    debugLabel: 'GiftLogoFluid',
+  });
 
   // Auto-cycle the form every 12 seconds while the hero is on-screen.
-  // Gated on frameloop so when the user scrolls past, we stop firing
+  // Gated on visibility so when the user scrolls past, we stop firing
   // setState (would otherwise keep ticking and re-rendering invisibly).
+  // Suspended when a capture has pinned a form (forcedForm != null).
   useEffect(() => {
-    if (frameloop !== 'always') return;
+    if (forcedForm != null) return;
+    if (!isVisible) return;
     const id = window.setInterval(() => {
       setFormIdx((i) => (i + 1) % FORM_VALUES.length);
     }, 12_000);
     return () => window.clearInterval(id);
-  }, [frameloop]);
-
-  // Mount guard. R3F's <Canvas> serializes to an empty <canvas> on
-  // the server but the client hydrator immediately attaches WebGL
-  // state, sets DPR-scaled width/height, and registers pointer
-  // listeners — that delta blows up hydration with a "server HTML
-  // doesn't match client" error. Deferring the Canvas mount until
-  // after first client render keeps SSR output and the initial
-  // client output identical (both: just the heroRef'd div).
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  // Context-loss kill switch — see GiftLogo3D_PremiumBadge for the full
-  // rationale. Short version: if we let R3F's default handler call
-  // preventDefault() on webglcontextlost, Chrome's restoration loop runs,
-  // and a few failed restorations get the whole ORIGIN blocked with
-  // "Web page caused context loss and was blocked." Unmounting the
-  // Canvas (no restore attempt) is the clean exit.
-  const [contextLost, setContextLost] = useState(false);
+  }, [isVisible, forcedForm]);
 
   return (
     <>
       <div className="hero-particles" ref={heroRef}>
-        {mounted && !contextLost && (
-        <Canvas
-          frameloop={frameloop}
-          camera={{ position: [0, 0, 4.2], fov: 38, near: 0.1, far: 50 }}
-          dpr={[1, 1.5]}
-          // ACES tone mapping + an environment map make the skull's gold
-          // PBR material actually read as metal. Without these the gold
-          // looks like flat opaque mustard because there's no reflection
-          // for the metallic channel to sample. Same setup HeadSkullScene
-          // uses, ported here so the skull preserves its sheen.
-          gl={{
-            antialias: true,
-            alpha: true,
-            powerPreference: 'default',
-            toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.0,
-            // Drop stencil + allow software fallback so under-powered GPUs
-            // (Intel iGPU on ANGLE) don't fail with OES_packed_depth_stencil.
-            stencil: false,
-            failIfMajorPerformanceCaveat: false,
-          }}
-          onCreated={({ gl }) => {
-            // Capture-phase listener so we run BEFORE R3F's bubble-phase
-            // one. stopImmediatePropagation prevents R3F's listener (which
-            // calls preventDefault and triggers Chrome's restoration loop)
-            // from ever firing. We just unmount the Canvas instead — no
-            // restoration attempt, no "guilty" counter bump on the origin.
-            gl.domElement.addEventListener(
-              'webglcontextlost',
-              (e) => {
-                e.stopImmediatePropagation();
-                setContextLost(true);
-              },
-              true,
-            );
+        {/* Phase 3: this scene now renders into the app-shell shared
+            canvas via drei <View>. RootCanvas owns the renderer, dpr,
+            tone mapping, and context-loss handling. Pre-phase-3 the gold
+            skull was rendered with toneMappingExposure: 1.0; the shared
+            canvas uses 1.9 to favor the hero logo on /. The skull may
+            read slightly brighter — acceptable trade vs. the cascade.
+            The View div takes the place of the old <Canvas> inside
+            .hero-particles, which is position:absolute inset:0. */}
+        <View
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
           }}
         >
+          <PerspectiveCamera
+            makeDefault
+            position={[0, 0, 4.2]}
+            fov={38}
+            near={0.1}
+            far={50}
+          />
           <SceneLights />
           {/* Suspense boundary: useGLTF inside FluidParticles + the
               Environment HDR both suspend until they load. With no
               boundary R3F would throw. */}
           <Suspense fallback={null}>
             <Environment preset="studio" />
-            <FluidParticles formIdx={formIdx} />
+            <FluidParticles formIdx={formIdx} paused={!isVisible} />
           </Suspense>
-        </Canvas>
-        )}
+        </View>
         {/* Touch-capture overlay — invisible, sized via CSS to roughly the
             logo's visible region. Inside this rect, touch-action: none
             keeps the gesture for the particles (vertical swipes register

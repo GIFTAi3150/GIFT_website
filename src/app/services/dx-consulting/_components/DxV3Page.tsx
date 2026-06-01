@@ -20,15 +20,11 @@ class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNod
 // it dynamically with SSR disabled — the component only ever appears
 // after client hydration.
 const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
-// Particle-cloud version of the GIFT brand mark. Lives in the hero as a
-// decorative background layer, with the masthead text floating above.
-// GiftLogoFluid is the GPU-compute version (curl-noise advection on the
-// GPU, ~16k particles in float textures). GiftLogoParticles is the older
-// CPU spring-mass version, kept around as a fallback if the GPU sim
-// misbehaves on a given device.
-const GiftLogoFluid = dynamic(() => import('./GiftLogoFluid'), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const GiftLogoParticles = dynamic(() => import('./GiftLogoParticles'), { ssr: false });
+// AtomViewer — primary DX hero visual: spinning 3D atom icon (R3F / WebGL).
+// SvgLogoHero is kept as the WebGLBoundary fallback so if the GPU is unavailable
+// or context is lost the hero still renders (SVG-only, no WebGL).
+const AtomViewer  = dynamic(() => import('./AtomViewer'),  { ssr: false });
+const SvgLogoHero = dynamic(() => import('./SvgLogoHero'), { ssr: false });
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
 
@@ -253,19 +249,23 @@ export default function DxV3Page() {
   // they don't flash at their CSS-positioned location before GSAP sets their
   // transforms in the useEffect below.
   //
-  // The [data-flash-guard] attribute (paired with a visibility:hidden rule in
-  // dx-v3.css) keeps the whole .dx-v3 surface invisible during this window so
-  // that even if React/Next's commit→paint timing slips and the page paints
-  // once before useLayoutEffect runs (concurrent rendering quirk), the user
-  // never sees the manifesto-scene PNGs at the previous page's scroll Y.
-  // Removing the attribute here un-hides the page in the same synchronous
-  // pre-paint pass, so there's no perceptible delay before the hero appears.
+  // We do NOT remove [data-flash-guard] here. The whole purpose of the guard
+  // is to keep the page invisible until the useEffect below has applied every
+  // gsap.fromTo initial state. If we released the guard at this stage the
+  // browser would paint one frame of every animated section in its final
+  // (post-animation) layout — that's the "all animations look already done"
+  // bug. The guard is released at the END of useEffect, inside a rAF, after
+  // GSAP has committed every starting state and ScrollTrigger has refreshed.
+  // History scrollRestoration is also forced to 'manual' so the browser does
+  // not race us and snap the page back to a non-zero Y after our scrollTo.
   useLayoutEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
     window.scrollTo(0, 0);
     document
       .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
       .forEach((el) => el.style.setProperty('opacity', '0', 'important'));
-    document.querySelector('.dx-v3')?.removeAttribute('data-flash-guard');
   }, []);
 
   // ----- All scroll-driven animations (single useEffect to share state) -----
@@ -285,19 +285,34 @@ export default function DxV3Page() {
       .forEach((el) => el.style.removeProperty('opacity'));
     const isMobile = window.matchMedia('(max-width: 899px)').matches;
 
-    // ---- Lenis smooth scroll (page-scoped: destroyed on unmount) ----
+    // ---- Lenis smooth scroll (desktop only) ----
     // Lenis runs the actual page scroll through requestAnimationFrame, so the
-    // motion is buttered. We hook ScrollTrigger.update into Lenis's scroll
-    // event so all the GSAP triggers stay in sync.
-    const lenis = new Lenis({
-      duration: isMobile ? 0.8 : 1.3,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-    lenis.on('scroll', () => ScrollTrigger.update());
-    const lenisRaf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(lenisRaf);
-    gsap.ticker.lagSmoothing(0);
+    // motion is buttered on desktop wheel-based scrolling. We hook
+    // ScrollTrigger.update into Lenis's scroll event so all the GSAP triggers
+    // stay in sync.
+    //
+    // On touch devices we deliberately SKIP Lenis. Touch scroll on iOS Safari
+    // does not deliver continuous scroll events the way wheel does — events
+    // fire at the start and end of a gesture plus through momentum. Lenis's
+    // 'scroll' callback (which we use to drive ScrollTrigger.update) ends up
+    // firing inconsistently in that window, which is why every scroll-triggered
+    // animation below the hero appeared dead on mobile. Native scroll +
+    // ScrollTrigger's built-in window-scroll listener (which uses its own rAF
+    // poll) updates reliably on touch. The cost is no smooth-scroll easing on
+    // phones, which is the right trade for animations that actually run.
+    let lenis: Lenis | null = null;
+    let lenisRaf: ((time: number) => void) | null = null;
+    if (!isMobile) {
+      lenis = new Lenis({
+        duration: 1.3,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      lenis.on('scroll', () => ScrollTrigger.update());
+      lenisRaf = (time: number) => lenis!.raf(time * 1000);
+      gsap.ticker.add(lenisRaf);
+      gsap.ticker.lagSmoothing(0);
+    }
     // ---- Progress bar ----
     triggers.push(
       ScrollTrigger.create({
@@ -1357,23 +1372,66 @@ export default function DxV3Page() {
       }
     );
 
-    // Fonts (General Sans + JetBrains Mono) are loaded from external CDN
-    // with display:swap. On Vercel production the swap happens AFTER GSAP
-    // has already measured all trigger positions, shifting content down and
-    // leaving ScrollTrigger with stale offsets. Refresh once fonts settle
-    // so every trigger recalculates against the final laid-out positions.
-    let fontsAlive = true;
+    // ---- Reveal + refresh sequence ----
+    // Three deterministic moments to refresh ScrollTrigger and release the
+    // flash guard. Each one handles a different class of "the page's true
+    // height settled later than expected" hazard:
+    //
+    //   1. rAF after gsap.fromTo + ScrollTrigger.create:
+    //      All initial states are now applied (gsap.fromTo immediately renders
+    //      the from-vars). One animation frame gives the browser time to lay
+    //      out with those transforms, then we refresh and release the guard.
+    //      This is the moment the user finally sees the page — every animated
+    //      element is in its starting state, never the final state.
+    //
+    //   2. document.fonts.ready:
+    //      Fontshare/Google Fonts swap can land after step 1, reflowing every
+    //      heading and shifting trigger positions down. Refresh recalculates
+    //      against the swapped metrics.
+    //
+    //   3. window.load:
+    //      Images (cases, manifesto PNGs) and Lottie JSON resolve after fonts.
+    //      Their final intrinsic heights can shift the page another few
+    //      hundred px. A final refresh here is the belt around the suspenders.
+    let alive = true;
+    let rafId = 0;
+    const revealAndRefresh = () => {
+      if (!alive) return;
+      window.scrollTo(0, 0);
+      ScrollTrigger.refresh();
+      document.querySelector('.dx-v3')?.removeAttribute('data-flash-guard');
+    };
+    rafId = requestAnimationFrame(revealAndRefresh);
+
     document.fonts.ready.then(() => {
-      if (fontsAlive) ScrollTrigger.refresh();
+      if (alive) ScrollTrigger.refresh();
     });
 
+    const onWindowLoad = () => {
+      if (alive) ScrollTrigger.refresh();
+    };
+    if (document.readyState === 'complete') {
+      // Already loaded — schedule via a short timeout so it lands after the
+      // initial rAF reveal above, otherwise we'd refresh twice in the same
+      // tick and waste the second call.
+      window.setTimeout(onWindowLoad, 50);
+    } else {
+      window.addEventListener('load', onWindowLoad, { once: true });
+    }
+
     return () => {
-      fontsAlive = false;
+      alive = false;
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('load', onWindowLoad);
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
       slideCleanups.forEach((fn) => fn());
-      gsap.ticker.remove(lenisRaf);
-      lenis.destroy();
+      if (lenisRaf) gsap.ticker.remove(lenisRaf);
+      lenis?.destroy();
+      // Re-arm the guard for the next mount of this route. Without this, a
+      // back-then-forward navigation would mount with the attribute already
+      // removed, defeating the guard on the second visit.
+      document.querySelector('.dx-v3')?.setAttribute('data-flash-guard', '');
     };
   }, []);
 
@@ -1395,14 +1453,13 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* GIFT particle logo fills the hero. Igloo is hidden for now
-              (kept in the imports/component tree so it's easy to re-introduce
-              later when we find another home for it). */}
-          <div className="absolute inset-0 z-0">
-            <WebGLBoundary>
-              <GiftLogoFluid />
-            </WebGLBoundary>
-          </div>
+          {/* HERO VISUAL: 3-D atom icon (R3F / WebGL).
+              WebGLBoundary degrades to the SVG logo fallback if the GPU is
+              unavailable or context is lost — no page crash. */}
+          <WebGLBoundary fallback={<SvgLogoHero />}>
+            <AtomViewer />
+          </WebGLBoundary>
+
           <div className="hero-stage-inner">
             <div className="masthead">
               <div className="row r1">

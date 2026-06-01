@@ -1,15 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
-import * as THREE from 'three';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import '../achievements.css';
 
 export default function AchievementsClient() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
   useEffect(() => {
     // Dispatch gift:logo-ready so the page-cover fade works
     window.dispatchEvent(new Event('gift:logo-ready'));
@@ -141,363 +137,136 @@ export default function AchievementsClient() {
       accRafId = requestAnimationFrame(tickAcc);
     }
 
-    // ---- Three.js 3D scene ----
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    // ---- Mascot scroll companion ----
+    const mascotEl = document.querySelector<HTMLElement>('.hero-mascot');
+    let mascotRaf: number;
 
-    let animRafId = 0;
-    let threeResizeCleanup: (() => void) | undefined;
+    if (mascotEl) {
+      // cubic ease-in-out between keyframe pairs for organic feel
+      const easio = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a1124, 8, 22);
-
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      100,
-    );
-    camera.position.set(0, 0, 7);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-    renderer.setSize(window.innerWidth, window.innerHeight, false);
-    renderer.setClearColor(0x0a1124, 1);
-
-    scene.add(new THREE.AmbientLight(0x2a3a66, 0.8));
-    const key = new THREE.DirectionalLight(0xe8b04c, 1.3);
-    key.position.set(4, 6, 5);
-    scene.add(key);
-    const rim = new THREE.DirectionalLight(0x6b8ac4, 0.7);
-    rim.position.set(-6, -2, 3);
-    scene.add(rim);
-    const pt = new THREE.PointLight(0xe8b04c, 1.4, 18);
-    pt.position.set(0, 0, 4);
-    scene.add(pt);
-
-    // ---- Scroll group (keyframe-driven container) ----
-    const scrollGroup = new THREE.Group();
-    scene.add(scrollGroup);
-
-    // ---- GLB mascot ----
-    let petBounce: THREE.Object3D | null = null;
-
-    import('three/examples/jsm/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-      const loader = new GLTFLoader();
-      loader.load(
-        '/models/GIFT_mascot_space.glb',
-        (gltf) => {
-          const model = gltf.scene;
-          model.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              (child as THREE.Mesh).castShadow = true;
-              (child as THREE.Mesh).receiveShadow = true;
-            }
-          });
-
-          // Normalize model to a fixed world-unit size regardless of export scale
-          const bbox = new THREE.Box3().setFromObject(model);
-          const bsz = new THREE.Vector3();
-          bbox.getSize(bsz);
-          const maxDim = Math.max(bsz.x, bsz.y, bsz.z);
-          if (maxDim > 0) model.scale.setScalar(2.0 / maxDim);
-
-          // Identify the pet as the child whose bounding-box centre sits
-          // highest in model space (above the sphere/world).
-          if (model.children.length >= 2) {
-            let topChild: THREE.Object3D | null = null;
-            let topY = -Infinity;
-            model.children.forEach((child) => {
-              const box = new THREE.Box3().setFromObject(child);
-              const center = new THREE.Vector3();
-              box.getCenter(center);
-              if (center.y > topY) {
-                topY = center.y;
-                topChild = child;
-              }
-            });
-            petBounce = topChild;
-          } else {
-            petBounce = model;
+      const interp = (keys: number[][], p: number) => {
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (p <= keys[i + 1][0]) {
+            const raw = (p - keys[i][0]) / (keys[i + 1][0] - keys[i][0]);
+            const t = easio(raw);
+            return keys[i][1] + (keys[i + 1][1] - keys[i][1]) * t;
           }
-
-          scrollGroup.add(model);
-        },
-        undefined,
-        (err) => console.error('GLB load error', err),
-      );
-    });
-
-    // Particles
-    const N = 380;
-    const partGeo = new THREE.BufferGeometry();
-    const positions = new Float32Array(N * 3);
-    const pColors = new Float32Array(N * 3);
-    for (let i = 0; i < N; i++) {
-      const r = 4 + Math.random() * 6,
-        t = Math.random() * Math.PI * 2,
-        p = (Math.random() - 0.5) * Math.PI * 0.7;
-      positions[i * 3 + 0] = Math.cos(t) * Math.cos(p) * r;
-      positions[i * 3 + 1] = Math.sin(p) * r;
-      positions[i * 3 + 2] = Math.sin(t) * Math.cos(p) * r - 1;
-      const golden = Math.random() > 0.3;
-      pColors[i * 3 + 0] = golden ? 0.91 : 0.85;
-      pColors[i * 3 + 1] = golden ? 0.69 : 0.85;
-      pColors[i * 3 + 2] = golden ? 0.3 : 0.65;
-    }
-    partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    partGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
-    const dots = new THREE.Points(
-      partGeo,
-      new THREE.PointsMaterial({
-        size: 0.04,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.85,
-        sizeAttenuation: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    );
-    scene.add(dots);
-
-    // Comets
-    const TAIL_LEN = 40;
-    type Comet = {
-      head: THREE.Mesh;
-      tail: THREE.Points;
-      pos: THREE.Vector3;
-      vel: THREE.Vector3;
-      history: { x: number; y: number; z: number }[];
-      delay: number;
-      alive: boolean;
-    };
-    const comets: Comet[] = [];
-
-    const makeComet = (): Comet => {
-      const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 10, 10),
-        new THREE.MeshBasicMaterial({
-          color: 0xfff6da,
-          transparent: true,
-          opacity: 1.0,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-        }),
-      );
-      const cGeo = new THREE.BufferGeometry();
-      const cPos = new Float32Array(TAIL_LEN * 3),
-        cCol = new Float32Array(TAIL_LEN * 3);
-      cGeo.setAttribute('position', new THREE.BufferAttribute(cPos, 3));
-      cGeo.setAttribute('color', new THREE.BufferAttribute(cCol, 3));
-      const tail = new THREE.Points(
-        cGeo,
-        new THREE.PointsMaterial({
-          size: 0.22,
-          sizeAttenuation: true,
-          vertexColors: true,
-          transparent: true,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-        }),
-      );
-      scene.add(head);
-      scene.add(tail);
-      return {
-        head,
-        tail,
-        pos: new THREE.Vector3(),
-        vel: new THREE.Vector3(),
-        history: [],
-        delay: 0,
-        alive: false,
+        }
+        return keys[keys.length - 1][1];
       };
-    };
 
-    const resetComet = (c: Comet, immediate: boolean) => {
-      const fromLeft = Math.random() > 0.5;
-      c.pos.set(
-        fromLeft ? -13 - Math.random() * 3 : 13 + Math.random() * 3,
-        (Math.random() - 0.3) * 6,
-        (Math.random() - 0.5) * 5 - 1,
-      );
-      const speed = 0.22 + Math.random() * 0.16,
-        dirX = fromLeft ? 1 : -1;
-      c.vel.set(dirX * speed, (-0.2 - Math.random() * 0.35) * speed * 0.7, 0);
-      c.history.length = 0;
-      c.alive = true;
-      c.delay = immediate ? 0 : Math.floor(120 + Math.random() * 360);
-    };
+      // x: hold → burst left → rebound → creep → big dash → rebound → walk left → BURST RIGHT → settle right
+      const xKeys = [
+        [0,    0   ],
+        [0.08, 0   ],  // hold at right
+        [0.17,-0.25],  // 1st burst left
+        [0.23,-0.20],  // rebound
+        [0.37,-0.40],  // creep left
+        [0.48,-0.65],  // 2nd burst left
+        [0.54,-0.61],  // tiny rebound
+        [0.68,-0.75],  // walk to far left (quote section)
+        [0.76,-0.80],  // parked far left — gathering steam
+        [0.84,-0.78],  // wind-up
+        [0.90,-0.05],  // 3rd BURST — rockets back right
+        [0.94, 0.02],  // tiny overshoot past right edge
+        [1,    0   ],  // settled right
+      ];
 
-    for (let i = 0; i < 2; i++) {
-      const c = makeComet();
-      resetComet(c, false);
-      c.delay = i * 160 + Math.random() * 240;
-      c.alive = false;
-      comets.push(c);
+      // y: lift on each dash, land after — gives running bounce
+      const yKeys = [
+        [0,    0     ],
+        [0.08, 0     ],
+        [0.13,-0.055 ],  // lift — 1st dash
+        [0.19, 0.015 ],  // land
+        [0.37, 0     ],
+        [0.44,-0.045 ],  // lift — 2nd dash
+        [0.51, 0.015 ],  // land
+        [0.68, 0     ],
+        [0.82, 0     ],
+        [0.86,-0.065 ],  // big lift — 3rd burst (longest jump)
+        [0.92, 0.020 ],  // land hard
+        [1,    0     ],
+      ];
+
+      // rotation: lean into direction of travel, snap upright at rest
+      const rotKeys = [
+        [0,    0  ],
+        [0.08, 0  ],
+        [0.13,-11 ],  // lean left — 1st dash
+        [0.21, 3  ],  // land tilt
+        [0.37, 0  ],
+        [0.44,-13 ],  // lean left — 2nd dash
+        [0.52, 4  ],  // land tilt
+        [0.68, 0  ],
+        [0.83, 0  ],
+        [0.87, 14 ],  // lean RIGHT — 3rd burst back
+        [0.93,-4  ],  // land tilt opposite
+        [0.97, 0  ],
+        [1,    0  ],
+      ];
+
+      // scale: big at top → tiny mid → big again near bottom
+      const scaleKeys = [
+        [0,    1.5 ],
+        [0.15, 1.5 ],
+        [0.45, 0.62],
+        [0.60, 0.58],
+        [0.78, 1.48],
+        [0.92, 1.5 ],
+        [1,    1.5 ],
+      ];
+
+      let curX = 0, curY = 0, curRot = 0, curScale = 1.5;
+
+      const tickMascot = () => {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
+
+        const tgtX   = interp(xKeys,     progress) * window.innerWidth;
+        const tgtY   = interp(yKeys,     progress) * window.innerHeight;
+        const tgtRot = interp(rotKeys,   progress);
+        const tgtScale = interp(scaleKeys, progress);
+        const opacity  = progress > 0.96 ? Math.max(0, 1 - (progress - 0.96) / 0.04) : 1;
+
+        // faster lerp on x/rot (snappy), slower on scale (melts)
+        curX    += (tgtX    - curX)    * 0.09;
+        curY    += (tgtY    - curY)    * 0.09;
+        curRot  += (tgtRot  - curRot)  * 0.13;
+        curScale += (tgtScale - curScale) * 0.055;
+
+        mascotEl.style.transform =
+          `translateX(${curX.toFixed(1)}px) translateY(${curY.toFixed(1)}px) rotate(${curRot.toFixed(2)}deg) scale(${curScale.toFixed(3)})`;
+        mascotEl.style.opacity = opacity.toFixed(3);
+
+        mascotRaf = requestAnimationFrame(tickMascot);
+      };
+      mascotRaf = requestAnimationFrame(tickMascot);
     }
-
-    const tickComets = () => {
-      for (const c of comets) {
-        if (!c.alive) {
-          if (--c.delay <= 0) resetComet(c, true);
-          c.head.visible = false;
-          c.tail.visible = false;
-          continue;
-        }
-        c.head.visible = true;
-        c.tail.visible = true;
-        c.pos.add(c.vel);
-        c.head.position.copy(c.pos);
-        c.history.unshift({ x: c.pos.x, y: c.pos.y, z: c.pos.z });
-        if (c.history.length > TAIL_LEN) c.history.pop();
-        const pA = c.tail.geometry.attributes.position as THREE.BufferAttribute;
-        const cA = c.tail.geometry.attributes.color as THREE.BufferAttribute;
-        for (let i = 0; i < TAIL_LEN; i++) {
-          const h = c.history[i] || c.pos;
-          pA.array[i * 3 + 0] = h.x;
-          pA.array[i * 3 + 1] = h.y;
-          pA.array[i * 3 + 2] = h.z;
-          const f = 1 - i / TAIL_LEN,
-            intensity = Math.pow(f, 1.1);
-          cA.array[i * 3 + 0] = (0.65 + 0.35 * f) * intensity;
-          cA.array[i * 3 + 1] = (0.45 + 0.4 * f) * intensity;
-          cA.array[i * 3 + 2] = (0.15 + 0.25 * f) * intensity;
-        }
-        pA.needsUpdate = true;
-        cA.needsUpdate = true;
-        if (Math.abs(c.pos.x) > 14 || c.pos.y < -7) {
-          c.alive = false;
-          c.delay = Math.floor(140 + Math.random() * 380);
-        }
-      }
-    };
-
-    // ---- Scroll keyframes ----
-    const KF = [
-      { p: 0.0,  x:  2.4, y:  0.4, z:  0.0, s: 1.2,  spin: 0.7 },
-      { p: 0.12, x:  3.0, y: -1.0, z: -1.0, s: 0.95, spin: 0.5 },
-      { p: 0.22, x: -2.6, y: -0.4, z: -0.5, s: 0.85, spin: 0.6 },
-      { p: 0.4,  x:  4.5, y:  1.5, z: -3.5, s: 0.60, spin: 0.4 },
-      { p: 0.55, x: -3.4, y:  1.0, z: -1.5, s: 0.8,  spin: 0.6 },
-      { p: 0.72, x:  3.0, y:  0.8, z: -2.0, s: 0.7,  spin: 0.5 },
-      { p: 0.82, x: -3.2, y: -0.8, z: -3.0, s: 0.6,  spin: 0.4 },
-      { p: 0.9,  x:  0.0, y:  0.0, z:  1.0, s: 1.65, spin: 1.0 },
-      { p: 1.0,  x:  0.0, y: -0.2, z:  0.5, s: 1.1,  spin: 1.3 },
-    ];
-
-    const sampleKF = (prog: number) => {
-      prog = Math.max(0, Math.min(1, prog));
-      const isMobile = window.innerWidth < 720;
-      const xScale  = isMobile ? 0.45 : window.innerWidth < 1024 ? 0.7 : 1;
-      const xOffset = isMobile ? -0.7 : 0;
-      const sBoost  = isMobile ? 0.75 : window.innerWidth < 1024 ? 0.82 : 1;
-      const yOffset = isMobile ? -0.2 : 0;
-      const zOffset = isMobile ? 1.0 : 0;
-      for (let i = 0; i < KF.length - 1; i++) {
-        if (prog >= KF[i].p && prog <= KF[i + 1].p) {
-          const a = KF[i], b = KF[i + 1];
-          const t = (prog - a.p) / (b.p - a.p);
-          const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-          return {
-            x: (a.x + (b.x - a.x) * e) * xScale + xOffset,
-            y: a.y + (b.y - a.y) * e + yOffset,
-            z: a.z + (b.z - a.z) * e + zOffset,
-            s: (a.s + (b.s - a.s) * e) * sBoost,
-            spin: a.spin + (b.spin - a.spin) * e,
-          };
-        }
-      }
-      const last = KF[KF.length - 1];
-      return { ...last, x: last.x * xScale + xOffset, y: last.y + yOffset, z: last.z + zOffset, s: last.s * sBoost };
-    };
-
-    const clock = new THREE.Clock();
-    let lastT = 0;
-
-    const animate = () => {
-      animRafId = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-      const dt = t - lastT;
-      lastT = t;
-
-      // Scroll-driven keyframe: position / scale / spin
-      const docH = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docH > 0 ? window.scrollY / docH : 0;
-      const kf = sampleKF(progress);
-
-      scrollGroup.position.x += (kf.x - scrollGroup.position.x) * 0.08;
-      scrollGroup.position.y += (kf.y - scrollGroup.position.y) * 0.08;
-      scrollGroup.position.z += (kf.z - scrollGroup.position.z) * 0.08;
-      const newS = scrollGroup.scale.x + (kf.s - scrollGroup.scale.x) * 0.08;
-      scrollGroup.scale.set(newS, newS, newS);
-      scrollGroup.rotation.y += 0.18 * dt * kf.spin;
-      scrollGroup.rotation.x = Math.sin(t * 0.6) * 0.1;
-      scrollGroup.rotation.z = Math.sin(t * 0.4) * 0.06;
-
-      // Pet bounce: physics arc + continuous squash-and-stretch
-      if (petBounce) {
-        const FREQ = 1.25;
-        const HEIGHT = 0.26;
-        const phase = (t * FREQ) % 1;
-
-        // easeOut rise (fast launch) → easeIn fall (gravity acceleration)
-        // gives snappy contact rather than the floaty smoothstep landing
-        let h: number;
-        if (phase < 0.45) {
-          const x = phase / 0.45;
-          h = 1 - (1 - x) * (1 - x);   // easeOutQuad
-        } else {
-          const x = (phase - 0.45) / 0.55;
-          h = 1 - x * x;               // easeInQuad (slightly longer fall)
-        }
-        petBounce.position.y = h * HEIGHT;
-
-        // Fully continuous squash-and-stretch — no binary snap
-        // h=0 (contact) → squash; h=1 (peak) → stretch
-        const stretchY = 1 + 0.12 * h - 0.20 * (1 - h) * (1 - h);
-        const stretchX = 1 / Math.sqrt(Math.max(0.5, stretchY));
-        petBounce.scale.set(stretchX, stretchY, stretchX);
-      }
-
-      // Background particles slow drift
-      dots.rotation.y = t * 0.04;
-      dots.rotation.x = Math.sin(t * 0.1) * 0.05;
-
-      tickComets();
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const onResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight, false);
-    };
-    window.addEventListener('resize', onResize);
-    threeResizeCleanup = () => window.removeEventListener('resize', onResize);
 
     return () => {
       revealIO.disconnect();
       counterIO.disconnect();
       if (accRafId) cancelAnimationFrame(accRafId);
-      if (animRafId) cancelAnimationFrame(animRafId);
-      threeResizeCleanup?.();
+      if (mascotRaf) cancelAnimationFrame(mascotRaf);
       lenisCleanup?.();
     };
   }, []);
 
   return (
     <>
-      <Header />
       <div className="achievements-page">
-        <canvas id="bg-3d" ref={canvasRef} />
         <div className="ap-grain" aria-hidden />
+        <div className="ap-nebula" aria-hidden />
+
+        {/* ── Mascot — fixed scroll companion ── */}
+        <div className="hero-mascot" aria-hidden>
+          <img src="/achievements/GIFT_mascot_space_render.png" alt="" />
+        </div>
 
         {/* ── Hero ── */}
         <section className="hero" id="hero">
           <div className="wrap">
-            <div className="hero-3d-spacer" aria-hidden />
             <h1>
               <span className="word">
                 <span className="inner">築いてきた、</span>

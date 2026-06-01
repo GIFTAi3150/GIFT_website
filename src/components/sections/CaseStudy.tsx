@@ -92,19 +92,31 @@ export default function CaseStudy() {
   return (
     <section className="w-full bg-gift-bg-alt py-s-80">
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <div className="mb-12 flex flex-col gap-3 text-center md:mb-16">
-          <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
-            WORKS
-          </p>
-          <h2
-            className="font-sans font-extrabold text-gift-ink"
-            style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: '1.15' }}
-          >
-            実績・強み
-          </h2>
-          <p className="font-sans text-normal font-light text-gift-silver">
-            3つの事業で積み上げてきた、これまでの成果。
-          </p>
+        {/* Heading + mascot share a relative wrapper so the mascot is
+            absolutely positioned within the heading block — immediately
+            visible the moment the section enters the viewport. */}
+        <div className="relative mb-12 md:mb-16">
+          <div className="flex flex-col gap-3 text-center">
+            <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
+              WORKS
+            </p>
+            <h2
+              className="font-sans font-extrabold text-gift-ink"
+              style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: '1.15' }}
+            >
+              実績・強み
+            </h2>
+            <p className="font-sans text-normal font-light text-gift-silver">
+              3つの事業で積み上げてきた、これまでの成果。
+            </p>
+          </div>
+
+          {/* Mascot — jump + 360° flip. Floats in the empty whitespace to
+              the right of the centered heading text on desktop.
+              Hidden on mobile (no horizontal room). */}
+          <div className="works-mascot max-lg:hidden" aria-hidden>
+            <img src="/achievements/GIFT_mascot_space_render.png" alt="" />
+          </div>
         </div>
 
         {/* Bento — single column on mobile, 12-col × 2-row grid from lg.

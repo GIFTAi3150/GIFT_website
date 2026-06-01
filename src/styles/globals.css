@@ -973,6 +973,7 @@
 
 html {
   background-color: #EBEEF3;
+  overflow-x: hidden;
 }
 
 /* Canvas bg transparent so the hero shows through — no visible walls. */
@@ -987,7 +988,12 @@ body {
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   line-height: 1.8;
-  scroll-behavior: smooth;
+  /* NOTE: `scroll-behavior: smooth` was removed (2026-05-29). There are no
+     in-page `#` anchors that needed it, and a global smooth-scroll (a) makes
+     the on-route-change scrollTo(0,0) reset animate/get interrupted instead of
+     snapping to the top, and (b) directly conflicts with Lenis (DX +
+     achievements pages), which requires the native scroll-behavior to be
+     `auto`. Per-page smooth scrolling is handled by Lenis where wanted. */
 }
 
 /* Prevent orphan characters in headings (esp. Japanese).
@@ -1311,5 +1317,80 @@ h6 {
 }
 @media (prefers-reduced-motion: reduce) {
   .orbit-track { animation-play-state: paused; }
+}
+
+/* Works section mascot — jump + 360° flip companion next to the heading */
+.works-mascot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: clamp(140px, 14vw, 200px);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 18px 36px rgba(232, 176, 76, 0.25));
+}
+/* Ground shadow that reacts to the jump */
+.works-mascot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2%;
+  width: 54%;
+  height: 11px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(232, 176, 76, 0.38), transparent 70%);
+  filter: blur(5px);
+  animation: works-shadow 3.6s ease-in-out infinite;
+}
+.works-mascot > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 90%;
+  animation: works-jump-flip 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ── Jump + 360° flip ──────────────────────────────────────────────────────
+   Timeline (3.6 s total):
+   0-42%   idle squish on the ground
+   44%     squat / windup (slight crouch + tilt)
+   54%     launch — rising fast, starting rotation
+   63%     peak — fully airborne, halfway through flip
+   72%     descending — completing the 360°
+   82%     land — hard squash on impact
+   90%     small bounce up
+   100%    settle back to idle
+ ──────────────────────────────────────────────────────────────────────────── */
+@keyframes works-jump-flip {
+  0%   { transform: translateY(0)     rotate(0deg)   scaleX(1.05) scaleY(0.93); }
+  42%  { transform: translateY(0)     rotate(0deg)   scaleX(1.05) scaleY(0.93); }
+  44%  { transform: translateY(3px)   rotate(-6deg)  scaleX(0.87) scaleY(1.13); }
+  54%  { transform: translateY(-60px) rotate(90deg)  scaleX(1.10) scaleY(0.90); }
+  63%  { transform: translateY(-100px) rotate(180deg) scaleX(0.95) scaleY(1.06); }
+  72%  { transform: translateY(-60px) rotate(270deg) scaleX(1.08) scaleY(0.93); }
+  80%  { transform: translateY(-18px) rotate(345deg) scaleX(1.00) scaleY(1.00); }
+  84%  { transform: translateY(0)     rotate(360deg) scaleX(1.22) scaleY(0.78); }
+  91%  { transform: translateY(-14px) rotate(360deg) scaleX(0.93) scaleY(1.09); }
+  96%  { transform: translateY(0)     rotate(360deg) scaleX(1.07) scaleY(0.91); }
+  100% { transform: translateY(0)     rotate(360deg) scaleX(1.05) scaleY(0.93); }
+}
+
+@keyframes works-shadow {
+  0%, 42%, 100% { transform: translateX(-50%) scaleX(1.0);  opacity: 0.52; }
+  44%           { transform: translateX(-50%) scaleX(0.80); opacity: 0.38; }
+  63%           { transform: translateX(-50%) scaleX(0.22); opacity: 0.10; }
+  84%           { transform: translateX(-50%) scaleX(1.40); opacity: 0.70; }
+  91%           { transform: translateX(-50%) scaleX(0.75); opacity: 0.35; }
+  96%           { transform: translateX(-50%) scaleX(1.10); opacity: 0.50; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .works-mascot > img,
+  .works-mascot::after { animation: none; }
 }
 

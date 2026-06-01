@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import FinanceScripts from './_components/FinanceScripts';
 import dynamic from 'next/dynamic';
@@ -53,7 +52,6 @@ const audience = [
 export default function FinanceConsultingPage() {
   return (
     <>
-      <Header />
       <main className={`finance-page ${bricolage.variable} ${inter.variable} ${jetbrains.variable}`}>
         {/* HERO */}
         <section className="hero">

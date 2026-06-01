@@ -161,7 +161,7 @@ export default function Clients() {
   }, []);
 
   return (
-    <section className="w-full border-t border-gift-border bg-gift-bg py-s-80">
+    <section className="w-full overflow-hidden border-t border-gift-border bg-gift-bg py-s-80">
       <Reveal>
         <div className="mx-auto mb-12 max-w-container px-4 md:mb-16 md:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center">
@@ -177,6 +177,33 @@ export default function Clients() {
           </div>
         </div>
       </Reveal>
+
+      <div className="mx-auto mb-12 max-w-container px-4 md:px-6 lg:px-8">
+        <Reveal>
+          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-8 rounded-2xl border border-gift-border bg-white px-8 py-6 md:gap-16">
+            <div className="text-center">
+              <p className="font-display text-[32px] font-extrabold leading-none text-gift-green">
+                500<span className="text-[20px]">社+</span>
+              </p>
+              <p className="mt-1 font-sans text-[12px] text-gift-silver">累計支援企業</p>
+            </div>
+            <div className="hidden h-8 w-px bg-gift-border md:block" />
+            <div className="text-center">
+              <p className="font-display text-[32px] font-extrabold leading-none text-gift-green">
+                6<span className="text-[20px]">+</span>
+              </p>
+              <p className="mt-1 font-sans text-[12px] text-gift-silver">対応業種</p>
+            </div>
+            <div className="hidden h-8 w-px bg-gift-border md:block" />
+            <div className="text-center">
+              <p className="font-display text-[32px] font-extrabold leading-none text-gift-green">
+                2018<span className="text-[20px]">年〜</span>
+              </p>
+              <p className="mt-1 font-sans text-[12px] text-gift-silver">運営開始</p>
+            </div>
+          </div>
+        </Reveal>
+      </div>
 
       {/* Stage — perspective container. cursor:grab signals draggability. */}
       <div
@@ -225,32 +252,7 @@ export default function Clients() {
         <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-gift-bg to-transparent sm:w-24" />
       </div>
 
-      <div className="mx-auto mt-16 max-w-container px-4 md:px-6 lg:px-8">
-        <Reveal>
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-8 rounded-2xl border border-gift-border bg-white px-8 py-6 md:gap-16">
-            <div className="text-center">
-              <p className="font-display text-[32px] font-extrabold leading-none text-gift-green">
-                500<span className="text-[20px]">社+</span>
-              </p>
-              <p className="mt-1 font-sans text-[12px] text-gift-silver">累計支援企業</p>
-            </div>
-            <div className="hidden h-8 w-px bg-gift-border md:block" />
-            <div className="text-center">
-              <p className="font-display text-[32px] font-extrabold leading-none text-gift-green">
-                6<span className="text-[20px]">+</span>
-              </p>
-              <p className="mt-1 font-sans text-[12px] text-gift-silver">対応業種</p>
-            </div>
-            <div className="hidden h-8 w-px bg-gift-border md:block" />
-            <div className="text-center">
-              <p className="font-display text-[32px] font-extrabold leading-none text-gift-green">
-                2018<span className="text-[20px]">年〜</span>
-              </p>
-              <p className="mt-1 font-sans text-[12px] text-gift-silver">運営開始</p>
-            </div>
-          </div>
-        </Reveal>
-      </div>
+
     </section>
   );
 }

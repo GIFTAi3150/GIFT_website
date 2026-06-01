@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import TeamGreet, { type MemberCard } from './TeamGreet';
@@ -39,7 +38,6 @@ export default async function MemberPage() {
 
   return (
     <>
-      <Header />
       {/* Warm cream + terracotta palette local to /member. Magazine /
           editorial print feel — the pixel HELLO in TeamGreet reads as
           a terracotta print stamp on cream paper. Hex values are
