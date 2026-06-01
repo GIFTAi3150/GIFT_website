@@ -159,6 +159,11 @@ function DeskScene({
   const planarUvsRef = useRef<THREE.BufferAttribute | null>(null);
   const logoTextureRef = useRef<THREE.Texture | null>(null);
   const screenOnMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
+  // Dark material for the powered-off state. The GLB bakes the GIFT logo
+  // into the screen mesh's original texture, so restoring originalMaterial
+  // would show the logo even before the user presses the button. Instead
+  // we cover the screen with a near-black material when mode is 'off'.
+  const screenOffMaterialRef = useRef<THREE.MeshBasicMaterial | null>(null);
 
   // Locate the screen mesh, stash its native material, and compute a
   // PLANAR UV set we can swap in when the screen is "on." The mesh's
@@ -207,6 +212,15 @@ function DeskScene({
       uvData[i * 2 + 1] = v;
     }
     planarUvsRef.current = new THREE.BufferAttribute(uvData, 2);
+
+    // Apply the dark off-material immediately so the GLB's baked logo
+    // doesn't flash on load. screenOffMaterialRef may not be ready yet
+    // (it's created in a separate effect), so we also apply planar UVs
+    // and a simple black material as a guaranteed fallback.
+    const offMat = screenOffMaterialRef.current ?? new THREE.MeshBasicMaterial({ color: 0x050810 });
+    m.material = offMat;
+    geom.setAttribute('uv', planarUvsRef.current);
+    geom.attributes.uv.needsUpdate = true;
   }, [monitorScene]);
 
   // Build the "screen on" texture once. Fetches the GIFT logo SVG,
@@ -389,9 +403,14 @@ function DeskScene({
       map: tex,
       toneMapped: false,
     });
+    screenOffMaterialRef.current = new THREE.MeshBasicMaterial({
+      color: 0x050810,
+      toneMapped: false,
+    });
     return () => {
       tex.dispose();
       snakeMaterialRef.current?.dispose();
+      screenOffMaterialRef.current?.dispose();
     };
   }, []);
 
@@ -683,12 +702,12 @@ function DeskScene({
     } else if (screenMode === 'pixels' && snakeMaterialRef.current) {
       applyCustom(snakeMaterialRef.current);
     } else {
-      if (originalMaterialRef.current) {
+      // 'off' — cover with dark material so the GLB's baked-in logo
+      // texture doesn't show before the user presses a button.
+      if (screenOffMaterialRef.current) {
+        applyCustom(screenOffMaterialRef.current);
+      } else if (originalMaterialRef.current) {
         mesh.material = originalMaterialRef.current;
-      }
-      if (originalUvsRef.current) {
-        geom.setAttribute('uv', originalUvsRef.current);
-        geom.attributes.uv.needsUpdate = true;
       }
     }
   }, [screenMode]);
@@ -717,6 +736,9 @@ function DeskScene({
       .subVectors(camera.position, oc.target)
       .normalize();
     const newCamPos = targetPos.clone().addScaledVector(dir, distance);
+
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(oc.target);
 
     gsap.to(camera.position, {
       x: newCamPos.x,
@@ -759,14 +781,6 @@ function DeskScene({
     box.getCenter(center);
     const boxSize = new THREE.Vector3();
     box.getSize(boxSize);
-    // Compute the camera distance required to fit the TV bbox into
-    // the viewport given the camera's actual vFOV and the canvas
-    // aspect ratio. A fixed multiplier like maxDim * 1.7 framed the
-    // TV nicely on 16:9 desktops but pushed the camera way too close
-    // on narrow phone screens — there the horizontal FOV is much
-    // smaller, so the same distance fills the viewport. Recomputing
-    // per-call makes the framing identical on every device. The
-    // padding factor leaves room for buttons + a little breathing room.
     const perspectiveCam = camera as THREE.PerspectiveCamera;
     const vFovRad = (perspectiveCam.fov * Math.PI) / 180;
     const aspect = viewportSize.width / viewportSize.height;
@@ -781,6 +795,9 @@ function DeskScene({
     // had rotated to before pressing the button.
     const dir = new THREE.Vector3(0, 0, 1);
     const newCamPos = center.clone().addScaledVector(dir, distance);
+
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(oc.target);
 
     gsap.to(camera.position, {
       x: newCamPos.x,
@@ -797,10 +814,7 @@ function DeskScene({
       ease: 'power3.inOut',
       onUpdate: () => oc.update(),
     });
-    // Mark as focused so a double-click anywhere will run resetView()
-    // and return the user to the default fit-everything camera. Also
-    // lock the camera so drag-rotate is disabled while zoomed in —
-    // user has to double-click to exit before they can spin again.
+    // Lock camera immediately so OrbitControls can't fight the tween.
     focusedRef.current = monitorScene;
     onCameraLockChange(true);
   };
@@ -808,6 +822,9 @@ function DeskScene({
   const resetView = () => {
     if (!controls || !initialCamPos.current || !initialTarget.current) return;
     const oc = controls as unknown as OrbitLike;
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(oc.target);
+
     gsap.to(camera.position, {
       x: initialCamPos.current.x,
       y: initialCamPos.current.y,
@@ -824,7 +841,6 @@ function DeskScene({
       onUpdate: () => oc.update(),
       onComplete: () => {
         focusedRef.current = null;
-        // Re-enable drag-rotate once the camera is back at default.
         onCameraLockChange(false);
       },
     });
@@ -1035,7 +1051,7 @@ export default function Hero3D() {
           inset: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, #eef2fb 0%, #d9dff0 100%)',
+          background: 'linear-gradient(180deg, #bbc9e6 0%, #9aaed6 100%)',
         }}
       >
         <PerspectiveCamera
@@ -1045,9 +1061,9 @@ export default function Hero3D() {
           near={0.01}
           far={200}
         />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[6, 9, 5]} intensity={1.1} />
-        <directionalLight position={[-5, 3, -4]} intensity={0.3} />
+        <ambientLight intensity={0.28} />
+        <directionalLight position={[6, 9, 5]} intensity={0.75} />
+        <directionalLight position={[-5, 3, -4]} intensity={0.2} />
         <Suspense fallback={<LoadingBox />}>
           <Environment preset="apartment" />
           {/* Bounds auto-fits the camera to whatever lives inside it.

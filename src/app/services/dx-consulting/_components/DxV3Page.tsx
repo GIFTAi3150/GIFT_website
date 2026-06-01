@@ -5,7 +5,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
-import { useGpuTier } from '@/lib/useGpuTier';
 
 // Catches WebGL context-creation failures so a crashed 3D scene degrades
 // to nothing rather than breaking the whole page.
@@ -21,45 +20,13 @@ class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNod
 // it dynamically with SSR disabled — the component only ever appears
 // after client hydration.
 const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
-// GiftLogoFluid is the live GPGPU particle face. It runs a real per-frame
-// fluid solver that TDR-crashes weak GPUs, so it is GPU-TIER GATED: only
-// mounted when useGpuTier() returns 'capable' (see the hero block below and
-// project_giftlogofluid_crash.md). Weak GPUs and the SSR/probing window get
-// the static SVG silhouette instead — never the solver. SSR disabled (R3F
-// is client-only).
-const GiftLogoFluid = dynamic(() => import('./GiftLogoFluid'), { ssr: false });
+// AtomViewer — primary DX hero visual: spinning 3D atom icon (R3F / WebGL).
+// SvgLogoHero is kept as the WebGLBoundary fallback so if the GPU is unavailable
+// or context is lost the hero still renders (SVG-only, no WebGL).
+const AtomViewer  = dynamic(() => import('./AtomViewer'),  { ssr: false });
+const SvgLogoHero = dynamic(() => import('./SvgLogoHero'), { ssr: false });
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
-
-// Static GIFT logo silhouette for the hero. Shown whenever the live GPGPU
-// particle face (GiftLogoFluid) is not running: on weak GPUs, during the
-// tier probe, and as the WebGLBoundary error fallback. Kept in one place so
-// the tier-gate fallback and the error fallback can't drift apart.
-function HeroLogoSvg() {
-  return (
-    <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-      <svg
-        viewBox="0 0 828 800"
-        preserveAspectRatio="xMidYMid meet"
-        style={{ width: '52%', maxWidth: 520, opacity: 0.85 }}
-        aria-hidden
-      >
-        <path
-          d="M727.19,290.25l-13.54-46.64c-.07-.28-.14-.57-.21-.85-9.97-47.12,10.79-74.96,10.79-74.96l37.27-50.14c3.15-4.23,2.63-10.15-1.21-13.77l-100.68-94.91c-4.16-3.92-10.68-3.74-14.64.38-24.77,25.82-88.99,49.59-130.64,51.21-37.93,1.48-65.98-9.51-82.17-18.37-.2-.15-.41-.28-.65-.4l-13.24-6.4c-1.02-.49-2.2-.49-3.22,0l-13.24,6.4c-.24.12-.45.25-.65.4-16.19,8.85-44.25,19.85-82.17,18.37-41.65-1.62-105.86-25.39-130.64-51.21-3.96-4.12-10.48-4.3-14.64-.38l-100.68,94.91c-3.84,3.62-4.36,9.54-1.21,13.77l37.27,50.14s20.76,27.85,10.79,74.96c-.07.28-.14.57-.21.85l-13.54,46.64c-.07.2-.13.4-.2.6-3.38,9.39-88.7,250.57,18.19,350.22,109.02,101.63,218.75,95.68,249.63,119.21,21.61,16.46,39.82,24.15,42.91,33.57,0,0,0,.01,0,.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.02,3.09-9.42,21.3-17.11,42.91-33.57,30.88-23.53,140.61-17.58,249.63-119.21,106.89-99.65,21.57-340.82,18.19-350.22-.07-.2-.13-.4-.2-.6Z"
-          fill="#635bff"
-        />
-        <path
-          d="M601.73,227.4h-226.7c-104.67,0-189.51,84.85-189.51,189.51s84.85,188.49,189.51,188.49h111.47c1.18,0,2.13-.96,2.13-2.13v-100.79c0-1.12-.9-2.02-2.02-2.02h-111.59v-168.12h226.71c1.12,0,2.03-.91,2.03-2.03v-100.87c0-1.13-.92-2.04-2.04-2.04Z"
-          fill="#f5f7ff"
-        />
-        <path
-          d="M601.77,385.58h-207.21c-1.91,0-2.85,2.33-1.48,3.66l103.46,100.02h105.16c1.15,0,2.08-.93,2.08-2.08v-99.58c0-1.11-.9-2.01-2.01-2.01Z"
-          fill="#f5f7ff"
-        />
-      </svg>
-    </div>
-  );
-}
 
 // Split a string into per-character spans so GSAP can stagger them.
 // Spaces become non-breaking unicode spaces wrapped in a non-`.ch` span
@@ -207,10 +174,6 @@ const RPA_CARDS = [
 const IMAGINE_EMOJIS = ['✨', '💡', '🚀'];
 
 export default function DxV3Page() {
-  // GPU capability tier. Only 'capable' GPUs mount the live GPGPU solver;
-  // 'weak' and the 'probing' window get the static silhouette so a marginal
-  // GPU never runs the per-frame fluid sim that TDR-crashes it.
-  const gpuTier = useGpuTier();
   const heroRef = useRef<HTMLElement | null>(null);
   const progRef = useRef<HTMLDivElement | null>(null);
   const rainContainerRef = useRef<HTMLDivElement | null>(null);
@@ -1490,20 +1453,12 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* GPU-TIER GATE: only capable GPUs mount the live GPGPU particle
-              face. Weak GPUs (Intel iGPU, software renderers, phones) and the
-              pre-classification 'probing' window get the static silhouette,
-              so a marginal GPU never runs the per-frame fluid solver that
-              TDR-crashes it. WebGLBoundary stays as a last-resort safety net
-              in case a 'capable' machine still fails context creation.
-              See useGpuTier + project_giftlogofluid_crash.md. */}
-          {gpuTier === 'capable' ? (
-            <WebGLBoundary fallback={<HeroLogoSvg />}>
-              <GiftLogoFluid />
-            </WebGLBoundary>
-          ) : (
-            <HeroLogoSvg />
-          )}
+          {/* HERO VISUAL: 3-D atom icon (R3F / WebGL).
+              WebGLBoundary degrades to the SVG logo fallback if the GPU is
+              unavailable or context is lost — no page crash. */}
+          <WebGLBoundary fallback={<SvgLogoHero />}>
+            <AtomViewer />
+          </WebGLBoundary>
 
           <div className="hero-stage-inner">
             <div className="masthead">

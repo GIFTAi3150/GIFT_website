@@ -142,34 +142,101 @@ export default function AchievementsClient() {
     let mascotRaf: number;
 
     if (mascotEl) {
-      // [progress, value] keyframe tables
-      const xKeys =     [[0,0],[0.12,0],[0.35,-0.28],[0.52,-0.08],[0.68,-0.30],[0.84,0],[1,0]];
-      const scaleKeys = [[0,1],[0.28,1],[0.42,1.35],[0.55,1.1],[0.70,1.28],[0.86,1],[1,1]];
+      // cubic ease-in-out between keyframe pairs for organic feel
+      const easio = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
       const interp = (keys: number[][], p: number) => {
         for (let i = 0; i < keys.length - 1; i++) {
           if (p <= keys[i + 1][0]) {
-            const t = (p - keys[i][0]) / (keys[i + 1][0] - keys[i][0]);
+            const raw = (p - keys[i][0]) / (keys[i + 1][0] - keys[i][0]);
+            const t = easio(raw);
             return keys[i][1] + (keys[i + 1][1] - keys[i][1]) * t;
           }
         }
         return keys[keys.length - 1][1];
       };
 
-      let curX = 0, curScale = 1;
+      // x: hold → burst left → rebound → creep → big dash → rebound → walk left → BURST RIGHT → settle right
+      const xKeys = [
+        [0,    0   ],
+        [0.08, 0   ],  // hold at right
+        [0.17,-0.25],  // 1st burst left
+        [0.23,-0.20],  // rebound
+        [0.37,-0.40],  // creep left
+        [0.48,-0.65],  // 2nd burst left
+        [0.54,-0.61],  // tiny rebound
+        [0.68,-0.75],  // walk to far left (quote section)
+        [0.76,-0.80],  // parked far left — gathering steam
+        [0.84,-0.78],  // wind-up
+        [0.90,-0.05],  // 3rd BURST — rockets back right
+        [0.94, 0.02],  // tiny overshoot past right edge
+        [1,    0   ],  // settled right
+      ];
+
+      // y: lift on each dash, land after — gives running bounce
+      const yKeys = [
+        [0,    0     ],
+        [0.08, 0     ],
+        [0.13,-0.055 ],  // lift — 1st dash
+        [0.19, 0.015 ],  // land
+        [0.37, 0     ],
+        [0.44,-0.045 ],  // lift — 2nd dash
+        [0.51, 0.015 ],  // land
+        [0.68, 0     ],
+        [0.82, 0     ],
+        [0.86,-0.065 ],  // big lift — 3rd burst (longest jump)
+        [0.92, 0.020 ],  // land hard
+        [1,    0     ],
+      ];
+
+      // rotation: lean into direction of travel, snap upright at rest
+      const rotKeys = [
+        [0,    0  ],
+        [0.08, 0  ],
+        [0.13,-11 ],  // lean left — 1st dash
+        [0.21, 3  ],  // land tilt
+        [0.37, 0  ],
+        [0.44,-13 ],  // lean left — 2nd dash
+        [0.52, 4  ],  // land tilt
+        [0.68, 0  ],
+        [0.83, 0  ],
+        [0.87, 14 ],  // lean RIGHT — 3rd burst back
+        [0.93,-4  ],  // land tilt opposite
+        [0.97, 0  ],
+        [1,    0  ],
+      ];
+
+      // scale: big at top → tiny mid → big again near bottom
+      const scaleKeys = [
+        [0,    1.5 ],
+        [0.15, 1.5 ],
+        [0.45, 0.62],
+        [0.60, 0.58],
+        [0.78, 1.48],
+        [0.92, 1.5 ],
+        [1,    1.5 ],
+      ];
+
+      let curX = 0, curY = 0, curRot = 0, curScale = 1.5;
 
       const tickMascot = () => {
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
         const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
 
-        const tgtX = interp(xKeys, progress) * window.innerWidth;
+        const tgtX   = interp(xKeys,     progress) * window.innerWidth;
+        const tgtY   = interp(yKeys,     progress) * window.innerHeight;
+        const tgtRot = interp(rotKeys,   progress);
         const tgtScale = interp(scaleKeys, progress);
-        const opacity = progress > 0.92 ? Math.max(0, 1 - (progress - 0.92) / 0.08) : 1;
+        const opacity  = progress > 0.96 ? Math.max(0, 1 - (progress - 0.96) / 0.04) : 1;
 
-        curX += (tgtX - curX) * 0.055;
+        // faster lerp on x/rot (snappy), slower on scale (melts)
+        curX    += (tgtX    - curX)    * 0.09;
+        curY    += (tgtY    - curY)    * 0.09;
+        curRot  += (tgtRot  - curRot)  * 0.13;
         curScale += (tgtScale - curScale) * 0.055;
 
-        mascotEl.style.transform = `translateX(${curX.toFixed(1)}px) scale(${curScale.toFixed(3)})`;
+        mascotEl.style.transform =
+          `translateX(${curX.toFixed(1)}px) translateY(${curY.toFixed(1)}px) rotate(${curRot.toFixed(2)}deg) scale(${curScale.toFixed(3)})`;
         mascotEl.style.opacity = opacity.toFixed(3);
 
         mascotRaf = requestAnimationFrame(tickMascot);
@@ -190,6 +257,7 @@ export default function AchievementsClient() {
     <>
       <div className="achievements-page">
         <div className="ap-grain" aria-hidden />
+        <div className="ap-nebula" aria-hidden />
 
         {/* ── Mascot — fixed scroll companion ── */}
         <div className="hero-mascot" aria-hidden>

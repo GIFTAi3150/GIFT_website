@@ -128,6 +128,26 @@
   background: transparent;
 }
 
+/* ── Atom icon hero ──────────────────────────────────────────────────────────
+   Fills the full hero stage; masthead text floats above at z-index 2.
+   Canvas background is transparent so the page --paper colour shows through.
+   pointer-events: none keeps cursor clicks from being swallowed by the canvas
+   (interactions happen on the masthead / scroll triggers, not the model).
+   AdaptiveDpr inside the Canvas handles GPU pressure automatically.
+   On touch screens the animation is fine but we cap size to avoid GPU heat. */
+.dx-v3 .atom-viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.dx-v3 .atom-viewer canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* ============================================================
    HERO 3D — fills the entire stage. The 3D model is the hero's
    focal point; the title sits as a smaller overlay in the corner
@@ -407,6 +427,11 @@
     padding: 0 24px;
     max-width: 100%;
   }
+  /* Push the atom canvas below the masthead text on mobile so the
+     headline has clear paper-coloured space above it. */
+  .dx-v3 .atom-viewer {
+    top: 120px;
+  }
 }
 /* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
    was wider than "DX Consulting." (~14 chars) could fit at 375px with
@@ -416,6 +441,9 @@
 @media (max-width: 480px) {
   .dx-v3 .masthead .row {
     font-size: clamp(32px, 9vw, 48px);
+  }
+  .dx-v3 .atom-viewer {
+    top: 160px;
   }
 }
 .dx-v3 .masthead .row {

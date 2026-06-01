@@ -33,7 +33,6 @@ const VERT = /* glsl */ `
   uniform vec2 uDeltaTexSize;  // (width, height)
   uniform float uPointSize;
   attribute vec2 aTexel;
-  varying float vGlow;
 
   // Locate a frame's tile in the packed delta atlas, then this particle's
   // texel inside it. NearestFilter → exact lookup. Returns the decoded delta.
@@ -48,7 +47,8 @@ const VERT = /* glsl */ `
 
   void main() {
     // Interpolate between the two captured frames → continuous motion instead
-    // of a 30fps snap. Forward-only loop (B wraps to 0) → never reverses.
+    // of a 30fps snap. uFrameA/uFrameB are always ADJACENT captured frames
+    // (the JS playhead ping-pongs 0→N-1→0), so there is no loop-boundary pop.
     vec3 delta = mix(sampleDelta(uFrameA), sampleDelta(uFrameB), uMix);
 
     // 'position' is the float16 mean pose baked as the geometry's positions.
@@ -58,24 +58,21 @@ const VERT = /* glsl */ `
     // Perspective-attenuated point size (pixels). -mv.z ≈ 4 at the camera, so
     // uPointSize ≈ final pixel size at the cloud's center.
     gl_PointSize = uPointSize * (4.0 / -mv.z);
-
-    float mag = max(max(uScale.x, uScale.y), uScale.z);
-    vGlow = clamp(length(delta) / max(mag, 1e-4), 0.0, 1.0);
   }
 `;
 
 const FRAG = /* glsl */ `
   precision mediump float;
-  varying float vGlow;
   void main() {
     vec2 c = gl_PointCoord - 0.5;
     float r = length(c);
     if (r > 0.5) discard;
-    float alpha = smoothstep(0.5, 0.15, r);
-    // Brand indigo bead on the light DX background; brightens with motion.
-    vec3 cool = vec3(0.388, 0.357, 1.0);   // #635bff
-    vec3 hot  = vec3(0.62, 0.64, 1.0);
-    gl_FragColor = vec4(mix(cool, hot, vGlow), alpha);
+    // SOLID brand indigo bead — CONSTANT color, no motion-driven brightness.
+    // The old version lerped toward a light blue as particles moved, which
+    // nearly matched the light hero background so the cloud strobed in/out
+    // ("apaga/prende"). Fixed indigo stays high-contrast on #f5f7ff at all
+    // times, so the only motion the eye sees is the spin — no flicker.
+    gl_FragColor = vec4(0.388, 0.357, 1.0, 1.0);   // #635bff
   }
 `;
 
@@ -133,17 +130,35 @@ function VatScene({ data }: { data: VatData }) {
 
   useFrame((state, dt) => {
     const mat = points.material as THREE.ShaderMaterial;
-    // Forward-only loop at 30fps with sub-frame interpolation. The fractional
-    // playhead drives uMix so motion is continuous, and frame B wraps to 0 so
-    // it loops forward without the ping-pong reversal that felt like a stop.
+    const frames = data.frames;
+    // 30fps playhead with sub-frame interpolation. dt clamped so a frame
+    // stutter advances the playhead by at most ~2 frames instead of jumping.
     tRef.current += Math.min(dt, 1 / 15);
     const playhead = tRef.current * 30;
-    const fA = Math.floor(playhead) % data.frames;
+    // PING-PONG the playhead over a triangle wave 0 → (frames-1) → 0. The raw
+    // capture is NOT a seamless loop, so wrapping N-1 → 0 teleported the whole
+    // cloud's shape every loop (~5s) — that pop is what made the spin look
+    // unnatural. Playing forward-then-back keeps every sampled pair adjacent in
+    // the captured motion, so the silhouette never jumps. Matches the bake's
+    // documented intent (build-vat.mjs).
+    const period = (frames - 1) * 2;
+    let tri = playhead % period;
+    if (tri > frames - 1) tri = period - tri; // reflect off the top
+    const fA = Math.floor(tri);
+    const fB = Math.min(fA + 1, frames - 1);
     mat.uniforms.uFrameA.value = fA;
-    mat.uniforms.uFrameB.value = (fA + 1) % data.frames;
-    mat.uniforms.uMix.value = playhead - Math.floor(playhead);
-    // Slow Y spin to match the live hero.
-    points.rotation.y = state.clock.getElapsedTime() * 0.6;
+    mat.uniforms.uFrameB.value = fB;
+    mat.uniforms.uMix.value = tri - fA;
+    // The baked logo is a FLAT sheet (bbox ≈ 2.2 × 2.4 × 0.3, measured via
+    // scripts/analyze-vat.mjs). A full 360° turntable spin (what the live
+    // GiftLogoFluid did) turns it edge-on twice per revolution, collapsing the
+    // mark to a thin vertical line and back — THAT was the "apaga/prende"
+    // pulsing. Instead sway gently within ±~20° yaw (cos20°≈0.94, so apparent
+    // width barely changes and it never goes edge-on) plus a tiny pitch, so the
+    // logo stays readable and face-on while still feeling alive.
+    const tt = state.clock.getElapsedTime();
+    points.rotation.y = Math.sin(tt * 0.5) * 0.35;
+    points.rotation.x = Math.sin(tt * 0.33) * 0.05;
   });
 
   return <primitive object={points} />;
