@@ -76,41 +76,6 @@ export default async function MemberPage() {
             reads as a distinct section without leaving the palette. */}
         <Reveal>
           <section className="relative overflow-hidden border-t border-[#DDD0BA] bg-[#EBE3D2] py-s-80">
-            {/* Bob Marley lyrics drifting across the background */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 flex flex-col justify-center gap-12 overflow-hidden"
-            >
-              <div className="flex w-max animate-marquee gap-16 whitespace-nowrap">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <span
-                    key={`a${i}`}
-                    className="select-none font-display italic text-[#2A2520]/[0.04]"
-                    style={{ fontSize: 'clamp(60px, 10vw, 140px)', letterSpacing: '0.02em' }}
-                  >
-                    One Love! One Heart! Let&apos;s get together and feel all right. Hear the
-                    children cryin&apos; (One Love!);
-                  </span>
-                ))}
-              </div>
-              <div
-                className="flex w-max gap-16 whitespace-nowrap"
-                style={{ animation: 'marquee 200s linear infinite reverse' }}
-              >
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <span
-                    key={`b${i}`}
-                    className="select-none font-display italic text-[#2A2520]/[0.04]"
-                    style={{ fontSize: 'clamp(55px, 9vw, 130px)', letterSpacing: '0.02em' }}
-                  >
-                    Hear the children cryin&apos; (One Heart!), Sayin&apos;: give thanks and praise
-                    to the Lord and I will feel all right; Sayin&apos;: let&apos;s get together and
-                    feel all right. Wo wo-wo wo-wo!
-                  </span>
-                ))}
-              </div>
-            </div>
-
             <div className="relative z-10 mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
               <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#D96B43]">
                 JOIN US

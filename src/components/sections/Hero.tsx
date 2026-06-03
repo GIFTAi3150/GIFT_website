@@ -1,12 +1,11 @@
 import HeroLogoDelayed from '@/components/ui/HeroLogoDelayed';
 import FadeUpText from '@/components/ui/FadeUpText';
-import DotsGrid from '@/components/ui/DotsGrid';
 
 export default function Hero() {
   return (
     <section
       className="relative flex w-full items-start justify-center overflow-x-hidden lg:items-center"
-      style={{ minHeight: '100vh', backgroundColor: '#F8FAF8' }}
+      style={{ minHeight: '100vh', backgroundColor: '#F0F7FF' }}
     >
       {/* Decorative drifting blobs — adds depth behind the hero content */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -17,24 +16,23 @@ export default function Hero() {
       {/* Interactive dots grid — sits above the blobs, below content.
           Dots light up gift-green near the cursor, get pushed by fast
           mouse movement, and ripple on click. Decorative only. */}
-      <DotsGrid className="absolute inset-0 z-[1]" />
       <div className="relative z-10 mx-auto w-full max-w-container px-4 py-8 md:py-16 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
           {/* Text — left on desktop, top on mobile */}
           <div className="order-2 flex flex-col items-start gap-6 text-left lg:order-1 lg:col-span-2">
             <h1
-              className="font-display font-semibold leading-[1.05] tracking-tight text-gift-ink"
+              className="font-display font-semibold leading-[1.05] tracking-tight text-[#0C0E1A]"
               style={{ fontSize: 'clamp(36px, 4.2vw, 56px)' }}
             >
               <FadeUpText text="Where" />{' '}
-              <span className="text-gift-green">
+              <span className="text-[#2563EB]">
                 <FadeUpText text="opportunity" delayMs={220} />
               </span>
               <br />
               <FadeUpText text="begins." delayMs={400} />
             </h1>
             <p
-              className="nav-reveal font-mincho font-medium text-gift-ink"
+              className="nav-reveal font-mincho font-medium text-[#5B6B8A]"
               style={
                 {
                   fontSize: 'clamp(17px, 1.7vw, 20px)',
@@ -43,11 +41,11 @@ export default function Hero() {
                 } as React.CSSProperties
               }
             >
-              全ての人と社会へ夢やキッカケを与えられる企業へ
+              AIと人が共に創る、ビジネスの新時代。
             </p>
             <a
               href="/contact"
-              className="cta-btn nav-reveal mt-2"
+              className="cta-btn cta-btn--ai nav-reveal mt-2"
               style={{ ['--reveal-delay' as string]: '1350ms' }}
             >
               <span>お問い合わせ</span>

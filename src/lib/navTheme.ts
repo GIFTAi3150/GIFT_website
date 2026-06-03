@@ -178,7 +178,27 @@ const COMPANY_THEME: NavTheme = {
   textFaint: 'rgba(26, 27, 30, 0.40)',
 };
 
+// AI light-mode theme for the homepage — clean white + electric violet.
+// Scoped to `/` only so service pages keep their own palettes.
+const HOME_THEME: NavTheme = {
+  bg: '#F0F7FF',
+  bgAlpha: 'rgba(248, 249, 255, 0.95)',
+  bgFull: '#F0F7FF',
+  accent: '#2563EB',
+  accentDeep: '#1D4ED8',
+  border: '#BFDBFE',
+  bgAlt: '#EFF6FF',
+  ink: '#0C0E1A',
+  muted: '#5B6B8A',
+  logoShield: '#2563EB',
+  logoInner: '#ffffff',
+  text: '#0C0E1A',
+  textMuted: '#5B6B8A',
+  textFaint: 'rgba(12, 14, 26, 0.38)',
+};
+
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
+  [/^\/$/, HOME_THEME],
   [/^\/company(\/|$)/, COMPANY_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],

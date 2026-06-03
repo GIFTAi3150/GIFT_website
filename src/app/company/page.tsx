@@ -28,7 +28,7 @@ const infoRows = [
   { label: '代表取締役', value: company.ceo },
   { label: '所在地', value: company.address },
   { label: 'TEL', value: company.phone },
-  { label: '事業内容', value: 'コールセンター事業 / DXコンサル事業 / 財務コンサル事業' },
+  { label: '事業内容', value: 'Business Content AIOps事業' },
   { label: 'インボイス番号', value: company.invoiceNumber },
 ];
 

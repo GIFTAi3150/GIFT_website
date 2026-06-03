@@ -275,6 +275,7 @@ function AtomScene({ mobile }: { mobile: boolean }) {
 useGLTF.preload(GLB, DRACO);
 
 export default function AtomViewer() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const reduced =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -282,7 +283,7 @@ export default function AtomViewer() {
     typeof window !== 'undefined' && window.innerWidth < 900;
 
   return (
-    <div className="atom-viewer" aria-hidden="true">
+    <div ref={containerRef} className="atom-viewer" aria-hidden="true">
       <Canvas
         camera={{ position: [0, 0.5, 5.2], fov: 54 }}
         gl={{
@@ -293,6 +294,15 @@ export default function AtomViewer() {
         dpr={isMobile ? [1, 1] : [1, 1.5]}
         frameloop={reduced ? 'never' : 'always'}
         shadows={false}
+        onCreated={() => {
+          // Fade in after the WebGL context exists. The JS chunk for this
+          // component loads asynchronously, so it can mount after the page's
+          // flash guard has already released. opacity:0 (CSS) prevents the
+          // hard pop-in; setting opacity:1 here triggers the CSS transition.
+          requestAnimationFrame(() => {
+            if (containerRef.current) containerRef.current.style.opacity = '1';
+          });
+        }}
       >
         <ambientLight intensity={1.2} />
         <directionalLight position={[5, 8, 5]}   intensity={2.5} />

@@ -140,6 +140,13 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  /* Dynamic import fade-in: the AtomViewer JS chunk loads asynchronously
+     in production, so the Canvas inserts into the DOM AFTER the flash guard
+     has already released. Starting at opacity:0 prevents the hard pop-in;
+     onCreated in AtomViewer.tsx sets opacity:1 once the WebGL context is
+     ready, triggering this transition. */
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
 
 .dx-v3 .atom-viewer canvas {

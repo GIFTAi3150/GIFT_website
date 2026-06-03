@@ -6,10 +6,9 @@ import ServicesCards from '@/components/sections/ServicesCards';
 import CaseStudy from '@/components/sections/CaseStudy';
 import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
-import Clients from '@/components/sections/Clients';
 import Column from '@/components/sections/Column';
+import AIOps from '@/components/sections/AIOps';
 import RecruitCta from '@/components/sections/RecruitCta';
-import MembersPreview from '@/components/sections/MembersPreview';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles, getPublishedMembers } from '@/lib/notion';
 import staticMembersData from '@/data/members.json';
@@ -77,41 +76,20 @@ export default async function HomePage() {
           <ProcessFlow />
         </Reveal>
 
+        {/* AIOPS */}
+        <AIOps />
+
         {/* SERVICE — ServicesCards handles its own pinned scroll-driven
             entrance, so no Reveal wrapper (Reveal applies a transform
             which would break GSAP's position: fixed pinning). */}
         <ServicesCards />
 
-        {/* WORKS — icon-led editorial achievement cards. Each row
-            alternates icon position (left vs right) for a magazine
-            rhythm; metric numbers count up on scroll-in. */}
-        <Reveal>
-          <CaseStudy />
-        </Reveal>
+        {/* WORKS — hidden */}
+        {/* MEMBERS — hidden */}
 
-        {/* MEMBERS — dark ink section with video-frost reveal cards.
-            Not wrapped in Reveal because the dark bg creates its own
-            visual break; adding a transform would clip the video cards. */}
-        <MembersPreview members={membersData} />
-
-        <Reveal>
-          <Clients />
-        </Reveal>
-
-        {/* RECRUIT — CTA with emoji rain on click (Osmo Supply pattern) */}
-        <Reveal>
-          <RecruitCta />
-        </Reveal>
-
-        {/* NEWS */}
-        <Reveal>
-          <Column articles={articles} />
-        </Reveal>
-
-        {/* CONTACT (social-adjacent) */}
-        <Reveal>
-          <SocialLinks />
-        </Reveal>
+        {/* RECRUIT — hidden */}
+        {/* NEWS — hidden */}
+        {/* SOCIAL — hidden */}
       </main>
       <Footer />
     </>

@@ -93,12 +93,12 @@ export default function RecruitCta() {
   return (
     <>
       <div ref={containerRef} className="emoji-rain-container" aria-hidden="true" />
-      <section className="border-t border-gift-border bg-white py-s-80">
+      <section className="border-t border-[#BFDBFE] bg-white py-s-80">
         <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
-          <p className="mb-6 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+          <p className="mb-6 font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
             RECRUIT
           </p>
-          <Link href="/recruit" className="cta-btn cta-btn--deep" onClick={handleClick}>
+          <Link href="/recruit" className="cta-btn cta-btn--ai" onClick={handleClick}>
             <span>採用情報はこちら🔥 + 😍</span>
           </Link>
         </div>

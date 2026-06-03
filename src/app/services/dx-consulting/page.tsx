@@ -37,6 +37,13 @@ function DxFontsLink() {
 export default function DxConsultingPage() {
   return (
     <>
+      {/* Preload manifesto-scene PNGs so they're cached by the time the flash
+          guard releases. Without this, first-visit images arrive after the
+          guard drop and snap in blank→loaded instead of fading in smoothly. */}
+      <link rel="preload" href="/spline/cylinder.png" as="image" />
+      <link rel="preload" href="/spline/sphere.png" as="image" />
+      <link rel="preload" href="/spline/pill.png" as="image" />
+      <link rel="preload" href="/spline/cube2.png" as="image" />
       <DxFontsLink />
       <DxV3Page />
       <Footer />

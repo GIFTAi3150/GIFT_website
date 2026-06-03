@@ -499,7 +499,7 @@
   width: 1px;
   align-self: stretch;
   margin: 0.75rem 0;
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
 }
 @media (min-width: 768px) {
@@ -522,7 +522,7 @@
 .social-panel:hover,
 .social-panel:focus-visible,
 .social-panel:active {
-  color: #111B21;
+  color: #0C0E1A;
 }
 .social-panel:hover::before,
 .social-panel:focus-visible::before,
@@ -776,11 +776,11 @@
   color: #5E5E5E;
 }
 
-/* News/column card — glass scale + tilt on active (Uiverse/SteveBloX). */
+/* News/column card — light glass for AI homepage. */
 .news-card {
-  background: rgba(217, 217, 217, 0.58);
-  border: 1px solid white;
-  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.10);
   backdrop-filter: blur(6px);
   border-radius: 17px;
   cursor: pointer;
@@ -789,7 +789,7 @@
   overflow: hidden;
 }
 .news-card:hover {
-  border: 1px solid #25D366;
+  border: 1px solid #2563EB;
   transform: scale(1.05);
 }
 .news-card:active {
@@ -923,6 +923,23 @@
   color: #ffffff;
 }
 
+/* AI / homepage light variant — electric violet outline + fill */
+.cta-btn--ai {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+.cta-btn--ai::before {
+  background-color: #2563EB;
+}
+.cta-btn--ai:hover,
+.cta-btn--ai:focus-visible {
+  border-color: #2563EB;
+  color: #ffffff;
+}
+.cta-btn--ai:active {
+  box-shadow: 0 0 0 4px #2563EB;
+}
+
 /* Company/about page — animated-button in oxblood (Google Maps button in Access section).
    Mirrors the base .animated-button but with oxblood replacing all #25D366. */
 .animated-button--company {
@@ -972,7 +989,7 @@
 }
 
 html {
-  background-color: #EBEEF3;
+  background-color: #F0F7FF;
   overflow-x: hidden;
 }
 
@@ -983,8 +1000,8 @@ canvas {
 
 html,
 body {
-  background: #EBEEF3;
-  color: #111B21;
+  background: #F0F7FF;
+  color: #0C0E1A;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   line-height: 1.8;
@@ -1084,7 +1101,7 @@ h6 {
   right: -8%;
   width: 520px;
   height: 520px;
-  background: rgba(37, 211, 102, 0.06);
+  background: rgba(37, 99, 235, 0.10);
   filter: blur(90px);
   animation: blobDrift1 22s ease-in-out infinite;
 }
@@ -1093,7 +1110,7 @@ h6 {
   left: -12%;
   width: 620px;
   height: 620px;
-  background: rgba(143, 217, 164, 0.12);
+  background: rgba(6, 182, 212, 0.08);
   filter: blur(110px);
   animation: blobDrift2 28s ease-in-out infinite;
 }
@@ -1102,7 +1119,7 @@ h6 {
   left: 28%;
   width: 320px;
   height: 320px;
-  background: rgba(230, 255, 218, 0.15);
+  background: rgba(37, 99, 235, 0.07);
   filter: blur(70px);
   animation: blobDrift3 18s ease-in-out infinite;
 }

@@ -1,12 +1,13 @@
 'use client';
 
 import { useRef, useMemo, useState, useEffect } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
-import { View, PerspectiveCamera } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
-const BRAND_GREEN = '#2d6b3f';
+const SHIELD_COLOR = '#2563EB';
 const GOLD = '#eeebe3';
 
 // --------------- SVG PATHS ---------------
@@ -86,58 +87,29 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
   });
 }
 
-// --------------- HALF-SHADOW MATERIAL ---------------
-function useHalfShadowMaterial(
-  color: string,
-  metalness: number,
-  roughness: number,
-  normalMap: THREE.Texture,
-  roughnessMap: THREE.Texture,
-  colorMap: THREE.Texture,
-  normalStrength: number,
-): THREE.MeshPhysicalMaterial {
-  const mat = useMemo(() => {
-    const m = new THREE.MeshPhysicalMaterial({
-      color,
-      metalness,
-      roughness,
-      normalMap,
-      normalScale: new THREE.Vector2(normalStrength, normalStrength),
-      roughnessMap,
-      clearcoat: 0.15,
-      clearcoatRoughness: 0.5,
-      envMapIntensity: 0.02,
-    });
-
-    m.userData.colorMap = colorMap;
-    m.onBeforeCompile = (shader) => {
-      shader.uniforms.uColorMap = { value: colorMap };
-
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <common>',
-        '#include <common>\nuniform sampler2D uColorMap;',
-      );
-
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <dithering_fragment>',
-        `
-        vec2 colorUV = gl_FragCoord.xy / 512.0;
-        vec3 texColor = texture2D(uColorMap, colorUV).rgb;
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * texColor, 0.1);
-
-        #include <dithering_fragment>
-        `,
-      );
-    };
-
-    return m;
-  }, [color, metalness, roughness, normalMap, roughnessMap, normalStrength]);
-
-  return mat;
+// --------------- MATERIAL ---------------
+function useMaterial(color: string, metalness: number, roughness: number): THREE.MeshPhysicalMaterial {
+  return useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color,
+        metalness,
+        roughness,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.1,
+      }),
+    [color, metalness, roughness],
+  );
 }
 
 // --------------- MAIN SCENE ---------------
-function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
+function ShieldScene({
+  onFirstFrame,
+  mouseRef,
+}: {
+  onFirstFrame?: () => void;
+  mouseRef: React.MutableRefObject<{ x: number; y: number }>;
+}) {
   const frameCountRef = useRef(0);
   const firedRef = useRef(false);
   useFrame(() => {
@@ -148,7 +120,21 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
       onFirstFrame?.();
     }
   });
+
   const groupRef = useRef<THREE.Group>(null);
+  const tiltRef = useRef({ x: 0, y: 0 });
+
+  // Smoothly lerp rotation toward cursor position each frame.
+  // MAX_Y / MAX_X cap the angle so the shield never hits bad-quality side angles.
+  useFrame(() => {
+    if (!groupRef.current) return;
+    const MAX_Y = 0.5; // ~29°
+    const MAX_X = 0.38; // ~22°
+    tiltRef.current.x += (mouseRef.current.y * -MAX_X - tiltRef.current.x) * 0.08;
+    tiltRef.current.y += (mouseRef.current.x * MAX_Y - tiltRef.current.y) * 0.08;
+    groupRef.current.rotation.x = tiltRef.current.x;
+    groupRef.current.rotation.y = tiltRef.current.y;
+  });
 
   const { shieldShapes, g1Shapes, g2Shapes } = useMemo(
     () => ({
@@ -163,86 +149,8 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
   const g1Geos = useMemo(() => buildGeometry(g1Shapes, 35), [g1Shapes]);
   const g2Geos = useMemo(() => buildGeometry(g2Shapes, 35), [g2Shapes]);
 
-  const [normalMap, roughnessMap, colorMap] = useLoader(THREE.TextureLoader, [
-    '/textures/NormalGL.webp',
-    '/textures/Roughness.webp',
-    '/textures/Color.webp',
-  ]);
-
-  useMemo(() => {
-    [normalMap, roughnessMap, colorMap].forEach((tex) => {
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(3, 3);
-    });
-  }, [normalMap, roughnessMap, colorMap]);
-
-  const shieldMat = useHalfShadowMaterial(
-    BRAND_GREEN,
-    0.75,
-    0.35,
-    normalMap,
-    roughnessMap,
-    colorMap,
-    1.5,
-  );
-  const goldMat = useHalfShadowMaterial(GOLD, 0.85, 0.25, normalMap, roughnessMap, colorMap, 1.0);
-
-  const wholeGroupRef = useRef<THREE.Group>(null);
-  // The shared Canvas (RootCanvas) has been running since app boot, so
-  // clock.getElapsedTime() is wall-clock from boot, not from when this
-  // scene mounted. Capture the first-frame offset so the entrance
-  // animation always starts at t=0 when the user lands on the page.
-  const startTimeRef = useRef<number | null>(null);
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current || !wholeGroupRef.current) return;
-
-    if (startTimeRef.current === null) {
-      startTimeRef.current = clock.getElapsedTime();
-    }
-    const t = clock.getElapsedTime() - startTimeRef.current;
-
-    // Defensive: pin Y and Z to exactly 0 every frame. The animation only
-    // ever drives X (slide), scale, and rotation.y — but if anything
-    // upstream (drei <Bounds>, a parent transform, a stale tween) ever
-    // touches Y/Z, this overwrites it before it can paint.
-    let posX = 0;
-    let scaleS = 1;
-
-    if (t < 1.6) {
-      const s = Math.min(t / 1.6, 1);
-      scaleS = 1 - Math.pow(1 - s, 3);
-      groupRef.current.rotation.y = 0;
-    } else if (t < 1.9) {
-      const p = (t - 1.6) / 0.3;
-      const eased = 1 - Math.pow(1 - p, 2);
-      scaleS = 1 + eased * 0.28;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 2.3) {
-      const p = (t - 1.9) / 0.4;
-      const decay = Math.exp(-4 * p);
-      const osc = Math.cos(p * Math.PI * 2.2);
-      scaleS = 1 + 0.28 * decay * osc;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 4) {
-      const p = (t - 2.3) / 1.7;
-      const eased = 1 - Math.pow(1 - p, 3);
-      posX = eased * -0.8;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 19) {
-      const p = (t - 4) / 15;
-      const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-      posX = -0.8;
-      groupRef.current.rotation.y = eased * Math.PI;
-    } else {
-      posX = -0.8;
-      groupRef.current.rotation.y = Math.PI;
-    }
-
-    wholeGroupRef.current.position.set(posX, 0, 0);
-    wholeGroupRef.current.scale.setScalar(scaleS);
-  });
+  const shieldMat = useMaterial(SHIELD_COLOR, 0.75, 0.3);
+  const goldMat = useMaterial(GOLD, 0.85, 0.15);
 
   const cx = 414,
     cy = 400,
@@ -250,28 +158,26 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 
   return (
     <>
-      <group ref={wholeGroupRef}>
-        <group ref={groupRef}>
-          <group scale={[scale, -scale, scale]}>
-            <group position={[-cx, -cy, 0]}>
-              {shieldGeos.map((geo, i) => (
-                <mesh key={`s${i}`} geometry={geo} material={shieldMat} />
-              ))}
+      <group ref={groupRef}>
+        <group scale={[scale, -scale, scale]}>
+          <group position={[-cx, -cy, 0]}>
+            {shieldGeos.map((geo, i) => (
+              <mesh key={`s${i}`} geometry={geo} material={shieldMat} />
+            ))}
+            {g1Geos.map((geo, i) => (
+              <mesh key={`g1${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+            ))}
+            {g2Geos.map((geo, i) => (
+              <mesh key={`g2${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+            ))}
+
+            <group position={[828, 0, 30]} scale={[-1, 1, -1]}>
               {g1Geos.map((geo, i) => (
-                <mesh key={`g1${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+                <mesh key={`g1b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
               ))}
               {g2Geos.map((geo, i) => (
-                <mesh key={`g2${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+                <mesh key={`g2b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
               ))}
-
-              <group position={[828, 0, 30]} scale={[-1, 1, -1]}>
-                {g1Geos.map((geo, i) => (
-                  <mesh key={`g1b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
-                ))}
-                {g2Geos.map((geo, i) => (
-                  <mesh key={`g2b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
-                ))}
-              </group>
             </group>
           </group>
         </group>
@@ -284,9 +190,6 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 interface Props {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
-  /** Called when the WebGL context is lost. Parent should remount this
-   *  component (via key change) to recover. After too many losses the
-   *  parent should show a static fallback instead. */
   onContextLost?: () => void;
 }
 
@@ -296,95 +199,103 @@ const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
   lg: 'h-[360px] sm:h-[460px] lg:h-[640px]',
 };
 
-// `onContextLost` is accepted for API compatibility with HeroLogoDelayed
-// but is unused: context loss is now handled by the shared RootCanvas,
-// which remounts the entire canvas on loss. Per-View remount can't
-// recover from a lost surface — there is no surface left.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function GiftLogo3D_PremiumBadge({ className, size = 'lg', onContextLost: _onContextLost }: Props) {
-  const [ready, setReady] = useState(false);
-  // "IFT INC." lives in the DOM, not inside the WebGL canvas, so it can
-  // never lose context. It fades in at the same time the 3D animation
-  // slides the shield left (t = 2.3s after the scene first renders).
-  const [textVisible, setTextVisible] = useState(false);
+const MAX_CANVAS_LOSSES = 3;
 
+export default function GiftLogo3D_PremiumBadge({ className, size = 'lg', onContextLost }: Props) {
+  const [ready, setReady] = useState(false);
+  const [canvasKey, setCanvasKey] = useState(0);
+  const lossCountRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  // Track mouse position normalized to [-1, 1] relative to the canvas container.
+  // On leave, reset to center so the logo smoothly returns to front-facing.
   useEffect(() => {
-    if (!ready) return;
-    const t = setTimeout(() => setTextVisible(true), 2300);
+    const el = containerRef.current;
+    if (!el) return;
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      mouseRef.current.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      mouseRef.current.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+    };
+    const onLeave = () => {
+      mouseRef.current.x = 0;
+      mouseRef.current.y = 0;
+    };
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('mouseleave', onLeave);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mouseleave', onLeave);
+    };
+  }, []);
+
+  // Failsafe: release the page cover after 6s if onFirstFrame never fires.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (ready) return;
+      setReady(true);
+      window.dispatchEvent(new Event('gift:logo-ready'));
+    }, 6000);
     return () => clearTimeout(t);
   }, [ready]);
 
+  const handleContextLost = () => {
+    lossCountRef.current += 1;
+    setReady(false);
+    if (lossCountRef.current >= MAX_CANVAS_LOSSES) {
+      onContextLost?.();
+      return;
+    }
+    setCanvasKey((k) => k + 1);
+  };
+
   return (
     <div
+      ref={containerRef}
       className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
       style={{ width: '100%', backgroundColor: 'transparent' }}
     >
-      {/* Cover div fades away once three.js has painted its first frame. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
-        style={{ opacity: ready ? 0 : 1 }}
-      />
-      {/* drei's <View>, when rendered OUTSIDE a Canvas, ignores any `track`
-          prop and renders its OWN <div> as the tracker. The shared Canvas
-          (mounted in app/layout.tsx via RootCanvasMount) scissors itself
-          to this <View>'s bounding rect and paints the scene there. So
-          this <View> element IS the rectangle the 3D logo occupies. */}
-      <View
+      <Canvas
+        key={canvasKey}
         className="absolute inset-0"
         style={{
           opacity: ready ? 1 : 0,
           transition: 'opacity 400ms ease-out',
-          // Force the tracker div onto its own compositor layer + isolate
-          // its layout. Without this, drei <View> reads the tracker's
-          // getBoundingClientRect every frame and any sub-pixel shift —
-          // smooth-scroll snapping, fractional layout settling, mobile
-          // address-bar collapse — moves the scissored paint rect on the
-          // shared canvas by ≤1px, which reads as the 3D logo "hopping"
-          // vertically while otherwise idle. translateZ(0) promotes the
-          // element so the browser pixel-snaps its painted position;
-          // `contain` stops layout/paint side-effects from rippling in.
-          transform: 'translateZ(0)',
-          contain: 'layout style paint',
+        }}
+        dpr={[1, 1.5]}
+        gl={makeSafeRenderer(
+          {
+            antialias: true,
+            alpha: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.5,
+            powerPreference: 'default',
+            stencil: false,
+            failIfMajorPerformanceCaveat: false,
+            preserveDrawingBuffer: false,
+          },
+          handleContextLost,
+        )}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#000000', 0);
         }}
       >
         <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={40} />
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
-        <directionalLight position={[3, 0, 3]} intensity={1.0} color={'#b0c0e0'} />
-        <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
-        <ShieldScene
-          onFirstFrame={() => {
-            setTimeout(() => {
-              setReady(true);
-              if (typeof window !== 'undefined') {
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[-4, 3, 5]} intensity={2.2} color={'#fff0e0'} />
+        <directionalLight position={[3, 0, 3]} intensity={0.7} color={'#b0c0e0'} />
+        <directionalLight position={[0, 1, -4]} intensity={1.2} color={'#ffffff'} />
+          <ShieldScene
+            mouseRef={mouseRef}
+            onFirstFrame={() => {
+              setTimeout(() => {
+                setReady(true);
                 window.dispatchEvent(new Event('gift:logo-ready'));
-              }
-            }, 250);
-          }}
-        />
-      </View>
-
-      {/* "IFT INC." rendered as DOM — not WebGL — so context loss never
-          makes the text disappear. Fades in sync with the 3D shield slide. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <span
-          className="absolute font-bold tracking-[0.05em] text-[35px] sm:text-[44px] lg:text-[62px]"
-          style={{
-            left: '58%',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: '#111B21',
-            opacity: textVisible ? 0.88 : 0,
-            transition: 'opacity 1700ms cubic-bezier(0.33, 1, 0.68, 1)',
-            fontFamily: 'var(--font-poppins), "Poppins", sans-serif',
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          IFT INC.
-        </span>
-      </div>
+              }, 250);
+            }}
+          />
+      </Canvas>
     </div>
   );
 }
