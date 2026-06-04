@@ -4,6 +4,7 @@ import Hero from '@/components/sections/Hero';
 import WhoWeAre from '@/components/sections/WhoWeAre';
 import ServicesCards from '@/components/sections/ServicesCards';
 import CaseStudy from '@/components/sections/CaseStudy';
+import WheelScroll from '@/components/sections/WheelScroll';
 import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Column from '@/components/sections/Column';
@@ -71,13 +72,16 @@ export default async function HomePage() {
           <WhoWeAre />
         </Reveal>
 
+        {/* OUR PHILOSOPHY — scroll-pinned rotating wheel (no Reveal: manages its own sticky scroll) */}
+        <WheelScroll />
+
+        {/* AIOPS */}
+        <AIOps />
+
         {/* HOW WE WORK */}
         <Reveal>
           <ProcessFlow />
         </Reveal>
-
-        {/* AIOPS */}
-        <AIOps />
 
         {/* SERVICE — ServicesCards handles its own pinned scroll-driven
             entrance, so no Reveal wrapper (Reveal applies a transform

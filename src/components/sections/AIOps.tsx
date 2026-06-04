@@ -6,15 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FEATURES = [
-  { n: '01', label: 'コンテンツ自動生成',   desc: '業務マニュアル・提案書・レポートを即時生成。人的ボトルネックをゼロに。' },
-  { n: '02', label: 'リアルタイム品質監視', desc: 'ブランドトーン・正確性・一貫性をAIが常時スキャン。' },
-  { n: '03', label: '多言語ローカライズ',   desc: '日英中3言語を同時展開。トーンを保ったまま瞬時に翻訳。' },
-  { n: '04', label: 'コンテンツインサイト', desc: 'KPIをリアルタイムダッシュボード化し、改善サイクルを自動提案。' },
-  { n: '05', label: 'ナレッジベース構築',   desc: '社内ドキュメントを学習し、自社特化の知識AIを構築。' },
-  { n: '06', label: 'ワークフロー自動化',   desc: 'Slack・CRM・CMSと連携し、コンテンツパイプラインを全自動化。' },
-];
-
 const TERMINAL = [
   { k: 'cmd',  t: 'gift-aiops init --target=business-content' },
   { k: 'ok',   t: 'AI engine: online' },
@@ -26,17 +17,46 @@ const TERMINAL = [
   { k: 'ok',   t: 'consistency: 98.4%  ✓ all checks passed' },
 ];
 
+const STATS = [
+  { value: '0.8s',   label: '平均生成レイテンシ' },
+  { value: '98.4%',  label: '品質一貫性スコア'   },
+  { value: '3言語',  label: '日英中 同時展開'    },
+] as const;
+
+const PILLARS = [
+  {
+    n: '01',
+    labelJa: '自律コンテンツ生成',
+    labelEn: 'Content Generation',
+    desc: '業務マニュアル・提案書・レポートをAIが即時生成。人的ボトルネックをゼロに。',
+  },
+  {
+    n: '02',
+    labelJa: 'リアルタイム品質管理',
+    labelEn: 'Quality Monitoring',
+    desc: 'ブランドトーン・正確性・一貫性をAIが24/7で常時スキャン。問題を発生前に検知する。',
+  },
+  {
+    n: '03',
+    labelJa: '統合ワークフロー自動化',
+    labelEn: 'Workflow Automation',
+    desc: 'Slack・CRM・CMSと連携し、コンテンツパイプライン全体を自動化。',
+  },
+] as const;
+
 export default function AIOps() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const termRef    = useRef<HTMLDivElement>(null);
-  const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRef  = useRef<HTMLElement>(null);
+  const termRef     = useRef<HTMLDivElement>(null);
+  const statsRef    = useRef<HTMLDivElement>(null);
+  const pillarsRef  = useRef<HTMLDivElement>(null);
   const [termLines, setTermLines] = useState(0);
 
   useEffect(() => {
     let alive = true;
 
     const ctx = gsap.context(() => {
-      // Terminal typewriter — each line slides + fades in sequentially
+
+      // Terminal typewriter
       if (termRef.current) {
         ScrollTrigger.create({
           trigger: termRef.current,
@@ -52,18 +72,30 @@ export default function AIOps() {
         });
       }
 
-      // Feature cards — stagger slide-up on scroll-in
-      const cards = cardRefs.current.filter((c): c is HTMLDivElement => c !== null);
-      if (cards.length) {
-        gsap.from(cards, {
-          y: 32,
+      // Stats counter-up fade
+      if (statsRef.current) {
+        gsap.from(statsRef.current.children, {
+          y: 20,
           opacity: 0,
-          stagger: 0.07,
-          duration: 0.6,
+          stagger: 0.12,
+          duration: 0.7,
           ease: 'power2.out',
-          scrollTrigger: { trigger: cards[0], start: 'top 88%', once: true },
+          scrollTrigger: { trigger: statsRef.current, start: 'top 85%', once: true },
         });
       }
+
+      // Pillar rows slide in
+      if (pillarsRef.current) {
+        gsap.from(pillarsRef.current.children, {
+          y: 28,
+          opacity: 0,
+          stagger: 0.1,
+          duration: 0.65,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: pillarsRef.current, start: 'top 88%', once: true },
+        });
+      }
+
     }, sectionRef);
 
     return () => {
@@ -78,22 +110,24 @@ export default function AIOps() {
       className="relative w-full overflow-hidden border-t border-b border-[#1A2F4A] bg-[#020916] py-s-80"
       style={{
         backgroundImage: [
-          'radial-gradient(ellipse 80% 40% at 50% -5%, rgba(37,99,235,0.16) 0%, transparent 70%)',
-          'radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px)',
+          'radial-gradient(ellipse 80% 40% at 50% -5%, rgba(37,99,235,0.14) 0%, transparent 70%)',
+          'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
         ].join(', '),
-        backgroundSize: 'auto, 30px 30px',
+        backgroundSize: 'auto, 32px 32px',
       }}
     >
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
 
-        {/* ── header ───────────────────────────────────── */}
-        <div className="mb-16 flex flex-col items-center gap-5 text-center">
-          {/* gradient headline */}
+        {/* ── header ───────────────────────────────────────── */}
+        <div className="mb-16 flex flex-col items-center gap-4 text-center">
+          <p className="font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
+            AI OPERATIONS
+          </p>
           <h2
             className="font-display font-extrabold"
             style={{
               fontSize: 'clamp(36px, 5.5vw, 72px)',
-              lineHeight: 1.15,
+              lineHeight: 1.1,
               background: 'linear-gradient(135deg, #FFFFFF 20%, #93C5FD 55%, #06B6D4 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -102,23 +136,27 @@ export default function AIOps() {
           >
             人が考え、<br />AIが動かす。
           </h2>
-
+          <p
+            className="font-sans font-light"
+            style={{ fontSize: 'clamp(15px, 1.5vw, 17px)', lineHeight: 1.9, color: '#5A7A96', maxWidth: 480 }}
+          >
+            業務プロセスの自動化・監視・最適化を、AIが自律的に担う。<br />
+            チームは判断と創造に専念できる。
+          </p>
         </div>
 
-        {/* ── terminal mockup ───────────────────────────── */}
+        {/* ── terminal ─────────────────────────────────────── */}
         <div
           ref={termRef}
           className="mx-auto mb-14 max-w-2xl overflow-hidden rounded-2xl border border-[#1A2F4A] bg-[#0D1117] shadow-[0_0_60px_rgba(37,99,235,0.1)]"
         >
-          {/* macOS window chrome */}
+          {/* macOS chrome */}
           <div className="flex items-center gap-2 border-b border-[#1A2F4A] px-4 py-3">
             <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
             <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
             <span className="h-3 w-3 rounded-full bg-[#28C840]" />
             <span className="ml-3 font-mono text-[11px] text-[#3A5068]">gift-aiops — business-content</span>
           </div>
-
-          {/* terminal body */}
           <div className="space-y-2.5 p-6 font-mono text-[13px] leading-relaxed">
             {TERMINAL.map((line, i) => (
               <div
@@ -146,8 +184,6 @@ export default function AIOps() {
                 </span>
               </div>
             ))}
-
-            {/* blinking cursor */}
             {termLines > 0 && (
               <div className="flex items-center gap-2.5">
                 <span className="text-[#4B6880]">$</span>
@@ -157,77 +193,88 @@ export default function AIOps() {
           </div>
         </div>
 
-        {/* ── what is aiops ────────────────────────────── */}
-        <div className="mx-auto mb-14 max-w-3xl overflow-hidden rounded-2xl border border-[#1A2F4A] bg-[#070E1C]">
-          <div className="grid grid-cols-1 md:grid-cols-[180px_1fr]">
-
-            {/* left — decorative label */}
-            <div className="relative flex flex-col items-center justify-center border-b border-[#1A2F4A] p-8 md:border-b-0 md:border-r md:border-[#1A2F4A]">
-              {/* background watermark */}
+        {/* ── stats bar ────────────────────────────────────── */}
+        <div
+          ref={statsRef}
+          className="mx-auto mb-16 grid max-w-2xl grid-cols-3 divide-x divide-[#1A2F4A] rounded-2xl border border-[#1A2F4A] bg-[#070E1C]"
+        >
+          {STATS.map(s => (
+            <div key={s.value} className="flex flex-col items-center gap-1.5 px-6 py-7 text-center">
               <span
-                aria-hidden
-                className="pointer-events-none absolute select-none font-display font-extrabold leading-none text-[#0D1F3C]"
-                style={{ fontSize: 80 }}
+                className="font-display font-extrabold"
+                style={{
+                  fontSize: 'clamp(28px, 3.5vw, 42px)',
+                  background: 'linear-gradient(135deg, #60A5FA, #06B6D4)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  lineHeight: 1.1,
+                }}
               >
-                AI
+                {s.value}
               </span>
-              <span className="relative z-10 flex flex-col items-center gap-2 text-center">
-                <span className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-[#2563EB]">What is</span>
-                <span className="font-display text-4xl font-extrabold text-white">AIOps</span>
-                <span className="h-px w-10 bg-gradient-to-r from-[#2563EB] to-[#06B6D4]" />
-                <span className="font-display text-[10px] font-medium tracking-[0.25em] text-[#3A5068] uppercase">AI Operations</span>
+              <span className="font-sans text-[12px] font-medium text-[#3A5068]">
+                {s.label}
               </span>
-            </div>
-
-            {/* right — definition + tags */}
-            <div className="flex flex-col justify-center gap-5 p-8">
-              <p className="font-sans" style={{ fontSize: 15, lineHeight: 1.9, color: '#92AABF' }}>
-                AIOpsとは、<strong className="font-bold text-white">AIが業務プロセスをリアルタイムで自動化・監視・最適化</strong>する次世代の運用モデル。
-                データの収集から異常検知・問題解決まで、AIが自律的に処理し続ける。
-                チームは戦略と創造に専念できる。
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['自動化', 'リアルタイム監視', '異常検知', '最適化', '自律学習', 'データ分析'].map(tag => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-[#1A2F4A] px-3 py-1 font-display text-[11px] font-semibold text-[#4B7AB8] transition-colors duration-200 hover:border-[#2563EB] hover:text-[#7BAEE8]"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* ── feature cards ────────────────────────────── */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <div
-              key={f.n}
-              ref={(el) => { cardRefs.current[i] = el; }}
-              className="group relative overflow-hidden rounded-xl border border-[#1A2F4A] bg-[#070E1C] p-6 transition-all duration-300 hover:border-[#2563EB] hover:shadow-[0_0_30px_rgba(37,99,235,0.18)]"
-            >
-              <span className="mb-4 block font-display text-[11px] font-bold tracking-[0.2em] text-[#2563EB]">
-                {f.n}
-              </span>
-              <h3 className="mb-2 font-display text-[15px] font-bold leading-snug text-white">
-                {f.label}
-              </h3>
-              <p style={{ fontSize: 13, lineHeight: 1.75, color: '#5A7A96' }} className="font-sans">
-                {f.desc}
-              </p>
-              {/* corner glow — appears on hover */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-[#2563EB]/10 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              />
             </div>
           ))}
         </div>
 
-        {/* ── cta ──────────────────────────────────────── */}
+        {/* ── capability pillars ───────────────────────────── */}
+        <div ref={pillarsRef} className="mx-auto max-w-3xl">
+          {PILLARS.map((p, i) => (
+            <div
+              key={p.n}
+              className="group relative flex items-start gap-8 border-t border-[#1A2F4A] py-8 transition-all duration-300 last:border-b hover:border-[#2563EB]/40 last:hover:border-[#2563EB]/40"
+            >
+              {/* Left accent line — slides in from top on hover */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-0 top-0 w-[2px] origin-top scale-y-0 bg-gradient-to-b from-[#2563EB] to-[#06B6D4] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-y-100"
+                style={{ height: '100%' }}
+              />
+
+              {/* Number */}
+              <div className="shrink-0 pl-4 pt-1">
+                <span
+                  className="font-display font-extrabold leading-none"
+                  style={{
+                    fontSize: 'clamp(28px, 3vw, 40px)',
+                    background: 'linear-gradient(135deg, #1e3a6e 0%, #2563EB 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    transition: 'filter 0.3s',
+                  }}
+                >
+                  {p.n}
+                </span>
+              </div>
+
+              {/* Content */}
+              <div
+                className="flex flex-1 flex-col gap-2 transition-transform duration-300 group-hover:translate-x-1 md:flex-row md:items-start md:gap-10"
+              >
+                <div className="shrink-0 md:w-52">
+                  <p className="font-display text-[16px] font-bold leading-snug text-white">
+                    {p.labelJa}
+                  </p>
+                  <p className="mt-0.5 font-display text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2563EB]">
+                    {p.labelEn}
+                  </p>
+                </div>
+                <p
+                  className="font-sans font-light"
+                  style={{ fontSize: 'clamp(13px, 1.3vw, 15px)', lineHeight: 1.85, color: '#5A7A96' }}
+                >
+                  {p.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── cta ──────────────────────────────────────────── */}
         <div className="mt-14 flex justify-center">
           <a
             href="/services/dx-consulting"

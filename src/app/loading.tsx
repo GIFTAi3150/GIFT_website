@@ -21,16 +21,17 @@ export default function Loading() {
         </div>
       </div>
 
-      {/* Hero */}
-      <section className="flex min-h-[100vh] items-center justify-center">
-        <div className="flex w-full max-w-3xl flex-col items-center gap-8 px-4">
-          <Block
-            className="h-[400px] w-full max-w-lg rounded-full"
-            style={{ borderRadius: '9999px' }}
-          />
-          <Block className="h-10 w-3/4" />
-          <Block className="h-5 w-2/3" />
-          <Block className="h-14 w-40" />
+      {/* Hero — solid floor matching the shader-gradient hero.
+          Prevents light→dark flash on nav (project_loading_skeleton_drift). */}
+      <section
+        className="flex min-h-[100vh] items-center justify-start"
+        style={{ backgroundColor: '#0a0e2b' }}
+      >
+        <div className="flex w-full max-w-4xl flex-col items-start gap-8 px-6 md:px-8 lg:px-12">
+          <div className="h-16 w-3/4 animate-pulse rounded" style={{ backgroundColor: '#252d76' }} />
+          <div className="h-16 w-1/2 animate-pulse rounded" style={{ backgroundColor: '#252d76' }} />
+          <div className="h-5 w-2/3 animate-pulse rounded" style={{ backgroundColor: '#1a2060' }} />
+          <div className="h-12 w-40 animate-pulse rounded" style={{ backgroundColor: '#1a2060' }} />
         </div>
       </section>
 

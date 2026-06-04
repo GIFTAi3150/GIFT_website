@@ -55,6 +55,12 @@ export default {
           cyan:      '#00B4FF',
           blue:      '#0088CB',
         },
+        // Hero shader-gradient palette — navy/indigo tones for the homepage hero
+        'hero-navy': {
+          bright: '#3d47c0', // top — bright royal indigo (from sales-dex.jp pixel sample)
+          base:   '#252d76', // mid navy
+          deep:   '#0a0e2b', // section floor / bottom fade target
+        },
         // AI / AIOps light-mode palette — used on the homepage
         ai: {
           bg:           '#F0F7FF',
