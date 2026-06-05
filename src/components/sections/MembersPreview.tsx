@@ -23,12 +23,12 @@ export interface MemberPreviewCard {
 
 export default function MembersPreview({ members }: { members: MemberPreviewCard[] }) {
   return (
-    <section className="relative bg-[#111B21] overflow-hidden">
+    <section className="relative bg-[#060A18] overflow-hidden">
       {/* ── Header ── */}
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8 pt-24 md:pt-32 pb-14 md:pb-16">
         <div className="flex items-end justify-between">
           <div>
-            <p className="mb-3 font-display text-xs font-bold uppercase tracking-[0.3em] text-[#25D366]">
+            <p className="mb-3 font-display text-xs font-bold uppercase tracking-[0.3em] text-[#2563EB]">
               Members
             </p>
             <h2
@@ -40,7 +40,7 @@ export default function MembersPreview({ members }: { members: MemberPreviewCard
           </div>
           <Link
             href="/member"
-            className="group hidden items-center gap-2 font-sans text-sm font-medium text-[#25D366] transition-opacity hover:opacity-70 md:flex"
+            className="group hidden items-center gap-2 font-sans text-sm font-medium text-[#2563EB] transition-opacity hover:opacity-70 md:flex"
           >
             チームを見る
             <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
@@ -85,7 +85,7 @@ export default function MembersPreview({ members }: { members: MemberPreviewCard
                 />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-4">
-                  <p className="font-display text-[9px] font-bold uppercase tracking-widest text-[#25D366] mb-0.5">
+                  <p className="font-display text-[9px] font-bold uppercase tracking-widest text-[#2563EB] mb-0.5">
                     {m.department}
                   </p>
                   <p className="font-sans text-sm font-bold leading-tight text-white">
@@ -103,7 +103,7 @@ export default function MembersPreview({ members }: { members: MemberPreviewCard
       <div className="flex justify-center pt-10 pb-16 md:pb-24 md:hidden">
         <Link
           href="/member"
-          className="group flex items-center gap-2 rounded-full border border-[#25D366] px-6 py-3 font-sans text-sm font-medium text-[#25D366] transition-colors duration-200 hover:bg-[#25D366] hover:text-[#111B21]"
+          className="group flex items-center gap-2 rounded-full border border-[#25D366] px-6 py-3 font-sans text-sm font-medium text-[#2563EB] transition-colors duration-200 hover:bg-[#25D366] hover:text-[#111B21]"
         >
           チームを見る
           <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">

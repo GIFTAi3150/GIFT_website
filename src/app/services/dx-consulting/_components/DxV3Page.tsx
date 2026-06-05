@@ -277,12 +277,10 @@ export default function DxV3Page() {
     // between useLayoutEffect and useEffect (e.g., history.back() path).
     window.scrollTo(0, 0);
 
-    // Reveal manifesto PNG objects now that GSAP is in control of their
-    // transform. The useLayoutEffect above set opacity:0!important to prevent
-    // the flash-on-navigation; removing it here lets CSS opacity values apply.
-    document
-      .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
-      .forEach((el) => el.style.removeProperty('opacity'));
+    // NOTE: .m-obj opacity is restored in revealAndRefresh (rAF below), not
+    // here. Moving the restore point ensures GSAP can apply autoAlpha:0
+    // before the browser paints the guard-released state, giving a smooth
+    // fade-in instead of a hard snap when images aren't cached on first visit.
     const isMobile = window.matchMedia('(max-width: 899px)').matches;
 
     // ---- Lenis smooth scroll (desktop only) ----
@@ -1399,7 +1397,21 @@ export default function DxV3Page() {
       if (!alive) return;
       window.scrollTo(0, 0);
       ScrollTrigger.refresh();
+      // Remove the useLayoutEffect's opacity:0!important so GSAP can take
+      // control of opacity on these elements.
+      document
+        .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
+        .forEach((el) => el.style.removeProperty('opacity'));
+      // Release the guard — all guard-hidden content becomes visible.
       document.querySelector('.dx-v3')?.removeAttribute('data-flash-guard');
+      // GSAP applies autoAlpha:0 synchronously (before the browser can paint
+      // the just-revealed guard state), then animates to 1. This means images
+      // that haven't cached yet won't hard-snap; they fade in gracefully.
+      gsap.fromTo(
+        '.dx-v3 .m-obj',
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.7, ease: 'power2.out', stagger: 0.04 }
+      );
     };
     rafId = requestAnimationFrame(revealAndRefresh);
 

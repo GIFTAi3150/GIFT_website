@@ -46,3 +46,13 @@ next-env.d.ts
 # /public ships. See vat-bake/README.md.
 /vat-bake/*.bin
 .claude
+
+# Root-level scratch files — screenshots, reference assets, dev logs
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.mjs
+/*.html
+/*.log
+/refasset-*

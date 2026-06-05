@@ -55,6 +55,24 @@ export default {
           cyan:      '#00B4FF',
           blue:      '#0088CB',
         },
+        // Hero shader-gradient palette — navy/indigo tones for the homepage hero
+        'hero-navy': {
+          bright: '#3d47c0', // top — bright royal indigo (from sales-dex.jp pixel sample)
+          base:   '#252d76', // mid navy
+          deep:   '#0a0e2b', // section floor / bottom fade target
+        },
+        // AI / AIOps light-mode palette — used on the homepage
+        ai: {
+          bg:           '#F0F7FF',
+          surface:      '#FFFFFF',
+          'surface-2':  '#EFF6FF',
+          border:       '#BFDBFE',
+          ink:          '#0C0E1A',
+          muted:        '#5B6B8A',
+          accent:       '#2563EB',
+          'accent-h':   '#1D4ED8',
+          cyan:         '#06B6D4',
+        },
         // WhatsApp-inspired palette — extracted from whatsapp.com production CSS 2026-04-16
         // Discipline: two greens (bright + deep teal). No third color.
         line: {

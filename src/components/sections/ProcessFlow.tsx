@@ -69,21 +69,21 @@ export default function ProcessFlow() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden border-t border-gift-border bg-white py-s-80"
+      className="relative w-full overflow-hidden border-t border-[#BFDBFE] bg-[#FFFFFF] py-s-80"
     >
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
         {/* Header — centered for the stacked layout. */}
         <div className="mb-12 flex flex-col items-center gap-4 text-center">
-          <p className="font-display text-small font-bold uppercase tracking-widest text-gift-green">
+          <p className="font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
             HOW WE WORK
           </p>
           <h2
-            className="font-sans font-extrabold text-gift-ink"
+            className="font-sans font-extrabold text-[#0C0E1A]"
             style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
           >
             ご依頼の流れ
           </h2>
-          <PixelRobot className="h-16 w-16 text-gift-green-teal sm:h-20 sm:w-20" />
+          <PixelRobot className="h-16 w-16 text-[#00CEB8] sm:h-20 sm:w-20" />
         </div>
 
         {/* Wrapper #1 — EMPTY layout placeholder. The video sits over
@@ -114,13 +114,13 @@ export default function ProcessFlow() {
             scrolls into view the morph is locked at progress=1, so
             the video never overlaps this block. */}
         <div
-          className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-4 text-center font-sans font-extrabold text-gift-ink"
+          className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-4 text-center font-sans font-extrabold text-[#0C0E1A]"
           style={{ fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: '1.1', letterSpacing: '0.02em' }}
         >
           <span>GIFTで一緒に</span>
           <a
             href="/recruit"
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gift-green px-4 py-2 text-white shadow-md transition-transform duration-[400ms] ease-out hover:scale-[1.04]"
+            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#2563EB] px-4 py-2 text-white shadow-md transition-transform duration-[400ms] ease-out hover:scale-[1.04]"
             style={{ fontSize: 'inherit', lineHeight: '1.1' }}
           >
             {/* Osmo-style color sweep — a dark overlay grows from the
@@ -130,7 +130,7 @@ export default function ProcessFlow() {
                 below the text spans so labels stay readable. */}
             <span
               aria-hidden
-              className="absolute inset-0 origin-left scale-x-0 bg-gift-ink transition-transform duration-[500ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:scale-x-100"
+              className="absolute inset-0 origin-left scale-x-0 bg-[#0C0E1A] transition-transform duration-[500ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:scale-x-100"
             />
 
             {/* Invisible ghost text — sets the button width to fit

@@ -56,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       // React reads back as a different string than its JSX source —
       // produces a noisy but harmless hydration warning. Suppress it.
       suppressHydrationWarning
-      style={{ backgroundColor: '#F0F4F9', colorScheme: 'light' }}
+      style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
         {/* Google Search Console verification */}
@@ -86,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body suppressHydrationWarning style={{ backgroundColor: '#F0F4F9' }}>
+      <body suppressHydrationWarning style={{ backgroundColor: '#F0F7FF' }}>
         {/* SSR-rendered dark cover. Present in the very first HTML byte the
             browser receives, so it can paint before any React/JS runs.
             Inline script fades it out once the page is ready. */}
@@ -102,7 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            backgroundColor: '#F0F4F9',
+            backgroundColor: '#F0F7FF',
             pointerEvents: 'none',
             transition: 'opacity 500ms ease-out',
           }}

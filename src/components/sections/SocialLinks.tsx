@@ -1,8 +1,6 @@
 import { Fragment } from 'react';
 
-// All panels use the soft mint accent (#7EE0B5) on hover/active —
-// no Instagram pink or TikTok cyan. Keeps the section in-brand.
-const SOCIAL_HOVER_BG = '#7EE0B5';
+const SOCIAL_HOVER_BG = '#2563EB';
 
 const socials = [
   {
@@ -14,7 +12,6 @@ const socials = [
     background: SOCIAL_HOVER_BG,
     textColor: '#ffffff',
   },
-
   {
     name: 'TikTok',
     handle: '@gift_with_you_',
@@ -35,7 +32,6 @@ function Icon({ name }: { name: string }) {
           <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.3.4.6.2 1 .5 1.5 1s.8.9 1 1.5c.1.4.3 1 .4 2.3.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.3-.2.6-.5 1-1 1.5s-.9.8-1.5 1c-.4.1-1 .3-2.3.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.3-.4-.6-.2-1-.5-1.5-1s-.8-.9-1-1.5c-.1-.4-.3-1-.4-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.3.2-.6.5-1 1-1.5s.9-.8 1.5-1c.4-.1 1-.3 2.3-.4C8.4 2.2 8.8 2.2 12 2.2zm0 5.5a4.3 4.3 0 100 8.6 4.3 4.3 0 000-8.6zm5.5-.3a1 1 0 11-2 0 1 1 0 012 0zM12 9.7a2.3 2.3 0 110 4.6 2.3 2.3 0 010-4.6z" />
         </svg>
       );
-
     case 'tiktok':
       return (
         <svg {...common}>
@@ -49,14 +45,14 @@ function Icon({ name }: { name: string }) {
 
 export default function SocialLinks() {
   return (
-    <section className="w-full border-t border-gift-border bg-gift-near-black py-s-80">
+    <section className="w-full border-t border-[#BFDBFE] bg-[#F0F7FF] py-s-80">
       <div className="mx-auto mb-12 max-w-container px-4 md:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center">
-          <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+          <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
             FOLLOW US
           </p>
           <h2
-            className="font-sans font-extrabold text-gift-ink"
+            className="font-sans font-extrabold text-[#0C0E1A]"
             style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
           >
             SNSで最新情報を
@@ -64,7 +60,6 @@ export default function SocialLinks() {
         </div>
       </div>
 
-      {/* Brand-color strip */}
       <div className="social-strip mx-auto w-full max-w-2xl px-4 md:px-6 lg:px-8">
         {socials.map((s, i) => (
           <Fragment key={s.name}>
@@ -74,7 +69,7 @@ export default function SocialLinks() {
               rel="noopener noreferrer"
               aria-label={s.name}
               className="social-panel group"
-              style={{ ['--panel-bg' as string]: s.background }}
+              style={{ ['--panel-bg' as string]: s.background, color: '#0C0E1A' }}
             >
               <div className="social-panel-inner">
                 <span className="social-panel-icon">
