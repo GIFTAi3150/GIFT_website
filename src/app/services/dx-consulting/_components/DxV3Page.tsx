@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useLayoutEffect, useRef, Component, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, Component, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -82,10 +82,10 @@ const CAPABILITIES: ReadonlyArray<{
 ];
 
 const PAINS = [
-  { n: 'Q.01', q: '同じ作業を、毎日手動でこなしている' },
-  { n: 'Q.02', q: 'データが散らばり、つながっていない' },
+  { n: 'Q.01', q: '手作業が毎日繰り返される' },
+  { n: 'Q.02', q: 'データがバラバラで使えない' },
   { n: 'Q.03', q: '顧客対応が遅すぎる' },
-  { n: 'Q.04', q: '人件費が売上より速く膨らんでいる' },
+  { n: 'Q.04', q: '人件費が売上を圧迫している' },
 ];
 
 const FEATURES = [
@@ -163,7 +163,27 @@ const RPA_CARDS = [
 // Fires when the user clicks the "imagine" pill in the intro line.
 const IMAGINE_EMOJIS = ['✨', '💡', '🚀'];
 
+// Hero background scrolling word lanes.
+// Each entry is doubled in JSX for the seamless -50% loop.
+// Large bold horizontal scrolling text behind the hero.
+// Straight rows — no rotation. Big font, solid brand blue.
+const HERO_BG_LANES = [
+  { words: ['AIが動かす。', '自律運用。', '業務を変える。', 'Build to Win.', 'AI最前線。', '最適化する。', 'AI駆動。'],              dur: 30, rtl: false, fs: 56, delay: 0.4 },
+  { words: ['自動化する。', 'デジタルDX。', 'Run Forever.', '変革する。', '次世代AI。', 'スマートOps。', 'AIと共に。'],             dur: 38, rtl: true,  fs: 40, delay: 0.6 },
+  { words: ['革新する。', 'LLM連携。', 'Autonomous.', '自律判断。', '業務効率化。', 'AIエージェント。'],                            dur: 34, rtl: false, fs: 52, delay: 0.8 },
+  { words: ['超自動化。', 'Build Once.', 'AI意思決定。', 'クラウドAI。', '継続改善。', 'RAGシステム。'],                            dur: 42, rtl: true,  fs: 38, delay: 1.0 },
+  { words: ['自律AI。', 'Intelligent Ops.', 'エンタープライズAI。', '24時間稼働。', 'AIオーケストレーション。'],                   dur: 28, rtl: false, fs: 48, delay: 1.2 },
+  { words: ['AIと共に進化する。', 'Build it once. Run forever.', 'AIが、未来を動かす。', '人が考え、AIが動かす。'],                 dur: 48, rtl: true,  fs: 36, delay: 1.4 },
+];
+
 export default function DxV3Page() {
+  // Inline flash guard — CSS-independent cover that stays up until GSAP
+  // has committed all initial states. The CSS data-flash-guard mechanism
+  // can arrive too late when the dx-v3.css chunk loads after React renders
+  // on client-side navigation (code-split CSS race). This div uses inline
+  // styles so it works even if the stylesheet hasn't applied yet.
+  const [inlineCoverActive, setInlineCoverActive] = useState(true);
+
   const heroRef = useRef<HTMLElement | null>(null);
   const progRef = useRef<HTMLDivElement | null>(null);
   const rainContainerRef = useRef<HTMLDivElement | null>(null);
@@ -605,18 +625,44 @@ export default function DxV3Page() {
       triggers.push(orbitTrigger);
     }
 
+    // ---- Decorative rects: strong parallax ----
+    // Each rect uses its section as the scrub window so the full section
+    // scroll drives the movement. Large y values (-180 to -380) make the
+    // depth layers clearly visible. Odd-indexed rects move slower, even
+    // move faster — this gives the staggered "floating layers" look.
+    //
+    // Final-section rects get a dedicated trigger on the surrounding .dx-v3
+    // wrapper (the full page scroll range) rather than the sticky .final
+    // section itself. A sticky element's document top/bottom barely moves so
+    // the section-scoped trigger scrubs almost nothing; the wrapper trigger
+    // gives the full scroll timeline depth.
+    const finalSectionEl = document.querySelector<HTMLElement>('.dx-v3 .final');
+    gsap.utils.toArray<HTMLElement>('.dx-v3 .deco-rect').forEach((rect, i) => {
+      const speeds = [560, 320, 480, 260, 420, 360, 540, 300, 450, 380];
+      const yMove = -(speeds[i % speeds.length]);
+      const isFinal = finalSectionEl?.contains(rect);
+      const trigger = isFinal
+        ? (document.querySelector('.dx-v3') as Element)
+        : (rect.closest('section') ?? rect.parentElement) as Element;
+      const start = isFinal ? 'bottom bottom' : 'top bottom';
+      const end   = isFinal ? 'bottom top'    : 'bottom top';
+      const t = gsap.to(rect, {
+        y: yMove,
+        ease: 'none',
+        scrollTrigger: {
+          trigger,
+          start,
+          end,
+          scrub: 0.5,
+        },
+      });
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+    });
+
     // ---- Features: scroll-scrubbed cascading slider ----
-    // .cascade-pin-stack is a tall scroll runway (~60vh per slide); the
-    // inner .cascade-pin-frame is position:sticky so the slider stays
-    // pinned on-screen while the user scrolls through the runway. A
-    // fractional "cursor" walks from 0 → (count-1) tied to scroll
-    // progress, and each slide's x / --clip-l / --clip-r / z-index is
-    // continuously interpolated based on its distance from the cursor.
-    // The result: scroll = cards advance one by one through the cascade.
     const cascadePinStack = document.querySelector<HTMLElement>(
       '.dx-v3 .cascade-pin-stack'
     );
-    const slideCleanups: Array<() => void> = [];
     if (cascadePinStack) {
       const slides = Array.from(
         cascadePinStack.querySelectorAll<HTMLElement>('[data-cascading-slide]')
@@ -625,7 +671,7 @@ export default function DxV3Page() {
       const totalLabel = cascadePinStack.querySelector<HTMLElement>('.cascade-total');
       if (totalLabel) totalLabel.textContent = String(slides.length).padStart(2, '0');
 
-      let slideW = slides[0].offsetWidth || 400;
+      let slideW = slides[0]?.offsetWidth || 400;
       const layoutCascade = (cursor: number) => {
         if (!slides.length) return;
         const peek = Math.min(70, Math.max(36, slideW * 0.13));
@@ -633,13 +679,8 @@ export default function DxV3Page() {
         const innerStep = peek + 6;
 
         slides.forEach((slide, i) => {
-          // distance can be fractional — that's what gives the smooth
-          // mid-transition cascade as the cursor moves between slides.
           const distance = i - cursor;
           const absDist = Math.abs(distance);
-          // t = 0..1 weight for "still acting like the active slide vs
-          // becoming a sibling". Beyond 1 the slide is in pure-sibling
-          // territory and just shifts by innerStep per additional unit.
           const t = Math.min(1, absDist);
           const beyond = absDist - t;
 
@@ -675,8 +716,6 @@ export default function DxV3Page() {
         }
       };
 
-      // Initial render so slides aren't piled at 0,0 before the first
-      // scroll event fires.
       layoutCascade(0);
 
       const cascadeTrigger = ScrollTrigger.create({
@@ -686,7 +725,7 @@ export default function DxV3Page() {
         scrub: 0.4,
         invalidateOnRefresh: true,
         onRefresh: () => {
-          slideW = slides[0].offsetWidth || 400;
+          slideW = slides[0]?.offsetWidth || 400;
         },
         onUpdate: (self) => {
           const cursor = self.progress * (slides.length - 1);
@@ -695,6 +734,27 @@ export default function DxV3Page() {
       });
       triggers.push(cascadeTrigger);
     }
+
+    // ---- Pains: rectangle entrance (neu-ad.jp style) ----
+    // Each question rises from y:60 staggered as the section scrolls up.
+    // Only y is animated here; the spotlight below controls opacity/scale.
+    gsap.utils.toArray<HTMLElement>('.dx-v3 .pains-section .pain').forEach((el, i) => {
+      const t = gsap.fromTo(
+        el,
+        { y: 60 },
+        {
+          y: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.dx-v3 .pains-pin-stack',
+            start: `top ${88 - i * 7}%`,
+            end: `top ${62 - i * 7}%`,
+            scrub: 0.7,
+          },
+        }
+      );
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+    });
 
     // ---- Pains: scroll-scrubbed spotlight ----
     // .pains-pin-stack is a tall scroll runway; .pains-pin-frame is
@@ -905,51 +965,28 @@ export default function DxV3Page() {
     );
     if (aiBodyTween.scrollTrigger) triggers.push(aiBodyTween.scrollTrigger);
 
-    // ---- Final CTA ----
+    // ---- Final CTA — rectangle reveal (neu-ad.jp style) ----
+    // Each content block rises from y:80 in sequence, scrubbed to scroll.
     [
-      gsap.fromTo(
-        '.dx-v3 .final h2',
-        { scale: 0.7, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: '.dx-v3 .final', start: 'top 80%', end: 'top 30%', scrub: true },
-        }
-      ),
-      gsap.fromTo(
-        '.dx-v3 .final .ja',
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: '.dx-v3 .final', start: 'top 60%', end: 'top 20%', scrub: true },
-        }
-      ),
-      gsap.fromTo(
-        '.dx-v3 .final .row',
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: '.dx-v3 .final', start: 'top 50%', end: 'top 15%', scrub: true },
-        }
-      ),
-      gsap.fromTo(
-        '.dx-v3 #finalGlow',
-        { scale: 0.6, opacity: 0.3 },
-        {
-          scale: 1.4,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: '.dx-v3 .final', start: 'top bottom', end: 'bottom bottom', scrub: true },
-        }
-      ),
-    ].forEach((t) => {
+      { sel: '.dx-v3 .final .label', start: 'top 88%', end: 'top 62%' },
+      { sel: '.dx-v3 .final h2',     start: 'top 82%', end: 'top 52%' },
+      { sel: '.dx-v3 .final .ja',    start: 'top 76%', end: 'top 46%' },
+      { sel: '.dx-v3 .final .row',   start: 'top 70%', end: 'top 40%' },
+    ].forEach(({ sel, start, end }) => {
+      const t = gsap.fromTo(
+        sel,
+        { y: 80, opacity: 0 },
+        { y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '.dx-v3 .final', start, end, scrub: 0.8 } }
+      );
       if (t.scrollTrigger) triggers.push(t.scrollTrigger);
     });
+    const glowT = gsap.fromTo(
+      '.dx-v3 #finalGlow',
+      { scale: 0.6, opacity: 0.3 },
+      { scale: 1.4, opacity: 1, ease: 'none',
+        scrollTrigger: { trigger: '.dx-v3 .final', start: 'top bottom', end: 'bottom bottom', scrub: true } }
+    );
+    if (glowT.scrollTrigger) triggers.push(glowT.scrollTrigger);
 
     // ---- Per-character split on every section heading ----
     // juanmora.co uses GSAP SplitText (a paid plugin) to break headings
@@ -1403,9 +1440,14 @@ export default function DxV3Page() {
       // that haven't cached yet won't hard-snap; they fade in gracefully.
       gsap.fromTo(
         '.dx-v3 .m-obj',
-        { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 0.7, ease: 'power2.out', stagger: 0.04 }
+        { autoAlpha: 0, y: 18 },
+        { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.07 }
       );
+      // Drop the inline cover after all GSAP initial states are set.
+      // React will process this update on its next render cycle — that extra
+      // frame keeps the cover up while the browser transitions from the
+      // CSS guard to the live page, eliminating any visible gap.
+      setInlineCoverActive(false);
     };
     rafId = requestAnimationFrame(revealAndRefresh);
 
@@ -1431,7 +1473,6 @@ export default function DxV3Page() {
       window.removeEventListener('load', onWindowLoad);
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
-      slideCleanups.forEach((fn) => fn());
       if (lenisRaf) gsap.ticker.remove(lenisRaf);
       lenis?.destroy();
       // Re-arm the guard for the next mount of this route. Without this, a
@@ -1443,6 +1484,24 @@ export default function DxV3Page() {
 
   return (
     <div className="dx-v3" data-flash-guard="">
+      {/* Inline flash guard — CSS-independent cover that blocks the first
+          paint until revealAndRefresh has committed all GSAP initial states.
+          Inline styles mean it works even when dx-v3.css hasn't applied yet
+          (code-split CSS race on client-side navigation). setInlineCoverActive(false)
+          is called at the end of revealAndRefresh; React removes this div on
+          its next render cycle. On every remount useState(true) re-arms it. */}
+      {inlineCoverActive && (
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: '#f5f7ff',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
       {/* Emoji rain stage — fixed-position canvas the .imagine-cta pill
           spawns emoji into when clicked. Uses the same DOM class names
           as RecruitCta so the existing globals.css styles apply. */}
@@ -1459,6 +1518,37 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
+
+          {/* BG scrolling Japanese words — z-index 0, behind canvas (z-index 1).
+              Canvas is alpha:true so text shows through transparent areas. */}
+          <div className="hero-bg" aria-hidden>
+            {HERO_BG_LANES.map((lane, i) => {
+              const doubled = [...lane.words, ...lane.words];
+              return (
+                <div
+                  key={i}
+                  className="hero-bg-lane"
+                  style={{ animationDelay: `${lane.delay}s` }}
+                >
+                  <div
+                    className={`hero-bg-track hero-bg-track--${lane.rtl ? 'rtl' : 'ltr'}`}
+                    style={{ '--dur': `${lane.dur}s` } as React.CSSProperties}
+                  >
+                    {doubled.map((w, j) => (
+                      <span
+                        key={j}
+                        className="hero-bg-word"
+                        style={{ fontSize: lane.fs, color: 'rgba(11,19,64,0.18)' }}
+                      >
+                        {w}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           <WebGLBoundary fallback={<SvgLogoHero />}>
             <AtomViewer />
           </WebGLBoundary>
@@ -1659,12 +1749,17 @@ export default function DxV3Page() {
           single composition; the "focus" cursor walks down the
           questions as the user scrolls. */}
       <section className="sec tinted pains-section">
-        <div className="dx-blobs" aria-hidden>
-          <span className="dx-blob dx-blob-p1" />
-          <span className="dx-blob dx-blob-p2" />
-          <span className="dx-blob dx-blob-p3" />
-          <span className="dx-blob dx-blob-p4" />
-          <span className="dx-blob dx-blob-p5" />
+        <div className="deco-rects" aria-hidden>
+          <span className="deco-rect dr-p1" />
+          <span className="deco-rect dr-p2" />
+          <span className="deco-rect dr-p3" />
+          <span className="deco-rect dr-p4" />
+          <span className="deco-rect dr-p5" />
+          <span className="deco-rect dr-p6" />
+          <span className="deco-rect dr-p7" />
+          <span className="deco-rect dr-p8" />
+          <span className="deco-rect dr-p9" />
+          <span className="deco-rect dr-p10" />
         </div>
         <div className="pains-pin-stack">
           <div className="pains-pin-frame">
@@ -1711,15 +1806,8 @@ export default function DxV3Page() {
         </div>
       </section>
 
-      {/* FEATURES — cascading slider (click prev/next or use arrow keys) */}
+      {/* FEATURES — scroll-scrubbed cascading slider */}
       <section className="sec" id="features">
-        <div className="dx-blobs" aria-hidden>
-          <span className="dx-blob dx-blob-f1" />
-          <span className="dx-blob dx-blob-f2" />
-          <span className="dx-blob dx-blob-f3" />
-          <span className="dx-blob dx-blob-f4" />
-          <span className="dx-blob dx-blob-f5" />
-        </div>
         <div className="wrap">
           <div className="sec-head">
             <h2>
@@ -1821,7 +1909,7 @@ export default function DxV3Page() {
               <div className="badge">CASE 01 / ENTERPRISE</div>
               <img
                 className="case-image"
-                src="/img/cases/wifi_2_50.png"
+                src="/img/cases/case1_50.png"
                 alt="AIエージェントがサポートコストを70%削減"
                 loading="lazy"
               />
@@ -1857,7 +1945,7 @@ export default function DxV3Page() {
               <div className="badge">CASE 02 / FINANCE</div>
               <img
                 className="case-image"
-                src="/img/cases/remainder_2_50.png"
+                src="/img/cases/case_2_50.png"
                 alt="金融機関がAIで法令遵守レポートを自動化"
                 loading="lazy"
               />
@@ -1893,7 +1981,7 @@ export default function DxV3Page() {
               <div className="badge">CASE 03 / OPERATIONS</div>
               <img
                 className="case-image"
-                src="/img/cases/coupon_2_50.png"
+                src="/img/cases/case3_50.png"
                 alt="物流企業がゼロ増員でAIファースト運営を実現"
                 loading="lazy"
               />
@@ -2037,16 +2125,37 @@ export default function DxV3Page() {
 
       {/* FINAL CTA */}
       <section className="final" id="contact">
+        <div className="deco-rects" aria-hidden>
+          <span className="deco-rect dr-c1" />
+          <span className="deco-rect dr-c2" />
+          <span className="deco-rect dr-c3" />
+          <span className="deco-rect dr-c4" />
+          <span className="deco-rect dr-c5" />
+          <span className="deco-rect dr-c6" />
+          <span className="deco-rect dr-c7" />
+          <span className="deco-rect dr-c8" />
+          <span className="deco-rect dr-c9" />
+          <span className="deco-rect dr-c10" />
+          <span className="deco-rect dr-c11" />
+          <span className="deco-rect dr-c12" />
+          <span className="deco-rect dr-c13" />
+          <span className="deco-rect dr-c14" />
+          <span className="deco-rect dr-c15" />
+          <span className="deco-rect dr-c16" />
+        </div>
         <div className="glow" id="finalGlow" />
         <div className="wrap">
           <div className="label">Get In Touch &nbsp;/&nbsp; お問い合わせ</div>
           <h2>
             Let&rsquo;s <em>build.</em>
           </h2>
-          <p className="ja">最初の一歩は、30分の無料相談から。</p>
+          <p className="ja">一緒に、未来を構築しましょう。</p>
           <div className="row">
             <a href="/contact" className="btn primary">
-              <span>無料相談を予約</span>
+              お問い合わせ
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                <path d="M3.75 9h10.5M9.75 4.5 14.25 9l-4.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </a>
           </div>
         </div>

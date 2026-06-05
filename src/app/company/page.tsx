@@ -1,18 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Footer from '@/components/layout/Footer';
-import Reveal from '@/components/ui/Reveal';
 import company from '@/data/company.json';
-import HistoryCarousel from '@/components/sections/HistoryCarousel';
-import FadeUpText from '@/components/ui/FadeUpText';
+import StoryTimeline from './_components/StoryTimeline';
 import CeoMessageReveal from './_components/CeoMessageReveal';
+import CompanyAnimations from './_components/CompanyAnimations';
 import dynamic from 'next/dynamic';
 
-// R3F globe — client-only. Dynamic-import with ssr:false avoids the
-// hydration mismatch you get when an R3F <Canvas> is server-rendered
-// (the server emits an empty <canvas>, then the client hydrator
-// immediately attaches WebGL state + DPR-scaled attributes — those
-// don't match and React errors out).
 const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
 
 export const metadata: Metadata = {
@@ -32,12 +26,7 @@ const infoRows = [
   { label: 'インボイス番号', value: company.invoiceNumber },
 ];
 
-type HistoryItem = {
-  year: string;
-  month?: string;
-  isPresent?: boolean;
-  event: string;
-};
+type HistoryItem = { year: string; month?: string; isPresent?: boolean; event: string };
 
 const history: HistoryItem[] = [
   { year: '2018', month: '8月', event: '株式会社GIFTを北海道札幌市にて設立。コールセンター事業を開始。' },
@@ -48,21 +37,13 @@ const history: HistoryItem[] = [
   { year: '2026', isPresent: true, event: '財務パートナーズと業務提携を開始。法人向け商材を立ち上げつつ、次なる事業展開としてAI領域の準備を進行中。' },
 ];
 
-// Pixel icons for the 3 VALUES cards
 function SupportIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
-      {/* Left person */}
-      <rect x="4" y="5" width="4" height="4" />
-      <rect x="3" y="10" width="6" height="6" />
-      <rect x="2" y="14" width="2" height="6" />
-      <rect x="8" y="14" width="2" height="6" />
-      {/* Right person */}
-      <rect x="16" y="5" width="4" height="4" />
-      <rect x="15" y="10" width="6" height="6" />
-      <rect x="14" y="14" width="2" height="6" />
-      <rect x="20" y="14" width="2" height="6" />
-      {/* Connecting hands between them */}
+      <rect x="4" y="5" width="4" height="4" /><rect x="3" y="10" width="6" height="6" />
+      <rect x="2" y="14" width="2" height="6" /><rect x="8" y="14" width="2" height="6" />
+      <rect x="16" y="5" width="4" height="4" /><rect x="15" y="10" width="6" height="6" />
+      <rect x="14" y="14" width="2" height="6" /><rect x="20" y="14" width="2" height="6" />
       <rect x="10" y="12" width="4" height="2" />
     </svg>
   );
@@ -71,21 +52,12 @@ function SupportIcon({ className = '' }: { className?: string }) {
 function SproutIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
-      {/* Left leaf */}
-      <rect x="3" y="6" width="2" height="2" />
-      <rect x="2" y="8" width="5" height="2" />
-      <rect x="3" y="10" width="5" height="2" />
-      <rect x="5" y="12" width="4" height="1" />
-      {/* Right leaf */}
-      <rect x="19" y="6" width="2" height="2" />
-      <rect x="17" y="8" width="5" height="2" />
-      <rect x="16" y="10" width="5" height="2" />
-      <rect x="15" y="12" width="4" height="1" />
-      {/* Stem */}
+      <rect x="3" y="6" width="2" height="2" /><rect x="2" y="8" width="5" height="2" />
+      <rect x="3" y="10" width="5" height="2" /><rect x="5" y="12" width="4" height="1" />
+      <rect x="19" y="6" width="2" height="2" /><rect x="17" y="8" width="5" height="2" />
+      <rect x="16" y="10" width="5" height="2" /><rect x="15" y="12" width="4" height="1" />
       <rect x="11" y="8" width="2" height="11" />
-      {/* Soil base */}
-      <rect x="5" y="19" width="14" height="1" />
-      <rect x="6" y="20" width="12" height="2" />
+      <rect x="5" y="19" width="14" height="1" /><rect x="6" y="20" width="12" height="2" />
     </svg>
   );
 }
@@ -93,20 +65,12 @@ function SproutIcon({ className = '' }: { className?: string }) {
 function NoIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
-      {/* Top-left to bottom-right stroke */}
-      <rect x="4" y="4" width="2" height="2" />
-      <rect x="6" y="6" width="2" height="2" />
-      <rect x="8" y="8" width="2" height="2" />
-      <rect x="10" y="10" width="4" height="4" />
-      <rect x="14" y="14" width="2" height="2" />
-      <rect x="16" y="16" width="2" height="2" />
-      <rect x="18" y="18" width="2" height="2" />
-      {/* Top-right to bottom-left stroke */}
-      <rect x="18" y="4" width="2" height="2" />
-      <rect x="16" y="6" width="2" height="2" />
-      <rect x="14" y="8" width="2" height="2" />
-      <rect x="8" y="14" width="2" height="2" />
-      <rect x="6" y="16" width="2" height="2" />
+      <rect x="4" y="4" width="2" height="2" /><rect x="6" y="6" width="2" height="2" />
+      <rect x="8" y="8" width="2" height="2" /><rect x="10" y="10" width="4" height="4" />
+      <rect x="14" y="14" width="2" height="2" /><rect x="16" y="16" width="2" height="2" />
+      <rect x="18" y="18" width="2" height="2" /><rect x="18" y="4" width="2" height="2" />
+      <rect x="16" y="6" width="2" height="2" /><rect x="14" y="8" width="2" height="2" />
+      <rect x="8" y="14" width="2" height="2" /><rect x="6" y="16" width="2" height="2" />
       <rect x="4" y="18" width="2" height="2" />
     </svg>
   );
@@ -115,100 +79,90 @@ function NoIcon({ className = '' }: { className?: string }) {
 function FlameIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" shapeRendering="crispEdges" className={className} aria-hidden>
-      {/* Top tip */}
-      <rect x="11" y="2" width="2" height="2" />
-      {/* Tapering up */}
-      <rect x="10" y="4" width="4" height="2" />
-      <rect x="9" y="6" width="6" height="2" />
-      {/* Body widest */}
-      <rect x="7" y="8" width="10" height="2" />
-      <rect x="6" y="10" width="12" height="2" />
-      <rect x="5" y="12" width="14" height="2" />
-      <rect x="5" y="14" width="14" height="2" />
-      {/* Base curving in */}
-      <rect x="6" y="16" width="12" height="2" />
-      <rect x="7" y="18" width="10" height="2" />
-      <rect x="9" y="20" width="6" height="1" />
+      <rect x="11" y="2" width="2" height="2" /><rect x="10" y="4" width="4" height="2" />
+      <rect x="9" y="6" width="6" height="2" /><rect x="7" y="8" width="10" height="2" />
+      <rect x="6" y="10" width="12" height="2" /><rect x="5" y="12" width="14" height="2" />
+      <rect x="5" y="14" width="14" height="2" /><rect x="6" y="16" width="12" height="2" />
+      <rect x="7" y="18" width="10" height="2" /><rect x="9" y="20" width="6" height="1" />
     </svg>
   );
 }
 
 const valueCards = [
-  {
-    title: '素直に吸収する。',
-    body: '新しいツールも、他者の意見も、まずは受け止める。学び続ける姿勢が、私たちの成長を加速させます。',
-    Icon: SproutIcon,
-  },
-  {
-    title: '寄り添って動かす。',
-    body: 'お客様の隣に立ち、課題を共に背負う。理解した上で、本当に意味のある一歩を一緒に進めます。',
-    Icon: SupportIcon,
-  },
-  {
-    title: '熱を伝染させる。',
-    body: '一人の本気が、チームを、お客様を、社会を動かす。私たちは熱量で、人と未来を巻き込みます。',
-    Icon: FlameIcon,
-  },
+  { title: '素直に吸収する。', body: '新しいツールも、他者の意見も、まずは受け止める。学び続ける姿勢が、私たちの成長を加速させます。', Icon: SproutIcon },
+  { title: '寄り添って動かす。', body: 'お客様の隣に立ち、課題を共に背負う。理解した上で、本当に意味のある一歩を一緒に進めます。', Icon: SupportIcon },
+  { title: '熱を伝染させる。', body: '一人の本気が、チームを、お客様を、社会を動かす。私たちは熱量で、人と未来を巻き込みます。', Icon: FlameIcon },
 ];
 
-const antiValues = [
-  '古いやり方にしがみつく',
-  '受け身で、変化を恐れる',
-];
+const antiValues = ['古いやり方にしがみつく', '受け身で、変化を恐れる'];
+
+/* ── Section label with decorative animated line ────────────────────────── */
+function SectionLabel({ text }: { text: string }) {
+  return (
+    <div className="mb-3 flex items-center gap-3">
+      <span
+        data-deco-line
+        className="inline-block h-px w-8 origin-left bg-[#7B2D26]"
+        aria-hidden
+      />
+      <p
+        data-gsap="label"
+        className="font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]"
+      >
+        {text}
+      </p>
+    </div>
+  );
+}
 
 export default function CompanyPage() {
   return (
     <>
+      {/* GSAP + Lenis orchestrator — client-only, renders null */}
+      <CompanyAnimations />
+
       <main className="company-palette bg-[#F6F2EA]">
-        {/* Hero — full-bleed video background */}
-        <section className="relative overflow-hidden bg-[#111111]">
-          {/* Video — covers the full section on all breakpoints */}
+
+        {/* ── Hero ─────────────────────────────────────────────────────── */}
+        <section id="company-hero" className="relative overflow-hidden bg-[#111111]">
           <video
+            id="company-hero-video"
             autoPlay
             muted
             loop
             playsInline
             aria-hidden
             className="absolute inset-0 h-full w-full object-cover"
-            src="/video/company-vid-cutt.mp4"
+            src="/video/about-hero-vid.mp4"
           />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent" />
 
-          {/* Overlay — dark gradient anchored left so text stays readable;
-              bottom fade softens the transition into the next section */}
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/20"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 to-transparent"
-          />
-
-          <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-container flex-col justify-center px-4 py-s-80 md:px-6 lg:px-8">
+          <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-container flex-col justify-center px-4 py-s-80 md:px-6 lg:px-8">
             <p
-              className="nav-reveal mb-5 font-display text-small font-bold uppercase tracking-widest text-[#E8C5BE]"
+              className="nav-reveal mb-6 font-display text-small font-bold uppercase tracking-widest text-[#E8C5BE]"
               style={{ ['--reveal-delay' as string]: '100ms' } as React.CSSProperties}
             >
               COMPANY
             </p>
 
+            {/* Plain text — CompanyAnimations will SplitText + GSAP reveal chars */}
             <h1
-              className="font-sans font-extrabold text-white"
-              style={{ fontSize: 'clamp(44px, 7vw, 76px)', lineHeight: '1.05' }}
+              id="company-hero-title"
+              className="overflow-hidden font-sans font-extrabold leading-[1.05] text-white"
+              style={{ fontSize: 'clamp(72px, 11vw, 120px)' }}
             >
-              <FadeUpText text="会社" delayMs={250} />
-              <span className="text-[#E8C5BE]">
-                <FadeUpText text="概要" delayMs={520} />
-              </span>
+              会社
+              <span className="block text-[#E8C5BE]">概要</span>
             </h1>
 
             <p
-              className="nav-reveal mt-8 max-w-2xl font-mincho font-light text-white/75"
+              className="nav-reveal mt-8 max-w-2xl font-mincho font-light text-white/70"
               style={
                 {
-                  fontSize: 'clamp(16px, 1.7vw, 19px)',
+                  fontSize: 'clamp(15px, 1.5vw, 18px)',
                   lineHeight: '2',
-                  ['--reveal-delay' as string]: '900ms',
+                  ['--reveal-delay' as string]: '1100ms',
                 } as React.CSSProperties
               }
             >
@@ -217,346 +171,320 @@ export default function CompanyPage() {
 
             <div
               className="nav-reveal mt-10"
-              style={{ ['--reveal-delay' as string]: '1300ms' } as React.CSSProperties}
+              style={{ ['--reveal-delay' as string]: '1400ms' } as React.CSSProperties}
             >
               <Link href="/contact" className="cta-btn cta-btn--company">
                 <span>お問い合わせ</span>
               </Link>
             </div>
           </div>
+
+          {/* Scroll indicator */}
+          <div
+            className="nav-reveal absolute bottom-8 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-2"
+            style={{ ['--reveal-delay' as string]: '1800ms' } as React.CSSProperties}
+          >
+            <span className="font-display text-[10px] uppercase tracking-[0.3em] text-white/35">scroll</span>
+            <svg
+              className="animate-bounce text-white/35"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
         </section>
 
-        {/* CEO Message */}
-        <Reveal>
-          <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border bg-[#F6F2EA] py-s-80">
-            {/* Giant faded logo as background watermark */}
-            <div
+        {/* ── CEO Message / Mission ────────────────────────────────────── */}
+        <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border bg-[#F6F2EA] py-s-80">
+          {/* Giant faded GIFT logo as background watermark */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-end overflow-hidden">
+            <svg
+              viewBox="0 0 828 800"
+              preserveAspectRatio="xMidYMid meet"
+              className="h-[70%] max-w-none translate-x-[20%] opacity-[0.12] sm:h-[80%] sm:translate-x-[15%] lg:h-[90%] lg:translate-x-[10%]"
               aria-hidden
-              className="pointer-events-none absolute inset-0 flex items-center justify-end overflow-hidden"
             >
-              <svg
-                viewBox="0 0 828 800"
-                preserveAspectRatio="xMidYMid meet"
-                className="h-[70%] max-w-none translate-x-[20%] opacity-[0.15] sm:h-[80%] sm:translate-x-[15%] lg:h-[90%] lg:translate-x-[10%]"
-                aria-hidden
-              >
-                {/* Shield outer */}
-                <path
-                  fill="#7B2D26"
-                  d="M727.19,290.25l-13.54-46.64c-.07-.28-.14-.57-.21-.85-9.97-47.12,10.79-74.96,10.79-74.96l37.27-50.14c3.15-4.23,2.63-10.15-1.21-13.77l-100.68-94.91c-4.16-3.92-10.68-3.74-14.64.38-24.77,25.82-88.99,49.59-130.64,51.21-37.93,1.48-65.98-9.51-82.17-18.37-.2-.15-.41-.28-.65-.4l-13.24-6.4c-1.02-.49-2.2-.49-3.22,0l-13.24,6.4c-.24.12-.45.25-.65.4-16.19,8.85-44.25,19.85-82.17,18.37-41.65-1.62-105.86-25.39-130.64-51.21-3.96-4.12-10.48-4.3-14.64-.38l-100.68,94.91c-3.84,3.62-4.36,9.54-1.21,13.77l37.27,50.14s20.76,27.85,10.79,74.96c-.07.28-.14.57-.21.85l-13.54,46.64c-.07.2-.13.4-.2.6-3.38,9.39-88.7,250.57,18.19,350.22,109.02,101.63,218.75,95.68,249.63,119.21,21.61,16.46,39.82,24.15,42.91,33.57,0,0,0,.01,0,.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.02,3.09-9.42,21.3-17.11,42.91-33.57,30.88-23.53,140.61-17.58,249.63-119.21,106.89-99.65,21.57-340.82,18.19-350.22-.07-.2-.13-.4-.2-.6Z"
-                />
-                {/* G — main shape */}
-                <path
-                  fill="#eeebe3"
-                  d="M601.73,227.4h-226.7c-104.67,0-189.51,84.85-189.51,189.51s84.85,188.49,189.51,188.49h111.47c1.18,0,2.13-.96,2.13-2.13v-100.79c0-1.12-.9-2.02-2.02-2.02h-111.59v-168.12h226.71c1.12,0,2.03-.91,2.03-2.03v-100.87c0-1.13-.92-2.04-2.04-2.04Z"
-                />
-                {/* G — bar */}
-                <path
-                  fill="#eeebe3"
-                  d="M601.77,385.58h-207.21c-1.91,0-2.85,2.33-1.48,3.66l103.46,100.02h105.16c1.15,0,2.08-.93,2.08-2.08v-99.58c0-1.11-.9-2.01-2.01-2.01Z"
-                />
-              </svg>
-            </div>
+              <path
+                fill="#7B2D26"
+                d="M727.19,290.25l-13.54-46.64c-.07-.28-.14-.57-.21-.85-9.97-47.12,10.79-74.96,10.79-74.96l37.27-50.14c3.15-4.23,2.63-10.15-1.21-13.77l-100.68-94.91c-4.16-3.92-10.68-3.74-14.64.38-24.77,25.82-88.99,49.59-130.64,51.21-37.93,1.48-65.98-9.51-82.17-18.37-.2-.15-.41-.28-.65-.4l-13.24-6.4c-1.02-.49-2.2-.49-3.22,0l-13.24,6.4c-.24.12-.45.25-.65.4-16.19,8.85-44.25,19.85-82.17,18.37-41.65-1.62-105.86-25.39-130.64-51.21-3.96-4.12-10.48-4.3-14.64-.38l-100.68,94.91c-3.84,3.62-4.36,9.54-1.21,13.77l37.27,50.14s20.76,27.85,10.79,74.96c-.07.28-.14.57-.21.85l-13.54,46.64c-.07.2-.13.4-.2.6-3.38,9.39-88.7,250.57,18.19,350.22,109.02,101.63,218.75,95.68,249.63,119.21,21.61,16.46,39.82,24.15,42.91,33.57,0,0,0,.01,0,.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.02,3.09-9.42,21.3-17.11,42.91-33.57,30.88-23.53,140.61-17.58,249.63-119.21,106.89-99.65,21.57-340.82,18.19-350.22-.07-.2-.13-.4-.2-.6Z"
+              />
+              <path fill="#eeebe3" d="M601.73,227.4h-226.7c-104.67,0-189.51,84.85-189.51,189.51s84.85,188.49,189.51,188.49h111.47c1.18,0,2.13-.96,2.13-2.13v-100.79c0-1.12-.9-2.02-2.02-2.02h-111.59v-168.12h226.71c1.12,0,2.03-.91,2.03-2.03v-100.87c0-1.13-.92-2.04-2.04-2.04Z" />
+              <path fill="#eeebe3" d="M601.77,385.58h-207.21c-1.91,0-2.85,2.33-1.48,3.66l103.46,100.02h105.16c1.15,0,2.08-.93,2.08-2.08v-99.58c0-1.11-.9-2.01-2.01-2.01Z" />
+            </svg>
+          </div>
 
-            <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
-              <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
-                MISSION
-              </p>
+          <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
+            <SectionLabel text="MISSION" />
 
-              {/* Japanese mission — primary headline */}
-              <h2
-                className="mb-5 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(28px, 4.4vw, 48px)', lineHeight: '1.5' }}
-              >
-                関わるすべての人に、
-                <br className="hidden sm:inline" />
-                人生が変わる<span className="text-[#7B2D26]">きっかけ</span>を贈る。
-              </h2>
+            <h2
+              data-gsap="heading"
+              className="mb-5 font-sans font-extrabold text-gift-ink"
+              style={{ fontSize: 'clamp(28px, 4.4vw, 48px)', lineHeight: '1.5' }}
+            >
+              関わるすべての人に、
+              <br className="hidden sm:inline" />
+              人生が変わる<span className="text-[#7B2D26]">きっかけ</span>を贈る。
+            </h2>
 
-              {/* English brand line — subtitle, supporting */}
-              <p
-                className="mb-12 font-display font-light text-gift-silver"
-                style={{ fontSize: 'clamp(17px, 1.8vw, 22px)', lineHeight: '1.2', letterSpacing: '0.02em' }}
-              >
-                Gift an{' '}
-                <span className="font-medium text-[#B86B5F]">
-                  opportunity.
-                </span>
-              </p>
+            <p
+              data-gsap="fade"
+              className="mb-12 font-display font-light text-gift-silver"
+              style={{ fontSize: 'clamp(17px, 1.8vw, 22px)', lineHeight: '1.2', letterSpacing: '0.02em' }}
+            >
+              Gift an{' '}
+              <span className="font-medium text-[#B86B5F]">opportunity.</span>
+            </p>
 
-              <p
-                data-highlight-text
-                className="mb-6 font-sans font-light text-gift-silver"
-                style={{ lineHeight: '2' }}
-              >
-                かつて、自分の人生について深く考えたのは、ある出来事がキッカケだった。
-              </p>
-              <p
-                data-highlight-text
-                className="mb-6 font-sans font-light text-gift-silver"
-                style={{ lineHeight: '2' }}
-              >
-                私の過去、現在、そして未来。
-                自分自身がこれまでに数え切れないほどの出会い、挑戦、成功、失敗、そして挫折を経験し、
-                それら全てが「キッカケ」という貴重なギフトだと気づいた。
-              </p>
-              <p
-                data-highlight-text
-                className="mb-6 font-sans font-light text-gift-silver"
-                style={{ lineHeight: '2' }}
-              >
-                それに気づいたときから、私たちの使命は、
-                株式会社GIFTを設立し『人と企業の人生に寄り添いながら』事業を展開していくこと。
-                そして、誰かの人生を変えるような「キッカケ」というギフトを与え続けること。
-              </p>
-              <p data-highlight-text className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
-                そんな会社を目指し、今日も私たちは前進する。
-              </p>
-              {/* Side-effect-only client component — splits the
-                  [data-highlight-text] paragraphs into characters and
-                  scrubs each character's opacity (0.2 → 1) against scroll
-                  position. Osmo "highlight text on scroll" pattern. */}
-              <CeoMessageReveal />
-              <p className="mt-8 font-sans text-normal text-gift-ink">
-                株式会社GIFT 代表取締役
-                <br />
-                <span className="font-semibold">{company.ceo}</span>
-              </p>
-            </div>
-          </section>
-        </Reveal>
+            <p data-highlight-text className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+              かつて、自分の人生について深く考えたのは、ある出来事がキッカケだった。
+            </p>
+            <p data-highlight-text className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+              私の過去、現在、そして未来。
+              自分自身がこれまでに数え切れないほどの出会い、挑戦、成功、失敗、そして挫折を経験し、
+              それら全てが「キッカケ」という貴重なギフトだと気づいた。
+            </p>
+            <p data-highlight-text className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+              それに気づいたときから、私たちの使命は、
+              株式会社GIFTを設立し『人と企業の人生に寄り添いながら』事業を展開していくこと。
+              そして、誰かの人生を変えるような「キッカケ」というギフトを与え続けること。
+            </p>
+            <p data-highlight-text className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+              そんな会社を目指し、今日も私たちは前進する。
+            </p>
 
-        {/* Vision */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-white py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
-                <div className="lg:col-span-1">
-                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
-                    VISION
-                  </p>
-                  <h2
-                    className="font-sans font-extrabold text-gift-ink"
-                    style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                  >
-                    展望
-                  </h2>
-                </div>
-                <div className="lg:col-span-3">
-                  <p
-                    className="font-sans font-bold text-gift-ink"
-                    style={{ fontSize: 'clamp(22px, 2.6vw, 32px)', lineHeight: '1.6' }}
-                  >
-                    AIが当たり前の時代にこそ、
-                    <br className="hidden sm:inline" />
-                    <span className="text-[#B86B5F]">人の心を動かす</span>会社であり続ける。
-                  </p>
-                </div>
+            <CeoMessageReveal />
+
+            <p data-gsap="fade" className="mt-8 font-sans text-normal text-gift-ink">
+              株式会社GIFT 代表取締役
+              <br />
+              <span className="font-semibold">{company.ceo}</span>
+            </p>
+          </div>
+        </section>
+
+        {/* ── Vision ───────────────────────────────────────────────────── */}
+        <section className="border-t border-gift-border bg-white py-s-80">
+          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
+              <div className="lg:col-span-1">
+                <SectionLabel text="VISION" />
+                <h2
+                  data-gsap="heading"
+                  className="font-sans font-extrabold text-gift-ink"
+                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+                >
+                  展望
+                </h2>
+              </div>
+              <div className="lg:col-span-3" data-gsap="fade">
+                <p
+                  className="font-sans font-bold text-gift-ink"
+                  style={{ fontSize: 'clamp(22px, 2.6vw, 32px)', lineHeight: '1.6' }}
+                >
+                  AIが当たり前の時代にこそ、
+                  <br className="hidden sm:inline" />
+                  <span className="text-[#B86B5F]">人の心を動かす</span>会社であり続ける。
+                </p>
               </div>
             </div>
-          </section>
-        </Reveal>
+          </div>
+        </section>
 
-        {/* Values */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
-                <div className="lg:col-span-1">
-                  <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
-                    VALUES
-                  </p>
-                  <h2
-                    className="font-sans font-extrabold text-gift-ink"
-                    style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                  >
-                    価値観
-                  </h2>
-                </div>
-                <div className="lg:col-span-3">
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                    {valueCards.map((v) => {
-                      const Icon = v.Icon;
-                      return (
-                        <div
-                          key={v.title}
-                          className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#7B2D26]/40 hover:shadow-[0_20px_40px_-12px_rgba(123,45,38,0.18),0_0_30px_-5px_rgba(184,107,95,0.12)] active:scale-[0.99]"
-                        >
-                          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#7B2D26]/10 text-[#7B2D26] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#7B2D26]/20">
-                            <Icon className="h-7 w-7" />
-                          </span>
-                          <h3 className="font-sans text-medium font-bold text-gift-ink [line-break:strict]">
-                            {v.title}
-                          </h3>
-                          <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver [line-break:strict]">
-                            {v.body}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
+        {/* ── Values ───────────────────────────────────────────────────── */}
+        <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
+          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
+              <div className="lg:col-span-1">
+                <SectionLabel text="VALUES" />
+                <h2
+                  data-gsap="heading"
+                  className="font-sans font-extrabold text-gift-ink"
+                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+                >
+                  価値観
+                </h2>
+              </div>
 
-                  {/* Anti-values — espresso manifesto strip, deliberate dark punctuation on the bone page */}
-                  <div className="relative mt-10 overflow-hidden rounded-2xl bg-[#3C3633] p-7 md:p-9">
-                    <div className="relative z-10">
-                      <div className="mb-6 flex items-center gap-3">
-                        <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#8A1F2A]" />
-                        <p className="font-display text-small font-bold uppercase tracking-widest text-[#8A1F2A]">
-                          We&apos;ll Never
+              <div className="lg:col-span-3">
+                {/* Value cards — each card tagged for GSAP batch reveal */}
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                  {valueCards.map((v) => {
+                    const Icon = v.Icon;
+                    return (
+                      <div
+                        key={v.title}
+                        data-gsap="card"
+                        className="group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#7B2D26]/40 hover:shadow-[0_20px_40px_-12px_rgba(123,45,38,0.18),0_0_30px_-5px_rgba(184,107,95,0.12)] active:scale-[0.99]"
+                      >
+                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#7B2D26]/10 text-[#7B2D26] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#7B2D26]/20">
+                          <Icon className="h-7 w-7" />
+                        </span>
+                        <h3 className="font-sans text-medium font-bold text-gift-ink [line-break:strict]">
+                          {v.title}
+                        </h3>
+                        <p className="font-sans text-[15px] font-light leading-relaxed text-gift-silver [line-break:strict]">
+                          {v.body}
                         </p>
                       </div>
-                      <h3
-                        className="mb-7 font-sans font-extrabold text-white"
-                        style={{ fontSize: 'clamp(20px, 2.4vw, 28px)', lineHeight: '1.4' }}
-                      >
-                        私たちが、選ばない姿勢。
-                      </h3>
+                    );
+                  })}
+                </div>
 
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {antiValues.map((item) => (
-                          <div
-                            key={item}
-                            className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#8A1F2A]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(138,31,42,0.4),0_0_30px_-5px_rgba(138,31,42,0.25)] active:scale-[0.99]"
-                          >
-                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#8A1F2A] text-white shadow-[0_2px_8px_rgba(138,31,42,0.35)] transition-transform duration-300 group-hover:scale-110">
-                              <NoIcon className="h-6 w-6" />
-                            </span>
-                            <p className="pt-1 font-sans text-[15px] font-light leading-relaxed text-white/90">
-                              {item}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
+                {/* Anti-values */}
+                <div className="relative mt-10 overflow-hidden rounded-2xl bg-[#3C3633] p-7 md:p-9">
+                  <div className="relative z-10">
+                    <div className="mb-6 flex items-center gap-3">
+                      <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#8A1F2A]" />
+                      <p className="font-display text-small font-bold uppercase tracking-widest text-[#8A1F2A]">
+                        We&apos;ll Never
+                      </p>
+                    </div>
+                    <h3
+                      data-gsap="fade"
+                      className="mb-7 font-sans font-extrabold text-white"
+                      style={{ fontSize: 'clamp(20px, 2.4vw, 28px)', lineHeight: '1.4' }}
+                    >
+                      私たちが、選ばない姿勢。
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      {antiValues.map((item) => (
+                        <div
+                          key={item}
+                          data-gsap="anti-card"
+                          className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#8A1F2A]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(138,31,42,0.4),0_0_30px_-5px_rgba(138,31,42,0.25)] active:scale-[0.99]"
+                        >
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#8A1F2A] text-white shadow-[0_2px_8px_rgba(138,31,42,0.35)] transition-transform duration-300 group-hover:scale-110">
+                            <NoIcon className="h-6 w-6" />
+                          </span>
+                          <p className="pt-1 font-sans text-[15px] font-light leading-relaxed text-white/90">
+                            {item}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </section>
-        </Reveal>
-
-        {/* Company Info Table */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-white py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="mb-12">
-                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
-                  COMPANY INFORMATION
-                </p>
-                <h2
-                  className="font-sans font-extrabold text-gift-ink"
-                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                >
-                  会社概要
-                </h2>
-              </div>
-
-              <dl className="border-t border-gift-border">
-                {infoRows.map((row) => (
-                  <div
-                    key={row.label}
-                    className="grid grid-cols-1 border-b border-gift-border py-5 sm:grid-cols-4 sm:gap-6"
-                  >
-                    <dt className="mb-1 font-display text-small uppercase tracking-widest text-[#7B2D26] sm:mb-0 sm:col-span-1">
-                      {row.label}
-                    </dt>
-                    <dd className="font-sans text-normal font-light text-gift-ink sm:col-span-3">
-                      {row.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </section>
-        </Reveal>
-
-        {/* History — no Reveal wrapper: HistoryCarousel uses getBoundingClientRect()
-             for scroll progress; a translateY transition on the parent corrupts those
-             measurements and causes the items to jump chaotically during the reveal. */}
-        <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
-          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <div className="mb-12">
-              <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
-                HISTORY
-              </p>
-              <h2
-                className="font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-              >
-                沿革
-              </h2>
-            </div>
-
-            <HistoryCarousel items={history} />
           </div>
         </section>
 
-        {/* Access */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-white py-s-80">
-            <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-              <div className="mb-10">
-                <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#7B2D26]">
-                  ACCESS
-                </p>
-                <h2
-                  className="font-sans font-extrabold text-gift-ink"
-                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                >
-                  アクセス
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-12">
-                <div className="lg:col-span-2">
-                  <p className="mb-2 font-sans text-normal text-gift-ink">{company.name}</p>
-                  <p className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
-                    {company.address}
-                  </p>
-                  <p className="font-sans text-small text-gift-silver">TEL: {company.phone}</p>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="animated-button animated-button--company mt-6"
-                  >
-                    <span className="text">Google Mapsで開く</span>
-                    <span className="circle" />
-                    <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
-                    </svg>
-                  </a>
-                </div>
-                <div className="lg:col-span-3">
-                  {/* Interactive R3F globe. Replaces the previous
-                      Google Maps iframe — the directions button on
-                      the left column still opens the real map in a
-                      new tab, so we don't lose the practical link. */}
-                  <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-gift-border bg-[#04101c] sm:aspect-[16/10]">
-                    <AccessGlobe />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </Reveal>
-
-        {/* CTA */}
-        <Reveal>
-          <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
-            <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8">
+        {/* ── Company Info ─────────────────────────────────────────────── */}
+        <section className="border-t border-gift-border bg-white py-s-80">
+          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+            <div className="mb-12">
+              <SectionLabel text="COMPANY INFORMATION" />
               <h2
-                className="mb-8 font-sans font-extrabold text-gift-ink"
-                style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
+                data-gsap="heading"
+                className="font-sans font-extrabold text-gift-ink"
+                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
               >
-                お気軽にお問い合わせください
+                会社概要
               </h2>
-              <Link href="/contact" className="cta-btn cta-btn--company">
-                <span>お問い合わせ →</span>
-              </Link>
             </div>
-          </section>
-        </Reveal>
+
+            <dl className="border-t border-gift-border">
+              {infoRows.map((row) => (
+                <div
+                  key={row.label}
+                  data-gsap="row"
+                  className="grid grid-cols-1 border-b border-gift-border py-5 sm:grid-cols-4 sm:gap-6"
+                >
+                  <dt className="mb-1 font-display text-small uppercase tracking-widest text-[#7B2D26] sm:mb-0 sm:col-span-1">
+                    {row.label}
+                  </dt>
+                  <dd className="font-sans text-normal font-light text-gift-ink sm:col-span-3">
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* ── History — biscom story section style ─────────────────────── */}
+        {/* Outer bone strip gives the rounded white card something to sit on */}
+        <section className="border-t border-gift-border bg-[#F6F2EA] pb-0 pt-s-80">
+          {/* Heading sits outside the card — visible on the bone bg */}
+          <div className="mx-auto max-w-container px-4 pb-10 md:px-6 lg:px-8">
+            <SectionLabel text="HISTORY" />
+            <h2
+              data-gsap="heading"
+              className="font-sans font-extrabold text-gift-ink"
+              style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+            >
+              沿革
+            </h2>
+          </div>
+
+          {/* White card with rounded top corners — exact biscom story section */}
+          <StoryTimeline items={history} />
+        </section>
+
+        {/* ── Access ───────────────────────────────────────────────────── */}
+        <section className="border-t border-gift-border bg-white py-s-80">
+          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+            <div className="mb-10">
+              <SectionLabel text="ACCESS" />
+              <h2
+                data-gsap="heading"
+                className="font-sans font-extrabold text-gift-ink"
+                style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
+              >
+                アクセス
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-12">
+              <div className="lg:col-span-2" data-gsap="fade">
+                <p className="mb-2 font-sans text-normal text-gift-ink">{company.name}</p>
+                <p className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+                  {company.address}
+                </p>
+                <p className="font-sans text-small text-gift-silver">TEL: {company.phone}</p>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="animated-button animated-button--company mt-6"
+                >
+                  <span className="text">Google Mapsで開く</span>
+                  <span className="circle" />
+                  <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
+                  </svg>
+                </a>
+              </div>
+              <div className="lg:col-span-3" data-gsap="fade">
+                <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-gift-border bg-[#04101c] sm:aspect-[16/10]">
+                  <AccessGlobe />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ──────────────────────────────────────────────────────── */}
+        <section className="border-t border-gift-border bg-[#F6F2EA] py-s-80">
+          <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8" data-gsap="fade">
+            <h2
+              className="mb-8 font-sans font-extrabold text-gift-ink"
+              style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
+            >
+              お気軽にお問い合わせください
+            </h2>
+            <Link href="/contact" className="cta-btn cta-btn--company">
+              <span>お問い合わせ →</span>
+            </Link>
+          </div>
+        </section>
+
       </main>
       <Footer />
     </>

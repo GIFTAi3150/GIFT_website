@@ -108,48 +108,6 @@ export default function ProcessFlow() {
           className="mx-auto aspect-video w-full max-w-[680px]"
         />
 
-        {/* CTA — centered Japanese line "GIFTで一緒に [働く]" where
-            "働く" itself is the button that links to /recruit. Sits
-            below the big wrapper in document flow; by the time it
-            scrolls into view the morph is locked at progress=1, so
-            the video never overlaps this block. */}
-        <div
-          className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-4 text-center font-sans font-extrabold text-[#0C0E1A]"
-          style={{ fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: '1.1', letterSpacing: '0.02em' }}
-        >
-          <span>GIFTで一緒に</span>
-          <a
-            href="/recruit"
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#2563EB] px-4 py-2 text-white shadow-md transition-transform duration-[400ms] ease-out hover:scale-[1.04]"
-            style={{ fontSize: 'inherit', lineHeight: '1.1' }}
-          >
-            {/* Osmo-style color sweep — a dark overlay grows from the
-                LEFT edge across the pill on hover. Uses scale-x with
-                origin-left so there's no "edge" sliding past, just a
-                clean horizontal fill. Sits above the green base but
-                below the text spans so labels stay readable. */}
-            <span
-              aria-hidden
-              className="absolute inset-0 origin-left scale-x-0 bg-[#0C0E1A] transition-transform duration-[500ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:scale-x-100"
-            />
-
-            {/* Invisible ghost text — sets the button width to fit
-                whichever of the two labels is wider, so the swap
-                animation doesn't reflow the line. */}
-            <span aria-hidden className="invisible">働く</span>
-
-            {/* Default label — slides UP and out on hover. */}
-            <span className="absolute inset-0 z-10 flex items-center justify-center transition-transform duration-[450ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:-translate-y-full">
-              働く
-            </span>
-
-            {/* Hover label — starts BELOW the button, slides in to
-                replace the default. */}
-            <span className="absolute inset-0 z-10 flex translate-y-full items-center justify-center transition-transform duration-[450ms] ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:translate-y-0">
-              😊
-            </span>
-          </a>
-        </div>
       </div>
 
       {/* Target video — direct child of <section> so its absolute

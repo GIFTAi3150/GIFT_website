@@ -23,6 +23,12 @@ const STATS = [
   { value: '3言語',  label: '日英中 同時展開'    },
 ] as const;
 
+const CASES = [
+  { img: '/img/cases/case1_50.png', num: '01' },
+  { img: '/img/cases/case_2_50.png', num: '02' },
+  { img: '/img/cases/case3_50.png', num: '03' },
+] as const;
+
 const PILLARS = [
   {
     n: '01',
@@ -272,6 +278,71 @@ export default function AIOps() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ── real outcomes ────────────────────────────────── */}
+        <div className="mt-20">
+          <div className="mb-8 flex flex-col items-center gap-2 text-center">
+            <p className="font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
+              REAL OUTCOMES
+            </p>
+            <h3
+              className="font-display font-extrabold text-white"
+              style={{ fontSize: 'clamp(22px, 2.8vw, 34px)', lineHeight: 1.2 }}
+            >
+              Real Outcomes, Real Businesses
+            </h3>
+          </div>
+
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3">
+            {CASES.map((c) => (
+              <div
+                key={c.num}
+                className="group overflow-hidden rounded-2xl border border-[#1A2F4A]"
+                style={{ position: 'relative' }}
+              >
+                {/* padding-bottom 75% = 4:3 */}
+                <div style={{ paddingBottom: '75%', position: 'relative', overflow: 'hidden' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={c.img}
+                    alt={`Case ${c.num}`}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease',
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to top, rgba(2,9,22,0.7) 0%, transparent 60%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: 12,
+                      left: 16,
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      color: '#60A5FA',
+                    }}
+                  >
+                    CASE {c.num}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── cta ──────────────────────────────────────────── */}

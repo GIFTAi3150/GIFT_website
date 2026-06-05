@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
 import Hero from '@/components/sections/Hero';
 import WhoWeAre from '@/components/sections/WhoWeAre';
-import ServicesCards from '@/components/sections/ServicesCards';
 import CaseStudy from '@/components/sections/CaseStudy';
 import WheelScroll from '@/components/sections/WheelScroll';
 import ProcessFlow from '@/components/sections/ProcessFlow';
@@ -83,11 +82,7 @@ export default async function HomePage() {
           <ProcessFlow />
         </Reveal>
 
-        {/* SERVICE — ServicesCards handles its own pinned scroll-driven
-            entrance, so no Reveal wrapper (Reveal applies a transform
-            which would break GSAP's position: fixed pinning). */}
-        <ServicesCards />
-
+        {/* SERVICE — hidden */}
         {/* WORKS — hidden */}
         {/* MEMBERS — hidden */}
 
