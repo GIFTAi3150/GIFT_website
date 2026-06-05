@@ -6,8 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
 
-// Catches WebGL context-creation failures so a crashed 3D scene degrades
-// to nothing rather than breaking the whole page.
 class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
@@ -15,14 +13,6 @@ class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNod
   render() { return this.state.failed ? (this.props.fallback ?? null) : this.props.children; }
 }
 
-// Hero3D mounts WebGL via React Three Fiber. R3F + Next.js App Router
-// hits a Suspense hydration crash when rendered server-side, so import
-// it dynamically with SSR disabled — the component only ever appears
-// after client hydration.
-const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
-// AtomViewer — primary DX hero visual: spinning 3D atom icon (R3F / WebGL).
-// SvgLogoHero is kept as the WebGLBoundary fallback so if the GPU is unavailable
-// or context is lost the hero still renders (SVG-only, no WebGL).
 const AtomViewer  = dynamic(() => import('./AtomViewer'),  { ssr: false });
 const SvgLogoHero = dynamic(() => import('./SvgLogoHero'), { ssr: false });
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
@@ -57,114 +47,114 @@ const CAPABILITIES: ReadonlyArray<{
     id: 'CAP_001',
     num: '01',
     color: 'color-paper',
-    title: 'LINE公式・\nLステップ構築',
-    body: 'Lステップ公式認定パートナーとして、アカウント設計から配信運用、自動化フロー構築まで一貫してサポート。',
-    tags: ['L-Step', 'Official LINE', 'Scenario'],
-    lottie: '/lottie/animation.json',
+    title: 'AIエージェント\n設計・構築',
+    body: '計画・推論・実行を自律的にこなすAIエージェントを設計・構築。複数ステップにわたる業務を人の介入なしにこなします。',
+    tags: ['AI Agents', 'LLM', 'Autonomous'],
+    lottie: '/lottie/robot-animation.json',
   },
   {
     id: 'CAP_002',
     num: '02',
     color: 'color-blue',
-    title: 'RPA・\n業務自動化',
-    body: 'ハイブリッド構成（カスタム開発＋市販ツール）で、業務の反復作業を徹底的に自動化。CRMとLステップの自動連携など、運用フローまで設計します。',
-    tags: ['RPA', 'Automation', 'Workflow'],
+    title: 'インテリジェント\n自動化',
+    body: 'ルールベースの脆い自動化をAIパイプラインに置き換え。条件が変わっても自己修復し、人が再設定する必要はありません。',
+    tags: ['Pipelines', 'Automation', 'Self-healing'],
     lottie: '/lottie/datab-animation.json',
   },
   {
     id: 'CAP_003',
     num: '03',
     color: 'color-sky',
-    title: 'AI導入・\n生成AI活用',
-    body: '最新のAIツールを業務に深く組み込み、生産性を最大化。社内で日常的に活用しているからこそ、AI前提での業務プロセス再設計を提案します。',
-    tags: ['Generative AI', 'LLM', 'Agents'],
-    lottie: '/lottie/robot-animation.json',
+    title: 'LLM\nインテグレーション',
+    body: 'プロダクト・バックオフィス・顧客接点に言語モデルを直接組み込み。RAG・ファインチューニング・ツール呼び出しまで一貫して対応。',
+    tags: ['LLM', 'RAG', 'Fine-tuning'],
+    lottie: '/lottie/animation.json',
   },
   {
     id: 'CAP_004',
     num: '04',
     color: 'color-deep',
-    title: 'SaaS導入・\nCRM構築',
-    body: '課題に合ったSaaSの選定・導入から、CRM設計まで。事業成長に直結する基盤づくりを、現場目線で支援します。',
-    tags: ['SaaS', 'CRM', 'Integration'],
+    title: 'AIOps\n監視・運用',
+    body: '全モデル・エージェントをリアルタイムで監視。異常検知からコスト管理まで、AIが何をしているか常に把握できる基盤を提供。',
+    tags: ['Monitoring', 'Observability', 'Governance'],
     lottie: '/lottie/saas-animation.json',
   },
 ];
 
 const PAINS = [
-  { n: 'Q.01', q: 'LINEで集客・売上を伸ばしたい' },
-  { n: 'Q.02', q: 'メルマガ・DMの効果が落ちてきた' },
-  { n: 'Q.03', q: 'LINEを活用したいが、構築方法がわからない' },
-  { n: 'Q.04', q: '自分の業種にLINEは活かせるのか' },
+  { n: 'Q.01', q: '同じ作業を、毎日手動でこなしている' },
+  { n: 'Q.02', q: 'データが散らばり、つながっていない' },
+  { n: 'Q.03', q: '顧客対応が遅すぎる' },
+  { n: 'Q.04', q: '人件費が売上より速く膨らんでいる' },
 ];
 
 const FEATURES = [
   {
     id: 'F.01',
-    title: 'シナリオ配信',
-    body: '事前に設定したタイミングと順序で一連のメッセージを自動配信。シナリオの分岐や時刻を細かく指定できます。',
+    title: 'エージェント\nオーケストレーション',
+    body: '複数のAIエージェントをタスク依存関係・リトライロジック・フォールバックで制御。どのステップも無音で失敗しない設計。',
     icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
   },
   {
     id: 'F.02',
-    title: 'セグメント配信',
-    body: '友だちのアンケート回答やリンククリックなどに応じて属性を設定。属性を絞って配信できます。',
-    icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
-  },
-  {
-    id: 'F.03',
-    title: 'リマインド配信',
-    body: '任意の日時から逆算してリマインダーを配信。お客様の予約忘れや直前のキャンセル防止に役立ちます。',
-    icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
-  },
-  {
-    id: 'F.04',
-    title: '回答フォーム',
-    body: 'アンケートや説明会のお申込みに利用可能。回答内容は友だちと紐づけて一覧で管理できます。',
+    title: 'RAGパイプライン',
+    body: 'モデルの回答を自社ナレッジベースに紐づけ。ハルシネーションのない、根拠のある回答を一貫して生成。',
     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
   },
   {
+    id: 'F.03',
+    title: 'ツール・API連携',
+    body: 'CRM・ERP・データベース・Webhookなど、あらゆる社内外システムをエージェントが直接読み書き・トリガー。',
+    icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+  },
+  {
+    id: 'F.04',
+    title: 'メモリ管理',
+    body: 'セッションをまたいで文脈を保持。過去の判断・ユーザー設定・会話履歴をエージェントが自動で記憶・活用。',
+    icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
+  },
+  {
     id: 'F.05',
-    title: 'タグ管理',
-    body: '性別・年代・興味から自由にタグを作成。友だちをグループ分けして、対象を絞って配信できます。',
-    icon: 'M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
+    title: '人間参加型フロー',
+    body: '信頼スコアが閾値を下回ると、重要アクションの実行前に人間へエスカレーション。設計段階から安全な自律性を確保。',
+    icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
   },
   {
     id: 'F.06',
-    title: '流入経路分析',
-    body: '友だち追加用URL（QRコード）を複数発行し、流入数を分析。流入元を特定できます。',
+    title: 'コスト・監査ログ',
+    body: 'リクエスト単位のトークン集計・判断トレース・コンプライアンスエクスポートを完備。全AIアクションを完全に追跡。',
     icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
   },
 ];
 
 const RPA_TRIO = [
   {
-    title: 'データ入力自動化',
-    body: '手動でのデータ入力作業を排除。RPAが自動でCRMとLステップ間のデータを同期。',
+    title: '自律的なタスク実行',
+    body: 'エージェントが多段階の業務を計画・実行・自己修正。定型業務に人の監視は不要。',
     icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
   },
   {
-    title: 'CRMデータの活用',
-    body: 'CRMに蓄積された顧客データを配信施策にフル活用。セグメント精度が飛躍的に向上。',
+    title: 'システム横断\nインテリジェンス',
+    body: '単一のオーケストレーションレイヤーで全ソフトウェアをAIが横断。データサイロを根本から解消。',
     icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
   },
   {
-    title: '情報同期管理',
-    body: '複数システムの情報を統一管理。データの不整合や二重入力の問題を解消。',
+    title: '継続的な改善',
+    body: '完了したタスクがエージェントにフィードバック。精度・速度・コスト効率が自動で向上し続ける。',
     icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
   },
 ];
 
 const RPA_CARDS = [
   {
-    title: '歯科クリニック',
-    tools: 'セールスフォース × Lステップ',
-    result: '10分おきに自動で予約情報を確認しCRMに入力。手動作業の工数を大幅に削減。',
+    title: 'SaaSスタートアップ',
+    tools: 'GPT-4o × 社内API',
+    result: 'オンボーディング・利用アラート・更新促進をAIエージェントが自律実行。サポートチケット数60%削減。',
   },
   {
-    title: '光回線コールセンター',
-    tools: 'キントーン × Lステップ',
-    result: 'CRM内の顧客情報をLステップへインポートする作業を自動化。オペレーターの負担を軽減。',
+    title: '医療機関',
+    tools: 'Claude 3.5 × 電子カルテ',
+    result: '診療記録をAIが要約・構造化し、医師レビュー前に完成。記録作業が患者あたり40分→5分に短縮。',
   },
 ];
 
@@ -1403,7 +1393,11 @@ export default function DxV3Page() {
         .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
         .forEach((el) => el.style.removeProperty('opacity'));
       // Release the guard — all guard-hidden content becomes visible.
+      // The CSS rule .dx-v3:not([data-flash-guard]) .atom-viewer picks up
+      // immediately and fades the atom canvas in via keyframes.
       document.querySelector('.dx-v3')?.removeAttribute('data-flash-guard');
+      // Signal the root #page-cover to fade out (it waits for this event).
+      window.dispatchEvent(new Event('gift:logo-ready'));
       // GSAP applies autoAlpha:0 synchronously (before the browser can paint
       // the just-revealed guard state), then animates to 1. This means images
       // that haven't cached yet won't hard-snap; they fade in gracefully.
@@ -1465,9 +1459,6 @@ export default function DxV3Page() {
       {/* HERO */}
       <section className="hero" ref={heroRef}>
         <div className="hero-stage">
-          {/* HERO VISUAL: 3-D atom icon (R3F / WebGL).
-              WebGLBoundary degrades to the SVG logo fallback if the GPU is
-              unavailable or context is lost — no page crash. */}
           <WebGLBoundary fallback={<SvgLogoHero />}>
             <AtomViewer />
           </WebGLBoundary>
@@ -1475,8 +1466,8 @@ export default function DxV3Page() {
           <div className="hero-stage-inner">
             <div className="masthead">
               <div className="row r1">
-                <span className="dx">DX</span>{' '}
-                <em className="consulting">Consulting.</em>
+                <span className="dx">AI</span>
+                <em className="consulting">Ops.</em>
               </div>
               <div className="ja">
                 <span className="rule" aria-hidden />
@@ -1568,23 +1559,23 @@ export default function DxV3Page() {
                 <span className="value">0</span>
                 <small>社+</small>
               </div>
-              <div className="lab">DX Support</div>
-              <div className="ja">DX支援企業数</div>
+              <div className="lab">AIOps Support</div>
+              <div className="ja">AI支援企業数</div>
             </div>
             <div className="stat">
               <div className="num" data-count="1000">
                 <span className="value">0</span>
                 <small>時間+</small>
               </div>
-              <div className="lab">Hours Saved</div>
-              <div className="ja">RPAによる業務削減</div>
+              <div className="lab">Hours Automated</div>
+              <div className="ja">AIによる業務削減</div>
             </div>
             <div className="stat partner-stat">
               <div className="num">
-                <em>Lstep</em>Certified
+                <em>Agent</em>Native
               </div>
-              <div className="lab">Official Partner</div>
-              <div className="ja">公式認定パートナー</div>
+              <div className="lab">AI-First Team</div>
+              <div className="ja">AIネイティブチーム</div>
             </div>
           </div>
         </div>
@@ -1595,12 +1586,12 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="caps-intro">
             <h2>
-              <Fragment>{splitChars('Four lanes. ')}</Fragment>
-              <em>{splitChars('One team.')}</em>
+              <Fragment>{splitChars('Four pillars. ')}</Fragment>
+              <em>{splitChars('One platform.')}</em>
             </h2>
             <p className="lead">
-              LINE公式・Lステップ、RPA・業務自動化、AI活用、SaaS導入。
-              4つの領域を、ひとつのチームでワンストップ。
+              AIエージェント、インテリジェント自動化、LLMインテグレーション、リアルタイム監視。
+              4つのAIOpsピラーを、ひとつのチームでワンストップ。
             </p>
           </div>
 
@@ -1663,20 +1654,18 @@ export default function DxV3Page() {
         </div>
       </section>
 
-      {/* MODELS SHOWCASE — the existing 3D scene (desk + monitor + GIFT
-          logo on the screen), relocated from the hero to a dedicated
-          section between capabilities and pains. */}
-      <section className="models-showcase" id="models-showcase">
-        <WebGLBoundary>
-          <Hero3D />
-        </WebGLBoundary>
-      </section>
-
       {/* PAINS — scroll-scrubbed spotlight. Heading + questions both
           live INSIDE the pin frame so they stay locked together as a
           single composition; the "focus" cursor walks down the
           questions as the user scrolls. */}
       <section className="sec tinted pains-section">
+        <div className="dx-blobs" aria-hidden>
+          <span className="dx-blob dx-blob-p1" />
+          <span className="dx-blob dx-blob-p2" />
+          <span className="dx-blob dx-blob-p3" />
+          <span className="dx-blob dx-blob-p4" />
+          <span className="dx-blob dx-blob-p5" />
+        </div>
         <div className="pains-pin-stack">
           <div className="pains-pin-frame">
             <div className="pains-pin-content">
@@ -1715,20 +1704,27 @@ export default function DxV3Page() {
           <div className="pain-end">
             <div className="arrow-down" />
             <div className="ans">
-              All resolved by <em>L-Step.</em>
+              All resolved by <em>AIOps.</em>
             </div>
-            <div className="ja">その課題、Lステップが解決します。</div>
+            <div className="ja">その課題、AIOpsが解決します。</div>
           </div>
         </div>
       </section>
 
       {/* FEATURES — cascading slider (click prev/next or use arrow keys) */}
       <section className="sec" id="features">
+        <div className="dx-blobs" aria-hidden>
+          <span className="dx-blob dx-blob-f1" />
+          <span className="dx-blob dx-blob-f2" />
+          <span className="dx-blob dx-blob-f3" />
+          <span className="dx-blob dx-blob-f4" />
+          <span className="dx-blob dx-blob-f5" />
+        </div>
         <div className="wrap">
           <div className="sec-head">
             <h2>
               Six tools, <em className="whitespace-nowrap">one platform.</em>
-              <span className="ja">Lステップの機能</span>
+              <span className="ja">AIOpsの機能</span>
             </h2>
           </div>
         </div>
@@ -1800,33 +1796,33 @@ export default function DxV3Page() {
         {/* Case 01 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="label">Case 01 / Telecom</div>
+            <div className="label">Case 01 / Enterprise</div>
             <h3>
-              光回線の開通手続きの
+              AIエージェントが
               <br />
-              自動案内
+              サポートコストを70%削減
             </h3>
             <p className="desc">
-              開通までの手続きの流れをLステップのシナリオ機能でステップ配信。従来よりも問い合わせ対応の工数を大幅に削減。
+              注文状況・返品・FAQ対応をこなすマルチエージェントシステムを構築。一次サポートは人手ゼロで完結し、対応品質も向上。
             </p>
             <div className="points">
               <div className="pt">
-                <h4>シナリオ配信を活用</h4>
-                <p>進捗状況に合わせ、必要な手続きをステップごとに配信。</p>
+                <h4>800種類以上の問い合わせに対応</h4>
+                <p>自然言語で適切なサブエージェントへルーティング。キーワードマッチング不要。</p>
               </div>
               <div className="pt">
-                <h4>問い合わせ対応工数を削減</h4>
-                <p>よくある質問をフォーム化。電話の問い合わせ数を削減。</p>
+                <h4>3秒以内にエスカレーション</h4>
+                <p>信頼スコアが低下した時点で、シームレスに人間へ引き継ぎ。</p>
               </div>
             </div>
           </div>
           <div className="right">
             <div className="case-vis">
-              <div className="badge">CASE 01 / TELECOM</div>
+              <div className="badge">CASE 01 / ENTERPRISE</div>
               <img
                 className="case-image"
                 src="/img/cases/wifi_2_50.png"
-                alt="光回線の開通手続きの自動案内"
+                alt="AIエージェントがサポートコストを70%削減"
                 loading="lazy"
               />
             </div>
@@ -1836,33 +1832,33 @@ export default function DxV3Page() {
         {/* Case 02 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="label">Case 02 / Beauty</div>
+            <div className="label">Case 02 / Finance</div>
             <h3>
-              エステサロンの予約管理を
+              金融機関がAIで
               <br />
-              Lステップで一元化
+              法令遵守レポートを自動化
             </h3>
             <p className="desc">
-              LINEだけで簡単予約、前日リマインドで予約率の増加とキャンセル率の低下を実現。
+              AIエージェントがトランザクションログを読み込み、異常を検出し、規制レポートを作成して朝の承認レビューに備える。
             </p>
             <div className="points">
               <div className="pt">
-                <h4>LINEから簡単予約</h4>
-                <p>カレンダー予約機能で予約ページを作成。</p>
+                <h4>リアルタイムの異常検知</h4>
+                <p>LLMが毎時5万件以上のトランザクションをスキャンし、フラグを自動付与。</p>
               </div>
               <div className="pt">
-                <h4>リマインド配信でドタキャン防止</h4>
-                <p>予約日時が近づくと自動で確認メッセージを配信。</p>
+                <h4>レポート作成を8時間→12分に短縮</h4>
+                <p>エージェントが完全なコンプライアンスパックを起案・整形・ルーティング。</p>
               </div>
             </div>
           </div>
           <div className="right">
             <div className="case-vis">
-              <div className="badge">CASE 02 / BEAUTY</div>
+              <div className="badge">CASE 02 / FINANCE</div>
               <img
                 className="case-image"
                 src="/img/cases/remainder_2_50.png"
-                alt="エステサロンの予約管理をLステップで一元化"
+                alt="金融機関がAIで法令遵守レポートを自動化"
                 loading="lazy"
               />
             </div>
@@ -1872,33 +1868,33 @@ export default function DxV3Page() {
         {/* Case 03 */}
         <div className="case-card" data-case-card><div className="case-block">
           <div className="left">
-            <div className="label">Case 03 / Local</div>
+            <div className="label">Case 03 / Operations</div>
             <h3>
-              地域限定のクーポン・
+              物流企業がゼロ増員で
               <br />
-              お得情報の配信
+              AIファースト運営を実現
             </h3>
             <p className="desc">
-              セグメント配信機能を活用し、地域限定のクーポンやお得情報を発信。
+              AIエージェントがスケジュール管理・サプライヤー連絡・例外処理を担当。運用チームは戦略業務に専念できる環境を構築。
             </p>
             <div className="points">
               <div className="pt">
-                <h4>属性ごとに分けて配信</h4>
-                <p>友だちの属性に応じて配信内容を分岐。</p>
+                <h4>クロスシステムのデータ連携を自動化</h4>
+                <p>ERP・CRM・サプライヤーポータルをひとつのプロンプトで統合。</p>
               </div>
               <div className="pt">
-                <h4>配信コストの削減</h4>
-                <p>絞り込み配信で無駄な配信を削減。ブロック率の低下にも貢献。</p>
+                <h4>例外対応時間を85%削減</h4>
+                <p>AIトリアージが数秒でエッジケースを適切な担当者に振り分け。</p>
               </div>
             </div>
           </div>
           <div className="right">
             <div className="case-vis">
-              <div className="badge">CASE 03 / LOCAL</div>
+              <div className="badge">CASE 03 / OPERATIONS</div>
               <img
                 className="case-image"
                 src="/img/cases/coupon_2_50.png"
-                alt="地域限定のクーポン・お得情報の配信"
+                alt="物流企業がゼロ増員でAIファースト運営を実現"
                 loading="lazy"
               />
             </div>
@@ -1914,15 +1910,15 @@ export default function DxV3Page() {
       <section className="rpa">
         <div className="wrap">
           <div className="sec-head" style={{ marginBottom: 64 }}>
-            <div className="num">05 — RPA × L-Step</div>
+            <div className="num">05 — AIOps × Agents</div>
             <h2>
-              Connect <em>everything.</em>
-              <span className="ja">Lステップを、さらに便利に</span>
+              Agents in <em>action.</em>
+              <span className="ja">AIが動かす業務基盤</span>
             </h2>
             <div className="meta">
               02 case
               <br />
-              RPA Live
+              Agent Live
             </div>
           </div>
 
@@ -1931,10 +1927,10 @@ export default function DxV3Page() {
               <article key={c.title} className="rpa-card">
                 <div className="rpa-card-num">{String(i + 1).padStart(2, '0')}</div>
                 <div className="top">
-                  <span className="pill">RPA</span>
+                  <span className="pill">Agent</span>
                   <h4>{c.title}</h4>
                 </div>
-                <div className="lab">— 使用ツール</div>
+                <div className="lab">— 使用モデル・ツール</div>
                 <div className="val">{c.tools}</div>
                 <div className="lab">— 成果</div>
                 <p className="res">{c.result}</p>
@@ -1944,7 +1940,7 @@ export default function DxV3Page() {
 
           <div className="rpa-cap-head">
             <span className="rule" aria-hidden />
-            <span>RPAで実現できること</span>
+            <span>AIOpsで実現できること</span>
             <span className="rule" aria-hidden />
           </div>
           <div className="rpa-trio">
@@ -2027,12 +2023,12 @@ export default function DxV3Page() {
             </div>
             <div className="body">
               <p>
-                GIFTの独自色は、<strong>AIを業務に深く組み込んでいる</strong>ことです。
-                最新のAIツールを社内で日常的に活用し、クライアントの業務にも同じ水準のAI活用を実装します。
+                GIFTの独自色は、<strong>AIエージェントを実業務に深く組み込んでいる</strong>ことです。
+                自社でAIOpsを日常的に運用しているからこそ、クライアントの現場にも同じ水準の自律化を実装できます。
               </p>
               <p>
-                単なるツール導入ではなく、<strong>AI前提での業務プロセス再設計</strong>
-                を提案します。
+                ツールを並べるだけでは終わりません。<strong>エージェントが主役の業務プロセス再設計</strong>
+                から一緒に取り組みます。
               </p>
             </div>
           </div>

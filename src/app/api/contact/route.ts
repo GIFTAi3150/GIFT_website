@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     const inquiryLabels: Record<string, string> = {
       callcenter: 'コールセンター事業について',
-      dx: 'DXコンサル事業について',
+      dx: 'AIOps事業について',
       finance: '財務コンサル事業について',
       recruit: '採用について',
       other: 'その他',

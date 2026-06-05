@@ -41,8 +41,14 @@ export default function HeroBackground({ className }: Props) {
   // Start the expansion only once there's painted content to reveal. The
   // double rAF guarantees one painted frame of the small ball before the
   // clip-path transition begins, so the ball phase is always visible.
+  // Also signal the root #page-cover to fade out at the same moment.
   const startReveal = useCallback(() => {
-    requestAnimationFrame(() => requestAnimationFrame(() => setRevealed(true)));
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        setRevealed(true);
+        window.dispatchEvent(new Event('gift:logo-ready'));
+      })
+    );
   }, []);
 
   // Fired by the canvas after its first rendered frame.

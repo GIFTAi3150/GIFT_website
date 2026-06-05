@@ -128,231 +128,24 @@
   background: transparent;
 }
 
-/* ── Atom icon hero ──────────────────────────────────────────────────────────
-   Fills the full hero stage; masthead text floats above at z-index 2.
-   Canvas background is transparent so the page --paper colour shows through.
-   pointer-events: none keeps cursor clicks from being swallowed by the canvas
-   (interactions happen on the masthead / scroll triggers, not the model).
-   AdaptiveDpr inside the Canvas handles GPU pressure automatically.
-   On touch screens the animation is fine but we cap size to avoid GPU heat. */
 .dx-v3 .atom-viewer {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  /* Dynamic import fade-in: the AtomViewer JS chunk loads asynchronously
-     in production, so the Canvas inserts into the DOM AFTER the flash guard
-     has already released. Starting at opacity:0 prevents the hard pop-in;
-     onCreated in AtomViewer.tsx sets opacity:1 once the WebGL context is
-     ready, triggering this transition. */
   opacity: 0;
-  transition: opacity 0.6s ease;
 }
-
+.dx-v3:not([data-flash-guard]) .atom-viewer {
+  animation: dx-atom-fade-in 0.7s ease 0.05s forwards;
+}
+@keyframes dx-atom-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 .dx-v3 .atom-viewer canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
-}
-
-/* ============================================================
-   HERO 3D — fills the entire stage. The 3D model is the hero's
-   focal point; the title sits as a smaller overlay in the corner
-   so most of the model remains visible and clickable. Canvas
-   captures pointer events directly; text overlays use
-   pointer-events: none so clicks fall through.
-============================================================ */
-.dx-v3 .hero-3d {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-/* Showcase section that hosts the same 3D scene the hero used to render.
-   .hero-3d is position:absolute inset:0, so the parent must establish
-   a positioning context and an explicit height. */
-.dx-v3 .models-showcase {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: var(--paper);
-  overflow: hidden;
-}
-@media (max-width: 899px) {
-  .dx-v3 .models-showcase {
-    height: 70vh;
-  }
-}
-.dx-v3 .hero-3d canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
-/* Editorial labels floating above the 3D scene. The monitor lives in
-   the left half of the canvas (MONITOR_POS.x = -0.25) and the ramen
-   on the right (RAMEN_POS.x = +0.25), so the labels track those zones
-   from above. Type cadence (caps tracking + script subtitle) matches
-   the rest of the page — keeps the section reading editorial, not
-   "annotation layer." */
-.dx-v3 .hero-3d-label {
-  position: absolute;
-  top: 7%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  z-index: 2;
-  pointer-events: none;
-  text-align: center;
-}
-/* Thin blurple accent rule above each label — same visual signature
-   the section heads use, repurposed at smaller scale here so the
-   labels read as section-style chrome rather than floating captions. */
-.dx-v3 .hero-3d-label .rule {
-  display: block;
-  width: 36px;
-  height: 2px;
-  background: var(--blue);
-  border-radius: 1px;
-}
-/* English line — mixed type: sans for the connecting words, italic
-   serif for the noun. Mirrors the masthead pattern ("Real outcomes,
-   real businesses.") so the label feels native to the page. */
-.dx-v3 .hero-3d-label .en {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
-  font-weight: 600;
-  font-size: clamp(22px, 2.4vw, 34px);
-  letter-spacing: -0.01em;
-  line-height: 1.05;
-  color: var(--ink);
-}
-.dx-v3 .hero-3d-label .en em {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  font-weight: 400;
-  color: var(--blue);
-  /* Italic serif sits slightly taller than the sans baseline at the
-     same px size — bump it up a touch and tuck the letter-spacing
-     so the two scripts feel weighted equal. */
-  font-size: 1.08em;
-  letter-spacing: -0.02em;
-}
-/* Japanese subtitle — the previous version was 11–13px with 0.18em
-   tracking on top of a muted gray. Kanji at that size with wide
-   tracking is genuinely unreadable. Bump the size, drop the tracking
-   to something kanji-friendly (kana can tolerate wide spacing; kanji
-   cannot), darken the color, and bring the weight up so strokes
-   read against the light blue gradient behind. */
-.dx-v3 .hero-3d-label .ja {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 500;
-  font-size: clamp(14px, 1.25vw, 18px);
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-  color: var(--ink);
-}
-.dx-v3 .hero-3d-label-tv {
-  left: 14%;
-  transform: translateX(-50%);
-}
-.dx-v3 .hero-3d-label-ramen {
-  right: 14%;
-  transform: translateX(50%);
-}
-@media (max-width: 899px) {
-  .dx-v3 .hero-3d-label {
-    top: 5%;
-    gap: 8px;
-  }
-  .dx-v3 .hero-3d-label .rule {
-    width: 28px;
-  }
-  .dx-v3 .hero-3d-label-tv {
-    left: 24%;
-  }
-  .dx-v3 .hero-3d-label-ramen {
-    right: 24%;
-  }
-  .dx-v3 .hero-3d-label .en {
-    font-size: 19px;
-  }
-  .dx-v3 .hero-3d-label .ja {
-    font-size: 13px;
-  }
-}
-/* Particle-cloud version of the GIFT brand mark. Lives inside the hero
-   as a decorative WebGL backdrop with the masthead text floating above
-   (the text has higher z-index via .hero-stage-inner). */
-.dx-v3 .hero-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.dx-v3 .hero-particles canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-  /* Canvas stays pointer-events: none (inherited) so touches pass through
-     to the page → vertical swipes can still scroll past the hero on
-     mobile. Touch capture for particle interaction is handled by a small
-     centered .hero-particles-touch overlay that only covers the visible
-     logo region — see GiftLogoFluid.tsx. */
-}
-/* Touch-capture overlay sized to roughly the logo's visible footprint.
-   Sits above the canvas in z-order but stays invisible. ONLY this region
-   blocks scroll and captures touches for the particle interaction. */
-.dx-v3 .hero-particles .hero-particles-touch {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(60vw, 60vh);
-  height: min(60vw, 60vh);
-  pointer-events: auto;
-  touch-action: none;
-  z-index: 1;
-}
-/* Igloo column — same shape as .hero-particles. The hero-stage uses a
-   Tailwind grid (single column on mobile, two columns on md+) so each
-   visual lives in its own relative-positioned grid cell, and both fill
-   it with absolute inset:0. */
-.dx-v3 .hero-igloo {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: auto; /* clicks need to reach the igloo to explode it */
-}
-.dx-v3 .hero-igloo canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
-.dx-v3 .hero-3d-tooltip {
-  position: fixed;
-  transform: translate(-50%, calc(-100% - 14px));
-  background: rgba(11, 19, 64, 0.94);
-  color: #fff;
-  padding: 7px 14px;
-  font-size: 11px;
-  font-family: var(--mono, ui-monospace), 'JetBrains Mono', monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-radius: 4px;
-  pointer-events: none;
-  z-index: 100;
-  white-space: nowrap;
-  animation: hero-3d-tooltip-in 0.22s ease-out;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-@keyframes hero-3d-tooltip-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, calc(-100% - 4px));
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, calc(-100% - 14px));
-  }
 }
 
 /* Lift text-bearing elements above the canvas */
@@ -434,11 +227,6 @@
     padding: 0 24px;
     max-width: 100%;
   }
-  /* Push the atom canvas below the masthead text on mobile so the
-     headline has clear paper-coloured space above it. */
-  .dx-v3 .atom-viewer {
-    top: 120px;
-  }
 }
 /* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
    was wider than "DX Consulting." (~14 chars) could fit at 375px with
@@ -448,9 +236,6 @@
 @media (max-width: 480px) {
   .dx-v3 .masthead .row {
     font-size: clamp(32px, 9vw, 48px);
-  }
-  .dx-v3 .atom-viewer {
-    top: 160px;
   }
 }
 .dx-v3 .masthead .row {
@@ -1906,6 +1691,169 @@
   .dx-v3 .pains-pin-frame .pain .q {
     font-size: clamp(22px, min(3.8vw, 7vh), 52px);
   }
+}
+
+/* ============================================================
+   BLOB DECORATIONS — ambient floating blobs behind pains + features
+============================================================ */
+.dx-v3 .dx-blobs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+/* Ensure in-flow content in these sections paints above blobs */
+.dx-v3 .pains-section .pains-pin-stack,
+.dx-v3 .pains-section .wrap,
+.dx-v3 #features .wrap,
+.dx-v3 #features .cascade-pin-stack {
+  position: relative;
+  z-index: 1;
+}
+.dx-v3 .dx-blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes dx-blob-float {
+  0%, 100% { transform: translateY(0)    scale(1);    }
+  42%       { transform: translateY(-38px) scale(1.07); }
+  70%       { transform: translateY(22px)  scale(0.95); }
+}
+@keyframes dx-blob-drift {
+  0%, 100% { transform: translate(0,    0)    scale(1);    }
+  33%      { transform: translate(30px, -24px) scale(1.1);  }
+  66%      { transform: translate(-20px, 16px) scale(0.93); }
+}
+@keyframes dx-blob-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1;    }
+  50%      { transform: scale(1.22); opacity: 0.55; }
+}
+
+/* ---- Pains section blobs ---- */
+.dx-v3 .dx-blob-p1 {
+  width: clamp(300px, 42vw, 540px);
+  aspect-ratio: 1;
+  top: -12%;
+  left: -10%;
+  background: var(--blue);
+  filter: blur(90px);
+  opacity: 0.1;
+  animation-name: dx-blob-float;
+  animation-duration: 10s;
+}
+.dx-v3 .dx-blob-p2 {
+  width: clamp(180px, 22vw, 320px);
+  aspect-ratio: 1;
+  top: 4%;
+  right: -6%;
+  background: var(--purple);
+  filter: blur(55px);
+  opacity: 0.13;
+  animation-name: dx-blob-drift;
+  animation-duration: 13s;
+  animation-delay: -3s;
+}
+.dx-v3 .dx-blob-p3 {
+  width: clamp(260px, 36vw, 480px);
+  aspect-ratio: 1;
+  bottom: -6%;
+  left: 28%;
+  background: var(--cobalt);
+  filter: blur(80px);
+  opacity: 0.11;
+  animation-name: dx-blob-float;
+  animation-duration: 8.5s;
+  animation-delay: -4s;
+}
+.dx-v3 .dx-blob-p4 {
+  width: clamp(80px, 10vw, 130px);
+  aspect-ratio: 1;
+  top: 44%;
+  right: 10%;
+  background: var(--blue);
+  filter: blur(28px);
+  opacity: 0.2;
+  animation-name: dx-blob-pulse;
+  animation-duration: 5.5s;
+  animation-delay: -1.5s;
+}
+.dx-v3 .dx-blob-p5 {
+  width: clamp(100px, 13vw, 170px);
+  aspect-ratio: 1;
+  bottom: 14%;
+  left: 6%;
+  background: var(--blue-bright);
+  filter: blur(36px);
+  opacity: 0.15;
+  animation-name: dx-blob-drift;
+  animation-duration: 11s;
+  animation-delay: -6s;
+}
+
+/* ---- Features section blobs ---- */
+.dx-v3 .dx-blob-f1 {
+  width: clamp(280px, 38vw, 500px);
+  aspect-ratio: 1;
+  top: -10%;
+  right: -8%;
+  background: var(--purple);
+  filter: blur(85px);
+  opacity: 0.1;
+  animation-name: dx-blob-float;
+  animation-duration: 11s;
+  animation-delay: -2s;
+}
+.dx-v3 .dx-blob-f2 {
+  width: clamp(160px, 20vw, 280px);
+  aspect-ratio: 1;
+  top: 32%;
+  left: -5%;
+  background: var(--blue);
+  filter: blur(52px);
+  opacity: 0.14;
+  animation-name: dx-blob-drift;
+  animation-duration: 9s;
+  animation-delay: -7s;
+}
+.dx-v3 .dx-blob-f3 {
+  width: clamp(240px, 34vw, 460px);
+  aspect-ratio: 1;
+  bottom: -5%;
+  left: -6%;
+  background: var(--cobalt);
+  filter: blur(82px);
+  opacity: 0.1;
+  animation-name: dx-blob-float;
+  animation-duration: 13s;
+  animation-delay: -9s;
+}
+.dx-v3 .dx-blob-f4 {
+  width: clamp(80px, 10vw, 120px);
+  aspect-ratio: 1;
+  top: 8%;
+  left: 10%;
+  background: var(--blue);
+  filter: blur(26px);
+  opacity: 0.18;
+  animation-name: dx-blob-pulse;
+  animation-duration: 6s;
+  animation-delay: -0.5s;
+}
+.dx-v3 .dx-blob-f5 {
+  width: clamp(140px, 17vw, 230px);
+  aspect-ratio: 1;
+  bottom: 6%;
+  right: 5%;
+  background: var(--blue-bright);
+  filter: blur(46px);
+  opacity: 0.13;
+  animation-name: dx-blob-drift;
+  animation-duration: 10s;
+  animation-delay: -4s;
 }
 
 /* ============================================================

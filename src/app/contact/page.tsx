@@ -9,7 +9,7 @@ import company from '@/data/company.json';
 
 const inquiryTypes = [
   { value: 'callcenter', label: 'コールセンター事業について' },
-  { value: 'dx', label: 'DXコンサル事業について' },
+  { value: 'dx', label: 'AIOps事業について' },
   { value: 'finance', label: '財務コンサル事業について' },
   { value: 'recruit', label: '採用について' },
   { value: 'other', label: 'その他' },

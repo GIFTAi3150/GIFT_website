@@ -4,9 +4,9 @@ import DxV3Page from './_components/DxV3Page';
 import './dx-v3.css';
 
 export const metadata: Metadata = {
-  title: 'DXコンサル事業',
+  title: 'AIOps事業',
   description:
-    'Lステップ運用、RPA導入、AI活用による業務自動化。中小企業のデジタル変革を支援する株式会社GIFTのDXコンサルティング事業。',
+    'Lステップ運用、RPA導入、AI活用による業務自動化。中小企業のデジタル変革を支援する株式会社GIFTのAIOps事業。',
   alternates: { canonical: '/services/dx-consulting' },
 };
 

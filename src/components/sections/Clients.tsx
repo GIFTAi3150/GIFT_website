@@ -10,8 +10,8 @@ const services = [
   },
   {
     iconId: 'dx-consulting' as const,
-    labelJa: 'DXコンサル事業',
-    labelEn: 'DX Consulting',
+    labelJa: 'AIOps事業',
+    labelEn: 'AIOps',
     href: '/services/dx-consulting',
   },
   {

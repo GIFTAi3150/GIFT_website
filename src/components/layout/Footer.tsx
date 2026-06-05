@@ -8,17 +8,11 @@ import GiftLogo from '@/components/brand/GiftLogo';
 
 const footerNav = [
   { href: '/company', en: 'ABOUT', ja: '会社概要' },
-  { href: '/achievements', en: 'WORKS', ja: '実績' },
-  { href: '/member', en: 'MEMBER', ja: 'メンバー' },
-  { href: '/recruit', en: 'RECRUIT', ja: '採用情報' },
-  { href: '/news', en: 'NEWS', ja: 'お知らせ' },
   { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
 ];
 
 const footerServices = [
-  { href: '/services/callcenter', label: 'コールセンター事業' },
-  { href: '/services/dx-consulting', label: 'DXコンサル事業' },
-  { href: '/services/finance-consulting', label: '財務コンサル事業' },
+  { href: '/services/dx-consulting', label: 'AIOps事業' },
 ];
 
 const socials = [
