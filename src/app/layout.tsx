@@ -59,6 +59,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
+        {/* Suppress known third-party and framework noise.
+            - THREE.Clock: deprecated in r165+, R3F 8.x still uses it — unfixable without upstream upgrade.
+            - Skipping auto-scroll: Next.js dev-only check hitting our fixed-position overlays — harmless. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var w=console.warn.bind(console);console.warn=function(){var m=arguments[0];if(typeof m==='string'&&(m.indexOf('THREE.Clock')!==-1||m.indexOf('Skipping auto-scroll')!==-1))return;w.apply(console,arguments);};})();`,
+          }}
+        />
         {/* Google Search Console verification */}
         <meta name="google-site-verification" content="QywozbyWj6GtH9Gv1iDF7AS8P3pSbGrYOThrj2OrU4c" />
         {/* Google Analytics 4 */}

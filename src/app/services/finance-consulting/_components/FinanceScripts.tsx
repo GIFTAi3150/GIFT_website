@@ -10,6 +10,10 @@ import { useEffect } from 'react';
 //      it; leaving resumes the CSS-driven auto-spin.
 export default function FinanceScripts() {
   useEffect(() => {
+    // Release the root #page-cover (layout.tsx waits for this event before
+    // fading out; without it the cover lingers for the 4s fallback timeout).
+    window.dispatchEvent(new Event('gift:logo-ready'));
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

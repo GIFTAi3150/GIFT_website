@@ -39,7 +39,7 @@ const cases: CaseEntry[] = [
   {
     id: 2,
     iconId: 'dx-consulting',
-    industry: 'DX CONSULTING',
+    industry: 'AIOPS',
     title: 'LINE・RPA・AI導入をワンストップで支援',
     href: '/services/dx-consulting',
     metrics: [{ value: '50', suffix: '社+', label: '支援企業' }],

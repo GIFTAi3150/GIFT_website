@@ -284,7 +284,7 @@ export default function AIOps() {
               aria-hidden
               className="absolute inset-0 origin-left scale-x-0 bg-[#2563EB] transition-transform duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:scale-x-100"
             />
-            <span className="relative z-10">DXコンサルの詳細を見る</span>
+            <span className="relative z-10">AIOpsの詳細を見る</span>
             <span className="relative z-10 transition-transform duration-300 group-hover:translate-x-1">→</span>
           </a>
         </div>
