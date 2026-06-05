@@ -4,14 +4,6 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
 
 ## Active
 
-### T-011 DX hero — Rive interactive vector (current direction)
-- status: cc:WIP
-- owner: frontend + design (asset)
-- decision (2026-06-01): after VAT/particles were abandoned (see T-010), hero direction is **Rive interactive vector** — Canvas2D runtime, NO WebGL, so it can't hit the site-wide context-loss crash. User picked this over aurora-gradient / SVG-draw / Lottie options.
-- DONE: `@rive-app/react-canvas` installed; `RiveHero.tsx` (loads /rive/dx-hero.riv, autoplays state machine "State Machine 1", Canvas2D, crash-safe fallback to HeroLogoSvg on missing/404/parse-fail); wired into DxV3Page as `<RiveHero fallback={<HeroLogoSvg/>}/>` (dynamic, ssr:false). tsc clean, route 200 (currently showing fallback — no asset yet).
-- BLOCKER: need a branded `public/rive/dx-hero.riv`. Rive's wow = the artwork, authored in rive.app editor; Claude can't author the binary .riv. When it lands: verify state-machine name matches the `stateMachine` prop + pointer listeners are set for cursor-follow.
-- See memory [[project_dx_hero_rive]]. Do NOT repropose WebGL/particles/shapes/warp/video.
-
 ### T-010 DX hero VAT bake pipeline (particles on phones) — ABANDONED 2026-06-01
 - status: cc:完了 (abandoned — superseded by T-011 Rive)
 - abandoned because: flat bake (z≈0.3) pulsed/strobed on the turntable spin (edge-on collapse), and any WebGL hero risks the site-wide context-loss crash. Pipeline/scripts/assets kept for /dev/vat-preview reference only.
