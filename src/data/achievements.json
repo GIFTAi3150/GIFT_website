@@ -14,8 +14,8 @@
     },
     {
       "id": "dx-consulting",
-      "title": "DXコンサル事業",
-      "titleEn": "DX Consulting",
+      "title": "AIOps事業",
+      "titleEn": "AIOps",
       "since": "2022年〜",
       "description": "LINE公式・Lステップ構築から、RPA・業務自動化、AI導入、SaaS・CRM構築支援まで、中小企業・スタートアップのDX推進をワンストップで支援します。",
       "metrics": [

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 const path = [
   { label: 'PATH 1', title: 'コールオペ', body: '現場で顧客接点の基礎を学ぶ。' },
   { label: 'PATH 2', title: 'SV / リーダー', body: 'チーム運営と教育に踏み込む。' },
-  { label: 'PATH 3', title: 'DXコンサル', body: '事業の仕組みを設計する側へ。' },
+  { label: 'PATH 3', title: 'AIOps', body: '事業の仕組みを設計する側へ。' },
   { label: 'PATH 4', title: '財務コンサル', body: '経営と財務の視座を獲得する。' },
 ];
 
