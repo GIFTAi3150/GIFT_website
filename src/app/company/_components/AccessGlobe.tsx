@@ -26,7 +26,7 @@ import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
 // position — no DOM queries, no overlay buttons, no flickering.
 
 const SAPPORO: [number, number] = [43.0642, 141.3469];
-const MARKER_COLOR: [number, number, number] = [0.482, 0.176, 0.149]; // oxblood #7B2D26
+const MARKER_COLOR: [number, number, number] = [0.851, 0.322, 0.031]; // hero orange #D95208
 const GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
   company.address
 )}`;
@@ -156,34 +156,40 @@ export default function AccessGlobe() {
     });
 
     let rafId = 0;
+    let visible = false;
     const tick = () => {
-      if (pointerDownX === null && !reducedMotion) {
-        phi += 0.003;
+      if (visible) {
+        if (pointerDownX === null && !reducedMotion) {
+          phi += 0.003;
+        }
+        const effectivePhi = phi + dragOffset / 200;
+        globe.update({
+          phi: effectivePhi,
+          theta,
+          width: width * dpr,
+          height: height * dpr,
+        });
+        const proj = projectMarker(
+          SAPPORO[0],
+          SAPPORO[1],
+          effectivePhi,
+          theta,
+          width,
+          height,
+        );
+        markerPos.x = proj.x;
+        markerPos.y = proj.y;
+        markerPos.occluded = proj.occluded;
       }
-      const effectivePhi = phi + dragOffset / 200;
-      globe.update({
-        phi: effectivePhi,
-        theta,
-        width: width * dpr,
-        height: height * dpr,
-      });
-      // Re-project Sapporo for hit-testing. Keep this in sync with
-      // exactly what cobe drew this frame so the hover hotspot lines
-      // up with the visible dot.
-      const proj = projectMarker(
-        SAPPORO[0],
-        SAPPORO[1],
-        effectivePhi,
-        theta,
-        width,
-        height,
-      );
-      markerPos.x = proj.x;
-      markerPos.y = proj.y;
-      markerPos.occluded = proj.occluded;
       rafId = requestAnimationFrame(tick);
     };
     rafId = requestAnimationFrame(tick);
+
+    const io = new IntersectionObserver(
+      ([entry]) => { visible = entry.isIntersecting; },
+      { threshold: 0.01 },
+    );
+    io.observe(container);
 
     const ro = new ResizeObserver(() => {
       const next = measure();
@@ -272,6 +278,7 @@ export default function AccessGlobe() {
       cancelAnimationFrame(rafId);
       globe.destroy();
       ro.disconnect();
+      io.disconnect();
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onCanvasPointerMove);
       canvas.removeEventListener('pointerup', onPointerUp);
@@ -320,7 +327,7 @@ export default function AccessGlobe() {
           </svg>
         </button>
 
-        <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.25em] text-[#7B2D26]">
+        <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.25em] text-[#D95208]">
           HQ · SAPPORO
         </p>
         <p className="mb-2 font-sans text-[15px] font-semibold leading-tight">
@@ -333,7 +340,7 @@ export default function AccessGlobe() {
           href={GMAPS_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#7B2D26] px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#F6F2EA] transition-transform hover:scale-[1.03]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#D95208] px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.03]"
         >
           Google Mapsで開く
           <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>

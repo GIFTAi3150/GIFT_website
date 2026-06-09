@@ -908,18 +908,18 @@
   color: #ffffff;
 }
 
-/* Company/about page variant — oxblood outline, white text on hover.
-   Used on /company so CTAs match the Atelier High-Key Bone editorial palette. */
+/* Company/about page variant — hero orange outline, white text on hover.
+   Updated to match the hero's warm orange light-leak palette. */
 .cta-btn--company {
-  border-color: #7B2D26;
-  color: #7B2D26;
+  border-color: #D95208;
+  color: #D95208;
 }
 .cta-btn--company::before {
-  background-color: #7B2D26;
+  background-color: #D95208;
 }
 .cta-btn--company:hover,
 .cta-btn--company:focus-visible {
-  border-color: #7B2D26;
+  border-color: #D95208;
   color: #ffffff;
 }
 
@@ -940,23 +940,23 @@
   box-shadow: 0 0 0 4px #2563EB;
 }
 
-/* Company/about page — animated-button in oxblood (Google Maps button in Access section).
-   Mirrors the base .animated-button but with oxblood replacing all #25D366. */
+/* Company/about page — animated-button in hero orange (Google Maps button in Access section).
+   Mirrors the base .animated-button but with hero orange replacing oxblood. */
 .animated-button--company {
-  color: #7B2D26;
-  box-shadow: 0 0 0 2px #7B2D26;
+  color: #D95208;
+  box-shadow: 0 0 0 2px #D95208;
 }
 .animated-button--company svg {
-  fill: #7B2D26;
+  fill: #D95208;
 }
 .animated-button--company .circle {
-  background-color: #7B2D26;
+  background-color: #D95208;
 }
 .animated-button--company:hover {
   color: #212121;
 }
 .animated-button--company:active {
-  box-shadow: 0 0 0 4px #7B2D26;
+  box-shadow: 0 0 0 4px #D95208;
 }
 
 @media (prefers-reduced-motion: reduce) {

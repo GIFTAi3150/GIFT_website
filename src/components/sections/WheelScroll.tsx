@@ -190,7 +190,7 @@ export default function WheelScroll() {
           <div
             style={{
               position: 'absolute',
-              bottom: '11vh',
+              bottom: '20vh',
               left: 0,
               right: 0,
               zIndex: 10,
@@ -225,7 +225,7 @@ export default function WheelScroll() {
                   <p
                     className="font-sans font-light text-[#475569]"
                     style={{
-                      fontSize: 'clamp(14px, 1.5vw, 18px)',
+                      fontSize: 'clamp(16px, 1.8vw, 22px)',
                       lineHeight: '2',
                       whiteSpace: 'pre-line',
                     }}

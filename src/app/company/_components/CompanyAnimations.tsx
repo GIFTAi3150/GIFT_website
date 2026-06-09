@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
-import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -16,21 +15,6 @@ export default function CompanyAnimations() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const isMobile = window.matchMedia('(max-width: 899px)').matches;
-
-    // ---- Lenis smooth scroll (desktop only, same pattern as DxV3Page) ----
-    let lenis: InstanceType<typeof Lenis> | null = null;
-    let lenisRaf: ((time: number) => void) | null = null;
-    if (!isMobile) {
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      } as ConstructorParameters<typeof Lenis>[0]);
-      lenis.on('scroll', () => ScrollTrigger.update());
-      lenisRaf = (time: number) => lenis!.raf(time * 1000);
-      gsap.ticker.add(lenisRaf);
-      gsap.ticker.lagSmoothing(0);
-    }
 
     const splits: SplitText[] = [];
 
@@ -57,7 +41,9 @@ export default function CompanyAnimations() {
       }
 
       // ---- Hero video parallax (desktop only) ----
-      if (!isMobile) {
+      // The clip-text hero (HeroClipText) has no #company-hero-video; guard so
+      // GSAP doesn't warn about a missing target.
+      if (!isMobile && document.querySelector('#company-hero-video')) {
         gsap.to('#company-hero-video', {
           yPercent: 18,
           ease: 'none',
@@ -174,12 +160,8 @@ export default function CompanyAnimations() {
     }); // end gsap.context
 
     return () => {
-      // ctx.revert() kills only the ScrollTriggers created inside this context —
-      // StoryTimeline owns its own triggers independently.
       ctx.revert();
       splits.forEach((s) => { try { s.revert(); } catch (_) { /* ignore */ } });
-      if (lenisRaf) gsap.ticker.remove(lenisRaf);
-      lenis?.destroy();
     };
   }, []);
 

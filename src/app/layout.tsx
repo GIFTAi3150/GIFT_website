@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { anton, notoSansJP, openSans, poppins } from './fonts';
+import { anton, forum, notoSansJP, openSans, poppins, shipporiAntique } from './fonts';
 import '../styles/globals.css';
 import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
 import ScrollToTopOnRouteChange from '@/components/util/ScrollToTopOnRouteChange';
@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="ja"
-      className={`${notoSansJP.variable} ${poppins.variable} ${anton.variable} ${openSans.variable}`}
+      className={`${notoSansJP.variable} ${poppins.variable} ${anton.variable} ${openSans.variable} ${forum.variable} ${shipporiAntique.variable}`}
       // Browsers serialize inline-style hex colors as rgb(), which
       // React reads back as a different string than its JSX source —
       // produces a noisy but harmless hydration warning. Suppress it.

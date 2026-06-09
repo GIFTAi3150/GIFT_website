@@ -36,7 +36,7 @@ export default function StaggeredInfoTable({ rows }: { rows: Row[] }) {
               transition: `opacity 500ms cubic-bezier(0.22,1,0.36,1) ${i * 70}ms, transform 500ms cubic-bezier(0.22,1,0.36,1) ${i * 70}ms`,
             }}
           >
-            <dt className="mb-1 font-display text-small uppercase tracking-widest text-[#7B2D26] sm:mb-0 sm:col-span-1">
+            <dt className="mb-1 font-display text-small uppercase tracking-widest text-[#D95208] sm:mb-0 sm:col-span-1">
               {row.label}
             </dt>
             <dd className="font-sans text-normal font-light text-gift-ink sm:col-span-3">

@@ -130,10 +130,10 @@ export default function StoryTimeline({ items }: { items: StoryItem[] }) {
                     )}
 
                     {item.isPresent && (
-                      <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-[#7B2D26]/10 px-3 py-1 font-display text-[10px] font-bold uppercase tracking-widest text-[#7B2D26]">
+                      <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-[#D95208]/10 px-3 py-1 font-display text-[10px] font-bold uppercase tracking-widest text-[#D95208]">
                         <span aria-hidden className="relative inline-flex h-1.5 w-1.5">
-                          <span className="absolute inset-0 animate-ping rounded-full bg-[#7B2D26]/60" />
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#7B2D26]" />
+                          <span className="absolute inset-0 animate-ping rounded-full bg-[#D95208]/60" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#D95208]" />
                         </span>
                         Now
                       </span>

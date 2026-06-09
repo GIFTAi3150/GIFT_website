@@ -160,22 +160,22 @@ const ACHIEVEMENTS_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
-// Atelier High-Key Bone — warm bone bg, oxblood accent. Matches the /company page palette.
+// /company page palette — light blue-grey bg + orange accent.
 const COMPANY_THEME: NavTheme = {
-  bg: '#F6F2EA',
-  bgAlpha: 'rgba(246, 242, 234, 0.95)',
-  bgFull: '#F6F2EA',
-  accent: '#7B2D26',
-  accentDeep: '#5C1D18',
-  border: '#DDD8CD',
-  bgAlt: '#EBE5D6',
-  ink: '#1A1B1E',
-  muted: '#6B6760',
-  logoShield: '#7B2D26',
-  logoInner: '#F6F2EA',
-  text: '#1A1B1E',
-  textMuted: '#6B6760',
-  textFaint: 'rgba(26, 27, 30, 0.40)',
+  bg: '#EFF6F9',
+  bgAlpha: 'rgba(239, 246, 249, 0.95)',
+  bgFull: '#EFF6F9',
+  accent: '#D95208',
+  accentDeep: '#B84010',
+  border: '#CDD0D5',
+  bgAlt: '#FFFFFF',
+  ink: '#111B21',
+  muted: '#3A3A3A',
+  logoShield: '#D95208',
+  logoInner: '#EFF6F9',
+  text: '#111B21',
+  textMuted: '#3A3A3A',
+  textFaint: 'rgba(17, 27, 33, 0.40)',
 };
 
 // AI light-mode theme for the homepage — clean white + electric violet.

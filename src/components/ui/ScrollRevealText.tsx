@@ -40,18 +40,17 @@ export default function ScrollRevealText({ sectionId }: { sectionId: string }) {
             .timeline({
               scrollTrigger: {
                 trigger: paragraphs[0],
-                start: isMobile ? 'top 80%' : 'top 75%',
-                endTrigger: paragraphs[paragraphs.length - 1],
-                end: isMobile ? 'bottom 70%' : 'bottom 50%',
-                scrub: 1.5,
+                start: isMobile ? 'top 90%' : 'top 85%',
+                end: '+=400',
+                scrub: 0.5,
               },
             })
             .to(self.chars, {
               opacity: 1,
               y: 0,
               x: 0,
-              duration: 1.2,
-              stagger: 0.04,
+              duration: 1,
+              stagger: 0.025,
               ease: 'power1.inOut',
             });
         }, root);

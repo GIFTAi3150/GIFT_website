@@ -24,9 +24,8 @@ export default function WhoWeAre() {
             className="mb-6 font-sans font-light text-[#475569]"
             style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '2' }}
           >
-            企業が本来持つ力を、最大限に引き出すために。 GIFTは、豊富な実績と多角的な知見を持つ
-            プロフェッショナルの集合体。 戦略の立案から実行まで、
-            あなたのビジネスの可能性を、全方位から支援します。
+            AIを使えば、もっとうまくいく——そう気づいたとき、GIFTがいます。
+            業務の自動化からAIエージェントの構築まで、あなたのビジネスに合った形でAIを実装します。
           </p>
 
           <p
@@ -34,8 +33,8 @@ export default function WhoWeAre() {
             className="mb-10 font-sans font-light text-[#475569]"
             style={{ fontSize: 'clamp(17px, 1.8vw, 20px)', lineHeight: '2' }}
           >
-            一人ひとりの挑戦を支え、地域と社会に新しいキッカケを届ける。
-            それが私たちGIFTの使命です。
+            ツールを入れて終わり、ではありません。
+            導入から運用まで一貫して伴走し、AIが本当に「使える状態」になるまで一緒に動きます。
           </p>
 
           <Link href="/company" className="cta-btn cta-btn--ai">

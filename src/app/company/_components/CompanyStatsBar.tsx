@@ -10,7 +10,7 @@ export default function CompanyStatsBar() {
   return (
     <section className="bg-[#1A1210] py-14">
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-3 divide-x divide-[#7B2D26]/25">
+        <div className="grid grid-cols-3 divide-x divide-[#D95208]/25">
           {stats.map((s) => (
             <div
               key={s.label}
@@ -25,11 +25,11 @@ export default function CompanyStatsBar() {
                 style={{ fontSize: 'clamp(40px, 5.5vw, 64px)', lineHeight: 1 }}
               >
                 <CountUp end={s.end} duration={1800} />
-                {s.plus && <span className="text-[#B86B5F]">+</span>}
+                {s.plus && <span className="text-[#F07A30]">+</span>}
               </p>
               <p className="font-display text-[11px] font-bold uppercase tracking-widest text-[#E8C5BE]/60">
                 {s.label}
-                <span className="ml-1 text-[#B86B5F]">{s.suffix}</span>
+                <span className="ml-1 text-[#F07A30]">{s.suffix}</span>
               </p>
             </div>
           ))}

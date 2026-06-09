@@ -28,7 +28,10 @@
       "Bash(curl -s https://sales-dex.jp/)",
       "Bash(curl -s -L \"https://framerusercontent.com/sites/4VszdSbTn2yK3zQ8RgyS2f/L7HPkGdSYbXq36U7mcbsyyldIweXb_ZIxQC-bn-vn-s.DiKCVqzc.mjs\" -o live-hero-chunk.mjs -w \"HTTP %{http_code} size=%{size_download}\\\\n\")",
       "Bash(perl -ne 'while\\(/mainImage|inputBuffer|outputColor|uFluid|fluidColor|intensity|swirl|blend\\\\b/gi\\){my $p=pos\\(\\);my $s=substr\\($_,$p-110,330\\);print \"--CTX--\\\\n$s\\\\n\"}' live-hero-chunk.mjs)",
-      "Bash(cd *)"
+      "Bash(cd *)",
+      "Bash(cd /tmp)",
+      "Bash(grep -aoiE \".{20}loadImgs.{0,120}\" biscom_common_js_index.js)",
+      "Bash(grep -aoiE \"[\\\\\"'\\\\`][^\\\\\"'\\\\`]*\\\\.\\(avif|webp|mp4|png|jpg\\)[\\\\\"'\\\\`]\" biscom_common_js_index.js)"
     ]
   }
 }

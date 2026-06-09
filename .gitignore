@@ -56,3 +56,6 @@ next-env.d.ts
 /*.html
 /*.log
 /refasset-*
+
+# local visual-verify scratch (shader harness, screenshots)
+.inspect/
