@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import FadeUpText from '@/components/ui/FadeUpText';
 import HeroBackground from './hero-gradient/HeroBackground';
 
@@ -48,13 +49,14 @@ export default function Hero() {
           >
             AIと人が共に創る、ビジネスの新時代。
           </p>
-          <a
+          <Link
             href="/contact"
-            className="cta-btn cta-btn--ai nav-reveal mt-2"
+            className="nav-reveal group mt-2 inline-flex items-center gap-3 border border-white bg-white px-5 py-2.5 text-[#0b1020] transition-all duration-300 hover:bg-transparent hover:text-white"
             style={{ ['--reveal-delay' as string]: '1550ms' }}
           >
-            <span>お問い合わせ</span>
-          </a>
+            <span className="font-display text-sm font-bold tracking-widest">お問い合わせ</span>
+            <span className="text-base transition-transform duration-300 group-hover:translate-x-1">›</span>
+          </Link>
         </div>
       </div>
     </section>

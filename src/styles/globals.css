@@ -70,6 +70,31 @@
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-fill-mode: both;
 }
+@keyframes aiops-pointer {
+  0%   { transform: translateY(0)    rotate(-90deg); opacity: 0.7; }
+  55%  { transform: translateY(-14px) rotate(-90deg); opacity: 0; }
+  56%  { transform: translateY(6px)  rotate(-90deg); opacity: 0; }
+  100% { transform: translateY(0)    rotate(-90deg); opacity: 0.7; }
+}
+
+@keyframes aiops-blob-1 {
+  0%   { transform: translate(0%, 0%) scale(1); }
+  33%  { transform: translate(30%, -20%) scale(1.15); }
+  66%  { transform: translate(-15%, 25%) scale(0.9); }
+  100% { transform: translate(0%, 0%) scale(1); }
+}
+@keyframes aiops-blob-2 {
+  0%   { transform: translate(0%, 0%) scale(1); }
+  33%  { transform: translate(-25%, 20%) scale(0.9); }
+  66%  { transform: translate(20%, -15%) scale(1.1); }
+  100% { transform: translate(0%, 0%) scale(1); }
+}
+@keyframes aiops-blob-3 {
+  0%   { transform: translate(0%, 0%) scale(1); }
+  50%  { transform: translate(15%, 30%) scale(1.2); }
+  100% { transform: translate(0%, 0%) scale(1); }
+}
+
 @keyframes fadeUpReveal {
   0% {
     opacity: 0;
@@ -1430,3 +1455,57 @@ h6 {
   transition-delay: 0.08s;
 }
 
+
+
+/* ── GIFT INC. echo distortion (WhoWeAre section) ───────────────────── */
+.gift-echo-wrap {
+  position: relative;
+  padding-top: 0.9em;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  --ep: 0;
+}
+.gift-echo-wrap[data-visible='true'] {
+  opacity: 1;
+}
+
+.gift-echo-main,
+.gift-echo-copy {
+  font-size: clamp(64px, 12vw, 160px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+}
+.gift-echo-main {
+  display: block;
+  position: relative;
+}
+.gift-echo-copy {
+  display: block;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  bottom: 0;
+  clip-path: inset(0 0 62% 0);
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0%, #000 54%, transparent 54%, transparent 100%);
+  -webkit-mask-size: 100% 9px;
+  mask-image: repeating-linear-gradient(to bottom, #000 0%, #000 54%, transparent 54%, transparent 100%);
+  mask-size: 100% 9px;
+}
+
+/* Echoes spread when --ep=0 (below viewport), merge to 0 when --ep=1 (in view) */
+.gift-echo-copy--1 {
+  transform: translateY(calc((1 - var(--ep)) * -0.30em));
+  opacity: calc((1 - var(--ep)) * 0.55);
+}
+.gift-echo-copy--2 {
+  transform: translateY(calc((1 - var(--ep)) * -0.62em));
+  opacity: calc((1 - var(--ep)) * 0.30);
+}
+.gift-echo-copy--3 {
+  transform: translateY(calc((1 - var(--ep)) * -0.94em));
+  opacity: calc((1 - var(--ep)) * 0.14);
+}

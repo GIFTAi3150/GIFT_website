@@ -86,16 +86,48 @@ export default function CompanyAnimations() {
         });
       });
 
-      // ---- Value cards: batch stagger (biscom's card entrance) ----
-      const cards = gsap.utils.toArray<HTMLElement>('[data-gsap="card"]');
-      if (cards.length) {
-        gsap.set(cards, { opacity: 0, y: 52 });
-        ScrollTrigger.batch(cards, {
-          start: 'top 85%',
-          onEnter: (batch) =>
-            gsap.to(batch, { opacity: 1, y: 0, duration: 0.72, stagger: 0.11, ease: E }),
-          once: true,
-        });
+      // ---- Values blc-round: scroll-scrub scale+y (biscom's setRoundBlcEvent) ----
+      // outer: #js-values-blc (overflow:hidden, transparent)
+      // inner bg: #js-values-blc-bg (absolute, border-radius, dark bg) — this is what moves
+      const blcOuter = document.querySelector<HTMLElement>('#js-values-blc');
+      const blcBg = document.querySelector<HTMLElement>('#js-values-blc-bg');
+      if (blcOuter && blcBg) {
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: blcOuter,
+            start: 'top 95%',
+            end: 'top 38%',
+            scrub: 0.4,
+          },
+        })
+          .fromTo(blcBg, { scale: isMobile ? 0.92 : 0.9 }, { scale: 1, ease: 'power3.in', force3D: false })
+          .fromTo(blcBg, { y: isMobile ? 150 : 220 }, { y: 0, ease: 'power1.out', force3D: false }, '<');
+      }
+
+      // ---- Values section: biscom's 3-part stagger (titles → badges → body) ----
+      const valuesSection = document.querySelector<HTMLElement>('#js-values-section');
+      if (valuesSection) {
+        const valuesGrid = valuesSection.querySelector('.b-values-grid');
+        const titles = valuesSection.querySelectorAll<HTMLElement>('[data-gsap="card-title"]');
+        const indices = valuesSection.querySelectorAll<HTMLElement>('[data-gsap="b-index"]');
+        const texts = valuesSection.querySelectorAll<HTMLElement>('[data-gsap="card-text"]');
+
+        if (titles.length) {
+          gsap.set(titles, { y: 25, opacity: 0 });
+          gsap.set(indices, { opacity: 0, scale: 0 });
+          gsap.set(texts, { y: 30, opacity: 0 });
+
+          gsap.timeline({
+            scrollTrigger: {
+              trigger: valuesGrid || valuesSection,
+              start: 'top 82%',
+              once: true,
+            },
+          })
+            .to(titles, { y: 0, opacity: 1, duration: 1.0, delay: 0.2, ease: E, stagger: { amount: 0.45 } })
+            .to(indices, { opacity: 1, scale: 1, duration: 1.0, ease: 'back.out(1.7)', stagger: { amount: 0.45 } }, '<+=0.1')
+            .to(texts, { y: 0, opacity: 1, duration: 1.0, ease: E, stagger: { amount: 0.45 } }, '<+=0.1');
+        }
       }
 
       // ---- Anti-value cards ----

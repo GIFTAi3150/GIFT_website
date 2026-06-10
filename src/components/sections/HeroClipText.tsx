@@ -283,7 +283,9 @@ export default function HeroClipText() {
 
     const resize = () => {
       w = window.innerWidth; h = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.35); // heavier dispersion shader
+      // Cap at 1.0 — the dispersion shader is fill-rate heavy and the grain
+      // field reads identically at 1× vs 1.35× on Retina.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.0);
       // canvas is CSS-oversized 106%; match its buffer
       canvas.width  = Math.round(w * 1.06 * dpr);
       canvas.height = Math.round(h * 1.06 * dpr);
@@ -330,21 +332,64 @@ export default function HeroClipText() {
       }
     };
 
-    /* ── render loop ──────────────────────────────────────────────────── */
-    let start = 0;
+    /* ── render loop ──────────────────────────────────────────────────────
+       The dispersion shader is expensive; running it while the hero is
+       scrolled out of view (or the tab is hidden) steals frame budget from
+       the rest of the page and makes scrolling feel clunky. We gate the loop
+       on visibility and freeze shader-time while paused so resume is seamless
+       (no visual pop). */
+    let running = false;
+    let last = 0;
+    let elapsed = 0; // accumulated shader-time in ms (frozen while paused)
+    let frameCount = 0;
     const render = (now: number) => {
-      if (!start) start = now;
-      gl.uniform1f(uTime, (now - start) * 0.001);
+      rafRef.current = requestAnimationFrame(render);
+      // Time always advances so there's no jump when throttle lifts
+      if (!last) last = now;
+      elapsed += now - last;
+      last = now;
+      // During the column-wipe reveal (~1.4s) render at 30fps — the wipe is
+      // slow enough that every-other-frame is indistinguishable, and it cuts
+      // GPU load in half at the moment the page is most resource-constrained.
+      frameCount++;
+      if (state.progress < 0.99 && frameCount % 2 !== 0) return;
+      gl.uniform1f(uTime, elapsed * 0.001);
       gl.uniform1f(uProg, state.progress);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      last = 0; // reset delta baseline so paused time isn't counted
       rafRef.current = requestAnimationFrame(render);
     };
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(rafRef.current);
+    };
+
+    let onScreen = true;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (onScreen && !document.hidden) startLoop();
+        else stopLoop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+
+    const onVisibility = () => {
+      if (document.hidden) stopLoop();
+      else if (onScreen) startLoop();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     /* ── boot: render immediately; re-fit text once Forum loads ───────── */
     {
       resize();
-      rafRef.current = requestAnimationFrame(render);
+      startLoop();
       // Forum metrics differ from the serif fallback — re-fit when it lands.
       document.fonts.ready.then(layout).catch(() => {});
 
@@ -374,7 +419,9 @@ export default function HeroClipText() {
     window.addEventListener('resize', resize);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      stopLoop();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('resize', resize);
       canvas.removeEventListener('webglcontextlost', onLost, true);
     };

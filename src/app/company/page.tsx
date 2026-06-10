@@ -8,8 +8,7 @@ import CompanyAnimations from './_components/CompanyAnimations';
 import HeroClipText from '@/components/sections/HeroClipText';
 import dynamic from 'next/dynamic';
 
-const AccessGlobe    = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
-const MissionGrainBg = dynamic(() => import('./_components/MissionGrainBg'), { ssr: false });
+const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
 
 export const metadata: Metadata = {
   title: '会社概要',
@@ -73,7 +72,7 @@ function SectionLabel({ text }: { text: string }) {
       />
       <p
         data-gsap="label"
-        className="font-display text-small font-bold uppercase tracking-widest text-[#D95208]"
+        className="font-forum text-small font-bold uppercase tracking-widest text-[#D95208]"
       >
         {text}
       </p>
@@ -93,16 +92,14 @@ export default function CompanyPage() {
         <HeroClipText />
 
         {/* ── CEO Message / Mission ────────────────────────────────────── */}
-        <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80">
-          {/* Grain texture bg — warm grey WebGL field, similar to hero */}
-          <MissionGrainBg />
+        <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: 'rgb(156, 203, 218)' }}>
 
           <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
             <SectionLabel text="MISSION" />
 
             <h2
               data-gsap="heading"
-              className="mb-5 font-sans font-extrabold text-gift-ink"
+              className="mb-5 font-shippori text-gift-ink"
               style={{ fontSize: 'clamp(28px, 4.4vw, 48px)', lineHeight: '1.5' }}
             >
               関わるすべての人に、
@@ -112,33 +109,33 @@ export default function CompanyPage() {
 
             <p
               data-gsap="fade"
-              className="mb-12 font-display font-light text-gift-silver"
+              className="mb-12 font-forum text-gift-silver"
               style={{ fontSize: 'clamp(17px, 1.8vw, 22px)', lineHeight: '1.2', letterSpacing: '0.02em' }}
             >
               Gift an{' '}
               <span className="font-medium text-[#F07A30]">opportunity.</span>
             </p>
 
-            <p data-highlight-text className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+            <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
               かつて、自分の人生について深く考えたのは、ある出来事がキッカケだった。
             </p>
-            <p data-highlight-text className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+            <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
               私の過去、現在、そして未来。
               自分自身がこれまでに数え切れないほどの出会い、挑戦、成功、失敗、そして挫折を経験し、
               それら全てが「キッカケ」という貴重なギフトだと気づいた。
             </p>
-            <p data-highlight-text className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+            <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
               それに気づいたときから、私たちの使命は、
               株式会社GIFTを設立し『人と企業の人生に寄り添いながら』事業を展開していくこと。
               そして、誰かの人生を変えるような「キッカケ」というギフトを与え続けること。
             </p>
-            <p data-highlight-text className="font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+            <p data-highlight-text className="font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
               そんな会社を目指し、今日も私たちは前進する。
             </p>
 
             <CeoMessageReveal />
 
-            <p data-gsap="fade" className="mt-8 font-sans text-normal text-gift-ink">
+            <p data-gsap="fade" className="mt-8 font-shippori text-normal text-gift-ink">
               株式会社GIFT 代表取締役
               <br />
               <span className="font-semibold">{company.ceo}</span>
@@ -154,7 +151,7 @@ export default function CompanyPage() {
                 <SectionLabel text="VISION" />
                 <h2
                   data-gsap="heading"
-                  className="font-sans font-extrabold text-gift-ink"
+                  className="font-shippori text-gift-ink"
                   style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                 >
                   展望
@@ -162,7 +159,7 @@ export default function CompanyPage() {
               </div>
               <div className="lg:col-span-3" data-gsap="fade">
                 <p
-                  className="font-sans font-bold text-gift-ink"
+                  className="font-shippori text-gift-ink"
                   style={{ fontSize: 'clamp(22px, 2.6vw, 32px)', lineHeight: '1.6' }}
                 >
                   AIが当たり前の時代にこそ、
@@ -175,13 +172,18 @@ export default function CompanyPage() {
         </section>
 
         {/* ── Values ───────────────────────────────────────────────────── */}
-        <section
-          className="py-s-80"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(190,65,8,0.28) 0%, transparent 55%), #1b1710',
-          }}
-        >
+        {/* blc-round outer: transparent clipper — overflow:hidden on this, not the card */}
+        <div id="js-values-blc" className="mx-4 overflow-hidden md:mx-6">
+          {/* blc-round-bg: the ENTIRE card (bg color + content). GSAP animates this as one unit. */}
+          <div
+            id="js-values-blc-bg"
+            className="relative overflow-hidden rounded-2xl backdrop-blur-sm"
+            style={{
+              background:
+                'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(190,65,8,0.28) 0%, transparent 55%), rgba(27,23,16,0.65)',
+            }}
+          >
+          <section id="js-values-section" className="relative z-10 py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
 
             {/* Section header — full width, label left / descriptor right */}
@@ -190,41 +192,45 @@ export default function CompanyPage() {
                 <SectionLabel text="VALUES" />
                 <h2
                   data-gsap="heading"
-                  className="font-sans font-extrabold text-white"
+                  className="font-shippori text-white"
                   style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
                 >
                   価値観
                 </h2>
               </div>
-              <p className="font-display text-[13px] font-light leading-relaxed text-white/30 sm:text-right">
+              <p className="font-shippori text-[13px] leading-relaxed text-white/30 sm:text-right">
                 GIFTが大切にしている<br className="hidden sm:inline" />3つの行動指針
               </p>
             </div>
 
-            {/* Card grid — 2 col like biscom */}
-            <div className="grid grid-cols-1 gap-x-20 gap-y-16 sm:grid-cols-2">
+            {/* Card grid — 3 col (biscom style) */}
+            <div className="b-values-grid mt-8 grid grid-cols-1 gap-x-16 gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
               {valueCards.map((v) => (
-                <div key={v.title} data-gsap="card">
-                  {/* Dark oval number badge */}
-                  <div className="mb-7">
-                    <span className="inline-block rounded-[100px] bg-[#2c2419] px-5 py-[7px] font-mono text-[11px] tracking-[0.3em] text-white/35">
+                <div key={v.title} className="relative pt-8">
+                  {/* Biscom oval number badge — absolutely positioned outside card top-left */}
+                  <div
+                    data-gsap="b-index"
+                    className="absolute -left-4 -top-6 grid h-10 w-[65px] place-items-center lg:-left-[50px] lg:h-11 lg:w-[85px]"
+                  >
+                    <div className="absolute inset-0 -rotate-[30deg] rounded-full bg-black/20" />
+                    <span className="relative z-10 font-mono text-[11px] tracking-[0.3em] text-[#f0d372]">
                       {v.num}
                     </span>
                   </div>
                   {/* Title + orange pill */}
-                  <div className="mb-5 flex flex-wrap items-center gap-3">
+                  <div data-gsap="card-title" className="mb-5 flex flex-wrap items-center gap-3">
                     <h3
-                      className="font-sans font-bold text-white [line-break:strict]"
+                      className="font-shippori text-white [line-break:strict]"
                       style={{ fontSize: 'clamp(22px, 2.2vw, 30px)', lineHeight: '1.4' }}
                     >
                       {v.title}
                     </h3>
-                    <span className="shrink-0 rounded-full bg-[#D95208] px-4 py-[5px] font-sans text-[12px] font-semibold text-white">
+                    <span className="shrink-0 rounded-full bg-[#D95208] px-4 py-[5px] font-forum text-[12px] font-semibold text-white">
                       {v.label}
                     </span>
                   </div>
                   {/* Body */}
-                  <p className="font-sans text-[15px] font-light leading-[2.1] text-white/50 [line-break:strict]">
+                  <p data-gsap="card-text" className="font-shippori text-[15px] leading-[2.1] text-white/50 [line-break:strict]">
                     {v.body}
                   </p>
                 </div>
@@ -236,13 +242,13 @@ export default function CompanyPage() {
               <div className="relative z-10">
                 <div className="mb-6 flex items-center gap-3">
                   <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#B84010]" />
-                  <p className="font-display text-small font-bold uppercase tracking-widest text-[#B84010]">
+                  <p className="font-forum text-small font-bold uppercase tracking-widest text-[#B84010]">
                     We&apos;ll Never
                   </p>
                 </div>
                 <h3
                   data-gsap="fade"
-                  className="mb-7 font-sans font-extrabold text-white"
+                  className="mb-7 font-shippori text-white"
                   style={{ fontSize: 'clamp(20px, 2.4vw, 28px)', lineHeight: '1.4' }}
                 >
                   私たちが、選ばない姿勢。
@@ -257,7 +263,7 @@ export default function CompanyPage() {
                       <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#B84010] text-white shadow-[0_2px_8px_rgba(184,64,16,0.35)] transition-transform duration-300 group-hover:scale-110">
                         <NoIcon className="h-6 w-6" />
                       </span>
-                      <p className="pt-1 font-sans text-[15px] font-light leading-relaxed text-white/90">
+                      <p className="pt-1 font-shippori text-[15px] leading-relaxed text-white/90">
                         {item}
                       </p>
                     </div>
@@ -267,7 +273,9 @@ export default function CompanyPage() {
             </div>
 
           </div>
-        </section>
+          </section>
+          </div>{/* end #js-values-blc-bg */}
+        </div>{/* end #js-values-blc */}
 
         {/* ── Company Info ─────────────────────────────────────────────── */}
         <section className="border-t border-gift-border bg-white py-s-80">
@@ -276,7 +284,7 @@ export default function CompanyPage() {
               <SectionLabel text="COMPANY INFORMATION" />
               <h2
                 data-gsap="heading"
-                className="font-sans font-extrabold text-gift-ink"
+                className="font-shippori text-gift-ink"
                 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
               >
                 会社概要
@@ -290,10 +298,10 @@ export default function CompanyPage() {
                   data-gsap="row"
                   className="grid grid-cols-1 border-b border-gift-border py-5 sm:grid-cols-4 sm:gap-6"
                 >
-                  <dt className="mb-1 font-display text-small uppercase tracking-widest text-[#D95208] sm:mb-0 sm:col-span-1">
+                  <dt className="mb-1 font-forum text-small uppercase tracking-widest text-[#D95208] sm:mb-0 sm:col-span-1">
                     {row.label}
                   </dt>
-                  <dd className="font-sans text-normal font-light text-gift-ink sm:col-span-3">
+                  <dd className="font-shippori text-normal text-gift-ink sm:col-span-3">
                     {row.value}
                   </dd>
                 </div>
@@ -309,7 +317,7 @@ export default function CompanyPage() {
             <SectionLabel text="HISTORY" />
             <h2
               data-gsap="heading"
-              className="font-sans font-extrabold text-gift-ink"
+              className="font-shippori text-gift-ink"
               style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
             >
               沿革
@@ -326,7 +334,7 @@ export default function CompanyPage() {
               <SectionLabel text="ACCESS" />
               <h2
                 data-gsap="heading"
-                className="font-sans font-extrabold text-gift-ink"
+                className="font-shippori text-gift-ink"
                 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
               >
                 アクセス
@@ -335,11 +343,11 @@ export default function CompanyPage() {
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-12">
               <div className="lg:col-span-2" data-gsap="fade">
-                <p className="mb-2 font-sans text-normal text-gift-ink">{company.name}</p>
-                <p className="mb-6 font-sans font-light text-gift-silver" style={{ lineHeight: '2' }}>
+                <p className="mb-2 font-shippori text-normal text-gift-ink">{company.name}</p>
+                <p className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
                   {company.address}
                 </p>
-                <p className="font-sans text-small text-gift-silver">TEL: {company.phone}</p>
+                <p className="font-shippori text-small text-gift-silver">TEL: {company.phone}</p>
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`}
                   target="_blank"
@@ -366,7 +374,7 @@ export default function CompanyPage() {
         <section className="border-t border-gift-border bg-[#EFF6F9] py-s-80">
           <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8" data-gsap="fade">
             <h2
-              className="mb-8 font-sans font-extrabold text-gift-ink"
+              className="mb-8 font-shippori text-gift-ink"
               style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
             >
               お気軽にお問い合わせください

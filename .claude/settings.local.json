@@ -31,7 +31,8 @@
       "Bash(cd *)",
       "Bash(cd /tmp)",
       "Bash(grep -aoiE \".{20}loadImgs.{0,120}\" biscom_common_js_index.js)",
-      "Bash(grep -aoiE \"[\\\\\"'\\\\`][^\\\\\"'\\\\`]*\\\\.\\(avif|webp|mp4|png|jpg\\)[\\\\\"'\\\\`]\" biscom_common_js_index.js)"
+      "Bash(grep -aoiE \"[\\\\\"'\\\\`][^\\\\\"'\\\\`]*\\\\.\\(avif|webp|mp4|png|jpg\\)[\\\\\"'\\\\`]\" biscom_common_js_index.js)",
+      "WebFetch(domain:biscom.jp)"
     ]
   }
 }

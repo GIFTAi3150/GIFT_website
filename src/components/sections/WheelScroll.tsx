@@ -100,7 +100,7 @@ export default function WheelScroll() {
   const [pillSize, setPillSize] = useState(108);
 
   useEffect(() => {
-    const update = () => setPillSize(window.innerWidth < 768 ? 76 : 108);
+    const update = () => setPillSize(window.innerWidth < 768 ? 130 : 148);
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
@@ -190,7 +190,7 @@ export default function WheelScroll() {
           <div
             style={{
               position: 'absolute',
-              bottom: '20vh',
+              top: '40vh',
               left: 0,
               right: 0,
               zIndex: 10,
@@ -223,9 +223,9 @@ export default function WheelScroll() {
                     {step.title}
                   </h3>
                   <p
-                    className="font-sans font-light text-[#475569]"
+                    className="font-sans font-light text-[#111B21]"
                     style={{
-                      fontSize: 'clamp(16px, 1.8vw, 22px)',
+                      fontSize: 'clamp(18px, 2vw, 26px)',
                       lineHeight: '2',
                       whiteSpace: 'pre-line',
                     }}

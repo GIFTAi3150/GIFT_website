@@ -94,6 +94,8 @@ export default {
         mincho: ['var(--font-mincho)'],
         'nube-display': ['var(--font-anton)', 'Impact', 'sans-serif'],
         'nube-sans':    ['var(--font-open-sans)', 'system-ui', 'sans-serif'],
+        forum:    ['var(--font-forum)', 'serif'],
+        shippori: ['var(--font-shippori)', 'serif'],
       },
       fontSize: {
         small: ['16px', { lineHeight: '1.5' }],

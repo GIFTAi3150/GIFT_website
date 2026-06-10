@@ -15,59 +15,48 @@ const SPEED_C = 0.44;
 const SPEED_Y = 0.07;
 
 // ── Physics constants ─────────────────────────────────────────────────────────
-// Spheres always follow their parametric orbital paths. A collision adds a
-// *displacement* offset to the sphere's position. The displacement decays back
-// to zero via a spring + damper so the sphere smoothly returns to orbit.
-//
-// DISP_SPRING: stiffness pulling displacement → 0  (higher = faster return)
-// DISP_DAMP:   velocity damping on the displacement (set to 2√k for critical)
-// RESTITUTION: fraction of relative closing speed kept after collision (0–1)
 const DISP_SPRING = 3.5;
 const DISP_DAMP   = 3.8; // ≈ 2·√3.5 → slightly overdamped, no oscillation
 const RESTITUTION = 0.82;
 
 // ── Orbital position functions ────────────────────────────────────────────────
+// Radii are set to ~2.8-3.1 so spheres orbit clearly OUTSIDE all three ring
+// tubes (ring major radii are ~1.9-2.2; this gives ≥0.55 unit clearance).
 const orbitBlue = (t: number, out: THREE.Vector3): void => {
   const a = 0.785 + t * 0.40;
-  out.set(2.2 * Math.cos(a), 0.22 * Math.sin(t * 0.65 + 0.2), 2.2 * Math.sin(a));
+  out.set(2.9 * Math.cos(a), 0.29 * Math.sin(t * 0.65 + 0.2), 2.9 * Math.sin(a));
 };
 const orbitPink = (t: number, out: THREE.Vector3): void => {
   const a = 4.55 + t * 0.55;
-  out.set(1.9 * Math.cos(a), 1.9 * Math.sin(a), 0.12 * Math.sin(t * 1.2 + 0.5));
+  out.set(2.8 * Math.cos(a), 2.8 * Math.sin(a), 0.16 * Math.sin(t * 1.2 + 0.5));
 };
 const orbitOrange2 = (t: number, out: THREE.Vector3): void => {
   const a = 3.86 - t * 0.45;
-  out.set(0.20 * Math.sin(t * 0.95 + 1.0), 2.1 * Math.cos(a), 2.1 * Math.sin(a));
+  out.set(0.27 * Math.sin(t * 0.95 + 1.0), 2.9 * Math.cos(a), 2.9 * Math.sin(a));
 };
 const orbitOrange1 = (t: number, out: THREE.Vector3): void => {
   const a = 3.30 + t * 0.28;
   const sinT = 0.643, cosT = 0.766;
-  const bob  = 0.15 * Math.sin(t * 0.8 + 0.3);
-  out.set(2.3 * Math.cos(a), -2.3 * Math.sin(a) * sinT + bob * cosT, 2.3 * Math.sin(a) * cosT);
+  const bob  = 0.19 * Math.sin(t * 0.8 + 0.3);
+  out.set(2.9 * Math.cos(a), -2.9 * Math.sin(a) * sinT + bob * cosT, 2.9 * Math.sin(a) * cosT);
 };
 const orbitAccent = (t: number, out: THREE.Vector3): void => {
   const a = 1.22 + t * 0.18;
   const cosφ = 0.766, sinφ = 0.643;
   out.set(
-    2.6 * Math.cos(a) * cosφ,
-    2.6 * Math.cos(a) * sinφ,
-    2.6 * Math.sin(a) + 0.28 * Math.sin(t * 0.5 + 2.5),
+    3.1 * Math.cos(a) * cosφ,
+    3.1 * Math.cos(a) * sinφ,
+    3.1 * Math.sin(a) + 0.33 * Math.sin(t * 0.5 + 2.5),
   );
 };
 
 // ── Physics body ──────────────────────────────────────────────────────────────
-// `disp` / `dispVel`: displacement of sphere FROM its orbital position.
-//   Zero when undisturbed. Grows after a collision; spring pulls it back.
-// `prevOrb`: orbital position on the previous frame, used to estimate orbital
-//   velocity via finite difference. No analytical derivative functions needed.
-// `curOrb` / `curOrbVel`: recomputed each frame (scratch, stored per-body to
-//   avoid extra allocations in the collision loop).
 type PhysBody = {
   disp:      THREE.Vector3;
   dispVel:   THREE.Vector3;
   prevOrb:   THREE.Vector3;
-  curOrb:    THREE.Vector3;  // set each frame
-  curOrbVel: THREE.Vector3;  // estimated each frame from finite difference
+  curOrb:    THREE.Vector3;
+  curOrbVel: THREE.Vector3;
   orbitFn:   (t: number, out: THREE.Vector3) => void;
   radius:    number;
   mass:      number;
@@ -103,10 +92,10 @@ function AtomScene({ mobile }: { mobile: boolean }) {
   const physRef    = useRef<Map<SphereKey, PhysBody>>(new Map());
   const physInited = useRef(false);
 
-  // Scratch vectors shared across the loop — zero per-frame allocations
-  const _n    = useRef(new THREE.Vector3()); // collision normal
-  const _rv   = useRef(new THREE.Vector3()); // relative velocity
-  const _tmp  = useRef(new THREE.Vector3()); // general scratch
+  // Scratch vectors — zero per-frame allocations
+  const _n    = useRef(new THREE.Vector3());
+  const _rv   = useRef(new THREE.Vector3());
+  const _tmp  = useRef(new THREE.Vector3());
 
   useEffect(() => {
     ringA.current    = (nodes['Ring_A']         as THREE.Object3D) ?? null;
@@ -130,10 +119,9 @@ function AtomScene({ mobile }: { mobile: boolean }) {
 
   useFrame((state, delta) => {
     const t  = state.clock.getElapsedTime();
-    const dt = Math.min(delta, 0.05); // clamp: prevents explosion on tab-focus
+    const dt = Math.min(delta, 0.05);
 
     // ── 1. First-frame init ───────────────────────────────────────────────
-    // prevOrb is seeded at t−dt so the first orbital velocity estimate is valid.
     if (!physInited.current) {
       const tPrev = t - dt;
       SPHERE_DEFS.forEach(({ key, orbitFn, radius, mass }) => {
@@ -157,16 +145,12 @@ function AtomScene({ mobile }: { mobile: boolean }) {
 
     const bodies = physRef.current;
 
-    // ── 2. Update each body's orbital position + velocity estimate ────────
+    // ── 2. Update orbital positions + displacement spring ─────────────────
     bodies.forEach((body) => {
-      // Advance orbital position
       body.orbitFn(t, body.curOrb);
-      // Orbital velocity ≈ Δposition / Δtime (finite difference, one frame lag)
       body.curOrbVel.copy(body.curOrb).sub(body.prevOrb).divideScalar(dt);
-      body.prevOrb.copy(body.curOrb); // store for next frame
+      body.prevOrb.copy(body.curOrb);
 
-      // Displacement spring: F = -k·disp - c·dispVel
-      // This pulls the displacement back toward zero (i.e. back toward the orbit).
       _tmp.current
         .copy(body.disp).multiplyScalar(-DISP_SPRING)
         .addScaledVector(body.dispVel, -DISP_DAMP);
@@ -175,44 +159,31 @@ function AtomScene({ mobile }: { mobile: boolean }) {
     });
 
     // ── 3. Sphere–sphere elastic collision ────────────────────────────────
-    // Actual position = orbital position + displacement.
-    // Total velocity  = orbital velocity  + displacement velocity.
-    // Impulse is applied ONLY to dispVel — orbital motion is never modified.
-    // This means after a collision the sphere follows a briefly displaced path
-    // then smoothly returns to its original orbit.
-    //
-    // Impulse formula (conservation of momentum):
-    //   j = −(1 + e) · v_rel·n̂ / (1/mₐ + 1/m_b)
     const bodyArr = [...bodies.entries()];
     for (let i = 0; i < bodyArr.length; i++) {
       for (let j = i + 1; j < bodyArr.length; j++) {
         const [, a] = bodyArr[i];
         const [, b] = bodyArr[j];
 
-        // Actual 3D positions
         const posA = _tmp.current.copy(a.curOrb).add(a.disp);
         _n.current.copy(b.curOrb).add(b.disp).sub(posA);
         const dist    = _n.current.length();
         const minDist = a.radius + b.radius;
         if (dist >= minDist || dist < 0.001) continue;
 
-        _n.current.divideScalar(dist); // unit normal a → b
+        _n.current.divideScalar(dist);
 
-        // Relative total velocity along the collision normal
         _rv.current
           .copy(a.curOrbVel).add(a.dispVel)
           .sub(_tmp.current.copy(b.curOrbVel).add(b.dispVel));
         const vn = _rv.current.dot(_n.current);
 
-        // Apply impulse only when approaching (vn > 0)
         if (vn > 0) {
           const impulse = -(1 + RESTITUTION) * vn / (1 / a.mass + 1 / b.mass);
-          // Impulse modifies displacement velocity only — orbits are untouched
           a.dispVel.addScaledVector(_n.current,  impulse / a.mass);
           b.dispVel.addScaledVector(_n.current, -impulse / b.mass);
         }
 
-        // Positional correction: push displacements apart so bodies no longer overlap
         const overlap   = minDist - dist;
         const totalMass = a.mass + b.mass;
         a.disp.addScaledVector(_n.current, -overlap * (b.mass / totalMass));
@@ -220,14 +191,13 @@ function AtomScene({ mobile }: { mobile: boolean }) {
       }
     }
 
-    // ── 4. Apply actual positions (orbital + displacement) to Three.js nodes ─
+    // ── 4. Apply positions to Three.js nodes ──────────────────────────────
     const sw = (amp: number, freq: number, off: number) =>
       amp * Math.sin(t * freq + off);
 
     const applyBody = (node: THREE.Object3D | null, key: SphereKey) => {
       const b = bodies.get(key);
       if (!node || !b) return;
-      // actual position = curOrb + disp
       node.position.copy(b.curOrb).add(b.disp);
     };
 
@@ -237,7 +207,6 @@ function AtomScene({ mobile }: { mobile: boolean }) {
     applyBody(sOrange1.current, 'orange1');
     applyBody(sAccent.current,  'accent');
 
-    // Scale breath (unchanged)
     if (sBlue.current)    sBlue.current.scale.setScalar   (1 + sw(0.05, 1.1, 0.0));
     if (sPink.current)    sPink.current.scale.setScalar    (1 + sw(0.07, 1.5, 1.0));
     if (sOrange2.current) sOrange2.current.scale.setScalar (1 + sw(0.04, 1.3, 2.0));
@@ -250,12 +219,11 @@ function AtomScene({ mobile }: { mobile: boolean }) {
       }
     }
 
-    // ── 5. Ring rotation (unchanged) ──────────────────────────────────────
+    // ── 5. Ring rotation ──────────────────────────────────────────────────
     if (ringA.current) ringA.current.rotation.z += delta * SPEED_A * (1 + 0.12 * Math.sin(t * 0.31));
     if (ringB.current) ringB.current.rotation.x += delta * SPEED_B * (1 + 0.10 * Math.sin(t * 0.24 + 1.0));
     if (ringC.current) ringC.current.rotation.y += delta * SPEED_C * (1 + 0.09 * Math.sin(t * 0.19 + 2.1));
 
-    // Whole model: slow y-drift + gentle breathing tilt
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * SPEED_Y;
       groupRef.current.rotation.x = 0.05 * Math.sin(t * 0.14);

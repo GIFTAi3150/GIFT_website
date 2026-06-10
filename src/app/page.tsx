@@ -8,6 +8,7 @@ import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Column from '@/components/sections/Column';
 import AIOps from '@/components/sections/AIOps';
+import HPAbout from '@/components/sections/HPAbout';
 import RecruitCta from '@/components/sections/RecruitCta';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles, getPublishedMembers } from '@/lib/notion';
@@ -76,6 +77,9 @@ export default async function HomePage() {
 
         {/* AIOPS */}
         <AIOps />
+
+        {/* ABOUT */}
+        <HPAbout />
 
         {/* HOW WE WORK */}
         <Reveal>
