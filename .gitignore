@@ -59,3 +59,16 @@ next-env.d.ts
 
 # local visual-verify scratch (shader harness, screenshots)
 .inspect/
+
+# Harness runtime state — changes every session, not project code
+.harness-mem/state/continuity.json
+.harness-mem/state/whisper-budget.json
+.harness-mem/state/*.tmp*
+.harness-mem/state/*.lock
+
+# Dev/test video capture artifacts
+public/videos/preview_seq/
+public/videos/preview*.png
+public/videos/uv_test*.png
+public/videos/anim_*.png
+public/videos/f0*.png
