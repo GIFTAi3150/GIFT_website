@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <main className="bg-gift-near-black">
+      <main className="bg-[#1B2A4A]">
         {/* Hero */}
-        <section className="border-b border-gift-border py-s-80">
+        <section className="border-b border-white/10 py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#C9A84C]">
               PRIVACY POLICY
             </p>
             <h1
-              className="font-sans font-extrabold text-gift-ink"
+              className="font-sans font-extrabold text-white"
               style={{ fontSize: 'clamp(32px, 4.5vw, 52px)', lineHeight: '1.1' }}
             >
               個人情報に関する公表文
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Body */}
-        <section className="border-t border-gift-border bg-white py-s-80">
+        <section className="border-t border-white/10 bg-[#F7F6F1] py-s-80">
           <div className="mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
             <article className="privacy-body">
               <h2>■ 個人情報の取扱いについて</h2>

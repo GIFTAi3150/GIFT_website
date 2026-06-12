@@ -156,25 +156,27 @@
 
 /* Privacy policy typography */
 .privacy-body {
-  color: #5E5E5E;
+  color: #3D3D3D;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   font-size: clamp(15px, 1.6vw, 17px);
   line-height: 2;
 }
 .privacy-body h2 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 800;
   font-size: clamp(22px, 2.4vw, 28px);
   line-height: 1.3;
   margin-top: 3rem;
   margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #C9A84C;
 }
 .privacy-body h2:first-child {
   margin-top: 0;
 }
 .privacy-body h3 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 700;
   font-size: clamp(17px, 1.9vw, 20px);
   line-height: 1.4;
@@ -182,7 +184,7 @@
   margin-bottom: 0.85rem;
 }
 .privacy-body h4 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   font-size: clamp(15px, 1.7vw, 17px);
   line-height: 1.5;
@@ -190,7 +192,7 @@
   margin-bottom: 0.5rem;
 }
 .privacy-body h5 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   font-size: 15px;
   line-height: 1.5;
@@ -219,20 +221,21 @@
 }
 .privacy-body hr {
   border: 0;
-  border-top: 1px solid #CDD0D5;
+  border-top: 1px solid #C9A84C;
   margin: 3rem 0;
+  opacity: 0.4;
 }
 .privacy-body strong {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
 }
 .privacy-body .privacy-date {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   margin-top: -0.5rem;
 }
 .privacy-body .privacy-signature {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   margin-top: 1.5rem;
 }
@@ -240,7 +243,7 @@
 .privacy-table-wrap {
   overflow-x: auto;
   margin: 1rem 0 1.5rem;
-  border: 1px solid #CDD0D5;
+  border: 1px solid #C8CAD4;
   border-radius: 8px;
 }
 .privacy-table {
@@ -250,29 +253,93 @@
   line-height: 1.7;
 }
 .privacy-table thead {
-  background: #F0F4F9;
+  background: #1B2A4A;
 }
 .privacy-table th {
   padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 700;
-  color: #111B21;
-  border-bottom: 1px solid #CDD0D5;
+  color: #ffffff;
+  border-bottom: 1px solid #243760;
 }
 .privacy-table td {
   padding: 0.85rem 1rem;
   vertical-align: top;
-  border-bottom: 1px solid #CDD0D5;
-  color: #111B21;
+  border-bottom: 1px solid #E0DDD6;
+  color: #1B2A4A;
 }
 .privacy-table tr:last-child td {
   border-bottom: none;
 }
 .privacy-table td:first-child {
-  background: #F7F9FC;
+  background: #EEF0F5;
   font-weight: 500;
   width: 40%;
 }
+
+/* ============================================================
+   Contact page hero — autonomous floating deco-rects
+   Same shapes/colors as the DX /final section. Scroll scrub
+   replaced with CSS keyframe floats; speeds mirror the GSAP
+   parallax speeds (560/320/480/260 … mapped to duration).
+============================================================ */
+.contact-hero-rects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  /* stretches across full <main> height — all sections */
+  --dr-solid: #635bff;
+  --dr-ghost: rgba(99, 91, 255, 0.22);
+}
+.contact-hero-rects .chr {
+  position: absolute;
+  border-radius: 20px;
+  will-change: transform, opacity;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  opacity: 0;
+}
+
+/* Rise from below → off-screen above. Opacity gates hide the snap-back. */
+@keyframes chr-rise-lg {
+  0%   { transform: translateY(520px);  opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(-260px); opacity: 0; }
+}
+@keyframes chr-rise-md {
+  0%   { transform: translateY(420px);  opacity: 0; }
+  9%   { opacity: 1; }
+  87%  { opacity: 1; }
+  100% { transform: translateY(-220px); opacity: 0; }
+}
+@keyframes chr-rise-sm {
+  0%   { transform: translateY(340px);  opacity: 0; }
+  10%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { transform: translateY(-180px); opacity: 0; }
+}
+
+/* ── positions — horizontal spread kept from dx-v3 dr-c*, top is mid-anchor ── */
+.contact-hero-rects .dr-c1  { width:95px;  height:145px; top:30%; left:-20px;              background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:14.0s; animation-delay:-1.4s;  }
+.contact-hero-rects .dr-c2  { width:82px;  height:125px; top:50%; left:18px;               background:var(--dr-solid); animation-name:chr-rise-md; animation-duration:11.2s; animation-delay:-6.0s;  }
+.contact-hero-rects .dr-c3  { width:88px;  height:135px; top:25%; left:calc(50% - 210px);  background:var(--dr-ghost); animation-name:chr-rise-md; animation-duration:12.8s; animation-delay:-3.5s;  }
+.contact-hero-rects .dr-c4  { width:78px;  height:120px; top:60%; left:calc(50% - 150px);  background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:10.4s; animation-delay:-8.1s;  }
+.contact-hero-rects .dr-c5  { width:88px;  height:135px; top:20%; left:calc(50% + 70px);   background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:15.6s; animation-delay:-5.2s;  }
+.contact-hero-rects .dr-c6  { width:78px;  height:120px; top:65%; left:calc(50% + 100px);  background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:11.8s; animation-delay:-2.7s;  }
+.contact-hero-rects .dr-c7  { width:95px;  height:145px; top:35%; right:-20px;             background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:17.0s; animation-delay:-9.3s;  }
+.contact-hero-rects .dr-c8  { width:82px;  height:125px; top:55%; right:18px;              background:var(--dr-solid); animation-name:chr-rise-md; animation-duration:12.0s; animation-delay:-0.6s;  }
+.contact-hero-rects .dr-c9  { width:74px;  height:114px; top:45%; left:8px;                background:var(--dr-ghost); animation-name:chr-rise-md; animation-duration:13.4s; animation-delay:-7.0s;  }
+.contact-hero-rects .dr-c10 { width:62px;  height:96px;  top:70%; left:72px;               background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:10.0s; animation-delay:-4.5s;  }
+.contact-hero-rects .dr-c11 { width:74px;  height:114px; top:40%; right:8px;               background:var(--dr-solid); animation-name:chr-rise-lg; animation-duration:16.2s; animation-delay:-11.0s; }
+.contact-hero-rects .dr-c12 { width:62px;  height:96px;  top:68%; right:72px;              background:var(--dr-ghost); animation-name:chr-rise-sm; animation-duration:9.6s;  animation-delay:-3.1s;  }
+.contact-hero-rects .dr-c13 { width:56px;  height:84px;  top:28%; left:calc(50% - 280px);  background:var(--dr-ghost); animation-name:chr-rise-sm; animation-duration:11.6s; animation-delay:-8.8s;  }
+.contact-hero-rects .dr-c14 { width:56px;  height:84px;  top:48%; left:calc(50% + 220px);  background:var(--dr-solid); animation-name:chr-rise-md; animation-duration:13.0s; animation-delay:-6.4s;  }
+.contact-hero-rects .dr-c15 { width:48px;  height:72px;  top:58%; left:calc(50% - 180px);  background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:10.8s; animation-delay:-2.0s;  }
+.contact-hero-rects .dr-c16 { width:48px;  height:72px;  top:52%; left:calc(50% + 130px);  background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:18.0s; animation-delay:-13.5s; }
 
 /* Contact form inputs */
 .contact-input {
@@ -294,8 +361,8 @@
   border-color: #9aa0a6;
 }
 .contact-input:focus {
-  border-color: #25D366;
-  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 .contact-input:disabled {
   background: #F0F4F9;

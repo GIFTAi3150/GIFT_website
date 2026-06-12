@@ -4,11 +4,11 @@ import Hero from '@/components/sections/Hero';
 import WhoWeAre from '@/components/sections/WhoWeAre';
 import CaseStudy from '@/components/sections/CaseStudy';
 import WheelScroll from '@/components/sections/WheelScroll';
-import ProcessFlow from '@/components/sections/ProcessFlow';
 import SocialLinks from '@/components/sections/SocialLinks';
 import Column from '@/components/sections/Column';
 import AIOps from '@/components/sections/AIOps';
 import HPAbout from '@/components/sections/HPAbout';
+import HPCases from '@/components/sections/HPCases';
 import RecruitCta from '@/components/sections/RecruitCta';
 import Reveal from '@/components/ui/Reveal';
 import { getPublishedArticles, getPublishedMembers } from '@/lib/notion';
@@ -75,16 +75,14 @@ export default async function HomePage() {
         {/* OUR PHILOSOPHY — scroll-pinned rotating wheel (no Reveal: manages its own sticky scroll) */}
         <WheelScroll />
 
-        {/* AIOPS */}
-        <AIOps />
-
         {/* ABOUT */}
         <HPAbout />
 
-        {/* HOW WE WORK */}
-        <Reveal>
-          <ProcessFlow />
-        </Reveal>
+        {/* AIOPS */}
+        <AIOps />
+
+        {/* CASES */}
+        <HPCases />
 
         {/* SERVICE — hidden */}
         {/* WORKS — hidden */}

@@ -74,7 +74,7 @@ export default function AIOps() {
       </div>
 
       {/* Label */}
-      <div className="text-center mb-4">
+      <div className="relative z-10 text-center mb-4">
         <p
           className="font-display font-semibold uppercase tracking-widest"
           style={{ fontSize: 'clamp(10px, 1.2vw, 13px)', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em' }}
@@ -84,7 +84,7 @@ export default function AIOps() {
       </div>
 
       {/* Giant text — hover zone only */}
-      <div className="flex items-center justify-center">
+      <div className="relative z-10 flex items-center justify-center">
         <span
           className="font-nube-display leading-none cursor-none select-none"
           style={{
@@ -108,7 +108,7 @@ export default function AIOps() {
       </div>
 
       {/* Animated pointer arrow */}
-      <div className="flex justify-center mt-4" aria-hidden>
+      <div className="relative z-10 flex justify-center mt-4" aria-hidden>
         <span
           style={{
             display: 'inline-block',

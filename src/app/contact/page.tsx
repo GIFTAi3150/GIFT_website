@@ -66,36 +66,55 @@ export default function ContactPage() {
 
   return (
     <>
-      <main className="bg-gift-near-black">
+      <main className="relative bg-[#0b1020]">
+        {/* Autonomous floating deco-rects across the full page bg */}
+        <div className="contact-hero-rects" aria-hidden>
+          <span className="chr dr-c1" />
+          <span className="chr dr-c2" />
+          <span className="chr dr-c3" />
+          <span className="chr dr-c4" />
+          <span className="chr dr-c5" />
+          <span className="chr dr-c6" />
+          <span className="chr dr-c7" />
+          <span className="chr dr-c8" />
+          <span className="chr dr-c9" />
+          <span className="chr dr-c10" />
+          <span className="chr dr-c11" />
+          <span className="chr dr-c12" />
+          <span className="chr dr-c13" />
+          <span className="chr dr-c14" />
+          <span className="chr dr-c15" />
+          <span className="chr dr-c16" />
+        </div>
         {/* Hero */}
-        <section className="border-b border-gift-border py-s-80">
+        <section className="relative z-10 border-b border-white/10 py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+            <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#60a5fa]">
               CONTACT
             </p>
             <h1
-              className="font-sans font-extrabold text-gift-ink"
+              className="font-sans font-extrabold text-white"
               style={{ fontSize: 'clamp(40px, 6vw, 64px)', lineHeight: '1.1' }}
             >
               お問い合わせ
             </h1>
             <p
-              className="mt-6 max-w-2xl font-sans text-normal font-light text-gift-silver"
+              className="mt-6 max-w-2xl font-sans text-normal font-light text-white/60"
               style={{ lineHeight: '2' }}
             ></p>
           </div>
         </section>
 
         {/* Form + sidebar */}
-        <section className="border-t border-gift-border bg-gift-bg-alt py-s-80">
+        <section className="relative z-10 border-t border-white/10 py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:gap-16">
               {/* Form */}
               <Reveal className="lg:col-span-2">
-                <div className="rounded-2xl border border-gift-border bg-white p-6 md:p-10">
+                <div className="rounded-2xl border border-[#E5E7EB] bg-white p-6 md:p-10">
                   {submitted ? (
                     <div className="flex flex-col items-center py-12 text-center">
-                      <PixelRobot pose="wave" className="mb-6 h-28 w-28 text-gift-green-teal" />
+                      <PixelRobot pose="wave" className="mb-6 h-28 w-28 text-[#2563EB]" />
                       <h2 className="mb-3 font-sans text-large font-extrabold text-gift-ink">
                         送信が完了しました
                       </h2>
@@ -108,7 +127,7 @@ export default function ContactPage() {
                       <button
                         type="button"
                         onClick={() => setSubmitted(false)}
-                        className="mt-8 font-sans text-small text-gift-green underline-offset-4 hover:underline"
+                        className="mt-8 font-sans text-small text-[#2563EB] underline-offset-4 hover:underline"
                       >
                         続けて別のお問い合わせをする
                       </button>
@@ -189,12 +208,12 @@ export default function ContactPage() {
                           type="checkbox"
                           name="privacy"
                           required
-                          className="mt-1 h-4 w-4 accent-gift-green"
+                          className="mt-1 h-4 w-4 accent-[#2563EB]"
                         />
                         <span>
                           <a
                             href="/privacy"
-                            className="text-gift-green underline underline-offset-2"
+                            className="font-medium text-[#374151] underline underline-offset-2 hover:text-[#111827]"
                           >
                             プライバシーポリシー
                           </a>
@@ -211,7 +230,7 @@ export default function ContactPage() {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-full bg-gift-ink px-10 py-4 font-sans text-normal font-semibold text-white transition-colors hover:bg-gift-green disabled:opacity-50"
+                        className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-full bg-[#2563EB] px-10 py-4 font-sans text-normal font-semibold text-white transition-colors hover:bg-[#1D4ED8] disabled:opacity-50"
                       >
                         {loading ? (
                           '送信中...'
@@ -230,23 +249,23 @@ export default function ContactPage() {
               <Reveal delay={100} className="lg:col-span-1">
                 <div className="flex flex-col gap-8">
                   <div>
-                    <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+                    <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
                       DIRECT
                     </p>
-                    <h2 className="mb-6 font-sans text-large font-extrabold text-gift-ink">
+                    <h2 className="mb-6 font-sans text-large font-extrabold text-white">
                       直接のご連絡は
                     </h2>
 
                     <div className="flex flex-col gap-5">
                       <ContactRow icon={Mail} label="Email">
-                        <a href="mailto:it@gift-original.jp" className="hover:text-gift-green">
+                        <a href="mailto:it@gift-original.jp" className="hover:text-[#2563EB]">
                           it@gift-original.jp
                         </a>
                       </ContactRow>
                       <ContactRow icon={Phone} label="Tel">
                         <a
                           href={`tel:${company.phone.replace(/-/g, '')}`}
-                          className="hover:text-gift-green"
+                          className="hover:text-[#2563EB]"
                         >
                           {company.phone}
                         </a>
@@ -257,26 +276,8 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-gift-border bg-white p-6">
-                    <p className="mb-2 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-                      RECRUIT
-                    </p>
-                    <h3 className="mb-3 font-sans text-medium font-bold text-gift-ink">
-                      採用へのご応募について
-                    </h3>
-                    <p className="mb-4 font-sans text-small font-light leading-relaxed text-gift-silver">
-                      採用へのご応募もこちらのフォームから統一で受け付けています。初回連絡後、LINE求人アカウントへご案内します。
-                    </p>
-                    <a
-                      href="/recruit"
-                      className="inline-flex items-center gap-2 font-sans text-small font-medium text-gift-green hover:text-gift-hover-dark"
-                    >
-                      採用ページを見る →
-                    </a>
-                  </div>
-
-                  <div className="rounded-2xl bg-gift-ink p-6 text-white">
-                    <p className="mb-2 font-display text-small font-bold uppercase tracking-widest text-gift-green">
+<div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-white">
+                    <p className="mb-2 font-display text-small font-bold uppercase tracking-widest text-[#60a5fa]">
                       HOURS
                     </p>
                     <h3 className="mb-3 font-sans text-medium font-bold">営業時間</h3>
@@ -310,7 +311,7 @@ function Field({
     <label className="flex flex-col gap-2">
       <span className="font-sans text-small font-medium text-gift-ink">
         {label}
-        {required && <span className="ml-1 text-gift-green">*</span>}
+        {required && <span className="ml-1 text-[#2563EB]">*</span>}
       </span>
       {children}
     </label>
@@ -328,14 +329,14 @@ function ContactRow({
 }) {
   return (
     <div className="flex items-start gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gift-green/10 text-gift-green">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2563EB]/10 text-[#2563EB]">
         <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
       <div className="min-w-0 pt-1.5">
-        <p className="mb-1 font-display text-small font-bold uppercase tracking-widest text-gift-silver">
+        <p className="mb-1 font-display text-small font-bold uppercase tracking-widest text-white/50">
           {label}
         </p>
-        <p className="font-sans text-small font-medium text-gift-ink transition-colors">
+        <p className="font-sans text-small font-medium text-white transition-colors">
           {children}
         </p>
       </div>

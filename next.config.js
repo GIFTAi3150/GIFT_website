@@ -14,7 +14,7 @@ const nextConfig = {
     if (process.env.NODE_ENV !== 'production') {
       return [
         {
-          source: '/video/:path*',
+          source: '/videos/:path*',
           headers: [
             { key: 'Accept-Ranges', value: 'bytes' },
             { key: 'Cache-Control', value: 'no-store' },
@@ -24,7 +24,7 @@ const nextConfig = {
     }
     return [
       {
-        source: '/video/:path*',
+        source: '/videos/:path*',
         headers: [
           { key: 'Accept-Ranges', value: 'bytes' },
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },

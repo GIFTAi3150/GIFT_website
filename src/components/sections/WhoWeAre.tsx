@@ -25,7 +25,7 @@ export default function WhoWeAre() {
 
           <p
             data-highlight-text
-            className="mb-6 font-sans font-light text-white"
+            className="mb-6 w-full font-sans font-light text-white"
             style={{ fontSize: 'clamp(18px, 2vw, 22px)', lineHeight: '2', wordBreak: 'auto-phrase', textWrap: 'pretty' } as React.CSSProperties}
           >
             AIを使えば、もっとうまくいく——そう気づいたとき、GIFTがいます。業務の自動化からAIエージェントの構築まで、あなたのビジネスに合った形でAIを実装します。
@@ -33,7 +33,7 @@ export default function WhoWeAre() {
 
           <p
             data-highlight-text
-            className="mb-10 font-sans font-light text-white"
+            className="mb-10 w-full font-sans font-light text-white"
             style={{ fontSize: 'clamp(18px, 2vw, 22px)', lineHeight: '2', wordBreak: 'auto-phrase', textWrap: 'pretty' } as React.CSSProperties}
           >
             ツールを入れて終わり、ではありません。導入から運用まで一貫して伴走し、AIが本当に「使える状態」になるまで一緒に動きます。

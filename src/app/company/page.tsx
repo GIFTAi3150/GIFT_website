@@ -91,6 +91,11 @@ export default function CompanyPage() {
         {/* ── Hero ─────────────────────────────────────────────────────── */}
         <HeroClipText />
 
+        {/* Pulled up one viewport so the hero's column-wipe uncovers this content
+            from behind; zIndex:0 keeps it UNDER the zIndex:10 hero. The -100svh is
+            always one viewport (independent of the hero wrapper's wipe-length height). */}
+        <div style={{ marginTop: '-100svh', position: 'relative', zIndex: 0 }}>
+
         {/* ── CEO Message / Mission ────────────────────────────────────── */}
         <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: 'rgb(156, 203, 218)' }}>
 
@@ -144,40 +149,54 @@ export default function CompanyPage() {
         </section>
 
         {/* ── Vision ───────────────────────────────────────────────────── */}
-        <section className="border-t border-gift-border bg-white py-s-80">
-          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-16">
-              <div className="lg:col-span-1">
-                <SectionLabel text="VISION" />
-                <h2
-                  data-gsap="heading"
-                  className="font-shippori text-gift-ink"
-                  style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: '1.2' }}
-                >
-                  展望
-                </h2>
-              </div>
-              <div className="lg:col-span-3" data-gsap="fade">
-                <p
-                  className="font-shippori text-gift-ink"
-                  style={{ fontSize: 'clamp(22px, 2.6vw, 32px)', lineHeight: '1.6' }}
-                >
-                  AIが当たり前の時代にこそ、
-                  <br className="hidden sm:inline" />
-                  <span className="text-[#F07A30]">人の心を動かす</span>会社であり続ける。
-                </p>
-              </div>
-            </div>
+        <section className="relative overflow-hidden border-t border-gift-border bg-white py-s-80">
+
+          {/* Oversized watermark — sits behind content, bottom-right anchor */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-4 right-0 select-none font-display font-black uppercase leading-none text-black/[0.038]"
+            style={{ fontSize: 'clamp(110px, 20vw, 260px)', letterSpacing: '-0.05em' }}
+          >
+            VISION
+          </span>
+
+          <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
+
+            <SectionLabel text="VISION" />
+
+            {/* Big editorial statement — the visual centrepiece */}
+            <h2
+              data-gsap="heading"
+              className="mt-10 font-shippori text-gift-ink [line-break:strict]"
+              style={{ fontSize: 'clamp(26px, 4.6vw, 58px)', lineHeight: '1.4' }}
+            >
+              AIが当たり前の<br className="sm:hidden" />時代にこそ、<br />
+              <span className="text-[#D95208]">人の心を動かす</span><br className="sm:hidden" />
+              会社であり続ける。
+            </h2>
+
+            {/* Thin orange rule */}
+            <div className="mt-10 h-px w-16 bg-[#D95208]" aria-hidden />
+
+            {/* EN subtitle */}
+            <p
+              data-gsap="fade"
+              className="mt-6 font-forum uppercase tracking-[0.22em] text-gift-silver"
+              style={{ fontSize: 'clamp(12px, 1.0vw, 13px)' }}
+            >
+              Move hearts, even in the age of AI.
+            </p>
+
           </div>
         </section>
 
         {/* ── Values ───────────────────────────────────────────────────── */}
         {/* blc-round outer: transparent clipper — overflow:hidden on this, not the card */}
-        <div id="js-values-blc" className="mx-4 overflow-hidden md:mx-6">
+        <div id="js-values-blc" className="mx-4 overflow-clip md:mx-6">
           {/* blc-round-bg: the ENTIRE card (bg color + content). GSAP animates this as one unit. */}
           <div
             id="js-values-blc-bg"
-            className="relative overflow-hidden rounded-2xl backdrop-blur-sm"
+            className="relative overflow-clip rounded-2xl backdrop-blur-sm"
             style={{
               background:
                 'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(190,65,8,0.28) 0%, transparent 55%), rgba(27,23,16,0.65)',
@@ -210,7 +229,7 @@ export default function CompanyPage() {
                   {/* Biscom oval number badge — absolutely positioned outside card top-left */}
                   <div
                     data-gsap="b-index"
-                    className="absolute -left-4 -top-6 grid h-10 w-[65px] place-items-center lg:-left-[50px] lg:h-11 lg:w-[85px]"
+                    className="absolute left-2 -top-6 grid h-10 w-[65px] place-items-center sm:-left-2 md:-left-4 lg:-left-6 lg:h-11 lg:w-[85px]"
                   >
                     <div className="absolute inset-0 -rotate-[30deg] rounded-full bg-black/20" />
                     <span className="relative z-10 font-mono text-[11px] tracking-[0.3em] text-[#f0d372]">
@@ -384,6 +403,8 @@ export default function CompanyPage() {
             </Link>
           </div>
         </section>
+
+        </div>{/* end pull-up wrapper (reveal-behind hero) */}
 
       </main>
       <Footer />

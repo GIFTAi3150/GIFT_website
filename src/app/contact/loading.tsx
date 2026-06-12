@@ -4,7 +4,7 @@ const Block = ({ className = '', style }: { className?: string; style?: React.CS
 
 export default function ContactLoading() {
   return (
-    <div style={{ backgroundColor: '#F0F4F9' }} className="min-h-screen">
+    <div style={{ backgroundColor: '#0b1020' }} className="min-h-screen">
       {/* Header */}
       <div className="w-full border-b border-gift-border">
         <div className="mx-auto flex h-16 max-w-container items-center justify-between px-4 md:px-6 lg:px-8">
@@ -83,14 +83,7 @@ export default function ContactLoading() {
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border border-gift-border bg-white p-6 space-y-3">
-                <Block className="h-3 w-16 rounded" />
-                <Block className="h-5 w-48 rounded" />
-                <Block className="h-3 w-full rounded" />
-                <Block className="h-3 w-10/12 rounded" />
-                <Block className="mt-2 h-4 w-32 rounded" />
-              </div>
-              <div className="rounded-2xl bg-gift-ink/80 p-6 space-y-3">
+<div className="rounded-2xl bg-gift-ink/80 p-6 space-y-3">
                 <Block className="h-3 w-16 rounded !bg-white/30" />
                 <Block className="h-5 w-24 rounded !bg-white/30" />
                 <Block className="h-3 w-32 rounded !bg-white/30" />

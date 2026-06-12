@@ -160,6 +160,42 @@ const ACHIEVEMENTS_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
+// /privacy page palette — deep judicial navy + gold. Reads as law / legal authority.
+const PRIVACY_THEME: NavTheme = {
+  bg: '#1B2A4A',
+  bgAlpha: 'rgba(27, 42, 74, 0.95)',
+  bgFull: '#1B2A4A',
+  accent: '#C9A84C',
+  accentDeep: '#A8862A',
+  border: 'rgba(255, 255, 255, 0.12)',
+  bgAlt: '#243760',
+  ink: '#FFFFFF',
+  muted: 'rgba(255, 255, 255, 0.60)',
+  logoShield: '#C9A84C',
+  logoInner: '#1B2A4A',
+  text: 'rgba(255, 255, 255, 0.87)',
+  textMuted: 'rgba(255, 255, 255, 0.55)',
+  textFaint: 'rgba(255, 255, 255, 0.35)',
+};
+
+// /contact page palette — dark navy matching the contact hero.
+const CONTACT_THEME: NavTheme = {
+  bg: '#0b1020',
+  bgAlpha: 'rgba(11, 16, 32, 0.92)',
+  bgFull: '#0b1020',
+  accent: '#2563EB',
+  accentDeep: '#1D4ED8',
+  border: 'rgba(255, 255, 255, 0.12)',
+  bgAlt: '#131c3c',
+  ink: '#FFFFFF',
+  muted: 'rgba(255, 255, 255, 0.60)',
+  logoShield: '#2563EB',
+  logoInner: '#0b1020',
+  text: 'rgba(255, 255, 255, 0.87)',
+  textMuted: 'rgba(255, 255, 255, 0.55)',
+  textFaint: 'rgba(255, 255, 255, 0.35)',
+};
+
 // /company page palette — light blue-grey bg + orange accent.
 const COMPANY_THEME: NavTheme = {
   bg: '#EFF6F9',
@@ -199,6 +235,8 @@ const HOME_THEME: NavTheme = {
 
 const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/$/, HOME_THEME],
+  [/^\/contact(\/|$)/, CONTACT_THEME],
+  [/^\/privacy(\/|$)/, PRIVACY_THEME],
   [/^\/company(\/|$)/, COMPANY_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/dx-consulting(\/|$)/, DX_CONSULTING_THEME],
