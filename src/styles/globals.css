@@ -69,6 +69,14 @@
   animation-name: fadeUpReveal;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-fill-mode: both;
+  /* Paused until the page cover starts fading. The layout inline script adds
+     body.page-ready at that moment, which starts the delay countdown here.
+     Without this gate the delay runs while the cover is up, so animations
+     complete before users can see them — text appears to "jump" on reveal. */
+  animation-play-state: paused;
+}
+body.page-ready .fade-up-word {
+  animation-play-state: running;
 }
 @keyframes aiops-pointer {
   0%   { transform: translateY(0)    rotate(-90deg); opacity: 0.7; }
@@ -1207,6 +1215,10 @@ h6 {
   opacity: 0;
   animation: nav-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--reveal-delay, 0ms);
+  animation-play-state: paused;
+}
+body.page-ready .nav-reveal {
+  animation-play-state: running;
 }
 
 

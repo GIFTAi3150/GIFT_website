@@ -1422,7 +1422,16 @@ export default function DxV3Page() {
     let rafId = 0;
     const revealAndRefresh = () => {
       if (!alive) return;
-      window.scrollTo(0, 0);
+      // Use Lenis's own reset when it's active so its internal target-scroll
+      // state stays in sync. A bare window.scrollTo() bypasses Lenis — it sees
+      // the actual DOM position jump to 0 but keeps its own target elsewhere,
+      // then fights to scroll back to its target on the next RAF tick, which
+      // breaks scroll-driven animations immediately after the guard drops.
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo(0, 0);
+      }
       ScrollTrigger.refresh();
       // Remove the useLayoutEffect's opacity:0!important so GSAP can take
       // control of opacity on these elements.
