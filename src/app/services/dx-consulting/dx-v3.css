@@ -1756,28 +1756,68 @@
 .dx-v3 .dr-f10 { width: 90px; height:140px; top:65%; right:-18px; background:var(--dr-ghost); }
 
 /* ================================================================
-   FINAL CTA SECTION — 8 rects across full width
+   FINAL CTA SECTION — 16 rects starting in the lower half.
+   top 55–85%: all rects begin below the text content and rise
+   upward via the GSAP y tween as the section scrolls into view.
 ================================================================ */
-.dx-v3 .dr-c1 { width: 95px; height:145px; top:6%;  left:-20px;  background:var(--dr-ghost); }
-.dx-v3 .dr-c2 { width: 82px; height:125px; top:32%; left: 18px;  background:var(--dr-solid); }
-.dx-v3 .dr-c3 { width: 88px; height:135px; top:10%; left:calc(50% - 210px); background:var(--dr-ghost); }
-.dx-v3 .dr-c4 { width: 78px; height:120px; top:50%; left:calc(50% - 150px); background:var(--dr-solid); }
-.dx-v3 .dr-c5 { width: 88px; height:135px; top:18%; left:calc(50% + 70px);  background:var(--dr-ghost); }
-.dx-v3 .dr-c6 { width: 78px; height:120px; top:55%; left:calc(50% + 100px); background:var(--dr-solid); }
-.dx-v3 .dr-c7 { width: 95px; height:145px; top:5%;  right:-20px; background:var(--dr-ghost); }
-.dx-v3 .dr-c8 { width: 82px; height:125px; top:30%; right: 18px; background:var(--dr-solid); }
+.dx-v3 .dr-c1 { width: 95px; height:145px; top: 58%; left:-20px;  background:var(--dr-ghost); }
+.dx-v3 .dr-c2 { width: 82px; height:125px; top: 72%; left: 18px;  background:var(--dr-solid); }
+.dx-v3 .dr-c3 { width: 88px; height:135px; top: 62%; left:calc(50% - 210px); background:var(--dr-ghost); }
+.dx-v3 .dr-c4 { width: 78px; height:120px; top: 80%; left:calc(50% - 150px); background:var(--dr-solid); }
+.dx-v3 .dr-c5 { width: 88px; height:135px; top: 66%; left:calc(50% + 70px);  background:var(--dr-ghost); }
+.dx-v3 .dr-c6 { width: 78px; height:120px; top: 76%; left:calc(50% + 100px); background:var(--dr-solid); }
+.dx-v3 .dr-c7 { width: 95px; height:145px; top: 55%; right:-20px; background:var(--dr-ghost); }
+.dx-v3 .dr-c8 { width: 82px; height:125px; top: 70%; right: 18px; background:var(--dr-solid); }
 /* Lower-left cluster */
-.dx-v3 .dr-c9  { width: 74px; height:114px; top:52%; left:  8px;  background:var(--dr-ghost); }
-.dx-v3 .dr-c10 { width: 62px; height: 96px; top:70%; left: 72px;  background:var(--dr-solid); }
+.dx-v3 .dr-c9  { width: 74px; height:114px; top: 64%; left:  8px;  background:var(--dr-ghost); }
+.dx-v3 .dr-c10 { width: 62px; height: 96px; top: 82%; left: 72px;  background:var(--dr-solid); }
 /* Lower-right cluster */
-.dx-v3 .dr-c11 { width: 74px; height:114px; top:56%; right:  8px;  background:var(--dr-solid); }
-.dx-v3 .dr-c12 { width: 62px; height: 96px; top:72%; right: 72px;  background:var(--dr-ghost); }
+.dx-v3 .dr-c11 { width: 74px; height:114px; top: 60%; right:  8px;  background:var(--dr-solid); }
+.dx-v3 .dr-c12 { width: 62px; height: 96px; top: 78%; right: 72px;  background:var(--dr-ghost); }
 /* Mid-centre flanks */
-.dx-v3 .dr-c13 { width: 56px; height: 84px; top:38%; left: calc(50% - 280px); background:var(--dr-ghost); }
-.dx-v3 .dr-c14 { width: 56px; height: 84px; top:44%; left: calc(50% + 220px); background:var(--dr-solid); }
+.dx-v3 .dr-c13 { width: 56px; height: 84px; top: 65%; left: calc(50% - 280px); background:var(--dr-ghost); }
+.dx-v3 .dr-c14 { width: 56px; height: 84px; top: 85%; left: calc(50% + 220px); background:var(--dr-solid); }
 /* Wide bottom scatter */
-.dx-v3 .dr-c15 { width: 48px; height: 72px; top:62%; left: calc(50% - 180px); background:var(--dr-solid); }
-.dx-v3 .dr-c16 { width: 48px; height: 72px; top:60%; left: calc(50% + 130px); background:var(--dr-ghost); }
+.dx-v3 .dr-c15 { width: 48px; height: 72px; top: 74%; left: calc(50% - 180px); background:var(--dr-solid); }
+.dx-v3 .dr-c16 { width: 48px; height: 72px; top: 79%; left: calc(50% + 130px); background:var(--dr-ghost); }
+
+/* ── Mobile: final-CTA rects ─────────────────────────────────────────────
+   On narrow viewports the desktop layout breaks in two ways:
+   1. Edge anchors (left/right: ±20px) cluster everything at the borders.
+   2. Large calc offsets (50% ± 150-280px) push rects off-screen entirely.
+   Fix: re-anchor everything to ±80px of centre so they fan out from the
+   middle, and push all top values to ≥ 70% so they start at the bottom
+   of the section and rise upward via the GSAP y tween.
+──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  /* 4-column spread across the full mobile width:
+     Zone A (far-left) | Zone B (left-centre) | Zone C (right-centre) | Zone D (far-right)
+     top 58–84% keeps every rect in the lower half so they rise on scroll. */
+
+  /* Zone A — far left (hugs left edge like desktop) */
+  .dx-v3 .dr-c1  { left: -12px; right: auto; top: 62%; }
+  .dx-v3 .dr-c2  { left:  15px; right: auto; top: 74%; }
+  .dx-v3 .dr-c9  { left:   3px; right: auto; top: 64%; }
+  .dx-v3 .dr-c10 { left:  22px; right: auto; top: 82%; }
+
+  /* Zone B — left-centre (~65–90px from left) */
+  .dx-v3 .dr-c3  { left:  65px; right: auto; top: 67%; }
+  .dx-v3 .dr-c4  { left:  85px; right: auto; top: 82%; }
+  .dx-v3 .dr-c13 { left:  72px; right: auto; top: 60%; }
+  .dx-v3 .dr-c15 { left:  80px; right: auto; top: 76%; }
+
+  /* Zone C — right-centre (~70–85px from right) */
+  .dx-v3 .dr-c5  { right:  70px; left: auto; top: 66%; }
+  .dx-v3 .dr-c6  { right:  82px; left: auto; top: 79%; }
+  .dx-v3 .dr-c14 { right:  75px; left: auto; top: 84%; }
+  .dx-v3 .dr-c16 { right:  80px; left: auto; top: 80%; }
+
+  /* Zone D — far right (hugs right edge like desktop) */
+  .dx-v3 .dr-c7  { right: -12px; left: auto; top: 58%; }
+  .dx-v3 .dr-c8  { right:  15px; left: auto; top: 70%; }
+  .dx-v3 .dr-c11 { right:   3px; left: auto; top: 68%; }
+  .dx-v3 .dr-c12 { right:  22px; left: auto; top: 78%; }
+}
 
 /* Ensure in-flow content paints above the deco rects */
 .dx-v3 .pains-section .pains-pin-stack,

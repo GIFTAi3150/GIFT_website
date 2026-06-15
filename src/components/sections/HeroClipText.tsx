@@ -116,15 +116,15 @@ const FRAG = `
     // load reveal: flat grey 0.73 -> image
     tex.rgb=mix(vec3(0.73),tex.rgb,uShowProgress);
 
-    // near-static fine grain (uTime*.000001 — effectively frozen; do NOT animate faster)
-    float rnd=random(st+(uTime*.000001));
+    // fine grain — slow drift gives organic film-texture feel (biscom bakes this into their AVIFs)
+    float rnd=random(st+(uTime*.0003));
     rnd=(smoothstep(0.,1.,rnd)-.5)*.5;
     vec3 noisy=vec3(rnd);
 
-    // THE animated element: slow simplex brightness gradient multiplied over the image
-    vec3 gradient=drawNoise(st)*.45;
-    gradient=smoothstep(-1.7,1.1,gradient)+.19;
-    gradient-=noisy*.19;
+    // slow simplex brightness gradient — raised floor to +.32 keeps the field light & airy
+    vec3 gradient=drawNoise(st)*.32;
+    gradient=smoothstep(-1.4,1.4,gradient)+.32;
+    gradient-=noisy*.14;
     tex.rgb*=gradient;
 
     // soft light that trails the cursor (aspect-corrected; dies as the wipe runs)
@@ -156,18 +156,20 @@ interface HeroClipTextProps {
 }
 
 export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroClipTextProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const svgRef     = useRef<SVGSVGElement>(null);
-  const giftRef    = useRef<SVGTextElement>(null);
-  const incRef     = useRef<SVGTextElement>(null);
-  const lettersRef = useRef<HTMLDivElement>(null);
-  const descRef    = useRef<HTMLDivElement>(null);
-  const leakRef    = useRef<HTMLImageElement>(null);
-  const scrollRef  = useRef<HTMLDivElement>(null);
-  const metaRef    = useRef<HTMLDivElement>(null);
-  const rafRef     = useRef<number>(0);
+  const wrapperRef   = useRef<HTMLDivElement>(null);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const overlayRef   = useRef<HTMLDivElement>(null);
+  const svgRef       = useRef<SVGSVGElement>(null);
+  const giftRef      = useRef<SVGTextElement>(null);
+  const incRef       = useRef<SVGTextElement>(null);
+  const clipGiftRef  = useRef<SVGTextElement>(null);
+  const clipIncRef   = useRef<SVGTextElement>(null);
+  const lettersRef   = useRef<HTMLDivElement>(null);
+  const descRef      = useRef<HTMLDivElement>(null);
+  const leakRef      = useRef<HTMLImageElement>(null);
+  const scrollRef    = useRef<HTMLDivElement>(null);
+  const metaRef      = useRef<HTMLDivElement>(null);
+  const rafRef       = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -337,6 +339,18 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
       g.setAttribute('font-size', `${fsGift}`);
       ic.setAttribute('x', `${x}`); ic.setAttribute('y', `${yInc}`);
       ic.setAttribute('font-size', `${fsInc}`);
+
+      // Mirror positions to the clip-path text elements
+      if (clipGiftRef.current) {
+        clipGiftRef.current.setAttribute('x', `${x}`);
+        clipGiftRef.current.setAttribute('y', `${yGift}`);
+        clipGiftRef.current.setAttribute('font-size', `${fsGift}`);
+      }
+      if (clipIncRef.current) {
+        clipIncRef.current.setAttribute('x', `${x}`);
+        clipIncRef.current.setAttribute('y', `${yInc}`);
+        clipIncRef.current.setAttribute('font-size', `${fsInc}`);
+      }
 
       if (descRef.current) {
         const gap = Math.max(h * 0.04, 24);
@@ -565,37 +579,66 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
           }}
         />
 
-        {/* Layer 1 — GIFT / INC. letterforms, dark-multiply glass on field */}
+        {/* SVG clip-path definition — zero-size, never painted, referenced by video below */}
+        <svg
+          aria-hidden
+          style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}
+        >
+          <defs>
+            <clipPath id="gift-text-clip" clipPathUnits="userSpaceOnUse">
+              <text
+                ref={clipGiftRef}
+                textAnchor="middle"
+                style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 } as React.CSSProperties}
+              >GIFT</text>
+              <text
+                ref={clipIncRef}
+                textAnchor="middle"
+                style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 } as React.CSSProperties}
+              >INC.</text>
+            </clipPath>
+          </defs>
+        </svg>
+
+        {/* Layer 1 — GIFT / INC. letterforms: iridescent video through SVG clip-path */}
         <div
           ref={lettersRef}
           aria-hidden
-          style={{
-            position: 'absolute', inset: 0, zIndex: 1,
-            mixBlendMode: 'multiply', pointerEvents: 'none',
-          }}
+          style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}
         >
+          {/* Iridescent texture video clipped to the letter shapes */}
+          <video
+            autoPlay loop muted playsInline
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+              clipPath: 'url(#gift-text-clip)',
+              pointerEvents: 'none',
+            }}
+          >
+            <source src="/company/hero-iridescent-loop.webm" type="video/webm" />
+            <source src="/company/hero-iridescent-loop.mp4"  type="video/mp4" />
+          </video>
+
+          {/* Invisible SVG — font-metric measurement only (getComputedTextLength + GSAP letter-spacing) */}
           <svg
             ref={svgRef}
             width="100%" height="100%"
             preserveAspectRatio="xMidYMid meet"
-            style={{ position: 'absolute', inset: 0 }}
+            aria-hidden
+            style={{ position: 'absolute', inset: 0, overflow: 'visible', opacity: 0, pointerEvents: 'none' }}
           >
             <text
               ref={giftRef}
               textAnchor="middle"
-              fill="#3a3530"
-              style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 }}
-            >
-              GIFT
-            </text>
+              style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 } as React.CSSProperties}
+            >GIFT</text>
             <text
               ref={incRef}
               textAnchor="middle"
-              fill="#3a3530"
-              style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 }}
-            >
-              INC.
-            </text>
+              style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 } as React.CSSProperties}
+            >INC.</text>
           </svg>
         </div>
 
@@ -630,8 +673,8 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
           style={{
             position: 'absolute',
             right: '-5vw', top: '-5svh',
-            width: '55vw',
-            mixBlendMode: 'hard-light',
+            width: '68vw',
+            mixBlendMode: 'multiply',
             pointerEvents: 'none',
             zIndex: 4,
             opacity: 0,

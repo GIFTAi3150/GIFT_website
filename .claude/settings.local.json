@@ -35,7 +35,8 @@
       "WebFetch(domain:biscom.jp)",
       "Bash(curl -s https://biscom.jp/10th/ -o /tmp/biscom.html)",
       "Read(//tmp/**)",
-      "Bash(Select-String -Pattern \"130svh|100svh|svh|scrollTrigger|height|sticky|end:|start:\" -Context 0,1)"
+      "Bash(Select-String -Pattern \"130svh|100svh|svh|scrollTrigger|height|sticky|end:|start:\" -Context 0,1)",
+      "Bash(curl -s \"https://biscom.jp/10th/\")"
     ]
   }
 }
