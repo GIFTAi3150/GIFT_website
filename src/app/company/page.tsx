@@ -399,7 +399,7 @@ export default function CompanyPage() {
               お気軽にお問い合わせください
             </h2>
             <Link href="/contact" className="cta-btn cta-btn--company">
-              <span>お問い合わせ →</span>
+              <span>お問い合わせ</span>
             </Link>
           </div>
         </section>

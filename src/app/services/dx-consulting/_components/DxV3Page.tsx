@@ -627,25 +627,25 @@ export default function DxV3Page() {
 
     // ---- Decorative rects: strong parallax ----
     // Each rect uses its section as the scrub window so the full section
-    // scroll drives the movement. Large y values (-180 to -380) make the
+    // scroll drives the movement. Large y values (-260 to -560) make the
     // depth layers clearly visible. Odd-indexed rects move slower, even
     // move faster — this gives the staggered "floating layers" look.
     //
-    // Final-section rects get a dedicated trigger on the surrounding .dx-v3
-    // wrapper (the full page scroll range) rather than the sticky .final
-    // section itself. A sticky element's document top/bottom barely moves so
-    // the section-scoped trigger scrubs almost nothing; the wrapper trigger
-    // gives the full scroll timeline depth.
+    // Final-section rects trigger off the .final section itself using
+    // 'top 90%' → 'top 10%' so the animation fires as the section scrolls
+    // into the viewport — giving the rects their "rise from the bottom"
+    // motion. The old .dx-v3 bottom-bottom/bottom-top approach fired at
+    // maximum scroll with zero progress range and never animated.
     const finalSectionEl = document.querySelector<HTMLElement>('.dx-v3 .final');
     gsap.utils.toArray<HTMLElement>('.dx-v3 .deco-rect').forEach((rect, i) => {
       const speeds = [560, 320, 480, 260, 420, 360, 540, 300, 450, 380];
       const yMove = -(speeds[i % speeds.length]);
       const isFinal = finalSectionEl?.contains(rect);
-      const trigger = isFinal
-        ? (document.querySelector('.dx-v3') as Element)
+      const trigger = (isFinal && finalSectionEl)
+        ? finalSectionEl
         : (rect.closest('section') ?? rect.parentElement) as Element;
-      const start = isFinal ? 'bottom bottom' : 'top bottom';
-      const end   = isFinal ? 'bottom top'    : 'bottom top';
+      const start = isFinal ? 'top 90%' : 'top bottom';
+      const end   = isFinal ? 'top 10%' : 'bottom top';
       const t = gsap.to(rect, {
         y: yMove,
         ease: 'none',
@@ -654,6 +654,7 @@ export default function DxV3Page() {
           start,
           end,
           scrub: 0.5,
+          invalidateOnRefresh: true,
         },
       });
       if (t.scrollTrigger) triggers.push(t.scrollTrigger);
@@ -2027,9 +2028,6 @@ export default function DxV3Page() {
           <div className="row">
             <a href="/contact" className="btn primary">
               お問い合わせ
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                <path d="M3.75 9h10.5M9.75 4.5 14.25 9l-4.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
             </a>
           </div>
         </div>
