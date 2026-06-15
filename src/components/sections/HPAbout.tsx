@@ -26,24 +26,8 @@ function makeGrainUrl(size = 256, amplitude = 18): string {
 
 export default function HPAbout() {
   const [grainUrl, setGrainUrl] = useState('');
-  // true  → show WebM with alpha (Chrome / Firefox)
-  // false → show beige MP4 only (Safari iOS + desktop)
-  //
-  // Start true so SSR HTML and the initial client render both include the WebM
-  // <source>. Chrome picks it up immediately on hydration without needing a
-  // video.load() call. The useEffect flips this to false for Safari, which
-  // causes the `key` prop on <video> to change — React unmounts/remounts the
-  // element so the browser restarts source-selection with MP4 only.
-  const [useAlphaVideo, setUseAlphaVideo] = useState(true);
-
   useEffect(() => {
     setGrainUrl(makeGrainUrl());
-    // Safari (desktop and iOS) plays WebM VP9 but strips the alpha channel,
-    // rendering transparent areas as solid black. Chrome includes "Safari" in
-    // its UA too, so we must also exclude "Chrome" / "Chromium".
-    const ua = navigator.userAgent;
-    const isSafari = /Safari/i.test(ua) && !/Chrome/i.test(ua) && !/Chromium/i.test(ua);
-    if (isSafari) setUseAlphaVideo(false);
   }, []);
 
   return (
@@ -106,32 +90,16 @@ export default function HPAbout() {
                   pointerEvents: 'none',
                 }}
               />
-              {/* drop-shadow is on this wrapper, NOT on <video> directly.
-                  Chrome on Windows has a compositing bug where filter applied
-                  to a transparent WebM video causes the video to be invisible.
-                  Moving it one level up avoids the GPU layer conflict while
-                  still producing an alpha-aware shadow (the wrapper has no
-                  opaque background, so the shadow traces the video's shape). */}
-              <div
-                style={{
-                  filter: useAlphaVideo
-                    ? 'drop-shadow(0 12px 60px rgba(120,60,255,0.45))'
-                    : 'drop-shadow(0 8px 32px rgba(120,60,255,0.22))',
-                }}
-              >
-                <video
-                  key={useAlphaVideo ? 'webm' : 'mp4'}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
+              {/* Transparent animated WebP (alpha) — loops natively in <img>,
+                  works on iOS Safari + desktop Chrome/FF/Edge with no black box
+                  and no <video> autoplay/UA-sniffing. drop-shadow now traces the
+                  square's real alpha shape. Source keyed from about-loop.mp4. */}
+              <div style={{ filter: 'drop-shadow(0 8px 32px rgba(120,60,255,0.22))' }}>
+                <img
+                  src="/videos/about-cube.webp"
+                  alt=""
                   className="relative z-10 block h-auto w-[280px] md:w-[400px]"
-                >
-                  {useAlphaVideo && (
-                    <source src="/videos/about-alpha.webm" type="video/webm" />
-                  )}
-                  <source src="/videos/about-beige.mp4" type="video/mp4" />
-                </video>
+                />
               </div>
             </div>
           </div>
