@@ -31,3 +31,44 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# original-quality source media kept outside /public so it doesn't ship
+/_source-assets/
+
+# design references / scratch (Osmo snippets, design ZIPs)
+/_design-assets/
+
+# Blender render outputs — not used by the site at runtime
+/blender_renders/
+
+# VAT bake pipeline — raw position dumps from /dev/capture-dx-vat. Large dev
+# artifacts (input to the Phase 2 compressor); only the compressed VAT in
+# /public ships. See vat-bake/README.md.
+/vat-bake/*.bin
+.claude
+
+# Root-level scratch files — screenshots, reference assets, dev logs
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.mjs
+/*.html
+/*.log
+/refasset-*
+
+# local visual-verify scratch (shader harness, screenshots)
+.inspect/
+
+# Harness runtime state — changes every session, not project code
+.harness-mem/state/continuity.json
+.harness-mem/state/whisper-budget.json
+.harness-mem/state/*.tmp*
+.harness-mem/state/*.lock
+
+# Dev/test video capture artifacts
+public/videos/preview_seq/
+public/videos/preview*.png
+public/videos/uv_test*.png
+public/videos/anim_*.png
+public/videos/f0*.png

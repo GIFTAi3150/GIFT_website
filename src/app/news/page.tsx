@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { getPublishedArticles } from '@/lib/notion';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import NewsGrid from './NewsGrid';
 
@@ -14,7 +13,14 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  let articles: { slug: string; title: string; date: string; category: string; excerpt: string; cover: string }[] = [];
+  let articles: {
+    slug: string;
+    title: string;
+    date: string;
+    category: string;
+    excerpt: string;
+    cover: string;
+  }[] = [];
 
   try {
     const notionArticles = await getPublishedArticles();
@@ -33,7 +39,6 @@ export default async function NewsPage() {
 
   return (
     <>
-      <Header />
       <main className="bg-gift-near-black">
         {/* Hero */}
         <section className="border-b border-gift-border py-s-80">
@@ -50,9 +55,7 @@ export default async function NewsPage() {
             <p
               className="mt-6 max-w-2xl font-sans text-normal font-light text-gift-silver"
               style={{ lineHeight: '2' }}
-            >
-              GIFTからのお知らせ・プレスリリース、および事業領域（DX・AI・財務・コールセンター）に関するノウハウや業界トレンドをお届けします。
-            </p>
+            ></p>
           </div>
         </section>
 

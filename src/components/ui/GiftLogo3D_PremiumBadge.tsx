@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef, useMemo, useState, Suspense } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
+import { makeSafeRenderer } from '@/lib/makeSafeRenderer';
 
-const BRAND_GREEN = '#2d6b3f';
+const SHIELD_COLOR = '#2563EB';
 const GOLD = '#eeebe3';
 
 // --------------- SVG PATHS ---------------
@@ -40,10 +41,9 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
     const pos = geo.attributes.position;
     const norm = geo.attributes.normal;
 
-    // Add a couple of subtle dents on the front and back faces
     const dents = [
-      { cx: 350, cy: 320, r: 40, strength: -1.2 }, // front dent 1
-      { cx: 520, cy: 500, r: 30, strength: -0.8 }, // front dent 2
+      { cx: 350, cy: 320, r: 40, strength: -1.2 },
+      { cx: 520, cy: 500, r: 30, strength: -0.8 },
     ];
     const frontZ = depth;
     const backZ = 0;
@@ -54,14 +54,12 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
       const y = pos.getY(i);
       const z = pos.getZ(i);
 
-      // Only affect front face (nz > 0.9) or back face (nz < -0.9)
       if (Math.abs(nz) < 0.9) continue;
 
       const isFront = nz > 0.9;
       const faceZ = isFront ? frontZ : backZ;
       const dir = isFront ? 1 : -1;
 
-      // Check if near face
       if (Math.abs(z - faceZ) > 5) continue;
 
       for (const dent of dents) {
@@ -69,7 +67,6 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
         const dy = y - dent.cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < dent.r) {
-          // Smooth falloff from center of dent
           const t = 1 - dist / dent.r;
           const push = t * t * dent.strength * dir;
           pos.setZ(i, z + push);
@@ -79,7 +76,6 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
 
     pos.needsUpdate = true;
 
-    // UVs
     const uvs = new Float32Array(pos.count * 2);
     for (let i = 0; i < pos.count; i++) {
       uvs[i * 2] = pos.getX(i) / 800;
@@ -91,138 +87,55 @@ function buildGeometry(shapes: THREE.Shape[], depth: number): THREE.BufferGeomet
   });
 }
 
-// --------------- HALF-SHADOW MATERIAL ---------------
-// This injects a position-based shadow into Three.js's built-in physical material
-// so textures work perfectly AND we get the SpaceX half-dark effect
-function useHalfShadowMaterial(
-  color: string,
-  metalness: number,
-  roughness: number,
-  normalMap: THREE.Texture,
-  roughnessMap: THREE.Texture,
-  colorMap: THREE.Texture,
-  normalStrength: number,
-): THREE.MeshPhysicalMaterial {
-  const mat = useMemo(() => {
-    const m = new THREE.MeshPhysicalMaterial({
-      color,
-      metalness,
-      roughness,
-      normalMap,
-      normalScale: new THREE.Vector2(normalStrength, normalStrength),
-      roughnessMap,
-      clearcoat: 0.15,
-      clearcoatRoughness: 0.5,
-      envMapIntensity: 0.02,
-    });
-
-    // Blend color texture very subtly onto the base color
-    m.userData.colorMap = colorMap;
-    m.onBeforeCompile = (shader) => {
-      shader.uniforms.uColorMap = { value: colorMap };
-
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <common>',
-        '#include <common>\nuniform sampler2D uColorMap;',
-      );
-
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <dithering_fragment>',
-        `
-        vec2 colorUV = gl_FragCoord.xy / 512.0;
-        vec3 texColor = texture2D(uColorMap, colorUV).rgb;
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * texColor, 0.1);
-
-        #include <dithering_fragment>
-        `,
-      );
-    };
-
-    return m;
-  }, [color, metalness, roughness, normalMap, roughnessMap, normalStrength]);
-
-  return mat;
-}
-
-// --------------- ORBITING ROCKS ---------------
-function OrbitingRocks({ count = 6 }: { count?: number }) {
-  const rocks = useMemo(() => {
-    return Array.from({ length: count }, () => ({
-      angle: Math.random() * Math.PI * 2,
-      radius: 2.0 + Math.random() * 1.2,
-      y: (Math.random() - 0.5) * 1.5,
-      speed: 0.15 + Math.random() * 0.2,
-      size: 0.03 + Math.random() * 0.02,
-      spinSpeed: 0.5 + Math.random() * 1.5,
-    }));
-  }, [count]);
-
-  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    const BURST = 1.9; // metals burst out at the impact peak
-    if (t < BURST) return;
-
-    const since = t - BURST;
-    // Ease radius out from 0 to full over ~0.7s
-    const radiusEase = Math.min(since / 0.7, 1);
-    const r = 1 - Math.pow(1 - radiusEase, 3);
-
-    rocks.forEach((rock, i) => {
-      const mesh = meshRefs.current[i];
-      if (!mesh) return;
-      const angle = rock.angle + since * rock.speed;
-      const radius = rock.radius * r;
-      mesh.position.x = Math.cos(angle) * radius;
-      mesh.position.y = rock.y * r + Math.sin(t * 0.5 + i) * 0.1 * r;
-      mesh.position.z = Math.sin(angle) * radius;
-      mesh.rotation.x = t * rock.spinSpeed;
-      mesh.rotation.z = t * rock.spinSpeed * 0.7;
-      mesh.visible = true;
-    });
-  });
-
-  return (
-    <group>
-      {rocks.map((rock, i) => (
-        <mesh
-          key={i}
-          ref={(el) => {
-            meshRefs.current[i] = el;
-          }}
-          visible={false}
-        >
-          <icosahedronGeometry args={[rock.size, 0]} />
-          <meshStandardMaterial
-            color={'#888888'}
-            metalness={0.9}
-            roughness={0.15}
-            emissive={'#666666'}
-            emissiveIntensity={0.25}
-          />
-        </mesh>
-      ))}
-    </group>
+// --------------- MATERIAL ---------------
+function useMaterial(color: string, metalness: number, roughness: number): THREE.MeshPhysicalMaterial {
+  return useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color,
+        metalness,
+        roughness,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.1,
+      }),
+    [color, metalness, roughness],
   );
 }
 
 // --------------- MAIN SCENE ---------------
-function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
+function ShieldScene({
+  onFirstFrame,
+  mouseRef,
+}: {
+  onFirstFrame?: () => void;
+  mouseRef: React.MutableRefObject<{ x: number; y: number }>;
+}) {
   const frameCountRef = useRef(0);
   const firedRef = useRef(false);
   useFrame(() => {
     if (firedRef.current) return;
     frameCountRef.current += 1;
-    // Wait for 3 painted frames to guarantee the scene is on-screen
     if (frameCountRef.current >= 3) {
       firedRef.current = true;
       onFirstFrame?.();
     }
   });
-  const groupRef = useRef<THREE.Group>(null);
 
-  // Parse SVG shapes
+  const groupRef = useRef<THREE.Group>(null);
+  const tiltRef = useRef({ x: 0, y: 0 });
+
+  // Smoothly lerp rotation toward cursor position each frame.
+  // MAX_Y / MAX_X cap the angle so the shield never hits bad-quality side angles.
+  useFrame(() => {
+    if (!groupRef.current) return;
+    const MAX_Y = 0.5; // ~29°
+    const MAX_X = 0.38; // ~22°
+    tiltRef.current.x += (mouseRef.current.y * -MAX_X - tiltRef.current.x) * 0.08;
+    tiltRef.current.y += (mouseRef.current.x * MAX_Y - tiltRef.current.y) * 0.08;
+    groupRef.current.rotation.x = tiltRef.current.x;
+    groupRef.current.rotation.y = tiltRef.current.y;
+  });
+
   const { shieldShapes, g1Shapes, g2Shapes } = useMemo(
     () => ({
       shieldShapes: parsePath(SHIELD_PATH),
@@ -232,101 +145,12 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
     [],
   );
 
-  // Build geometry
   const shieldGeos = useMemo(() => buildGeometry(shieldShapes, 30), [shieldShapes]);
   const g1Geos = useMemo(() => buildGeometry(g1Shapes, 35), [g1Shapes]);
   const g2Geos = useMemo(() => buildGeometry(g2Shapes, 35), [g2Shapes]);
 
-  // Load textures — base layer + clearcoat layer
-  const [normalMap, roughnessMap, colorMap] = useLoader(THREE.TextureLoader, [
-    '/textures/NormalGL.webp',
-    '/textures/Roughness.webp',
-    '/textures/Color.webp',
-  ]);
-
-  // Configure texture tiling
-  useMemo(() => {
-    [normalMap, roughnessMap, colorMap].forEach((tex) => {
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(3, 3);
-    });
-  }, [normalMap, roughnessMap, colorMap]);
-
-  // Create materials — base: Metal056B, clearcoat scratches: PaintedMetal002
-  const shieldMat = useHalfShadowMaterial(
-    BRAND_GREEN,
-    0.75,
-    0.35,
-    normalMap,
-    roughnessMap,
-    colorMap,
-    1.5,
-  );
-  const goldMat = useHalfShadowMaterial(GOLD, 0.85, 0.25, normalMap, roughnessMap, colorMap, 1.0);
-
-  const textMatRef = useRef<THREE.MeshStandardMaterial>(null);
-  const wholeGroupRef = useRef<THREE.Group>(null);
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current || !wholeGroupRef.current || !textMatRef.current) return;
-
-    const t = clock.getElapsedTime();
-
-    // Phase 1 (0-2s): Logo sits centered, gentle scale up from 0
-    // Phase 2 (2-4s): Logo slides left, "ift Inc." fades in
-    // Phase 3 (4s+): Gentle rock animation
-
-    if (t < 1.6) {
-      // Scale up (no rotation — rotation happens after the entrance)
-      const s = Math.min(t / 1.6, 1);
-      const eased = 1 - Math.pow(1 - s, 3);
-      wholeGroupRef.current.scale.setScalar(eased);
-      wholeGroupRef.current.position.x = 0;
-      textMatRef.current.opacity = 0;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 1.9) {
-      // HARD PUNCH — zoom in fast to 1.28
-      const p = (t - 1.6) / 0.3;
-      const eased = 1 - Math.pow(1 - p, 2);
-      wholeGroupRef.current.scale.setScalar(1 + eased * 0.28);
-      wholeGroupRef.current.position.x = 0;
-      textMatRef.current.opacity = 0;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 2.3) {
-      // SETTLE — snap back to 1.0 with a tiny overshoot bounce
-      const p = (t - 1.9) / 0.4;
-      const decay = Math.exp(-4 * p);
-      const osc = Math.cos(p * Math.PI * 2.2);
-      const s = 1 + 0.28 * decay * osc;
-      wholeGroupRef.current.scale.setScalar(s);
-      wholeGroupRef.current.position.x = 0;
-      textMatRef.current.opacity = 0;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 4) {
-      // Slide left + fade in text
-      wholeGroupRef.current.scale.setScalar(1);
-      const p = (t - 2.3) / 1.7;
-      const eased = 1 - Math.pow(1 - p, 3);
-      wholeGroupRef.current.position.x = eased * -0.8;
-      textMatRef.current.opacity = eased * 0.9;
-      groupRef.current.rotation.y = 0;
-    } else if (t < 19) {
-      // 180° Y-axis rotation over 15 seconds, ease in-out.
-      const p = (t - 4) / 15;
-      const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-      wholeGroupRef.current.scale.setScalar(1);
-      wholeGroupRef.current.position.x = -0.8;
-      textMatRef.current.opacity = 0.9;
-      groupRef.current.rotation.y = eased * Math.PI;
-    } else {
-      // Stopped at 180°. Rocks keep orbiting independently in OrbitingRocks.
-      wholeGroupRef.current.scale.setScalar(1);
-      wholeGroupRef.current.position.x = -0.8;
-      textMatRef.current.opacity = 0.9;
-      groupRef.current.rotation.y = Math.PI;
-    }
-  });
+  const shieldMat = useMaterial(SHIELD_COLOR, 0.75, 0.3);
+  const goldMat = useMaterial(GOLD, 0.85, 0.15);
 
   const cx = 414,
     cy = 400,
@@ -334,57 +158,30 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 
   return (
     <>
-      {/* No scene background — canvas is transparent so hero bg shows through */}
-      <group ref={wholeGroupRef}>
-        <group ref={groupRef}>
-          <group scale={[scale, -scale, scale]}>
-            <group position={[-cx, -cy, 0]}>
-              {shieldGeos.map((geo, i) => (
-                <mesh key={`s${i}`} geometry={geo} material={shieldMat} />
-              ))}
+      <group ref={groupRef}>
+        <group scale={[scale, -scale, scale]}>
+          <group position={[-cx, -cy, 0]}>
+            {shieldGeos.map((geo, i) => (
+              <mesh key={`s${i}`} geometry={geo} material={shieldMat} />
+            ))}
+            {g1Geos.map((geo, i) => (
+              <mesh key={`g1${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+            ))}
+            {g2Geos.map((geo, i) => (
+              <mesh key={`g2${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+            ))}
+
+            <group position={[828, 0, 30]} scale={[-1, 1, -1]}>
               {g1Geos.map((geo, i) => (
-                <mesh key={`g1${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+                <mesh key={`g1b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
               ))}
               {g2Geos.map((geo, i) => (
-                <mesh key={`g2${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
+                <mesh key={`g2b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
               ))}
-
-              {/* Back face G — mirrored on Z axis */}
-              <group position={[828, 0, 30]} scale={[-1, 1, -1]}>
-                {g1Geos.map((geo, i) => (
-                  <mesh key={`g1b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
-                ))}
-                {g2Geos.map((geo, i) => (
-                  <mesh key={`g2b${i}`} geometry={geo} material={goldMat} position={[0, 0, 5]} />
-                ))}
-              </group>
             </group>
           </group>
         </group>
-
-        {/* "ift Inc." text that appears to the right of the logo */}
-        <Suspense fallback={null}>
-        <Text
-          position={[1.22, -0.1, 0]}
-          fontSize={0.42}
-          anchorX="left"
-          anchorY="middle"
-          letterSpacing={0.05}
-          font="/fonts/Poppins-Bold.ttf"
-        >
-          IFT INC.
-          <meshStandardMaterial
-            ref={textMatRef}
-            color={'#111B21'}
-            metalness={0.6}
-            roughness={0.3}
-            transparent
-            opacity={0}
-          />
-        </Text>
-        </Suspense>
       </group>
-      <OrbitingRocks />
     </>
   );
 }
@@ -393,6 +190,7 @@ function ShieldScene({ onFirstFrame }: { onFirstFrame?: () => void }) {
 interface Props {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  onContextLost?: () => void;
 }
 
 const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
@@ -401,100 +199,102 @@ const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
   lg: 'h-[360px] sm:h-[460px] lg:h-[640px]',
 };
 
-function LogoFallback() {
-  return (
-    <div className="flex h-full w-full items-center justify-center">
-      <svg width="140" height="150" viewBox="0 0 828 800" style={{ opacity: 0.5 }}>
-        <path fill="#2d6b3f" d={SHIELD_PATH} />
-        <path fill="#eeebe3" d={G_PATH_1} />
-        <path fill="#eeebe3" d={G_PATH_2} />
-      </svg>
-    </div>
-  );
-}
+const MAX_CANVAS_LOSSES = 3;
 
-export default function GiftLogo3D_PremiumBadge({ className, size = 'lg' }: Props) {
+export default function GiftLogo3D_PremiumBadge({ className, size = 'lg', onContextLost }: Props) {
   const [ready, setReady] = useState(false);
-  const [contextLost, setContextLost] = useState(false);
+  const [canvasKey, setCanvasKey] = useState(0);
+  const lossCountRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  // Track mouse position normalized to [-1, 1] relative to the canvas container.
+  // On leave, reset to center so the logo smoothly returns to front-facing.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      mouseRef.current.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      mouseRef.current.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+    };
+    const onLeave = () => {
+      mouseRef.current.x = 0;
+      mouseRef.current.y = 0;
+    };
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('mouseleave', onLeave);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mouseleave', onLeave);
+    };
+  }, []);
+
+  // Failsafe: release the page cover after 6s if onFirstFrame never fires.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (ready) return;
+      setReady(true);
+      window.dispatchEvent(new Event('gift:logo-ready'));
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [ready]);
+
+  const handleContextLost = () => {
+    lossCountRef.current += 1;
+    setReady(false);
+    if (lossCountRef.current >= MAX_CANVAS_LOSSES) {
+      onContextLost?.();
+      return;
+    }
+    setCanvasKey((k) => k + 1);
+  };
 
   return (
     <div
+      ref={containerRef}
       className={`relative ${className ?? ''} ${SIZE_CLASSES[size]}`}
       style={{ width: '100%', backgroundColor: 'transparent' }}
     >
-      {/* Dark cover above the canvas — fades away once we know three.js has painted.
-          Protects against any initial white flash during WebGL context creation. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-50 transition-opacity duration-500"
-        style={{
-          backgroundColor: 'transparent',
-          opacity: ready && !contextLost ? 0 : 1,
-        }}
-      />
-      {contextLost && (
-        <div className="pointer-events-none absolute inset-0 z-40">
-          <LogoFallback />
-        </div>
-      )}
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 40 }}
-        gl={{
-          antialias: true,
-          alpha: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.9,
-          powerPreference: 'high-performance',
-        }}
-        onCreated={({ gl }) => {
-          gl.setClearColor('#000000', 0);
-          const canvas = gl.domElement;
-          canvas.addEventListener(
-            'webglcontextlost',
-            (e) => {
-              e.preventDefault();
-              setContextLost(true);
-            },
-            false,
-          );
-          canvas.addEventListener(
-            'webglcontextrestored',
-            () => {
-              setContextLost(false);
-            },
-            false,
-          );
-        }}
+        key={canvasKey}
+        className="absolute inset-0"
         style={{
-          background: 'transparent',
-          opacity: ready && !contextLost ? 1 : 0,
+          opacity: ready ? 1 : 0,
           transition: 'opacity 400ms ease-out',
         }}
+        dpr={[1, 1.5]}
+        gl={makeSafeRenderer(
+          {
+            antialias: true,
+            alpha: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.5,
+            powerPreference: 'default',
+            stencil: false,
+            failIfMajorPerformanceCaveat: false,
+            preserveDrawingBuffer: false,
+          },
+          handleContextLost,
+        )}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#000000', 0);
+        }}
       >
-        {/* Light hitting the surface at an angle — this is what makes textures visible */}
-        {/* Cinematic three-point lighting */}
-
-        <ambientLight intensity={0.4} />
-
-        {/* KEY — main light, warm, from upper-left */}
-        <directionalLight position={[-4, 3, 5]} intensity={3.5} color={'#fff0e0'} />
-
-        {/* FILL — softer, cool, from opposite side */}
-        <directionalLight position={[3, 0, 3]} intensity={1.0} color={'#b0c0e0'} />
-
-        {/* RIM — behind the object, edge separation */}
-        <directionalLight position={[0, 1, -4]} intensity={2.0} color={'#ffffff'} />
-
-        <ShieldScene
-          onFirstFrame={() => {
-            setTimeout(() => {
-              setReady(true);
-              if (typeof window !== 'undefined') {
+        <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={40} />
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[-4, 3, 5]} intensity={2.2} color={'#fff0e0'} />
+        <directionalLight position={[3, 0, 3]} intensity={0.7} color={'#b0c0e0'} />
+        <directionalLight position={[0, 1, -4]} intensity={1.2} color={'#ffffff'} />
+          <ShieldScene
+            mouseRef={mouseRef}
+            onFirstFrame={() => {
+              setTimeout(() => {
+                setReady(true);
                 window.dispatchEvent(new Event('gift:logo-ready'));
-              }
-            }, 250);
-          }}
-        />
+              }, 250);
+            }}
+          />
       </Canvas>
     </div>
   );

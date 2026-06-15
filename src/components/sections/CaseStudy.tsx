@@ -1,92 +1,209 @@
+﻿'use client';
+
+import { useEffect } from 'react';
+import Link from 'next/link';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 
-// TODO: replace placeholder metric values when manager sends real numbers.
-const cases = [
+gsap.registerPlugin(ScrollTrigger);
+
+type Metric = {
+  prefix?: string;
+  value: string;
+  suffix: string;
+  label: string;
+};
+
+type CaseEntry = {
+  id: number;
+  iconId: keyof typeof SERVICE_ICON_BY_ID;
+  industry: string;
+  title: string;
+  href: string;
+  metrics: Metric[];
+};
+
+const cases: CaseEntry[] = [
   {
     id: 1,
     iconId: 'callcenter',
     industry: 'CALL CENTER',
-    title: 'アウトバウンド特化・自社運営の約300名体制',
+    title: 'ã‚¢ã‚¦ãƒˆãƒã‚¦ãƒ³ãƒ‰ç‰¹åŒ–ãƒ»è‡ªç¤¾é‹å–¶ã®ç´„300åä½“åˆ¶',
+    href: '/services/callcenter',
     metrics: [
-      { value: '300', suffix: '名+', label: '体制' },
-      { value: '2018', suffix: '年〜', label: '運営開始' },
+      { value: '300', suffix: 'å+', label: 'ä½“åˆ¶' },
+      { value: '2018', suffix: 'å¹´ã€œ', label: 'é‹å–¶é–‹å§‹' },
     ],
   },
   {
     id: 2,
-    iconId: 'dx-consulting',
-    industry: 'DX CONSULTING',
-    title: 'LINE・RPA・AI導入をワンストップで支援',
-    metrics: [
-      { value: '50', suffix: '社+', label: '支援企業' },
-      { value: '1,000', suffix: '時間+', label: 'RPA削減' },
-    ],
+    iconId: 'aiops',
+    industry: 'AIOPS',
+    title: 'LINEãƒ»RPAãƒ»AIå°Žå…¥ã‚’ãƒ¯ãƒ³ã‚¹ãƒˆãƒƒãƒ—ã§æ”¯æ´',
+    href: '/services/aiops',
+    metrics: [{ value: '50', suffix: 'ç¤¾+', label: 'æ”¯æ´ä¼æ¥­' }],
   },
   {
     id: 3,
     iconId: 'finance-consulting',
     industry: 'FINANCIAL CONSULTING',
-    title: '融資支援から財務戦略まで伴走型サポート',
-    metrics: [
-      { value: '30', suffix: '社+', label: '支援企業' },
-      { value: '¥10', suffix: '億+', label: '融資調達' },
-    ],
+    title: 'èžè³‡æ”¯æ´ã‹ã‚‰è²¡å‹™æˆ¦ç•¥ã¾ã§ä¼´èµ°åž‹ã‚µãƒãƒ¼ãƒˆ',
+    href: '/services/finance-consulting',
+    metrics: [{ prefix: 'Â¥', value: '10', suffix: 'å„„+', label: 'èžè³‡èª¿é”' }],
   },
 ];
 
 export default function CaseStudy() {
-  return (
-    <section className="w-full bg-gift-bg-alt py-s-80">
-      <div className="mx-auto mb-12 max-w-container px-4 md:px-6 lg:px-8">
-        <p className="mb-3 font-display text-small font-bold uppercase tracking-widest text-gift-green">
-          WORKS
-        </p>
-        <h2
-          className="font-sans font-extrabold text-gift-ink"
-          style={{ fontSize: '36px', lineHeight: '1.25' }}
-        >
-          実績・強み
-        </h2>
-        <p className="mt-2 font-sans text-normal font-light text-gift-silver">
-          3つの事業を軸に、お客様の成長を支援しています。
-        </p>
-      </div>
+  useEffect(() => {
+    const triggers: ScrollTrigger[] = [];
 
-      {/* Mobile: horizontal swipe with snap. Desktop: 3-column grid. No arrows. */}
-      <div className="mx-auto max-w-container">
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-6 md:px-6 md:py-8 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-8 lg:py-0">
-          {cases.map((c) => {
-            const Icon = SERVICE_ICON_BY_ID[c.iconId];
-            return (
-            <div
-              key={c.id}
-              className="group flex w-[85%] shrink-0 cursor-pointer snap-center flex-col rounded-2xl border border-gift-border bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-gift-green/40 hover:shadow-[0_20px_40px_-12px_rgba(37,211,102,0.3),0_0_30px_-5px_rgba(37,211,102,0.2)] active:scale-[0.99] sm:w-[60%] lg:w-auto"
+    document.querySelectorAll<HTMLElement>('.works-bento-card').forEach((el, i) => {
+      const tween = gsap.fromTo(
+        el,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.7,
+          ease: 'power2.out',
+          delay: i * 0.08,
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+        }
+      );
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
+    });
+
+    return () => {
+      triggers.forEach((t) => t.kill());
+    };
+  }, []);
+
+  const big = cases[0];
+  const smalls = cases.slice(1);
+  const BigIcon = SERVICE_ICON_BY_ID[big.iconId];
+
+  return (
+    <section className="w-full bg-[#EFF6FF] py-s-80">
+      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        <div className="relative mb-12 md:mb-16">
+          <div className="flex flex-col gap-3 text-center">
+            <p className="font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
+              WORKS
+            </p>
+            <h2
+              className="font-sans font-extrabold text-[#0C0E1A]"
+              style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: '1.15' }}
             >
-              <div className="mb-4">
-                {Icon && (
-                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gift-green/10 text-gift-green transition-all duration-300 group-hover:scale-110 group-hover:bg-gift-green/20">
-                    <Icon className="h-7 w-7" />
-                  </span>
-                )}
-              </div>
-              <h3 className="mb-6 font-sans text-medium font-bold leading-snug text-gift-ink">
-                {c.title}
+              å®Ÿç¸¾ãƒ»å¼·ã¿
+            </h2>
+            <p className="font-sans text-normal font-light text-[#475569]">
+              3ã¤ã®äº‹æ¥­ã§ç©ã¿ä¸Šã’ã¦ããŸã€ã“ã‚Œã¾ã§ã®æˆæžœã€‚
+            </p>
+          </div>
+          <div className="works-mascot max-lg:hidden" aria-hidden>
+            <img src="/achievements/GIFT_mascot_space_render.png" alt="" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 lg:min-h-[680px] lg:grid-cols-12 lg:grid-rows-2 lg:gap-6">
+          {/* BIG card */}
+          <Link
+            href={big.href}
+            className="works-bento-card group relative flex flex-col justify-between overflow-hidden rounded-[28px] border border-[#BFDBFE] bg-white p-8 opacity-0 transition-[box-shadow,border-color] duration-300 hover:border-[#2563EB] hover:shadow-[0_28px_64px_-22px_rgba(108,71,255,0.20)] lg:col-span-7 lg:row-span-2 lg:p-12"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-12 -top-12 text-[#2563EB] opacity-[0.05] transition-opacity duration-500 group-hover:opacity-[0.09]"
+            >
+              {BigIcon && <BigIcon className="h-[420px] w-[420px]" />}
+            </div>
+
+            <div className="relative">
+              <p className="mb-5 font-display text-[12px] font-bold uppercase tracking-[0.25em] text-[#2563EB]">
+                01 â€” {big.industry}
+              </p>
+              <h3
+                className="font-sans font-extrabold leading-tight text-[#0C0E1A]"
+                style={{ fontSize: 'clamp(28px, 3.6vw, 44px)' }}
+              >
+                {big.title}
               </h3>
-              <div className="mt-auto grid grid-cols-2 gap-3">
-                {c.metrics.map((m) => (
-                  <div
-                    key={m.label}
-                    className="rounded-lg border border-gift-border bg-gift-bg-alt px-3 py-4 text-center"
-                  >
-                    <p className="font-display text-[28px] font-extrabold leading-none text-gift-green">
-                      {m.value}
-                      <span className="text-[16px]">{m.suffix}</span>
+            </div>
+
+            <div className="relative mt-10">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 border-t border-[#BFDBFE] pt-8">
+                {big.metrics.map((m) => (
+                  <div key={m.label}>
+                    <p
+                      className="flex items-baseline gap-1 font-display font-extrabold leading-none text-[#0C0E1A]"
+                      style={{ fontSize: 'clamp(48px, 6vw, 72px)' }}
+                    >
+                      {m.prefix && <span>{m.prefix}</span>}
+                      <span>{m.value}</span>
+                      <span className="text-[#2563EB]" style={{ fontSize: '0.4em' }}>
+                        {m.suffix}
+                      </span>
                     </p>
-                    <p className="mt-2 font-sans text-[12px] text-gift-silver">{m.label}</p>
+                    <p className="mt-2 font-sans text-[12px] uppercase tracking-[0.18em] text-[#475569]">
+                      {m.label}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
+          </Link>
+
+          {/* SMALL cards */}
+          {smalls.map((c, idx) => {
+            const Icon = SERVICE_ICON_BY_ID[c.iconId];
+            const num = String(idx + 2).padStart(2, '0');
+            return (
+              <Link
+                key={c.id}
+                href={c.href}
+                className="works-bento-card group relative flex flex-col justify-between overflow-hidden rounded-[28px] border border-[#BFDBFE] bg-white p-7 opacity-0 transition-[box-shadow,border-color] duration-300 hover:border-[#2563EB] hover:shadow-[0_28px_64px_-22px_rgba(108,71,255,0.20)] lg:col-span-5 lg:p-9"
+              >
+                <div className="relative">
+                  <div className="mb-5 flex items-start justify-between gap-4">
+                    <p className="font-display text-[11px] font-bold uppercase tracking-[0.22em] text-[#2563EB]">
+                      {num} â€” {c.industry}
+                    </p>
+                    {Icon && (
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#2563EB]/10 text-[#2563EB] transition-colors duration-300 group-hover:bg-[#2563EB] group-hover:text-white">
+                        <Icon className="h-6 w-6" />
+                      </span>
+                    )}
+                  </div>
+                  <h3
+                    className="font-sans font-extrabold leading-tight text-[#0C0E1A]"
+                    style={{ fontSize: 'clamp(20px, 2.1vw, 26px)' }}
+                  >
+                    {c.title}
+                  </h3>
+                </div>
+
+                <div className="mt-6">
+                  <div className="border-t border-[#BFDBFE] pt-5">
+                    {c.metrics.map((m) => (
+                      <div key={m.label}>
+                        <p
+                          className="flex items-baseline gap-1 font-display font-extrabold leading-none text-[#0C0E1A]"
+                          style={{ fontSize: 'clamp(36px, 4vw, 48px)' }}
+                        >
+                          {m.prefix && <span>{m.prefix}</span>}
+                          <span>{m.value}</span>
+                          <span className="text-[#2563EB]" style={{ fontSize: '0.4em' }}>
+                            {m.suffix}
+                          </span>
+                        </p>
+                        <p className="mt-1 font-sans text-[11px] uppercase tracking-[0.18em] text-[#475569]">
+                          {m.label}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Link>
             );
           })}
         </div>
@@ -94,3 +211,4 @@ export default function CaseStudy() {
     </section>
   );
 }
+

@@ -1,0 +1,115 @@
+/* Big-typo scroll preview (Osmo Supply pattern).
+   - .typo-scroll-list stacks the huge service headings.
+   - .typo-scroll-preview is fixed at viewport center; it stacks one
+     <video> per service and uses clip-path to reveal the active one
+     with a slow horizontal wipe.
+   - Pointer events stay off the preview so headings underneath
+     remain clickable. */
+
+.typo-scroll {
+  padding-bottom: clamp(80px, 18vh, 200px);
+}
+.typo-scroll-list {
+  display: flex;
+  flex-direction: column;
+}
+.typo-scroll-item {
+  padding: clamp(24px, 5vh, 60px) clamp(16px, 4vw, 56px);
+  border-bottom: 1px solid rgba(17, 27, 33, 0.08);
+  transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0.32;
+}
+.typo-scroll-item:first-child {
+  border-top: 1px solid rgba(17, 27, 33, 0.08);
+}
+.typo-scroll-item.is-active {
+  opacity: 1;
+}
+.typo-scroll-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.typo-scroll-heading {
+  font-family: var(--font-display, 'General Sans'), 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 8vw, 116px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--gift-ink, #111b21);
+  text-align: center;
+  margin: 0;
+  white-space: nowrap;
+  transition: color 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.typo-scroll-item.is-active .typo-scroll-heading {
+  color: var(--gift-green, #00c853);
+}
+@media (max-width: 600px) {
+  .typo-scroll-heading {
+    font-size: clamp(34px, 11vw, 68px);
+  }
+}
+
+/* Fixed-position preview panel — sits at viewport center, layered
+   above the headings. Pointer events disabled so clicks pass through
+   to the heading underneath. Visibility fades when the section
+   leaves the viewport so the preview doesn't bleed into adjacent
+   sections of the page. */
+.typo-scroll-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Default anchor = viewport center. On hover-capable devices, JS
+     overrides this transform on every rAF tick so the panel trails
+     the cursor. The translate(-50%, -50%) at the end re-centers the
+     panel on (x, y). */
+  transform: translate(50vw, 50vh) translate(-50%, -50%);
+  width: clamp(220px, 26vw, 360px);
+  aspect-ratio: 4 / 3;
+  pointer-events: none;
+  /* Stay well below the navbar (z-50) so the fixed preview never
+     fights the nav for stacking. */
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.typo-scroll-preview.is-visible {
+  opacity: 1;
+}
+/* On touch devices the cursor-follow doesn't apply, so anchor the
+   preview to the top of the viewport instead of overlapping the
+   centered heading the user is trying to tap. Also shrink it so it
+   reads as a thumbnail rather than a takeover. */
+@media (hover: none), (pointer: coarse) {
+  .typo-scroll-preview {
+    /* On touch, the preview's transform is set by JS to sit next to
+       the active heading (see ServicesTypoScroll.tsx). This media
+       query only adjusts the size — smaller, so it can fit beside
+       the heading without dominating the screen. */
+    width: clamp(160px, 48vw, 240px);
+  }
+}
+.typo-scroll-media {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  /* Hidden state: fully clipped from the right. Active state below
+     animates the right inset to 0, producing a left-to-right reveal. */
+  clip-path: inset(0 100% 0 0 round 14px);
+  transition: clip-path 1.2s cubic-bezier(0.7, 0, 0.3, 1);
+  background: #000;
+}
+.typo-scroll-media.is-active {
+  clip-path: inset(0 0% 0 0 round 14px);
+}
+.typo-scroll-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

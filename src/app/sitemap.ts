@@ -1,5 +1,5 @@
-import type { MetadataRoute } from 'next';
-import { getPublishedArticles, getPublishedMembers } from '@/lib/notion';
+﻿import type { MetadataRoute } from 'next';
+import { getArticleSlugs, getPublishedMembers } from '@/lib/notion';
 import membersFallback from '@/data/members.json';
 
 const SITE_URL = 'https://gift-inc.org';
@@ -8,7 +8,7 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: Metadata
   { path: '', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/company', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/services/callcenter', priority: 0.9, changeFrequency: 'monthly' },
-  { path: '/services/dx-consulting', priority: 0.9, changeFrequency: 'monthly' },
+  { path: '/services/aiops', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/services/finance-consulting', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/achievements', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/recruit', priority: 0.9, changeFrequency: 'weekly' },
@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: r.priority,
   }));
 
-  // Members — try Notion, fall back to static JSON so sitemap always builds.
+  // Members â€” try Notion, fall back to static JSON so sitemap always builds.
   let memberEntries: MetadataRoute.Sitemap = [];
   try {
     const members = await getPublishedMembers();
@@ -47,10 +47,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   }
 
-  // News — try Notion; if it fails, skip (no JSON fallback for articles).
+  // News â€” try Notion; if it fails, skip (no JSON fallback for articles).
   let newsEntries: MetadataRoute.Sitemap = [];
   try {
-    const articles = await getPublishedArticles();
+    const articles = await getArticleSlugs();
     newsEntries = articles.map((a) => ({
       url: `${SITE_URL}/news/${a.slug}`,
       lastModified: a.date ? new Date(a.date.replace(/\./g, '-')) : now,
@@ -63,3 +63,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticEntries, ...memberEntries, ...newsEntries];
 }
+

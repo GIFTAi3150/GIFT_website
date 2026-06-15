@@ -1,60 +1,62 @@
-import HeroLogoDelayed from '@/components/ui/HeroLogoDelayed';
+import Link from 'next/link';
 import FadeUpText from '@/components/ui/FadeUpText';
+import HeroBackground from './hero-gradient/HeroBackground';
 
 export default function Hero() {
   return (
     <section
-      className="relative flex w-full items-center justify-center overflow-hidden"
-      style={{ minHeight: '100vh', backgroundColor: '#F8FAF8' }}
+      className="relative flex w-full items-center justify-start overflow-hidden"
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#0b1020',
+        isolation: 'isolate',
+      }}
     >
-      {/* Decorative drifting blobs — adds depth behind the hero content */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="hero-blob hero-blob-1" />
-        <div className="hero-blob hero-blob-2" />
-        <div className="hero-blob hero-blob-3" />
-      </div>
-      <div className="relative z-10 mx-auto w-full max-w-container px-4 py-16 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
-          {/* Text — left on desktop, top on mobile */}
-          <div className="order-2 flex flex-col items-start gap-6 text-left lg:order-1 lg:col-span-2">
-            <h1
-              className="font-display font-semibold leading-[1.05] tracking-tight text-gift-ink"
-              style={{ fontSize: 'clamp(36px, 4.2vw, 56px)' }}
-            >
-              <FadeUpText text="Where" />{' '}
-              <span className="text-gift-green">
-                <FadeUpText text="opportunity" delayMs={220} />
-              </span>
-              <br />
-              <FadeUpText text="begins." delayMs={400} />
-            </h1>
-            <p
-              className="nav-reveal font-mincho font-medium text-gift-ink"
-              style={
-                {
-                  fontSize: 'clamp(17px, 1.7vw, 20px)',
-                  lineHeight: '1.8',
-                  ['--reveal-delay' as string]: '1100ms',
-                } as React.CSSProperties
-              }
-            >
-              全ての人と社会へ夢やキッカケを与えられる企業へ
-            </p>
-            <a
-              href="/contact"
-              className="cta-btn nav-reveal mt-2"
-              style={{ ['--reveal-delay' as string]: '1350ms' }}
-            >
-              <span>お問い合わせ</span>
-            </a>
-          </div>
+      {/* WebGL fluid-distortion hero (port of sales-dex.jp) — full bleed, behind
+          everything. Entrance (ball-expand reveal) is handled inside. */}
+      <HeroBackground className="absolute inset-0 z-0" />
 
-          {/* Logo — right on desktop, below text on mobile */}
-          <div className="order-1 flex items-center justify-center lg:order-2 lg:col-span-3">
-            <div className="relative h-[360px] w-full max-w-3xl sm:h-[460px] lg:h-[640px]">
-              <HeroLogoDelayed className="absolute inset-0" />
-            </div>
-          </div>
+      {/* Bottom fade: only kicks in from 45% down so the top stays vivid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[1]"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 0%, transparent 45%, #0b1020 100%)',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto w-full max-w-container px-6 py-24 md:py-32 md:px-8 lg:px-12">
+        <div className="flex max-w-4xl flex-col items-start gap-8 text-left">
+          <h1
+            className="font-display font-semibold leading-[1.05] tracking-tight text-white"
+            style={{ fontSize: 'clamp(52px, 7vw, 110px)' }}
+          >
+            <FadeUpText text="Where" delayMs={650} />{' '}
+            <FadeUpText text="opportunity" delayMs={830} />
+            <br />
+            <FadeUpText text="begins." delayMs={1010} />
+          </h1>
+          <p
+            className="nav-reveal font-mincho font-medium text-white/70"
+            style={
+              {
+                fontSize: 'clamp(16px, 1.5vw, 19px)',
+                lineHeight: '1.8',
+                ['--reveal-delay' as string]: '1350ms',
+              } as React.CSSProperties
+            }
+          >
+            AIと人が共に創る、ビジネスの新時代。
+          </p>
+          <Link
+            href="/contact"
+            className="nav-reveal group mt-2 inline-flex items-center gap-3 border border-white bg-white px-5 py-2.5 text-[#0b1020] transition-all duration-300 hover:bg-transparent hover:text-white"
+            style={{ ['--reveal-delay' as string]: '1550ms' }}
+          >
+            <span className="font-display text-sm font-bold tracking-widest">お問い合わせ</span>
+            <span className="text-base transition-transform duration-300 group-hover:translate-x-1">›</span>
+          </Link>
         </div>
       </div>
     </section>

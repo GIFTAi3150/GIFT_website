@@ -69,7 +69,40 @@
   animation-name: fadeUpReveal;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-fill-mode: both;
+  /* Paused until the page cover starts fading. The layout inline script adds
+     body.page-ready at that moment, which starts the delay countdown here.
+     Without this gate the delay runs while the cover is up, so animations
+     complete before users can see them — text appears to "jump" on reveal. */
+  animation-play-state: paused;
 }
+body.page-ready .fade-up-word {
+  animation-play-state: running;
+}
+@keyframes aiops-pointer {
+  0%   { transform: translateY(0)    rotate(-90deg); opacity: 0.7; }
+  55%  { transform: translateY(-14px) rotate(-90deg); opacity: 0; }
+  56%  { transform: translateY(6px)  rotate(-90deg); opacity: 0; }
+  100% { transform: translateY(0)    rotate(-90deg); opacity: 0.7; }
+}
+
+@keyframes aiops-blob-1 {
+  0%   { transform: translate(0%, 0%) scale(1); }
+  33%  { transform: translate(30%, -20%) scale(1.15); }
+  66%  { transform: translate(-15%, 25%) scale(0.9); }
+  100% { transform: translate(0%, 0%) scale(1); }
+}
+@keyframes aiops-blob-2 {
+  0%   { transform: translate(0%, 0%) scale(1); }
+  33%  { transform: translate(-25%, 20%) scale(0.9); }
+  66%  { transform: translate(20%, -15%) scale(1.1); }
+  100% { transform: translate(0%, 0%) scale(1); }
+}
+@keyframes aiops-blob-3 {
+  0%   { transform: translate(0%, 0%) scale(1); }
+  50%  { transform: translate(15%, 30%) scale(1.2); }
+  100% { transform: translate(0%, 0%) scale(1); }
+}
+
 @keyframes fadeUpReveal {
   0% {
     opacity: 0;
@@ -131,25 +164,27 @@
 
 /* Privacy policy typography */
 .privacy-body {
-  color: #5E5E5E;
+  color: #3D3D3D;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   font-size: clamp(15px, 1.6vw, 17px);
   line-height: 2;
 }
 .privacy-body h2 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 800;
   font-size: clamp(22px, 2.4vw, 28px);
   line-height: 1.3;
   margin-top: 3rem;
   margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #C9A84C;
 }
 .privacy-body h2:first-child {
   margin-top: 0;
 }
 .privacy-body h3 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 700;
   font-size: clamp(17px, 1.9vw, 20px);
   line-height: 1.4;
@@ -157,7 +192,7 @@
   margin-bottom: 0.85rem;
 }
 .privacy-body h4 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   font-size: clamp(15px, 1.7vw, 17px);
   line-height: 1.5;
@@ -165,7 +200,7 @@
   margin-bottom: 0.5rem;
 }
 .privacy-body h5 {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   font-size: 15px;
   line-height: 1.5;
@@ -194,20 +229,21 @@
 }
 .privacy-body hr {
   border: 0;
-  border-top: 1px solid #CDD0D5;
+  border-top: 1px solid #C9A84C;
   margin: 3rem 0;
+  opacity: 0.4;
 }
 .privacy-body strong {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
 }
 .privacy-body .privacy-date {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   margin-top: -0.5rem;
 }
 .privacy-body .privacy-signature {
-  color: #111B21;
+  color: #1B2A4A;
   font-weight: 600;
   margin-top: 1.5rem;
 }
@@ -215,7 +251,7 @@
 .privacy-table-wrap {
   overflow-x: auto;
   margin: 1rem 0 1.5rem;
-  border: 1px solid #CDD0D5;
+  border: 1px solid #C8CAD4;
   border-radius: 8px;
 }
 .privacy-table {
@@ -225,29 +261,93 @@
   line-height: 1.7;
 }
 .privacy-table thead {
-  background: #F0F4F9;
+  background: #1B2A4A;
 }
 .privacy-table th {
   padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 700;
-  color: #111B21;
-  border-bottom: 1px solid #CDD0D5;
+  color: #ffffff;
+  border-bottom: 1px solid #243760;
 }
 .privacy-table td {
   padding: 0.85rem 1rem;
   vertical-align: top;
-  border-bottom: 1px solid #CDD0D5;
-  color: #111B21;
+  border-bottom: 1px solid #E0DDD6;
+  color: #1B2A4A;
 }
 .privacy-table tr:last-child td {
   border-bottom: none;
 }
 .privacy-table td:first-child {
-  background: #F7F9FC;
+  background: #EEF0F5;
   font-weight: 500;
   width: 40%;
 }
+
+/* ============================================================
+   Contact page hero — autonomous floating deco-rects
+   Same shapes/colors as the DX /final section. Scroll scrub
+   replaced with CSS keyframe floats; speeds mirror the GSAP
+   parallax speeds (560/320/480/260 … mapped to duration).
+============================================================ */
+.contact-hero-rects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  /* stretches across full <main> height — all sections */
+  --dr-solid: #635bff;
+  --dr-ghost: rgba(99, 91, 255, 0.22);
+}
+.contact-hero-rects .chr {
+  position: absolute;
+  border-radius: 20px;
+  will-change: transform, opacity;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  opacity: 0;
+}
+
+/* Rise from below → off-screen above. Opacity gates hide the snap-back. */
+@keyframes chr-rise-lg {
+  0%   { transform: translateY(520px);  opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(-260px); opacity: 0; }
+}
+@keyframes chr-rise-md {
+  0%   { transform: translateY(420px);  opacity: 0; }
+  9%   { opacity: 1; }
+  87%  { opacity: 1; }
+  100% { transform: translateY(-220px); opacity: 0; }
+}
+@keyframes chr-rise-sm {
+  0%   { transform: translateY(340px);  opacity: 0; }
+  10%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { transform: translateY(-180px); opacity: 0; }
+}
+
+/* ── positions — horizontal spread kept from dx-v3 dr-c*, top is mid-anchor ── */
+.contact-hero-rects .dr-c1  { width:95px;  height:145px; top:30%; left:-20px;              background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:14.0s; animation-delay:-1.4s;  }
+.contact-hero-rects .dr-c2  { width:82px;  height:125px; top:50%; left:18px;               background:var(--dr-solid); animation-name:chr-rise-md; animation-duration:11.2s; animation-delay:-6.0s;  }
+.contact-hero-rects .dr-c3  { width:88px;  height:135px; top:25%; left:calc(50% - 210px);  background:var(--dr-ghost); animation-name:chr-rise-md; animation-duration:12.8s; animation-delay:-3.5s;  }
+.contact-hero-rects .dr-c4  { width:78px;  height:120px; top:60%; left:calc(50% - 150px);  background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:10.4s; animation-delay:-8.1s;  }
+.contact-hero-rects .dr-c5  { width:88px;  height:135px; top:20%; left:calc(50% + 70px);   background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:15.6s; animation-delay:-5.2s;  }
+.contact-hero-rects .dr-c6  { width:78px;  height:120px; top:65%; left:calc(50% + 100px);  background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:11.8s; animation-delay:-2.7s;  }
+.contact-hero-rects .dr-c7  { width:95px;  height:145px; top:35%; right:-20px;             background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:17.0s; animation-delay:-9.3s;  }
+.contact-hero-rects .dr-c8  { width:82px;  height:125px; top:55%; right:18px;              background:var(--dr-solid); animation-name:chr-rise-md; animation-duration:12.0s; animation-delay:-0.6s;  }
+.contact-hero-rects .dr-c9  { width:74px;  height:114px; top:45%; left:8px;                background:var(--dr-ghost); animation-name:chr-rise-md; animation-duration:13.4s; animation-delay:-7.0s;  }
+.contact-hero-rects .dr-c10 { width:62px;  height:96px;  top:70%; left:72px;               background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:10.0s; animation-delay:-4.5s;  }
+.contact-hero-rects .dr-c11 { width:74px;  height:114px; top:40%; right:8px;               background:var(--dr-solid); animation-name:chr-rise-lg; animation-duration:16.2s; animation-delay:-11.0s; }
+.contact-hero-rects .dr-c12 { width:62px;  height:96px;  top:68%; right:72px;              background:var(--dr-ghost); animation-name:chr-rise-sm; animation-duration:9.6s;  animation-delay:-3.1s;  }
+.contact-hero-rects .dr-c13 { width:56px;  height:84px;  top:28%; left:calc(50% - 280px);  background:var(--dr-ghost); animation-name:chr-rise-sm; animation-duration:11.6s; animation-delay:-8.8s;  }
+.contact-hero-rects .dr-c14 { width:56px;  height:84px;  top:48%; left:calc(50% + 220px);  background:var(--dr-solid); animation-name:chr-rise-md; animation-duration:13.0s; animation-delay:-6.4s;  }
+.contact-hero-rects .dr-c15 { width:48px;  height:72px;  top:58%; left:calc(50% - 180px);  background:var(--dr-solid); animation-name:chr-rise-sm; animation-duration:10.8s; animation-delay:-2.0s;  }
+.contact-hero-rects .dr-c16 { width:48px;  height:72px;  top:52%; left:calc(50% + 130px);  background:var(--dr-ghost); animation-name:chr-rise-lg; animation-duration:18.0s; animation-delay:-13.5s; }
 
 /* Contact form inputs */
 .contact-input {
@@ -269,8 +369,8 @@
   border-color: #9aa0a6;
 }
 .contact-input:focus {
-  border-color: #25D366;
-  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 .contact-input:disabled {
   background: #F0F4F9;
@@ -296,7 +396,7 @@
   transition: background 0.3s ease, transform 0.3s ease;
 }
 .member-nav-arrow:hover {
-  background: #25D366;
+  background: #D96B43;
   transform: translateY(-50%) scale(1.06);
 }
 .member-nav-arrow--disabled {
@@ -499,7 +599,7 @@
   width: 1px;
   align-self: stretch;
   margin: 0.75rem 0;
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
 }
 @media (min-width: 768px) {
@@ -522,7 +622,7 @@
 .social-panel:hover,
 .social-panel:focus-visible,
 .social-panel:active {
-  color: #111B21;
+  color: #0C0E1A;
 }
 .social-panel:hover::before,
 .social-panel:focus-visible::before,
@@ -776,11 +876,11 @@
   color: #5E5E5E;
 }
 
-/* News/column card — glass scale + tilt on active (Uiverse/SteveBloX). */
+/* News/column card — light glass for AI homepage. */
 .news-card {
-  background: rgba(217, 217, 217, 0.58);
-  border: 1px solid white;
-  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.10);
   backdrop-filter: blur(6px);
   border-radius: 17px;
   cursor: pointer;
@@ -789,16 +889,20 @@
   overflow: hidden;
 }
 .news-card:hover {
-  border: 1px solid #25D366;
+  border: 1px solid #2563EB;
   transform: scale(1.05);
 }
 .news-card:active {
   transform: scale(0.95) rotateZ(1.7deg);
 }
 
-/* CTA button — radial box-shadow wipe on hover (Uiverse/mrhyddenn).
+/* CTA button — Osmo-style directional hover: a colored circle grows from
+   the cursor's entry point and shrinks back from wherever it exits. The
+   circle's center is positioned by --cta-x / --cta-y (set per-button by
+   CtaHoverHydrator on mouseenter/mousemove); keyboard focus falls back to
+   50%/50% so the circle expands from the center.
    Usage: <a class="cta-btn"><span>Label</span></a>
-   Variants: .cta-btn--deep (deep teal), .cta-btn--on-green (white → transparent for use on green bands) */
+   Variants: .cta-btn--deep (deep teal), .cta-btn--on-green (white fill for use on green bands) */
 .cta-btn {
   background: transparent;
   position: relative;
@@ -815,7 +919,7 @@
   outline: none;
   overflow: hidden;
   color: #25D366;
-  transition: color 0.3s 0.1s ease-out;
+  transition: color 0.3s 0.05s ease-out, border-color 0.3s ease-out;
   text-align: center;
 }
 .cta-btn > span {
@@ -828,20 +932,24 @@
   z-index: 1;
 }
 .cta-btn::before {
-  position: absolute;
-  top: 0;
-  left: -5em;
-  right: 0;
-  bottom: 0;
-  margin: auto;
   content: '';
-  border-radius: 50%;
+  position: absolute;
+  top: var(--cta-y, 50%);
+  left: var(--cta-x, 50%);
   display: block;
-  width: 20em;
-  height: 20em;
-  text-align: center;
-  transition: box-shadow 0.5s ease-out;
+  width: 25em;
+  height: 25em;
+  border-radius: 50%;
+  background-color: #25D366;
+  transform: translate(-50%, -50%) scale(0);
+  /* Scale is the visible morph; top/left ease so the circle smoothly
+     trails the cursor while hovered instead of teleporting. */
+  transition:
+    transform 0.55s cubic-bezier(0.625, 0.05, 0, 1),
+    top 0.3s ease-out,
+    left 0.3s ease-out;
   z-index: 0;
+  pointer-events: none;
 }
 .cta-btn:hover,
 .cta-btn:focus-visible {
@@ -850,7 +958,7 @@
 }
 .cta-btn:hover::before,
 .cta-btn:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #25D366;
+  transform: translate(-50%, -50%) scale(1);
 }
 .cta-btn:active {
   transform: scale(0.97);
@@ -861,13 +969,12 @@
   border-color: #128C7E;
   color: #128C7E;
 }
+.cta-btn--deep::before {
+  background-color: #128C7E;
+}
 .cta-btn--deep:hover,
 .cta-btn--deep:focus-visible {
   border-color: #128C7E;
-}
-.cta-btn--deep:hover::before,
-.cta-btn--deep:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #128C7E;
 }
 
 /* On-green-band variant (white outline → white fill, green text on hover) */
@@ -875,23 +982,115 @@
   border-color: #ffffff;
   color: #ffffff;
 }
+.cta-btn--on-green::before {
+  background-color: #ffffff;
+}
 .cta-btn--on-green:hover,
 .cta-btn--on-green:focus-visible {
   color: #128C7E;
   border-color: #ffffff;
 }
-.cta-btn--on-green:hover::before,
-.cta-btn--on-green:focus-visible::before {
-  box-shadow: inset 0 0 0 10em #ffffff;
+
+/* Member-page variant — terracotta outline, white text on hover when
+   the button fills with terracotta. Used on the /member Recruit CTA
+   so the button matches the warm cream + terracotta palette instead
+   of the global green. */
+.cta-btn--member {
+  border-color: #D96B43;
+  color: #D96B43;
+}
+.cta-btn--member::before {
+  background-color: #D96B43;
+}
+.cta-btn--member:hover,
+.cta-btn--member:focus-visible {
+  border-color: #D96B43;
+  color: #ffffff;
+}
+
+/* Company/about page variant — hero orange outline, white text on hover.
+   Updated to match the hero's warm orange light-leak palette. */
+.cta-btn--company {
+  border-color: #D95208;
+  color: #D95208;
+}
+.cta-btn--company::before {
+  background-color: #D95208;
+}
+.cta-btn--company:hover,
+.cta-btn--company:focus-visible {
+  border-color: #D95208;
+  color: #ffffff;
+}
+
+/* AI / homepage light variant — electric violet outline + fill */
+.cta-btn--ai {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+.cta-btn--ai::before {
+  background-color: #2563EB;
+}
+.cta-btn--ai:hover,
+.cta-btn--ai:focus-visible {
+  border-color: #2563EB;
+  color: #ffffff;
+}
+.cta-btn--ai:active {
+  box-shadow: 0 0 0 4px #2563EB;
+}
+
+/* Company/about page — animated-button in hero orange (Google Maps button in Access section).
+   Mirrors the base .animated-button but with hero orange replacing oxblood. */
+.animated-button--company {
+  color: #D95208;
+  box-shadow: 0 0 0 2px #D95208;
+}
+.animated-button--company svg {
+  fill: #D95208;
+}
+.animated-button--company .circle {
+  background-color: #D95208;
+}
+.animated-button--company:hover {
+  color: #212121;
+}
+.animated-button--company:active {
+  box-shadow: 0 0 0 4px #D95208;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-btn::before {
+    transition: transform 0.15s ease-out;
+  }
+}
+
+/* Hides the native horizontal scrollbar while keeping the element
+   scrollable. Used on swipe-through card rails where the bar adds visual
+   noise — users still get the affordance from the partially-visible
+   neighbor card and from physical scroll/drag. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 :root {
   --font-mincho: '游明朝', 'Yu Mincho', 'Hiragino Mincho ProN W3', 'ヒラギノ明朝 ProN W3', serif;
   color-scheme: light;
+  /* Espacio La Nube design tokens — cloud blue + deep teal */
+  --nube-cloud: 176 224 233;
+  --nube-ink:   34 109 122;
+  --ease-out-soft: cubic-bezier(.22, 1, .36, 1);
 }
 
 html {
-  background-color: #EBEEF3;
+  background-color: #F0F7FF;
+  overflow-x: hidden;
 }
 
 /* Canvas bg transparent so the hero shows through — no visible walls. */
@@ -901,12 +1100,17 @@ canvas {
 
 html,
 body {
-  background: #EBEEF3;
-  color: #111B21;
+  background: #F0F7FF;
+  color: #0C0E1A;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 300;
   line-height: 1.8;
-  scroll-behavior: smooth;
+  /* NOTE: `scroll-behavior: smooth` was removed (2026-05-29). There are no
+     in-page `#` anchors that needed it, and a global smooth-scroll (a) makes
+     the on-route-change scrollTo(0,0) reset animate/get interrupted instead of
+     snapping to the top, and (b) directly conflicts with Lenis (DX +
+     achievements pages), which requires the native scroll-behavior to be
+     `auto`. Per-page smooth scrolling is handled by Lenis where wanted. */
 }
 
 /* Prevent orphan characters in headings (esp. Japanese).
@@ -983,59 +1187,17 @@ h6 {
   .robot-zzz { animation: none; }
 }
 
-/* Hero background — slow drifting blurred blobs for depth.
-   Three blobs in the brand green scale, each with its own drift timing.
-   Pure CSS, low cost. Use inside an overflow-hidden container. */
-.hero-blob {
-  position: absolute;
-  border-radius: 50%;
-  will-change: transform;
-  pointer-events: none;
-}
-.hero-blob-1 {
-  top: -12%;
-  right: -8%;
-  width: 520px;
-  height: 520px;
-  background: rgba(37, 211, 102, 0.06);
-  filter: blur(90px);
-  animation: blobDrift1 22s ease-in-out infinite;
-}
-.hero-blob-2 {
-  bottom: -18%;
-  left: -12%;
-  width: 620px;
-  height: 620px;
-  background: rgba(143, 217, 164, 0.12);
-  filter: blur(110px);
-  animation: blobDrift2 28s ease-in-out infinite;
-}
-.hero-blob-3 {
-  top: 38%;
-  left: 28%;
-  width: 320px;
-  height: 320px;
-  background: rgba(230, 255, 218, 0.15);
-  filter: blur(70px);
-  animation: blobDrift3 18s ease-in-out infinite;
-}
-@keyframes blobDrift1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(30px, -20px) scale(1.05); }
-  66%      { transform: translate(-20px, 30px) scale(0.95); }
-}
-@keyframes blobDrift2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(-40px, 25px) scale(1.08); }
-}
-@keyframes blobDrift3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40%      { transform: translate(20px, 40px) scale(0.92); }
-  80%      { transform: translate(-30px, -15px) scale(1.06); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-blob-1, .hero-blob-2, .hero-blob-3 { animation: none; }
-}
+/* Hero blob CSS retired 2026-06-04 — replaced by WebGL shader-gradient (HeroBackground.tsx).
+   Kept commented in case rollback is needed.
+.hero-blob { position:absolute; border-radius:50%; will-change:transform; pointer-events:none; }
+.hero-blob-1 { top:-12%;right:-8%;width:520px;height:520px;background:rgba(37,99,235,.10);filter:blur(90px);animation:blobDrift1 22s ease-in-out infinite; }
+.hero-blob-2 { bottom:-18%;left:-12%;width:620px;height:620px;background:rgba(6,182,212,.08);filter:blur(110px);animation:blobDrift2 28s ease-in-out infinite; }
+.hero-blob-3 { top:38%;left:28%;width:320px;height:320px;background:rgba(37,99,235,.07);filter:blur(70px);animation:blobDrift3 18s ease-in-out infinite; }
+@keyframes blobDrift1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-20px) scale(1.05)} 66%{transform:translate(-20px,30px) scale(.95)} }
+@keyframes blobDrift2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,25px) scale(1.08)} }
+@keyframes blobDrift3 { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(20px,40px) scale(.92)} 80%{transform:translate(-30px,-15px) scale(1.06)} }
+@media (prefers-reduced-motion:reduce){ .hero-blob-1,.hero-blob-2,.hero-blob-3{animation:none} }
+*/
 
 /* Navbar reveal — fades down into place on mount. Stagger is driven by
    --reveal-delay set inline per element. */
@@ -1053,43 +1215,18 @@ h6 {
   opacity: 0;
   animation: nav-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--reveal-delay, 0ms);
+  animation-play-state: paused;
+}
+body.page-ready .nav-reveal {
+  animation-play-state: running;
 }
 
-/* Company page hero — "constellation of values" dark mode.
-   Green dots softly pulse; labels stay put so they read as floating terms. */
-.constellation-node {
-  transform-origin: center;
-  animation: constellation-pulse 3.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-@keyframes constellation-pulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 6px rgba(37, 211, 102, 0.55));
-    opacity: 0.95;
-  }
-  50% {
-    filter: drop-shadow(0 0 14px rgba(37, 211, 102, 0.9));
-    opacity: 1;
-  }
-}
 
-/* Electric pulse wires — each line has a tiny bright dash sliding along it. The gap
-   (200 units) is much longer than any line (<52 units), so at most one pulse is visible
-   per line at any time. Combined with the base steady wires behind, this reads as
-   "current traveling through the wire" — not a flying dot. */
-.pulse-wave {
-  stroke-dasharray: 5 200;
-  stroke-dashoffset: 0;
-  animation: pulse-travel 2.4s linear infinite;
-  filter: drop-shadow(0 0 3px rgba(37, 211, 102, 0.95)) drop-shadow(0 0 6px rgba(37, 211, 102, 0.5));
-}
-@keyframes pulse-travel {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -55; }
-}
-
+/* Achievements/Works hero — pixel trophy with diagonal shine sweep.
+   The shine is a thin white rect inside the trophy SVG, rotated 20° and translated across
+   via SVG SMIL animation. clipPath ensures it only shows over the trophy shape. */
 @media (prefers-reduced-motion: reduce) {
-  .constellation-node,
-  .pulse-wave { animation: none; }
+  .trophy-shine { display: none; }
 }
 
 /* Call-center hero — "voice waveform" flowing across the dark bg.
@@ -1175,4 +1312,279 @@ h6 {
 }
 @media (prefers-reduced-motion: reduce) {
   .dx-node { animation: none; }
+}
+
+/* ==========================================================
+   Emoji rain — Osmo Supply pattern adapted for unicode emojis.
+   The container is a viewport-fixed overlay, pointer-events
+   off so it never blocks clicks. JS injects .single-rain-emoji
+   children at click-time and animates them upward via GSAP.
+========================================================== */
+.emoji-rain-container {
+  z-index: 150;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+.single-rain-emoji {
+  will-change: transform;
+  width: max(80px, 8vw);
+  position: absolute;
+  top: 0;
+}
+.single-rain-emoji-text {
+  width: 100%;
+  text-align: center;
+  font-size: clamp(48px, 7vw, 110px);
+  line-height: 1;
+}
+
+/* Espacio La Nube hero entrance — 1.6s slow fade-up sets the premium tone */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-enter { animation: hero-fade-up 1600ms cubic-bezier(.22, 1, .36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter { animation: none; }
+}
+
+/* ── Hero entrance: a small ball expands to fill the hero background ─────────
+   Transition-based (not a keyframe) and toggled by a client-side class so the
+   reveal starts when the hero actually paints — a pure CSS keyframe would burn
+   its 1.1s clock during the load/hydration delay and finish while still
+   hidden. Base = a small centred ball; `.is-revealed` (added on mount) grows
+   it to cover the section. */
+.hero-ball-reveal {
+  clip-path: circle(3.2vmax at 50% 50%);
+  /* 380ms hold so the ball clearly reads, then a gentle accelerate-then-settle
+     expansion (not a fast ease-out, which blows past the ball phase). */
+  transition: clip-path 1250ms cubic-bezier(0.5, 0, 0.2, 1) 380ms;
+  will-change: clip-path;
+}
+.hero-ball-reveal.is-revealed {
+  clip-path: circle(110vmax at 50% 50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* skip the wipe; show the full background immediately */
+  .hero-ball-reveal { clip-path: none; transition: none; }
+}
+
+/* ── Scroll-Reveal Spread (srs) ────────────────────────────────────────────
+   Sticky text section: the outer div stretches to give scroll room; the
+   inner .srs-stick stays pinned mid-viewport while you scroll through.
+   Add .srs-w to each word/phrase <span>; GSAP toggles .srs-lit on scroll. */
+/* Step slideshow pill fill animation */
+@keyframes stepFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.srs-spread { position: relative; }
+.srs-stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.srs-w {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity   0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.srs-w.srs-lit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Members orbit marquee — diagonal infinite scroll strip */
+@keyframes orbit-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.orbit-track {
+  display: flex;
+  width: max-content;
+  animation: orbit-scroll var(--orbit-duration, 24s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-track { animation-play-state: paused; }
+}
+
+/* Works section mascot — jump + 360° flip companion next to the heading */
+.works-mascot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: clamp(140px, 14vw, 200px);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 18px 36px rgba(232, 176, 76, 0.25));
+}
+/* Ground shadow that reacts to the jump */
+.works-mascot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2%;
+  width: 54%;
+  height: 11px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(232, 176, 76, 0.38), transparent 70%);
+  filter: blur(5px);
+  animation: works-shadow 3.6s ease-in-out infinite;
+}
+.works-mascot > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 90%;
+  animation: works-jump-flip 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ── Jump + 360° flip ──────────────────────────────────────────────────────
+   Timeline (3.6 s total):
+   0-42%   idle squish on the ground
+   44%     squat / windup (slight crouch + tilt)
+   54%     launch — rising fast, starting rotation
+   63%     peak — fully airborne, halfway through flip
+   72%     descending — completing the 360°
+   82%     land — hard squash on impact
+   90%     small bounce up
+   100%    settle back to idle
+ ──────────────────────────────────────────────────────────────────────────── */
+@keyframes works-jump-flip {
+  0%   { transform: translateY(0)     rotate(0deg)   scaleX(1.05) scaleY(0.93); }
+  42%  { transform: translateY(0)     rotate(0deg)   scaleX(1.05) scaleY(0.93); }
+  44%  { transform: translateY(3px)   rotate(-6deg)  scaleX(0.87) scaleY(1.13); }
+  54%  { transform: translateY(-60px) rotate(90deg)  scaleX(1.10) scaleY(0.90); }
+  63%  { transform: translateY(-100px) rotate(180deg) scaleX(0.95) scaleY(1.06); }
+  72%  { transform: translateY(-60px) rotate(270deg) scaleX(1.08) scaleY(0.93); }
+  80%  { transform: translateY(-18px) rotate(345deg) scaleX(1.00) scaleY(1.00); }
+  84%  { transform: translateY(0)     rotate(360deg) scaleX(1.22) scaleY(0.78); }
+  91%  { transform: translateY(-14px) rotate(360deg) scaleX(0.93) scaleY(1.09); }
+  96%  { transform: translateY(0)     rotate(360deg) scaleX(1.07) scaleY(0.91); }
+  100% { transform: translateY(0)     rotate(360deg) scaleX(1.05) scaleY(0.93); }
+}
+
+@keyframes works-shadow {
+  0%, 42%, 100% { transform: translateX(-50%) scaleX(1.0);  opacity: 0.52; }
+  44%           { transform: translateX(-50%) scaleX(0.80); opacity: 0.38; }
+  63%           { transform: translateX(-50%) scaleX(0.22); opacity: 0.10; }
+  84%           { transform: translateX(-50%) scaleX(1.40); opacity: 0.70; }
+  91%           { transform: translateX(-50%) scaleX(0.75); opacity: 0.35; }
+  96%           { transform: translateX(-50%) scaleX(1.10); opacity: 0.50; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .works-mascot > img,
+  .works-mascot::after { animation: none; }
+}
+
+/* ── Story Timeline — biscom.jp/10th story section animation ──────────────
+   Exact replication of biscom's .story-blcs CSS:
+   Year number + month start translated 40px down + invisible (same instant-reset
+   transition trick biscom uses). Text content starts invisible.
+   JS adds .is-active via GSAP ScrollTrigger → CSS transitions fire.        */
+
+.story-blc .story-year-num,
+.story-blc .story-year-month {
+  translate: 0 40px;
+  opacity: 0;
+  /* instant reset when NOT active — matches biscom */
+  transition: translate 0s linear 0.2s, opacity 0.2s ease-in;
+}
+
+.story-blc .story-txts {
+  opacity: 0;
+  transition: opacity 0.25s linear;
+}
+
+/* Active — year slides up (biscom: cubic-bezier(.33,1,.68,1)) */
+.story-blc.is-active .story-year-num {
+  translate: 0 0;
+  opacity: 1;
+  transition: translate 0.6s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.3s linear;
+  transition-delay: 0.05s;
+}
+
+.story-blc.is-active .story-year-month {
+  translate: 0 0;
+  opacity: 1;
+  transition: translate 0.6s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.3s linear;
+  transition-delay: 0.08s;
+}
+
+/* Active — text fades in */
+.story-blc.is-active .story-txts {
+  opacity: 1;
+  transition-delay: 0.08s;
+}
+
+
+
+/* ── GIFT INC. echo distortion (WhoWeAre section) ───────────────────── */
+.gift-echo-wrap {
+  position: relative;
+  padding-top: 0.9em;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  --ep: 0;
+}
+.gift-echo-wrap[data-visible='true'] {
+  opacity: 1;
+}
+
+.gift-echo-main,
+.gift-echo-copy {
+  font-size: clamp(64px, 12vw, 160px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+}
+.gift-echo-main {
+  display: block;
+  position: relative;
+}
+.gift-echo-copy {
+  display: block;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  bottom: 0;
+  clip-path: inset(0 0 62% 0);
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0%, #000 54%, transparent 54%, transparent 100%);
+  -webkit-mask-size: 100% 9px;
+  mask-image: repeating-linear-gradient(to bottom, #000 0%, #000 54%, transparent 54%, transparent 100%);
+  mask-size: 100% 9px;
+}
+
+/* Echoes spread when --ep=0 (below viewport), merge to 0 when --ep=1 (in view) */
+.gift-echo-copy--1 {
+  transform: translateY(calc((1 - var(--ep)) * -0.30em));
+  opacity: calc((1 - var(--ep)) * 0.55);
+}
+.gift-echo-copy--2 {
+  transform: translateY(calc((1 - var(--ep)) * -0.62em));
+  opacity: calc((1 - var(--ep)) * 0.30);
+}
+.gift-echo-copy--3 {
+  transform: translateY(calc((1 - var(--ep)) * -0.94em));
+  opacity: calc((1 - var(--ep)) * 0.14);
 }

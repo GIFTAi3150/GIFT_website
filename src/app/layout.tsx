@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { notoSansJP, poppins } from './fonts';
+import { anton, forum, notoSansJP, openSans, poppins, shipporiAntique } from './fonts';
 import '../styles/globals.css';
+import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
+import ScrollToTopOnRouteChange from '@/components/util/ScrollToTopOnRouteChange';
+import RootCanvasMount from '@/components/three/RootCanvasMount';
+import Header from '@/components/layout/Header';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -47,10 +51,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="ja"
-      className={`${notoSansJP.variable} ${poppins.variable}`}
-      style={{ backgroundColor: '#F0F4F9', colorScheme: 'light' }}
+      className={`${notoSansJP.variable} ${poppins.variable} ${anton.variable} ${openSans.variable} ${forum.variable} ${shipporiAntique.variable}`}
+      // Browsers serialize inline-style hex colors as rgb(), which
+      // React reads back as a different string than its JSX source —
+      // produces a noisy but harmless hydration warning. Suppress it.
+      suppressHydrationWarning
+      style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
+        {/* Suppress known third-party and framework noise.
+            - THREE.Clock: deprecated in r165+, R3F 8.x still uses it — unfixable without upstream upgrade.
+            - Skipping auto-scroll: Next.js dev-only check hitting our fixed-position overlays — harmless. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var w=console.warn.bind(console);console.warn=function(){var m=arguments[0];if(typeof m==='string'&&(m.indexOf('THREE.Clock')!==-1||m.indexOf('Skipping auto-scroll')!==-1))return;w.apply(console,arguments);};})();`,
+          }}
+        />
         {/* Google Search Console verification */}
         <meta name="google-site-verification" content="QywozbyWj6GtH9Gv1iDF7AS8P3pSbGrYOThrj2OrU4c" />
         {/* Google Analytics 4 */}
@@ -78,18 +94,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body style={{ backgroundColor: '#F0F4F9' }}>
+      <body suppressHydrationWarning style={{ backgroundColor: '#F0F7FF' }}>
         {/* SSR-rendered dark cover. Present in the very first HTML byte the
             browser receives, so it can paint before any React/JS runs.
             Inline script fades it out once the page is ready. */}
         <div
           id="page-cover"
           aria-hidden
+          // The inline script below mutates this div's style attribute
+          // (opacity: 0) before React hydrates, which makes the
+          // post-script DOM diverge from React's JSX. suppressHydrationWarning
+          // tells React this mismatch is intentional and shouldn't error.
+          suppressHydrationWarning
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            backgroundColor: '#F0F4F9',
+            backgroundColor: '#F0F7FF',
             pointerEvents: 'none',
             transition: 'opacity 500ms ease-out',
           }}
@@ -105,33 +126,43 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (hidden) return;
                   hidden = true;
                   cover.style.opacity = '0';
+                  // page-ready triggers CSS animation-play-state: running on
+                  // .nav-reveal and .fade-up-word elements. Adding the class when
+                  // the cover STARTS fading (not after it's gone) lets nav items
+                  // fade in simultaneously with the cover fade-out, so users see
+                  // the reveal animation instead of text appearing pre-formed.
+                  document.body.classList.add('page-ready');
                   setTimeout(function () { cover.remove(); }, 600);
                 };
-                var windowLoaded = document.readyState === 'complete';
-                var logoReady = false;
-                var tryHide = function () {
-                  if (windowLoaded && logoReady) hide();
-                };
+                // Drop cover as soon as the hero signals it's painted.
+                // windowLoaded is NOT required — logo-ready fires before all
+                // images/fonts finish (hero is WebGL, not an image) and gating
+                // on it caused animations to complete under the cover, resulting
+                // in text that appeared to "jump" into its final state.
                 window.addEventListener('gift:logo-ready', function () {
-                  logoReady = true;
-                  tryHide();
+                  hide();
                 });
-                if (windowLoaded) {
-                  // already loaded
-                } else {
-                  window.addEventListener('load', function () {
-                    windowLoaded = true;
-                    tryHide();
-                  });
+                // For pages without a canvas hero (company, contact, …) no one
+                // dispatches gift:logo-ready. Drop the cover when the window
+                // finishes loading instead (typically 300-800ms).
+                window.addEventListener('load', function () {
+                  setTimeout(hide, 100);
+                }, { once: true });
+                // If already loaded (client-side nav to a non-hero page), fire now.
+                if (document.readyState === 'complete') {
+                  setTimeout(hide, 100);
                 }
-                // Safety fallback: if the logo never signals (error, no 3D on page),
-                // force-hide after 4s so the site is never stuck behind the cover.
-                setTimeout(hide, 4000);
+                // Hard safety cap — never leave the cover up beyond 3s.
+                setTimeout(hide, 3000);
               })();
             `,
           }}
         />
+        <Header />
         {children}
+        <CtaHoverHydrator />
+        <ScrollToTopOnRouteChange />
+        <RootCanvasMount />
       </body>
     </html>
   );

@@ -1,12 +1,10 @@
 import Link from 'next/link';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PixelRobot from '@/components/ui/PixelRobot';
 
 export default function NotFound() {
   return (
     <>
-      <Header />
       <main
         className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-20 text-center md:px-6"
         style={{ backgroundColor: '#F8FAF8' }}

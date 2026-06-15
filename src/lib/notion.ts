@@ -13,6 +13,7 @@ export interface BlogArticle {
   cover: string;
   excerpt: string;
   body: string;
+  giftView: string;
 }
 
 export async function getPublishedArticles(): Promise<BlogArticle[]> {
@@ -63,6 +64,16 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
         ? props.Cover.url || ''
         : '';
 
+    const normalizeKey = (s: string) => s.toLowerCase().replace(/\s+/g, '');
+    const giftViewKey = Object.keys(props).find(
+      (k) => normalizeKey(k) === 'giftview',
+    );
+    const giftViewProp = giftViewKey ? props[giftViewKey] : undefined;
+    const giftView =
+      giftViewProp?.type === 'rich_text'
+        ? giftViewProp.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
     // Fetch page content as body
     const blocks = await notion.blocks.children.list({ block_id: page.id });
     let body = '';
@@ -96,7 +107,7 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
     if (body.length > 120) excerpt += '…';
 
     if (title && slug) {
-      articles.push({ id: page.id, title, slug, category, date, author, cover, excerpt, body });
+      articles.push({ id: page.id, title, slug, category, date, author, cover, excerpt, body, giftView });
     }
   }
 
@@ -106,6 +117,40 @@ export async function getPublishedArticles(): Promise<BlogArticle[]> {
 export async function getArticleBySlug(slug: string): Promise<BlogArticle | null> {
   const articles = await getPublishedArticles();
   return articles.find((a) => a.slug === slug) || null;
+}
+
+export async function getArticleSlugs(): Promise<{ slug: string; date: string }[]> {
+  const response = await notion.databases.query({
+    database_id: databaseId,
+    filter: {
+      property: 'Published',
+      checkbox: { equals: true },
+    },
+    sorts: [{ property: 'Date', direction: 'descending' }],
+  });
+
+  const entries: { slug: string; date: string }[] = [];
+
+  for (const page of response.results) {
+    if (!('properties' in page)) continue;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props = page.properties as Record<string, any>;
+
+    const slug =
+      props.Slug?.type === 'rich_text'
+        ? props.Slug.rich_text.map((t: { plain_text: string }) => t.plain_text).join('')
+        : '';
+
+    const date =
+      props.Date?.type === 'date'
+        ? props.Date.date?.start || ''
+        : '';
+
+    if (slug) entries.push({ slug, date });
+  }
+
+  return entries;
 }
 
 // --- Job Positions ---

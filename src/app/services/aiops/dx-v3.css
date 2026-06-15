@@ -1,0 +1,3317 @@
+/* ============================================================
+   DX Consulting v3 — page-scoped styles.
+   Wrapped under .dx-v3 so the blue palette and bespoke type
+   don't bleed into the rest of the site.
+============================================================ */
+
+/* Defensive flash guard for client-side navigation.
+   When the user navigates to /services/dx-consulting from another route,
+   the page mounts and React commits its tree. Two paint hazards happen
+   in that window:
+     1. Whatever sits at the previous page's scroll Y can briefly appear
+        before scrollTo(0,0) lands (the manifesto-scene PNGs were the
+        original offender).
+     2. The page's GSAP fromTo initial states (opacity:0, y:80…) haven't
+        been applied yet, so all scroll-driven sections paint in their
+        FINAL state for one frame — visitors perceive the animations as
+        "already done" before they've even scrolled.
+   We hide every child of .dx-v3 with visibility:hidden until JS removes
+   the attribute at the END of useEffect (after all GSAP states are
+   applied). visibility:hidden preserves layout but suppresses paint,
+   so the swap is instant with no fade or pop-in.
+
+   The fixed ::after cover paints the page's --paper background across
+   the entire viewport while the guard is up. Without it, the body's
+   #EBEEF3 underlay would leak through (since .dx-v3 itself is hidden
+   and its background paint is suppressed too), producing a visible
+   color flash between loading.tsx unmounting and the guard releasing.
+   We explicitly set visibility:visible on the pseudo so it survives
+   the parent's hidden state. */
+.dx-v3[data-flash-guard] > *,
+.dx-v3[data-flash-guard]::before {
+  visibility: hidden;
+}
+.dx-v3[data-flash-guard]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #f5f7ff;
+  visibility: visible;
+  pointer-events: none;
+}
+
+.dx-v3 {
+  --paper: #f5f7ff;
+  --paper-2: #e6eeff;
+  --paper-3: #d5e1ff;
+  --ink: #0b1340;
+  --ink-2: #1e2a6b;
+  --silver: #6b7aa8;
+  --line: #c9d3f5;
+  --blue: #635bff;
+  --blue-bright: #8a82ff;
+  --blue-glow: #b3a9ff;
+  --sky: #cfc8ff;
+  --cobalt: #4a3fe0;
+  --purple: #7c3aed;
+  --purple-deep: #6d28d9;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'General Sans', 'Noto Sans JP', system-ui, sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  /* `overflow-x: clip` keeps horizontal containment without breaking
+     position:sticky on descendants (overflow:hidden does break it). */
+  overflow-x: clip;
+}
+.dx-v3 ::selection {
+  background: var(--blue);
+  color: #fff;
+}
+
+/* Page-wide blurple ambient glow — fixed to viewport so the wash
+   stays visible across every section. Three radial gradients at
+   different corners give an all-sides vignette feel rather than a
+   single edge. mix-blend-mode: multiply tints through section
+   backgrounds. Tweak any rgba alpha or stop-% to adjust. */
+.dx-v3::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    /* top-left corner */
+    radial-gradient(ellipse 70% 60% at 0% 0%, rgba(99, 91, 255, 0.16) 0%, transparent 60%),
+    /* top-middle side */
+    radial-gradient(ellipse 50% 35% at 50% 0%, rgba(99, 91, 255, 0.1) 0%, transparent 65%),
+    /* top-right corner */
+    radial-gradient(ellipse 65% 55% at 100% 0%, rgba(99, 91, 255, 0.14) 0%, transparent 60%),
+    /* right-middle side */
+    radial-gradient(ellipse 35% 50% at 100% 50%, rgba(99, 91, 255, 0.1) 0%, transparent 65%),
+    /* bottom-right corner */
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(99, 91, 255, 0.16) 0%, transparent 60%),
+    /* bottom-middle side */
+    radial-gradient(ellipse 50% 35% at 50% 100%, rgba(99, 91, 255, 0.1) 0%, transparent 65%),
+    /* bottom-left corner */
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(99, 91, 255, 0.16) 0%, transparent 60%),
+    /* left-middle side */
+    radial-gradient(ellipse 35% 50% at 0% 50%, rgba(99, 91, 255, 0.1) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 100;
+  /* Removed mix-blend-mode: multiply — it made the glow disappear
+     over dark sections (final CTA). Plain alpha blend means the
+     blurple is visible on every background, light or dark. */
+}
+
+/* ---------- Scroll progress bar (top) — hidden ----------
+   Was a 2px fixed-top track at 80px that visually sliced through
+   the manifesto PNG cluster. Hidden globally for now. */
+.dx-v3 .progress {
+  display: none;
+}
+
+/* ============================================================
+   HERO — single 100vh frame, neural-net canvas backdrop
+============================================================ */
+.dx-v3 .hero {
+  position: relative;
+  height: 100vh;
+  background: var(--paper);
+}
+.dx-v3 .hero-stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+.dx-v3 .atom-viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+}
+.dx-v3:not([data-flash-guard]) .atom-viewer {
+  animation: dx-atom-fade-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+  transform-origin: center center;
+}
+@keyframes dx-atom-fade-in {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.dx-v3 .atom-viewer canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Lift text-bearing elements above the canvas */
+.dx-v3 .hero-stage-inner,
+.dx-v3 .hero-foot,
+.dx-v3 .hero-meta {
+  position: relative;
+  z-index: 2;
+}
+.dx-v3 .hero-meta {
+  position: absolute;
+  top: 96px;
+  left: 32px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--silver);
+  text-transform: uppercase;
+}
+.dx-v3 .hero-meta .dash {
+  width: 24px;
+  height: 1px;
+  background: var(--blue);
+  margin-bottom: 6px;
+}
+.dx-v3 .hero-meta .accent {
+  color: var(--blue);
+}
+.dx-v3 .hero-coords {
+  position: absolute;
+  top: 96px;
+  right: 32px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--silver);
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+.dx-v3 .hero-coords .accent {
+  color: var(--blue);
+  margin-top: 6px;
+}
+
+.dx-v3 .hero-stage-inner {
+  /* Title overlay anchored to the top-left of the hero — small enough
+     that the centered 3D model stays exposed. pointer-events: none
+     lets cursor + clicks pass through to the WebGL canvas behind. */
+  position: absolute;
+  top: 130px;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  height: auto;
+  z-index: 4;
+  display: block;
+  pointer-events: none;
+}
+.dx-v3 .masthead {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  padding: 0 60px;
+}
+@media (max-width: 900px) {
+  .dx-v3 .hero-stage-inner {
+    top: 100px;
+  }
+  .dx-v3 .masthead {
+    padding: 0 24px;
+    max-width: 100%;
+  }
+}
+/* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
+   was wider than "DX Consulting." (~14 chars) could fit at 375px with
+   24px side padding (327px usable). Drop the min so the row scales
+   down on truly small viewports. Hero-stats gap is also tightened so
+   the three stats fit on one line where possible. */
+@media (max-width: 480px) {
+  .dx-v3 .masthead .row {
+    font-size: clamp(32px, 9vw, 48px);
+  }
+}
+.dx-v3 .masthead .row {
+  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
+  font-weight: 700;
+  /* Bumped up so the editorial DX + italic-serif Consulting reads as
+     a real headline, not a tag overlay. */
+  font-size: clamp(48px, 6.6vw, 96px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+.dx-v3 .masthead .row .dx {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+.dx-v3 .masthead .row .consulting {
+  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--purple);
+  letter-spacing: -0.015em;
+  /* Italic serif renders slightly smaller than bold sans at the same
+     px — bump for visual balance. */
+  font-size: 1.1em;
+}
+.dx-v3 .masthead .row .dx {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  color: var(--ink);
+}
+.dx-v3 .masthead .row .consulting {
+  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-style: italic;
+  font-weight: 400;
+  /* Bumped slightly so the serif feels editorial rather than secondary. */
+  font-size: 1.08em;
+  letter-spacing: -0.012em;
+  color: var(--purple);
+  /* Keep "Consulting." atomic — the scramble effect wraps each letter in
+     <span class="ch"> with display: inline-block, so without this the
+     browser is free to break between any letter and we saw "Consultin"
+     / "g." at narrower widths. The line still breaks cleanly at the
+     space after "DX". */
+  display: inline-block;
+  white-space: nowrap;
+}
+/* The hero scramble effect splits each row into <span class="ch"> per
+   character on mount. Those child spans must also pick up the purple,
+   otherwise they inherit the parent's color and disappear. */
+.dx-v3 .masthead .row .consulting .ch {
+  color: var(--purple);
+}
+.dx-v3 .masthead .row.r1,
+.dx-v3 .masthead .row.r2 {
+  text-align: left;
+}
+.dx-v3 .masthead .row.r2 {
+  margin-top: 4px;
+}
+.dx-v3 .masthead .row.r2 em {
+  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--blue);
+  letter-spacing: -0.012em;
+  /* Pop the italic serif slightly larger than the sans line above —
+     classic editorial mix where the italic carries the emotional payoff. */
+  font-size: 1.06em;
+}
+.dx-v3 .masthead .row .char,
+.dx-v3 .masthead .row .ch {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+.dx-v3 .masthead .ja {
+  margin-top: 36px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
+  font-weight: 400;
+  font-size: clamp(13px, 1.1vw, 16px);
+  color: var(--ink-2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+.dx-v3 .masthead .ja .rule {
+  display: block;
+  flex: 0 0 56px;
+  height: 1px;
+  background: var(--blue);
+}
+.dx-v3 .masthead .ja .ja-inner {
+  display: inline-block;
+}
+
+
+.dx-v3 .hero-foot {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 32px;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.dx-v3 .hero-foot .lab,
+.dx-v3 .hero-foot .scroll-cue {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.dx-v3 .hero-foot .lab {
+  color: var(--silver);
+}
+.dx-v3 .hero-foot .scroll-cue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--blue);
+}
+.dx-v3 .hero-foot .scroll-cue::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--blue);
+}
+.dx-v3 .hero-foot .partner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+}
+.dx-v3 .hero-foot .partner .l {
+  width: 18px;
+  height: 18px;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+}
+.dx-v3 .hero-foot .partner span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   MARQUEE — scroll-driven
+============================================================ */
+.dx-v3 .marquee {
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: 22px 0;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.dx-v3 .marquee .track {
+  display: flex;
+  gap: 56px;
+  white-space: nowrap;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  will-change: transform;
+}
+.dx-v3 .marquee .track > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+}
+.dx-v3 .marquee .track .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  opacity: 0.5;
+}
+
+/* ============================================================
+   INTRO — words light up on scroll
+============================================================ */
+.dx-v3 .intro {
+  /* Cool icy-blue canvas runs UNDER both the manifesto text and the
+     Spline objects below it, so the whole section reads as one
+     unified surface. Brand cobalt accents on top, no peach. */
+  background: linear-gradient(180deg, #f8fafe 0%, #eef2fb 40%, #dfe7f5 80%, #d2ddf0 100%);
+  padding: 120px 32px 80px;
+  position: relative;
+  /* overflow: clip — keep the manifesto-scene PNGs (especially the
+     60vw centerpiece sphere) contained within intro so they don't
+     overlap the stats numbers below. Combined with intro's
+     padding-bottom and stats' padding-top, this gives a clean gap
+     between the PNG cluster and the stat numbers. */
+  overflow: clip;
+}
+.dx-v3 .intro::before,
+.dx-v3 .intro::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.dx-v3 .intro::before {
+  /* Brand-cobalt glow upper-right, depth on the gradient */
+  width: 55%;
+  aspect-ratio: 1;
+  top: 6%;
+  right: -14%;
+  background: radial-gradient(closest-side, rgba(99, 91, 255, 0.28), transparent 70%);
+  filter: blur(80px);
+}
+.dx-v3 .intro::after {
+  /* Lighter sky-blue accent low-left to balance the composition */
+  width: 38%;
+  aspect-ratio: 1;
+  bottom: 10%;
+  left: -8%;
+  background: radial-gradient(closest-side, rgba(91, 130, 255, 0.22), transparent 70%);
+  filter: blur(60px);
+}
+.dx-v3 .intro .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+.dx-v3 .intro .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dx-v3 .intro .label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--blue);
+}
+.dx-v3 .intro .text {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  font-size: clamp(24px, 4.4vw, 68px);
+  line-height: 1.45;
+  color: rgba(11, 19, 64, 0.18);
+  letter-spacing: -0.012em;
+  word-break: keep-all;
+  /* Center the manifesto copy on every viewport. max-width keeps the
+     line-length comfortable on wide desktops; auto margins center the
+     block horizontally inside .intro .wrap. */
+  text-align: center;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-inline: clamp(8px, 4vw, 24px);
+}
+.dx-v3 .intro .text .word {
+  display: inline-block;
+}
+.dx-v3 .intro .text .word.accent {
+  /* Same font as the rest of the line — no serif italic switch. The
+     scroll animation already tints accent words blue (vs ink) for
+     emphasis, so the font no longer needs to carry that weight. */
+  font-weight: 400;
+}
+/* "imagine," = clickable pill that fires an emoji rain on click.
+   Styled like the homepage RecruitCta button but sized to sit
+   inline within the manifesto sentence. */
+.dx-v3 .intro .text .imagine-cta {
+  appearance: none;
+  border: none;
+  background: var(--blue);
+  color: #fff !important; /* override the GSAP scroll-color tween */
+  font: inherit;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.18em 0.55em 0.24em;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms ease,
+    box-shadow 220ms ease;
+  box-shadow: 0 12px 28px -16px rgba(99, 91, 255, 0.6);
+}
+.dx-v3 .intro .text .imagine-cta:hover {
+  transform: translateY(-2px);
+  background: var(--ink);
+  box-shadow: 0 18px 36px -18px rgba(11, 19, 64, 0.6);
+}
+.dx-v3 .intro .text .imagine-cta:active {
+  transform: translateY(0);
+}
+.dx-v3 .intro .text .imagine-cta:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+.dx-v3 .intro-ja {
+  margin-top: 32px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: clamp(13px, 1.3vw, 18px);
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+  opacity: 0.7;
+}
+
+/* Manifesto scene — aspect-locked stage like juanmora.co
+   (theirs is 117vw tall). Using vw for height means the scene
+   keeps the same proportions on every viewport size, so the
+   cluster composition reads identically on desktop and mobile. */
+.dx-v3 .manifesto-scene {
+  position: relative;
+  /* Positive margin-top gives a clean gap between the headline copy
+     and the PNG cluster — they no longer overlap. overflow: visible
+     (below) keeps the "no box" feel: no hairlines or hard edges,
+     just empty space between text and shapes. */
+  margin-top: 64px;
+  margin-bottom: 0;
+  margin-left: -32px;
+  margin-right: -32px;
+  height: 100vw;
+  min-height: 620px;
+  max-height: 1500px;
+  pointer-events: none;
+  z-index: 1;
+  /* overflow: visible lets shapes bleed past the scene's bounding
+     box so there's no visible "container edge" between text and
+     PNGs. The scene's own height still controls layout flow. */
+  overflow: visible;
+}
+.dx-v3 .manifesto-scene .glow {
+  display: none; /* covered by .intro pseudo-elements now */
+}
+
+/* 2D accent shapes — small filled blue dots and pills scattered
+   between the 3D objects. Each gets a different parallax offset on
+   scroll so they drift up/down at independent speeds. */
+.dx-v3 .manifesto-scene .acc {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  z-index: 3;
+  will-change: transform;
+}
+.dx-v3 .manifesto-scene .acc-dot {
+  width: clamp(10px, 1.2vw, 18px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--blue);
+}
+.dx-v3 .manifesto-scene .acc-pill {
+  width: clamp(28px, 3vw, 44px);
+  height: clamp(11px, 1.2vw, 16px);
+  border-radius: 99px;
+  background: var(--blue);
+}
+.dx-v3 .manifesto-scene .acc-1 {
+  top: 6%;
+  left: 38%;
+}
+.dx-v3 .manifesto-scene .acc-2 {
+  top: 14%;
+  right: 24%;
+}
+.dx-v3 .manifesto-scene .acc-3 {
+  top: 52%;
+  left: 22%;
+}
+.dx-v3 .manifesto-scene .acc-4 {
+  bottom: 30%;
+  right: 8%;
+}
+.dx-v3 .manifesto-scene .acc-5 {
+  bottom: 12%;
+  left: 48%;
+}
+.dx-v3 .manifesto-scene .acc-6 {
+  top: 38%;
+  right: 42%;
+}
+
+/* Manifesto draw-on-scroll wavy lines — full-inset SVG overlay that
+   sits in front of the PNG cluster. Lines stroke in as the user
+   scrolls through the section, drawing a hand-sketched feel through
+   the composition. */
+.dx-v3 .manifesto-scene .m-flow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6; /* above PNGs (max z-index there is 5) */
+  color: var(--blue);
+}
+.dx-v3 .manifesto-scene .m-flow svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.dx-v3 .manifesto-scene .m-flow [data-draw-scroll-path] {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.65;
+}
+.dx-v3 .manifesto-scene .m-obj {
+  position: absolute;
+  display: block;
+  height: auto;
+  /* Override Tailwind's preflight `max-width: 100%` on <img>, which
+     was silently capping these PNGs to viewport width regardless of
+     the `width:` value. Without this line, 400vw would render as 100vw. */
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 24px 40px rgba(11, 19, 64, 0.18));
+}
+/* Desktop composition — PNGs are now MASSIVE (130–180vw) so the
+   visible 3D shape inside each canvas reads at roughly 30–45vw
+   (juanmora scale). Each PNG is centered with a negative left
+   offset that lands its visible content in the cluster zone.
+   The cluster sits left-of-center so it doesn't fight the manifesto
+   text, with the pill (biggest) anchoring the bottom. */
+/* All sizes/positions use pure vw — same composition rhythm at any
+   viewport width. PNG widths in vw, matching negative left% so the
+   visible 3D shape (~25% of each canvas) lands at the target spot.
+   Formula: visible_center_in_vw ≈ left% + (width_vw / 2) */
+
+/* Desktop layout — PNGs are now tightly trimmed so width = visible
+   shape width directly. Clean juanmora-style values: small vw
+   numbers, positive top/left, no negative-offset gymnastics. */
+
+.dx-v3 .manifesto-scene .m-obj-1 {
+  /* cylinder — left-side accent, lifted upward */
+  top: 14vw;
+  left: 4vw;
+  width: 26vw;
+  opacity: 1;
+  z-index: 5;
+}
+.dx-v3 .manifesto-scene .m-obj-3 {
+  /* SMALL sphere — upper-left accent (half of medium) */
+  top: 8vw;
+  left: 6vw;
+  width: 15vw;
+  opacity: 0.7;
+  z-index: 4;
+}
+.dx-v3 .manifesto-scene .m-obj-4 {
+  /* pill — solid accent, smaller, lower mid */
+  top: 70vw;
+  left: 5vw;
+  width: 25vw;
+  opacity: 1;
+  z-index: 7;
+}
+.dx-v3 .manifesto-scene .m-obj-5 {
+  /* hidden — desktop shows 3 spheres total to keep the size hierarchy
+     readable (big / medium / small). */
+  display: none;
+}
+.dx-v3 .manifesto-scene .m-obj-6 {
+  /* MEDIUM sphere — right side, nudged down so it peeks below the cube
+     instead of stacking at the same height. */
+  top: 32vw;
+  left: 68vw;
+  width: 30vw;
+  opacity: 1;
+  z-index: 3;
+}
+.dx-v3 .manifesto-scene .m-obj-7 {
+  /* BIG sphere — dominant centerpiece, biggest ball.
+     Centered horizontally (left = (100-60)/2 = 20vw). */
+  top: 45vw;
+  left: 20vw;
+  width: 60vw;
+  opacity: 1;
+  z-index: 2;
+}
+.dx-v3 .manifesto-scene .m-obj-8 {
+  /* cube — right-side accent, upper-mid area */
+  top: 10vw;
+  left: 40vw;
+  width: 36vw;
+  opacity: 0.9;
+  z-index: 7;
+}
+/* Tablet/mobile only adjusts scene height — positions auto-scale via vw. */
+@media (max-width: 991px) {
+  .dx-v3 .manifesto-scene {
+    height: clamp(500px, 72vh, 720px);
+  }
+}
+
+/* Smooth handoff: the cool icy-blue of .intro fades into the white
+   of .stats so there's no hard color edge between sections. */
+.dx-v3 .stats {
+  background: linear-gradient(180deg, #d2ddf0 0%, var(--paper) 18%);
+}
+/* Mobile — drop the absolute scatter, stack vertically with
+   alternating offsets so the composition still has rhythm. The JS
+   entry animation (translate + rotate offscreen) still plays, just
+   from the new mobile anchor positions. */
+/* Mobile — same clean values as desktop, just scaled up for the
+   narrower viewport. Trimmed PNGs let us use direct width = visible
+   shape size, no negative offsets. */
+/* Mobile — composition aspect-locks via vw, so most rules carry over.
+   Only the big sphere gets pushed lower so more of it clips off the
+   bottom edge (visually heavier "cut" on small screens). */
+@media (max-width: 640px) {
+  /* Tighten intro padding so the text + cluster read as one
+     continuous composition instead of stacked blocks. Side padding
+     also drops from 32px → 20px so the manifesto sentence has more
+     line-width on iPhone SE (327px vs 311px usable). */
+  .dx-v3 .intro {
+    padding-top: 72px;
+    padding-right: 20px;
+    padding-bottom: 32px;
+    padding-left: 20px;
+  }
+  .dx-v3 .manifesto-scene {
+    /* Gap between headline and PNG cluster on mobile too — smaller
+       than desktop since the layout is more compact. */
+    margin-top: 40px;
+    margin-left: -24px;
+    margin-right: -24px;
+  }
+  /* Mobile composition — emulates the juanmora.co reference cluster:
+     a translucent sphere bleeds off the top-left, a solid sphere
+     anchors the top-right, a small pill + cylinder sit in the
+     mid-band as accents, and one dominant sphere centers the
+     bottom. The duplicate ghost sphere is hidden — keeps the cluster
+     readable on the smaller canvas. */
+  .dx-v3 .manifesto-scene .m-obj-5 {
+    display: none;
+  }
+  /* SMALL sphere — upper-left accent (half of medium) */
+  .dx-v3 .manifesto-scene .m-obj-3 {
+    top: 14vw;
+    left: 6vw;
+    width: 22vw;
+    opacity: 0.7;
+  }
+  /* MEDIUM sphere — upper-right, solid (half of big centerpiece) */
+  .dx-v3 .manifesto-scene .m-obj-6 {
+    top: 4vw;
+    left: 50vw;
+    width: 44vw;
+    opacity: 1;
+  }
+  /* MID — small pill accent left of center */
+  .dx-v3 .manifesto-scene .m-obj-4 {
+    top: 52vw;
+    left: 0vw;
+    width: 45vw;
+    opacity: 1;
+  }
+  /* MID-RIGHT — cylinder, smaller, right-side accent */
+  .dx-v3 .manifesto-scene .m-obj-1 {
+    top: 68vw;
+    left: 54vw;
+    width: 32vw;
+    opacity: 1;
+  }
+  /* CENTERPIECE — dominant sphere centered low */
+  .dx-v3 .manifesto-scene .m-obj-7 {
+    top: 92vw;
+    left: 6vw;
+    width: 88vw;
+    opacity: 0.95;
+  }
+  /* RIGHT — cube accent, upper-right corner */
+  .dx-v3 .manifesto-scene .m-obj-8 {
+    top: 22vw;
+    left: 32vw;
+    width: 50vw;
+    opacity: 0.9;
+  }
+  /* Extra top padding on stats so the centerpiece sphere's bleed
+     into this section sits in empty space — gap between PNG and
+     the stats numbers. */
+  .dx-v3 .stats {
+    padding-top: 200px;
+  }
+}
+
+/* ============================================================
+   SECTION SHARED
+============================================================ */
+.dx-v3 .sec {
+  position: relative;
+  padding: 140px 32px;
+  background: var(--paper);
+}
+@media (max-width: 899px) {
+  /* 140px above the heading is too much on a phone — tighten it so
+     the heading and the pinned slider sit closer together. */
+  .dx-v3 #features.sec {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+.dx-v3 .sec.tinted {
+  background: var(--paper-2);
+}
+.dx-v3 .sec.dark {
+  background: var(--blue);
+  color: #fff;
+}
+.dx-v3 .sec .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+.dx-v3 .sec-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-bottom: 72px;
+  align-items: end;
+}
+@media (min-width: 900px) {
+  .dx-v3 .sec-head {
+    grid-template-columns: auto 1fr auto;
+    gap: 64px;
+  }
+}
+.dx-v3 .sec-head .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dx-v3 .sec-head .num::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--blue);
+}
+.dx-v3 .sec.dark .sec-head .num,
+.dx-v3 .sec.dark .sec-head .num::before {
+  color: #fff;
+  background: #fff;
+}
+.dx-v3 .sec-head h2 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(40px, 7vw, 110px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.dx-v3 .sec.dark .sec-head h2 {
+  color: #fff;
+}
+.dx-v3 .sec-head h2 em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--blue);
+  letter-spacing: -0.01em;
+}
+.dx-v3 .sec.dark .sec-head h2 em {
+  color: #fff;
+}
+.dx-v3 .sec-head h2 .ja {
+  display: block;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  font-size: 0.5em;
+  color: var(--silver);
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+.dx-v3 .sec.dark .sec-head h2 .ja {
+  color: rgba(255, 255, 255, 0.75);
+}
+.dx-v3 .sec-head .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--silver);
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 2;
+}
+.dx-v3 .sec.dark .sec-head .meta {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ============================================================
+   STATS
+============================================================ */
+.dx-v3 .stats {
+  background: var(--paper);
+  /* Top padding is intentionally bigger than bottom — the manifesto
+     centerpiece sphere bleeds ~60-80px into this section, and the
+     extra space gives a clean gap between the sphere and the stats
+     numbers without re-introducing a hard boundary line. */
+  padding: 240px 32px 140px;
+  /* No border-top — would draw a visible hairline that breaks the
+     manifesto-scene sphere's flow into this section. */
+  border-bottom: 1px solid var(--line);
+}
+.dx-v3 .stats .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+.dx-v3 .stats .row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 50px;
+}
+@media (min-width: 800px) {
+  .dx-v3 .stats .row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+  }
+}
+.dx-v3 .stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 1px solid var(--line);
+  padding-left: 24px;
+}
+.dx-v3 .stat .num {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(64px, 11vw, 168px);
+  line-height: 0.92;
+  color: var(--ink);
+  letter-spacing: -0.05em;
+}
+.dx-v3 .stat .num small {
+  font-size: 0.32em;
+  color: var(--blue);
+  margin-left: 8px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.dx-v3 .stat .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.dx-v3 .stat .ja {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: var(--silver);
+  font-weight: 300;
+}
+.dx-v3 .stat.partner-stat .num {
+  font-size: clamp(36px, 5vw, 60px);
+  color: var(--blue);
+}
+.dx-v3 .stat.partner-stat .num em {
+  font-style: normal;
+  color: var(--ink);
+  display: block;
+  font-size: 0.7em;
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   CAPABILITIES — vertical stack, juanmora-style hairline rows
+============================================================ */
+.dx-v3 .caps-section {
+  padding: 160px 32px;
+  background: var(--paper-2);
+  border-top: 1px solid var(--line);
+}
+.dx-v3 .caps-section .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dx-v3 .caps-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  margin-bottom: 96px;
+}
+.dx-v3 .caps-intro .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dx-v3 .caps-intro .num::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--blue);
+}
+.dx-v3 .caps-intro h2 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(40px, 9vw, 128px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  /* Allow wrapping at word boundaries only — no character splits */
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+.dx-v3 .caps-intro h2 .ch {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+.dx-v3 .caps-intro h2 em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--blue);
+  letter-spacing: -0.01em;
+}
+.dx-v3 .caps-intro .lead {
+  font-size: 17px;
+  line-height: 1.95;
+  color: var(--ink-2);
+  max-width: 540px;
+  align-self: flex-end; /* editorial: anchor lead to right edge */
+}
+
+/* Orbit-tiles infinite loop. The .caps-orbit-stack is a tall scroll
+   area; .caps-orbit-frame is sticky-pinned inside it so the orbit
+   stays on-screen while the page scrolls past. All tiles share
+   grid-area 1/1 (i.e., stacked at the frame's center) and are moved
+   into their orbit positions by GSAP transforms (translate/scale/blur).
+   --orbit-rx and --orbit-ry tune the orbit ellipse from CSS without
+   touching JS. */
+.dx-v3 .caps-orbit-stack {
+  position: relative;
+  /* Total scroll distance for one full revolution. ~250vh gives a
+     comfortable 62vh of scroll per tile in focus. */
+  height: 280vh;
+  margin: 64px -32px 0;
+}
+.dx-v3 .caps-orbit-frame {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  --orbit-rx: 380px;
+  --orbit-ry: 90px;
+}
+@media (min-width: 900px) {
+  .dx-v3 .caps-orbit-frame {
+    --orbit-rx: 460px;
+    --orbit-ry: 110px;
+  }
+}
+@media (min-width: 1400px) {
+  .dx-v3 .caps-orbit-frame {
+    --orbit-rx: 560px;
+    --orbit-ry: 130px;
+  }
+}
+.dx-v3 .caps-orbit {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.dx-v3 .orbit-tile {
+  grid-area: 1 / 1;
+  width: clamp(320px, 80vw, 560px);
+  height: clamp(440px, 72vh, 640px);
+  position: relative;
+  will-change: transform, opacity, filter;
+}
+@media (min-width: 900px) {
+  .dx-v3 .orbit-tile {
+    width: clamp(380px, 46vw, 720px);
+    height: clamp(480px, 74vh, 720px);
+  }
+  .dx-v3 .orbit-tile.has-video {
+    width: clamp(420px, 52vw, 820px);
+    height: clamp(520px, 78vh, 760px);
+  }
+}
+.dx-v3 .cap-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-content: center;
+  padding: 36px 28px;
+  border-radius: 24px;
+  box-shadow: 0 30px 80px -32px rgba(11, 19, 64, 0.22);
+  will-change: transform, opacity;
+  overflow: hidden;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card {
+    gap: 28px;
+    padding: 48px 40px;
+  }
+  .dx-v3 .orbit-tile.has-video .cap-card {
+    grid-template-rows: auto auto 1fr;
+    align-content: stretch;
+    gap: 18px;
+    padding: 32px 28px;
+  }
+}
+.dx-v3 .cap-card .cap-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video {
+    min-height: 300px;
+  }
+}
+/* Lottie wrapper. Per-Lottie variants get their own transform so
+   each Bodymovin comp can be framed correctly given where its art
+   actually sits in its canvas. CapLottie sets a `.cap-lottie--<name>`
+   class derived from the JSON filename. */
+
+/* animation.json — L-Step illustration. Art clusters in the
+   upper-left of a 1938×1098 canvas (≈43%, 35%). Zoom in and anchor
+   the transform-origin there so the empty padding gets cropped by
+   the .cap-video container's overflow:hidden. */
+.dx-v3 .cap-card .cap-video .cap-lottie--animation {
+  transform: scale(1.6);
+  transform-origin: 45% 32%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--animation {
+    transform: scale(1.5);
+    transform-origin: 45% 48%;
+  }
+}
+
+/* datab-animation.json — database / cloud / envelopes illustration
+   for the RPA capability. Art clusters center-right of the canvas
+   (≈47% X, 45% Y), so the origin sits a touch right of center and
+   the scale is slightly higher since the art occupies less of the
+   canvas (~20% × 24%). */
+.dx-v3 .cap-card .cap-video .cap-lottie--datab-animation {
+  transform: scale(1.8);
+  transform-origin: 48% 42%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--datab-animation {
+    transform: scale(1.7);
+    transform-origin: 48% 45%;
+  }
+}
+
+/* robot-animation.json — AI robot illustration. The art is tightly
+   centered in a 1938×1098 canvas (≈45%, 44%) and only occupies about
+   ~8% × ~15% of the canvas, so we need a much heavier zoom than the
+   other variants to bring the robot up to a comparable on-card size. */
+.dx-v3 .cap-card .cap-video .cap-lottie--robot-animation {
+  transform: scale(3);
+  transform-origin: 45% 44%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--robot-animation {
+    transform: scale(2.8);
+    transform-origin: 45% 44%;
+  }
+}
+
+/* saas-animation.json — PC + cloud + phone composition. The art
+   spreads ~36% × 51% of the 1938×1098 canvas and the cloud sits near
+   the top edge, so we pair a gentler scale with a downward translate
+   to shift the whole composition into the visible band instead of
+   relying on transform-origin tricks (which kept clipping the cloud). */
+.dx-v3 .cap-card .cap-video .cap-lottie--saas-animation {
+  transform: translateY(8%) scale(1.35);
+  transform-origin: 50% 50%;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cap-card .cap-video .cap-lottie--saas-animation {
+    transform: translateY(18%) scale(1.05);
+    transform-origin: 50% 50%;
+  }
+}
+.dx-v3 .cap-card .cap-video video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+.dx-v3 .cap-card .rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: rgba(11, 19, 64, 0.18);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* Per-card backgrounds — derived from the existing CAPABILITIES
+   data (color-paper / color-blue / color-sky / color-deep). The
+   palette walks deeper as you scroll: light → tinted → cobalt
+   slab as the closer. */
+.dx-v3 .orbit-tile.color-paper .cap-card {
+  background: var(--paper);
+}
+.dx-v3 .orbit-tile.color-blue .cap-card {
+  background: var(--paper-2);
+}
+.dx-v3 .orbit-tile.color-sky .cap-card {
+  background: var(--paper-3);
+}
+.dx-v3 .orbit-tile.color-deep .cap-card {
+  background: var(--blue);
+  color: #fff;
+}
+/* Dark-card variant: invert all the typographic accents so the
+   final card reads cleanly on the cobalt slab. */
+.dx-v3 .orbit-tile.color-deep .rule {
+  background: rgba(255, 255, 255, 0.35);
+}
+.dx-v3 .orbit-tile.color-deep .num {
+  -webkit-text-stroke-color: rgba(255, 255, 255, 0.7);
+}
+.dx-v3 .orbit-tile.color-deep .label {
+  color: rgba(255, 255, 255, 0.85);
+}
+.dx-v3 .orbit-tile.color-deep h3 {
+  color: #fff;
+}
+.dx-v3 .orbit-tile.color-deep .body {
+  color: rgba(255, 255, 255, 0.9);
+}
+.dx-v3 .orbit-tile.color-deep .tag {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+.dx-v3 .orbit-tile .num {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(56px, 6vw, 96px);
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--blue);
+  letter-spacing: -0.04em;
+}
+.dx-v3 .orbit-tile .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.dx-v3 .orbit-tile h3 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(28px, 3.4vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  word-break: keep-all;
+}
+.dx-v3 .orbit-tile .body {
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--ink-2);
+  max-width: 520px;
+}
+.dx-v3 .orbit-tile .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 22px;
+}
+.dx-v3 .orbit-tile .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--blue);
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile: kill the ~50vh dead band between the lead copy and the
+   first card, and make every cap-card fit inside the sticky orbit
+   frame on small phones. This block lives AFTER the orbit defaults
+   on purpose — media queries don't add specificity, so an earlier
+   mobile override would lose to a later default (e.g. the default
+   `.cap-card { align-content: center; height: 100% }` was beating
+   the mobile `align-content: start` and recentering the card so
+   its top — including the first line of the title — slipped above
+   the cap-card's overflow:hidden clip). */
+@media (max-width: 899px) {
+  .dx-v3 .caps-section {
+    padding: 48px 20px;
+  }
+  .dx-v3 .orbit-tile {
+    will-change: transform, opacity;
+  }
+  .dx-v3 .caps-intro {
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .dx-v3 .caps-intro h2 em {
+    display: none;
+  }
+  .dx-v3 .caps-orbit-stack {
+    margin-top: 0;
+    height: 240vh;
+  }
+  .dx-v3 .caps-orbit-frame {
+    /* Sticky pins below the fixed Header (h-20 = 80px) instead of
+       under it — the card title was hiding behind the navbar on
+       phones where the orbit-tile fills the whole frame.
+       svh (small viewport height) sizes the frame against the
+       bars-visible viewport on iOS Safari — using plain vh meant
+       the frame believed it had ~88px more room than the user
+       actually sees while the URL bar is showing. */
+    top: 80px;
+    height: calc(100svh - 80px);
+    /* GSAP front-tile transform is y = cos(0) * --orbit-ry. Dropping
+       ry from 90 → 8 pulls the focused card right up against the lead
+       copy instead of leaving a ~90px dead band above it. */
+    --orbit-ry: 8px;
+    --orbit-rx: 280px;
+  }
+  .dx-v3 .caps-orbit {
+    place-items: start center;
+    padding-top: 4px;
+  }
+  /* Let tile + card grow to fit content — GSAP orbit only uses CSS
+     transforms (x/y/scale) so auto-height doesn't break the animation. */
+  .dx-v3 .orbit-tile {
+    height: auto;
+    min-height: min(420px, 56svh);
+  }
+  .dx-v3 .cap-card {
+    height: auto;
+    align-content: start;
+    gap: 12px;
+    padding: 20px 18px;
+  }
+  .dx-v3 .cap-card .cap-video {
+    min-height: 110px;
+    height: 110px;
+  }
+  /* Tighten typography so the AI活用 card (longest body copy) fits
+     inside the sticky frame on small phones like iPhone SE. */
+  .dx-v3 .orbit-tile h3 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+  .dx-v3 .orbit-tile .body {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .dx-v3 .orbit-tile .tags {
+    margin-top: 12px;
+  }
+}
+
+/* ============================================================
+   PAINS
+============================================================ */
+.dx-v3 .pains-list {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+/* Scroll-scrubbed spotlight layout: the section pins for ~3 viewport
+   heights and a "focus cursor" (driven by GSAP) walks down the four
+   questions. Each .pain's opacity / scale / blur is set imperatively
+   from JS, so this CSS only defines layout + typography; the visual
+   state per scroll lives in DxV3Page.tsx (applyFocus). */
+.dx-v3 .pains-pin-stack {
+  position: relative;
+  /* Total scroll runway. ~50vh per question gives enough dwell to
+     read without exhausting the user's scroll hand. */
+  height: 160vh;
+}
+.dx-v3 .pains-pin-frame {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  /* Top-align so the heading shows up near the top of the viewport as
+     soon as the section enters — vertical-centering left ~50vh of
+     empty space above the heading because the invisible Q.02-Q.04
+     items still take layout space. */
+  padding-top: clamp(64px, 12vh, 140px);
+}
+.dx-v3 .pains-pin-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 5vh, 56px);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.dx-v3 .pains-pin-content .sec-head {
+  display: block;
+  margin: 0;
+}
+/* Mobile: the default sec-head h2 clamp min of 40px is too wide for narrow
+   viewports, so "The questions you ask" wraps mid-word. Tighten the size
+   and pin the English line to nowrap; the .ja span is block so it still
+   breaks onto its own line below. */
+@media (max-width: 899px) {
+  /* Pull the whole pinned frame up — the default 12vh padding-top combined
+     with multi-line wrapping questions pushes Q.04 below the visible area
+     on iOS Safari (where 100vh = expanded viewport, not current visible h). */
+  .dx-v3 .pains-pin-frame {
+    padding-top: clamp(32px, 5vh, 64px);
+  }
+  .dx-v3 .pain {
+    will-change: transform, opacity;
+  }
+  /* Tighten the gap between the heading and the questions list. */
+  .dx-v3 .pains-pin-content {
+    gap: clamp(14px, 2.5vh, 28px);
+  }
+  /* Tighten the gap between individual questions. */
+  .dx-v3 .pains-pin-frame .pains-list {
+    gap: clamp(12px, 2.5vh, 28px);
+  }
+  .dx-v3 .pains-pin-content .sec-head h2 {
+    font-size: clamp(22px, 7.5vw, 38px);
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    /* .ch character spans are display:inline-block which allows mid-word
+       breaks. white-space:nowrap prevents that; at clamp(22px,7.5vw) the
+       phrase comfortably fits even on 320px iPhone SE viewports. */
+    white-space: nowrap;
+  }
+  .dx-v3 .pains-pin-content .sec-head h2 .ja {
+    display: block;
+    white-space: normal;
+    font-size: 0.5em;
+    margin-top: 10px;
+  }
+}
+.dx-v3 .pains-pin-frame .pains-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 4vh, 48px);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  /* Anchor for the absolute-positioned .pain-selector below. */
+  position: relative;
+}
+.dx-v3 .pain {
+  position: relative;
+}
+/* Corner-bracket selector that follows the focus cursor through the
+   questions. JS sets top/left/width/height on each scroll update,
+   lerping between the cursor's two bracketing questions. The corners
+   themselves are tiny L-shapes drawn with two borders each. */
+.dx-v3 .pain-selector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+.dx-v3 .pain-br {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+}
+.dx-v3 .pain-br-tl {
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--blue);
+  border-left: 2px solid var(--blue);
+}
+.dx-v3 .pain-br-tr {
+  top: 0;
+  right: 0;
+  border-top: 2px solid var(--blue);
+  border-right: 2px solid var(--blue);
+}
+.dx-v3 .pain-br-bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid var(--blue);
+  border-left: 2px solid var(--blue);
+}
+.dx-v3 .pain-br-br {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid var(--blue);
+  border-right: 2px solid var(--blue);
+}
+.dx-v3 .pain {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 28px;
+  align-items: baseline;
+  padding: 0;
+  border-bottom: none;
+  cursor: default;
+  will-change: transform, opacity, filter;
+}
+.dx-v3 .pain .n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+}
+.dx-v3 .pain .q {
+  /* Explicit block so offsetWidth reports the grid-track width on every
+     viewport. Without this, .q stays inline (it's a <span>); on mobile
+     where white-space wraps to multiple lines, inline offsetWidth
+     returns the WIDEST line's width instead of the full track, and the
+     pain-selector brackets end up sized to a narrow strip instead of
+     the whole question. */
+  display: block;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  font-size: clamp(22px, 4.4vw, 56px);
+  color: var(--ink);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+  /* Allow natural wrapping on every viewport. The previous nowrap +
+     ellipsis safety net cut off the Japanese sentence on phones in
+     landscape and devices between 600px and the desktop breakpoint —
+     wrapping reads better than truncation in every case here, since
+     the Q lines are short enough to fit one line on real desktops. */
+}
+@media (max-width: 600px) {
+  .dx-v3 .pain {
+    grid-template-columns: 48px 1fr;
+    gap: 12px;
+  }
+  .dx-v3 .pains-pin-content {
+    padding: 0 20px;
+  }
+  .dx-v3 .pain .q {
+    word-break: normal;
+    font-size: clamp(14px, 4.2vw, 18px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+.dx-v3 .pain-end {
+  margin-top: 64px;
+  text-align: center;
+}
+.dx-v3 .pain-end .arrow-down {
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(180deg, var(--blue), transparent);
+  margin: 0 auto 20px;
+}
+.dx-v3 .pain-end .ans {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(24px, 4vw, 48px);
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.dx-v3 .pain-end .ans em {
+  font-style: italic;
+  color: var(--blue);
+}
+.dx-v3 .pain-end .ja {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: var(--silver);
+  margin-top: 12px;
+}
+/* Desktop: scale heading and question text with min(vw, vh) so all four
+   questions + heading always fit inside the 100vh sticky pains frame on
+   short-but-wide screens (e.g. 1440×900 laptops, 1920×1080 with chrome). */
+@media (min-width: 900px) {
+  .dx-v3 .pains-pin-frame {
+    padding-top: clamp(40px, 8vh, 96px);
+  }
+  .dx-v3 .pains-pin-content .sec-head h2 {
+    font-size: clamp(24px, min(3.5vw, 5vh), 52px);
+  }
+  .dx-v3 .pains-pin-frame .pain .q {
+    font-size: clamp(22px, min(3.8vw, 7vh), 52px);
+  }
+}
+
+/* ============================================================
+   DECORATIVE RECTANGLES — neu-ad.jp style.
+   Upright portrait rounded rects (no rotation).
+   Spread across the FULL width, not just edges.
+   Two tones: solid #635bff and ghost rgba(99,91,255,0.22).
+   GSAP scrubs y on each rect individually.
+============================================================ */
+.dx-v3 .deco-rects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.dx-v3 .deco-rect {
+  position: absolute;
+  border-radius: 20px;
+  will-change: transform;
+}
+
+/* shorthand vars */
+:root {
+  --dr-solid: #635bff;
+  --dr-ghost: rgba(99, 91, 255, 0.22);
+}
+
+/* ================================================================
+   PAINS SECTION — 10 rects across full width
+================================================================ */
+/* left cluster */
+.dx-v3 .dr-p1  { width:100px; height:155px; top:4%;  left:-22px;  background:var(--dr-ghost); }
+.dx-v3 .dr-p2  { width: 85px; height:125px; top:22%; left: 20px;  background:var(--dr-solid); }
+.dx-v3 .dr-p3  { width: 95px; height:145px; top:52%; left:-18px;  background:var(--dr-ghost); }
+.dx-v3 .dr-p4  { width: 72px; height:110px; top:70%; left: 28px;  background:var(--dr-solid); }
+/* center cluster */
+.dx-v3 .dr-p5  { width: 88px; height:135px; top:12%; left:calc(50% - 220px); background:var(--dr-ghost); }
+.dx-v3 .dr-p6  { width: 80px; height:120px; top:55%; left:calc(50% - 160px); background:var(--dr-solid); }
+.dx-v3 .dr-p7  { width: 90px; height:140px; top:35%; left:calc(50% + 80px);  background:var(--dr-ghost); }
+/* right cluster */
+.dx-v3 .dr-p8  { width:100px; height:155px; top:5%;  right:-22px; background:var(--dr-ghost); }
+.dx-v3 .dr-p9  { width: 85px; height:125px; top:24%; right: 20px; background:var(--dr-solid); }
+.dx-v3 .dr-p10 { width: 95px; height:145px; top:58%; right:-18px; background:var(--dr-ghost); }
+
+/* ================================================================
+   FEATURES SECTION — 10 rects across full width
+================================================================ */
+.dx-v3 .dr-f1  { width: 95px; height:145px; top:5%;  left:-20px;  background:var(--dr-ghost); }
+.dx-v3 .dr-f2  { width: 80px; height:120px; top:28%; left: 18px;  background:var(--dr-solid); }
+.dx-v3 .dr-f3  { width: 90px; height:140px; top:62%; left:-18px;  background:var(--dr-ghost); }
+.dx-v3 .dr-f4  { width: 70px; height:105px; top:78%; left: 24px;  background:var(--dr-solid); }
+.dx-v3 .dr-f5  { width: 85px; height:130px; top:15%; left:calc(50% - 200px); background:var(--dr-ghost); }
+.dx-v3 .dr-f6  { width: 78px; height:118px; top:60%; left:calc(50% - 140px); background:var(--dr-solid); }
+.dx-v3 .dr-f7  { width: 88px; height:135px; top:30%; left:calc(50% + 60px);  background:var(--dr-ghost); }
+.dx-v3 .dr-f8  { width: 95px; height:145px; top:4%;  right:-20px; background:var(--dr-ghost); }
+.dx-v3 .dr-f9  { width: 80px; height:120px; top:26%; right: 18px; background:var(--dr-solid); }
+.dx-v3 .dr-f10 { width: 90px; height:140px; top:65%; right:-18px; background:var(--dr-ghost); }
+
+/* ================================================================
+   FINAL CTA SECTION — 4-column spread, top 55–85%.
+   Cols A+D hug the edges (px); Cols B+C use % so the gap between
+   them and the edges stays proportional at any desktop width.
+================================================================ */
+/* Col A — far left edge */
+.dx-v3 .dr-c1  { width: 95px; height:145px; top: 58%; left: -20px;           background:var(--dr-ghost); }
+.dx-v3 .dr-c2  { width: 82px; height:125px; top: 72%; left:  18px;           background:var(--dr-solid); }
+.dx-v3 .dr-c9  { width: 74px; height:114px; top: 64%; left:   8px;           background:var(--dr-ghost); }
+.dx-v3 .dr-c10 { width: 62px; height: 96px; top: 82%; left:  72px;           background:var(--dr-solid); }
+/* Col B — left-inner (20-25% from left) */
+.dx-v3 .dr-c3  { width: 88px; height:135px; top: 62%; left: 22%;             background:var(--dr-ghost); }
+.dx-v3 .dr-c4  { width: 78px; height:120px; top: 80%; left: 25%;             background:var(--dr-solid); }
+.dx-v3 .dr-c13 { width: 56px; height: 84px; top: 65%; left: 20%;             background:var(--dr-ghost); }
+.dx-v3 .dr-c15 { width: 48px; height: 72px; top: 74%; left: 23%;             background:var(--dr-solid); }
+/* Col C — right-inner (20-25% from right) */
+.dx-v3 .dr-c5  { width: 88px; height:135px; top: 66%; right: 22%; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c6  { width: 78px; height:120px; top: 76%; right: 20%; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c14 { width: 56px; height: 84px; top: 85%; right: 24%; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c16 { width: 48px; height: 72px; top: 79%; right: 21%; left:auto; background:var(--dr-ghost); }
+/* Col D — far right edge */
+.dx-v3 .dr-c7  { width: 95px; height:145px; top: 55%; right: -20px; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c8  { width: 82px; height:125px; top: 70%; right:  18px; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c11 { width: 74px; height:114px; top: 60%; right:   8px; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c12 { width: 62px; height: 96px; top: 78%; right:  72px; left:auto; background:var(--dr-ghost); }
+
+/* ── Mobile: final-CTA rects ─────────────────────────────────────────────
+   On narrow viewports the desktop layout breaks in two ways:
+   1. Edge anchors (left/right: ±20px) cluster everything at the borders.
+   2. Large calc offsets (50% ± 150-280px) push rects off-screen entirely.
+   Fix: re-anchor everything to ±80px of centre so they fan out from the
+   middle, and push all top values to ≥ 70% so they start at the bottom
+   of the section and rise upward via the GSAP y tween.
+──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  /* 4-column spread across the full mobile width:
+     Zone A (far-left) | Zone B (left-centre) | Zone C (right-centre) | Zone D (far-right)
+     top 58–84% keeps every rect in the lower half so they rise on scroll. */
+
+  /* Zone A — far left (hugs left edge like desktop) */
+  .dx-v3 .dr-c1  { left: -12px; right: auto; top: 62%; }
+  .dx-v3 .dr-c2  { left:  15px; right: auto; top: 74%; }
+  .dx-v3 .dr-c9  { left:   3px; right: auto; top: 64%; }
+  .dx-v3 .dr-c10 { left:  22px; right: auto; top: 82%; }
+
+  /* Zone B — left-centre (~65–90px from left) */
+  .dx-v3 .dr-c3  { left:  65px; right: auto; top: 67%; }
+  .dx-v3 .dr-c4  { left:  85px; right: auto; top: 82%; }
+  .dx-v3 .dr-c13 { left:  72px; right: auto; top: 60%; }
+  .dx-v3 .dr-c15 { left:  80px; right: auto; top: 76%; }
+
+  /* Zone C — right-centre (~70–85px from right) */
+  .dx-v3 .dr-c5  { right:  70px; left: auto; top: 66%; }
+  .dx-v3 .dr-c6  { right:  82px; left: auto; top: 79%; }
+  .dx-v3 .dr-c14 { right:  75px; left: auto; top: 84%; }
+  .dx-v3 .dr-c16 { right:  80px; left: auto; top: 80%; }
+
+  /* Zone D — far right (hugs right edge like desktop) */
+  .dx-v3 .dr-c7  { right: -12px; left: auto; top: 58%; }
+  .dx-v3 .dr-c8  { right:  15px; left: auto; top: 70%; }
+  .dx-v3 .dr-c11 { right:   3px; left: auto; top: 68%; }
+  .dx-v3 .dr-c12 { right:  22px; left: auto; top: 78%; }
+}
+
+/* Ensure in-flow content paints above the deco rects */
+.dx-v3 .pains-section .pains-pin-stack,
+.dx-v3 .pains-section .wrap,
+.dx-v3 #features .wrap,
+.dx-v3 .final .wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   BLOB DECORATIONS — removed; replaced with deco-rects above
+============================================================ */
+.dx-v3 .dx-blobs {
+  display: none;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+/* Ensure in-flow content in these sections paints above blobs */
+.dx-v3 .pains-section .pains-pin-stack,
+.dx-v3 .pains-section .wrap,
+.dx-v3 #features .wrap {
+  position: relative;
+  z-index: 1;
+}
+.dx-v3 .dx-blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes dx-blob-float {
+  0%, 100% { transform: translateY(0)    scale(1);    }
+  42%       { transform: translateY(-38px) scale(1.07); }
+  70%       { transform: translateY(22px)  scale(0.95); }
+}
+@keyframes dx-blob-drift {
+  0%, 100% { transform: translate(0,    0)    scale(1);    }
+  33%      { transform: translate(30px, -24px) scale(1.1);  }
+  66%      { transform: translate(-20px, 16px) scale(0.93); }
+}
+@keyframes dx-blob-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1;    }
+  50%      { transform: scale(1.22); opacity: 0.55; }
+}
+
+/* ---- Pains section blobs ---- */
+.dx-v3 .dx-blob-p1 {
+  width: clamp(300px, 42vw, 540px);
+  aspect-ratio: 1;
+  top: -12%;
+  left: -10%;
+  background: var(--blue);
+  filter: blur(32px);
+  opacity: 0.55;
+  animation-name: dx-blob-float;
+  animation-duration: 10s;
+}
+.dx-v3 .dx-blob-p2 {
+  width: clamp(180px, 22vw, 320px);
+  aspect-ratio: 1;
+  top: 4%;
+  right: -6%;
+  background: var(--purple);
+  filter: blur(22px);
+  opacity: 0.6;
+  animation-name: dx-blob-drift;
+  animation-duration: 13s;
+  animation-delay: -3s;
+}
+.dx-v3 .dx-blob-p3 {
+  width: clamp(260px, 36vw, 480px);
+  aspect-ratio: 1;
+  bottom: -6%;
+  left: 28%;
+  background: var(--cobalt);
+  filter: blur(28px);
+  opacity: 0.5;
+  animation-name: dx-blob-float;
+  animation-duration: 8.5s;
+  animation-delay: -4s;
+}
+.dx-v3 .dx-blob-p4 {
+  width: clamp(80px, 10vw, 130px);
+  aspect-ratio: 1;
+  top: 44%;
+  right: 10%;
+  background: var(--blue);
+  filter: blur(10px);
+  opacity: 0.7;
+  animation-name: dx-blob-pulse;
+  animation-duration: 5.5s;
+  animation-delay: -1.5s;
+}
+.dx-v3 .dx-blob-p5 {
+  width: clamp(100px, 13vw, 170px);
+  aspect-ratio: 1;
+  bottom: 14%;
+  left: 6%;
+  background: var(--blue-bright);
+  filter: blur(14px);
+  opacity: 0.65;
+  animation-name: dx-blob-drift;
+  animation-duration: 11s;
+  animation-delay: -6s;
+}
+
+/* ---- Features section blobs ---- */
+.dx-v3 .dx-blob-f1 {
+  width: clamp(280px, 38vw, 500px);
+  aspect-ratio: 1;
+  top: -10%;
+  right: -8%;
+  background: var(--purple);
+  filter: blur(30px);
+  opacity: 0.5;
+  animation-name: dx-blob-float;
+  animation-duration: 11s;
+  animation-delay: -2s;
+}
+.dx-v3 .dx-blob-f2 {
+  width: clamp(160px, 20vw, 280px);
+  aspect-ratio: 1;
+  top: 32%;
+  left: -5%;
+  background: var(--blue);
+  filter: blur(20px);
+  opacity: 0.6;
+  animation-name: dx-blob-drift;
+  animation-duration: 9s;
+  animation-delay: -7s;
+}
+.dx-v3 .dx-blob-f3 {
+  width: clamp(240px, 34vw, 460px);
+  aspect-ratio: 1;
+  bottom: -5%;
+  left: -6%;
+  background: var(--cobalt);
+  filter: blur(28px);
+  opacity: 0.5;
+  animation-name: dx-blob-float;
+  animation-duration: 13s;
+  animation-delay: -9s;
+}
+.dx-v3 .dx-blob-f4 {
+  width: clamp(80px, 10vw, 120px);
+  aspect-ratio: 1;
+  top: 8%;
+  left: 10%;
+  background: var(--blue);
+  filter: blur(10px);
+  opacity: 0.68;
+  animation-name: dx-blob-pulse;
+  animation-duration: 6s;
+  animation-delay: -0.5s;
+}
+.dx-v3 .dx-blob-f5 {
+  width: clamp(140px, 17vw, 230px);
+  aspect-ratio: 1;
+  bottom: 6%;
+  right: 5%;
+  background: var(--blue-bright);
+  filter: blur(18px);
+  opacity: 0.58;
+  animation-name: dx-blob-drift;
+  animation-duration: 10s;
+  animation-delay: -4s;
+}
+
+/* ============================================================
+   FEATURES — scroll-scrubbed cascading slider.
+   .cascade-pin-stack provides the scroll runway; .cascade-pin-frame
+   is sticky-pinned inside it. The slider sits centered in the
+   pinned frame. JS uses a fractional scroll-cursor to set each
+   slide's x / --clip-l / --clip-r / z-index, so as the user scrolls
+   the cards advance one-by-one through the cascade.
+============================================================ */
+.dx-v3 .cascade-pin-stack {
+  position: relative;
+  height: 360vh;
+}
+.dx-v3 .cascade-pin-frame {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 899px) {
+  .dx-v3 .cascade-pin-frame {
+    align-items: flex-start;
+    padding-top: 24px;
+  }
+}
+.dx-v3 .cascade-slider {
+  position: relative;
+  width: 100%;
+  height: clamp(440px, 62vh, 600px);
+  overflow: hidden;
+}
+.dx-v3 .cascade-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.dx-v3 .cascade-slide {
+  --slide-w: clamp(240px, 66vw, 420px);
+  --slide-h: clamp(380px, 58vh, 480px);
+  --clip-l: 0;
+  --clip-r: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  margin-left: calc(var(--slide-w) * -0.5);
+  margin-top: calc(var(--slide-h) * -0.5);
+  clip-path: inset(
+    0px
+    calc(var(--clip-r) * 1px)
+    0px
+    calc(var(--clip-l) * 1px)
+    round 24px
+  );
+  will-change: transform, clip-path;
+}
+@media (min-width: 900px) {
+  .dx-v3 .cascade-slide {
+    --slide-w: clamp(420px, 44vw, 600px);
+    --slide-h: clamp(420px, 58vh, 540px);
+  }
+}
+@media (min-width: 900px) {
+  .dx-v3 #features .sec-head {
+    grid-template-columns: 1fr;
+  }
+  .dx-v3 #features .sec-head h2 {
+    font-size: clamp(36px, 5vw, 80px);
+  }
+}
+.dx-v3 .cascade-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  padding: 36px 32px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 30px 80px -32px rgba(11, 19, 64, 0.22);
+  border: 1px solid rgba(11, 19, 64, 0.06);
+}
+.dx-v3 .cascade-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+.dx-v3 .cascade-ic {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--paper-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+}
+.dx-v3 .cascade-card h3 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.dx-v3 .cascade-card p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.dx-v3 .cascade-counter {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--ink-2);
+  z-index: 100;
+  pointer-events: none;
+}
+.dx-v3 .cascade-counter .cascade-current {
+  color: var(--blue);
+  font-weight: 600;
+}
+.dx-v3 .feat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 64px;
+}
+@media (min-width: 1000px) {
+  .dx-v3 .feat-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+@media (max-width: 599px) {
+  .dx-v3 .feat-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+.dx-v3 .feat-card {
+  background: var(--paper);
+  border: 1px solid rgba(11, 19, 64, 0.08);
+  border-radius: 20px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 32px -8px rgba(11, 19, 64, 0.1);
+  transition: box-shadow 300ms var(--ease), transform 300ms var(--ease), border-color 300ms var(--ease);
+  will-change: transform, opacity;
+}
+.dx-v3 .feat-card:hover {
+  box-shadow: 0 24px 60px -12px rgba(99, 91, 255, 0.18);
+  transform: translateY(-4px);
+  border-color: rgba(99, 91, 255, 0.25);
+}
+.dx-v3 .feat-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+.dx-v3 .feat-ic {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--paper-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  transition: background 300ms var(--ease);
+}
+.dx-v3 .feat-card:hover .feat-ic {
+  background: var(--blue);
+  color: #fff;
+}
+.dx-v3 .feat-card h3 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(17px, 1.8vw, 22px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  white-space: pre-line;
+}
+.dx-v3 .feat-card p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink-2);
+  margin-top: auto;
+}
+
+/* ============================================================
+   FEATURES — bento with color tiles (legacy; kept for reference,
+   the slider above replaced this layout)
+============================================================ */
+.dx-v3 .bento {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+@media (min-width: 700px) {
+  .dx-v3 .bento {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1000px) {
+  .dx-v3 .bento {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.dx-v3 .bento .cell {
+  background: #fff;
+  padding: 40px 32px;
+  position: relative;
+  overflow: hidden;
+  transition:
+    background 500ms var(--ease),
+    color 500ms var(--ease);
+}
+.dx-v3 .bento .cell .id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.dx-v3 .bento .cell h3 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1.25;
+}
+.dx-v3 .bento .cell p {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.9;
+}
+.dx-v3 .bento .cell .ic {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  margin-bottom: 28px;
+  transition:
+    background 400ms var(--ease),
+    color 400ms var(--ease);
+}
+.dx-v3 .bento .cell:hover .ic {
+  background: var(--blue);
+  color: #fff;
+}
+/* Color accents on alternate cells */
+.dx-v3 .bento .cell:nth-child(2) {
+  background: var(--paper-2);
+}
+.dx-v3 .bento .cell:nth-child(4) {
+  background: var(--paper-3);
+}
+.dx-v3 .bento .cell:nth-child(6) {
+  background: var(--blue);
+  color: #fff;
+}
+.dx-v3 .bento .cell:nth-child(6) h3,
+.dx-v3 .bento .cell:nth-child(6) .id {
+  color: #fff;
+}
+.dx-v3 .bento .cell:nth-child(6) p {
+  color: rgba(255, 255, 255, 0.85);
+}
+.dx-v3 .bento .cell:nth-child(6) .id {
+  color: rgba(255, 255, 255, 0.85);
+}
+.dx-v3 .bento .cell:nth-child(6) .ic {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+}
+.dx-v3 .bento .cell:nth-child(6):hover .ic {
+  background: #fff;
+  color: var(--blue);
+}
+
+/* ============================================================
+   CASES
+============================================================ */
+.dx-v3 .cases-wrap {
+  background: var(--paper);
+  /* The previous .sec sections (pains, features) are part of a
+     sticky-stack and remain pinned at top:0 of the viewport even while
+     the user has scrolled into cases-wrap. Without an explicit
+     stacking context here, the sticky features section bleeds through
+     the cases-wrap when its transparent regions overlap (i.e., the
+     "Six tools, one platform" headline shows through above the case
+     cards). Position:relative + z-index puts cases-wrap on its own
+     layer above the sticky-stack, so it cleanly covers what's behind.
+     isolation:isolate ensures inner stacking contexts don't escape. */
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+}
+
+/* Cases overlapping slider. Cards stack at the same position; JS
+   transforms in DxV3Page.tsx position them per scroll progress.
+   .cases-slider-stack is a tall scroll runway, .cases-slider-pin is
+   sticky-pinned inside it, .cases-slider-track holds the cards. */
+.dx-v3 .cases-slider-stack {
+  position: relative;
+  /* ~75vh dwell per case feels right for reading without dragging. */
+  height: 230vh;
+}
+.dx-v3 .cases-slider-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dx-v3 .cases-slider-track {
+  position: relative;
+  width: min(94vw, 1180px);
+  height: min(78vh, 640px);
+}
+.dx-v3 .case-card {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px -28px rgba(11, 19, 64, 0.32);
+}
+.dx-v3 .case-card .case-block {
+  height: 100%;
+  border-top: none;
+}
+.dx-v3 .case-card .case-block .left {
+  padding: 48px 40px;
+}
+.dx-v3 .case-card .case-block .left .num {
+  font-size: clamp(72px, 9vw, 140px);
+  margin-bottom: 16px;
+}
+.dx-v3 .case-card .case-block .right .case-vis {
+  height: 100%;
+}
+@media (max-width: 899px) {
+  /* The card stacks .left text + .right image vertically on mobile.
+     Content height is roughly: 56px padding + ~80px num + ~25px label
+     + ~110px h3 (2 lines) + ~130px desc (3 lines) + ~120px bullets
+     ≈ 520px for .left, plus ~200px for the 16:9 image = ~720-760px
+     total. The previous 600px cap clipped the second bullet and let
+     the image overlap the text. Give the track enough room to fit
+     everything, and bump the scroll runway proportionally so the
+     scrub-slider still feels paced. */
+  .dx-v3 .cases-slider-stack { height: 300vh; }
+  .dx-v3 .cases-slider-track {
+    width: 92vw;
+    height: clamp(740px, 95vh, 880px);
+  }
+  .dx-v3 .case-card .case-block .left {
+    padding: 28px 22px;
+  }
+  .dx-v3 .case-card .case-block .left .num {
+    font-size: clamp(56px, 14vw, 90px);
+    margin-bottom: 10px;
+  }
+  /* On mobile the case-block stacks vertically — drop the 520px
+     min-height that was forcing the photo panel to be portrait-tall,
+     and lock it to 16:9 so the landscape images fit with no crop. */
+  .dx-v3 .case-card .case-block .right {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+}
+/* Iphone SE / narrow phones — the 740px track min above is taller
+   than the 667px viewport, so the bottom of each card sits below the
+   fold and the sticky pin never lets the user scroll past. Compress
+   content (padding, type, margins) so a 95vh card actually fits, and
+   drop the track min in lockstep. */
+@media (max-width: 480px) {
+  .dx-v3 .cases-slider-track {
+    height: clamp(580px, 95vh, 740px);
+  }
+  .dx-v3 .case-card .case-block .left {
+    padding: 20px 18px;
+  }
+  .dx-v3 .case-block .left h3 {
+    font-size: clamp(20px, 5.4vw, 28px);
+    margin-bottom: 14px;
+  }
+  .dx-v3 .case-block .left .desc {
+    font-size: 14px;
+    line-height: 1.75;
+    margin-bottom: 18px;
+  }
+  .dx-v3 .case-block .left .points {
+    gap: 12px;
+  }
+  .dx-v3 .case-block .left .pt p {
+    font-size: 12px;
+    line-height: 1.7;
+  }
+}
+
+.dx-v3 .case-block {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: stretch;
+  border-top: 1px solid var(--line);
+}
+@media (min-width: 900px) {
+  .dx-v3 .case-block {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+/* Uniform palette for every case card. We used to alternate the
+   right panel to dark blue on even cards (and swap left/right on
+   desktop), but now that every card shows a real photo on the right
+   the alternating overrides just made Case 02 look inconsistent —
+   the white-on-dark badge style was the giveaway. Single light
+   palette across all three cards. */
+.dx-v3 .case-card .case-block .left {
+  background: var(--paper);
+}
+.dx-v3 .case-card .case-block .right {
+  background: var(--paper-3);
+}
+.dx-v3 .case-block .left {
+  padding: 96px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.dx-v3 .case-block .left .num {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: 180px;
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--blue);
+  letter-spacing: -0.05em;
+  margin-bottom: 28px;
+}
+.dx-v3 .case-block .left .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.dx-v3 .case-block .left h3 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  font-size: clamp(24px, 3.2vw, 44px);
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 24px;
+  word-break: keep-all;
+}
+.dx-v3 .case-block .left .desc {
+  font-size: 16px;
+  line-height: 2;
+  color: var(--ink-2);
+  max-width: 520px;
+  margin-bottom: 32px;
+}
+.dx-v3 .case-block .left .points {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.dx-v3 .case-block .left .pt {
+  border-left: 2px solid var(--blue);
+  padding-left: 16px;
+}
+.dx-v3 .case-block .left .pt h4 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.dx-v3 .case-block .left .pt p {
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--ink-2);
+}
+.dx-v3 .case-block .right {
+  position: relative;
+  overflow: hidden;
+  min-height: 520px;
+}
+.dx-v3 .case-vis {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Subtle horizontal-rule texture gives the panel grain without
+     competing with the type. Hairlines every 56px, very low alpha. */
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 55px,
+    rgba(99, 91, 255, 0.06) 55px,
+    rgba(99, 91, 255, 0.06) 56px
+  );
+}
+.dx-v3 .case-poster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 56px 32px;
+}
+.dx-v3 .case-vis .big-num {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(200px, 28vw, 380px);
+  line-height: 0.82;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--blue);
+  letter-spacing: -0.05em;
+}
+.dx-v3 .case-vis .theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.dx-v3 .case-vis .theme .en {
+  font-family: 'General Sans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 3.6vw, 52px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--blue);
+}
+.dx-v3 .case-vis .theme .ja {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: clamp(13px, 1.1vw, 16px);
+  letter-spacing: 0.4em;
+  color: var(--ink-2);
+  padding-left: 0.4em; /* compensate for the trailing letter-spacing */
+}
+.dx-v3 .case-vis .badge {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--blue);
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border: 1px solid var(--blue);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  /* Sits above the case-image. */
+  z-index: 2;
+}
+/* Real case photo — fills the right column, cropping to fit so any
+   aspect ratio looks clean. The badge above (z-index: 2) and the
+   .case-vis horizontal-rule pattern (rendered as background-image on
+   .case-vis itself) sit on top; this image sits on the layer below. */
+.dx-v3 .case-vis .case-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Photos are 16:9 with the subject framed slightly above center —
+     pull the crop window up a touch so the face stays anchored when
+     the right column is portrait-ish on desktop. */
+  object-position: 50% 38%;
+  z-index: 1;
+  display: block;
+}
+
+/* ============================================================
+   RPA × Lstep
+============================================================ */
+.dx-v3 .rpa {
+  padding: 140px 32px;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  /* Same stacking-context fix as .cases-wrap: the previous sticky
+     section (features) and its inner cascade-pin-frame can still be
+     rendering behind this section's content if their transparent
+     regions overlap. Put .rpa on its own layer above the sticky-stack
+     so its paper background cleanly covers anything underneath. */
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+}
+.dx-v3 .rpa .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+/* Real RPA cases — primary content, editorial scale */
+.dx-v3 .rpa-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 96px;
+}
+@media (min-width: 800px) {
+  .dx-v3 .rpa-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+.dx-v3 .rpa-card {
+  position: relative;
+  border: 1px solid var(--line);
+  padding: 56px 48px 48px;
+  transition:
+    border-color 400ms var(--ease),
+    transform 400ms var(--ease);
+  background: #fff;
+  overflow: hidden;
+}
+.dx-v3 .rpa-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-4px);
+}
+.dx-v3 .rpa-card .rpa-card-num {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(96px, 11vw, 160px);
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(99, 91, 255, 0.18);
+  letter-spacing: -0.05em;
+  pointer-events: none;
+}
+@media (max-width: 480px) {
+  /* On iPhone SE the rpa-card sits at ~330px wide. The 96px clamp min
+     of rpa-card-num was eating ~1/3 of the card width and dwarfing
+     the actual content. Tighten the card padding too so the heading
+     and stats line up properly inside the now-smaller card. */
+  .dx-v3 .rpa-card {
+    padding: 36px 24px 32px;
+  }
+  .dx-v3 .rpa-card .rpa-card-num {
+    top: 16px;
+    right: 16px;
+    font-size: clamp(56px, 14vw, 80px);
+  }
+}
+.dx-v3 .rpa-card .top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.dx-v3 .rpa-card .pill {
+  background: var(--blue);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dx-v3 .rpa-card .top h4 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 800;
+  font-size: clamp(20px, 2.4vw, 26px);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.dx-v3 .rpa-card .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dx-v3 .rpa-card .val {
+  color: var(--ink);
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+.dx-v3 .rpa-card .res {
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+
+/* Capability strip — secondary, sits below the cases */
+.dx-v3 .rpa-cap-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.dx-v3 .rpa-cap-head .rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.dx-v3 .rpa-trio {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 800px) {
+  .dx-v3 .rpa-trio {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+}
+.dx-v3 .rpa-trio .item {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  /* Two rows so h4 and p stack in the second column rather than the
+     auto-flow placing the paragraph back into the narrow 32px icon
+     column underneath the icon (which crushed the description text). */
+  grid-template-rows: auto auto;
+  gap: 4px 16px;
+  padding: 4px 0;
+}
+.dx-v3 .rpa-trio .item .ic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  background: rgba(99, 91, 255, 0.08);
+  flex-shrink: 0;
+  /* Icon spans both rows on the left; h4 sits in row 1 col 2, p in row 2 col 2. */
+  grid-row: 1 / span 2;
+}
+.dx-v3 .rpa-trio .item h4 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.005em;
+}
+.dx-v3 .rpa-trio .item p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   AI EDGE — cobalt slab
+============================================================ */
+.dx-v3 .ai {
+  padding: 160px 32px;
+  background: var(--blue);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.dx-v3 .ai .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.dx-v3 .ai-headline {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(48px, 9vw, 168px);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  color: #fff;
+  margin-bottom: 56px;
+}
+.dx-v3 .ai-headline em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.dx-v3 .ai-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 56px;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .dx-v3 .ai-grid {
+    grid-template-columns: 280px 1fr;
+    gap: 72px;
+  }
+}
+.dx-v3 .ai .ja-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  line-height: 1.8;
+}
+.dx-v3 .ai .body p {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  font-size: clamp(18px, 2.2vw, 28px);
+  line-height: 1.9;
+  color: rgba(255, 255, 255, 0.9);
+}
+.dx-v3 .ai .body p strong {
+  color: #fff;
+  font-weight: 700;
+}
+.dx-v3 .ai .body p + p {
+  margin-top: 28px;
+}
+.dx-v3 .ai-ticker {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.dx-v3 .ai-ticker .strip {
+  display: flex;
+  gap: 60px;
+  white-space: nowrap;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: clamp(96px, 18vw, 280px);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.12);
+  letter-spacing: -0.04em;
+  will-change: transform;
+}
+.dx-v3 .ai-ticker .strip span {
+  display: inline-block;
+}
+.dx-v3 .ai-ticker .strip .star {
+  color: rgba(255, 255, 255, 0.3);
+}
+/* Mobile: reduce AI section padding so all body copy fits within the
+   sticky viewport. At 160px padding the total height exceeds 100vh on
+   phones, and since .ai is position:sticky the user can never scroll
+   to reveal the hidden bottom content. */
+@media (max-width: 899px) {
+  .dx-v3 .ai {
+    padding: 80px 24px;
+  }
+  .dx-v3 .ai-headline {
+    margin-bottom: 32px;
+  }
+  .dx-v3 .ai-grid {
+    gap: 32px;
+  }
+}
+@media (max-width: 480px) {
+  .dx-v3 .ai {
+    padding: 64px 20px;
+  }
+  .dx-v3 .ai-headline {
+    margin-bottom: 24px;
+  }
+  .dx-v3 .ai .body p {
+    font-size: clamp(15px, 4vw, 18px);
+    line-height: 1.75;
+  }
+  .dx-v3 .ai-grid {
+    gap: 24px;
+  }
+}
+
+/* ============================================================
+   FINAL CTA
+============================================================ */
+.dx-v3 .final {
+  background: var(--paper);
+  padding: 160px 32px 96px;
+  border-top: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  justify-content: center;
+}
+.dx-v3 .final .glow {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  width: 1000px;
+  height: 1000px;
+  background: radial-gradient(circle, rgba(99, 91, 255, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+  will-change: transform;
+}
+.dx-v3 .final .wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.dx-v3 .final .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.dx-v3 .final .label::before,
+.dx-v3 .final .label::after {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--blue);
+}
+.dx-v3 .final h2 {
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  /* Min dropped from 48 → 36 so "Let's build." doesn't push past the
+     375px viewport on iPhone SE (with 32px side padding, only 311px
+     was usable — 48px text wanted ~340px). */
+  font-size: clamp(36px, 11vw, 200px);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  margin-bottom: 32px;
+}
+@media (max-width: 480px) {
+  .dx-v3 .final {
+    padding: 96px 20px 72px;
+  }
+}
+.dx-v3 .final h2 em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--blue);
+  letter-spacing: -0.01em;
+}
+.dx-v3 .final .ja {
+  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
+  font-weight: 400;
+  font-size: clamp(15px, 1.5vw, 20px);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  margin-bottom: 48px;
+}
+.dx-v3 .final .row {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.dx-v3 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 36px;
+  border-radius: 999px;
+  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: all 400ms var(--ease);
+}
+.dx-v3 .btn.primary {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 12px 40px -8px rgba(99, 91, 255, 0.45);
+}
+.dx-v3 .btn.primary:hover {
+  background: var(--cobalt);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 50px -6px rgba(99, 91, 255, 0.55);
+}
+.dx-v3 .btn.ghost {
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+.dx-v3 .btn.ghost:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.dx-v3 .btn svg {
+  transition: transform 400ms var(--ease);
+}
+.dx-v3 .btn:hover svg {
+  transform: translateX(5px);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dx-v3 *,
+  .dx-v3 *::before,
+  .dx-v3 *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   STICKY STACK — each panel sticks at the top while you scroll
+   through it; the next panel rises from below and covers it.
+   Combined with Lenis smooth scroll, you "flip through pages"
+   while staying on the same document.
+
+   Caps-section, cases-wrap, AND .rpa are intentionally NOT
+   sticky — each contains a vertical list (4 cap-rows / 3 case
+   blocks / 2 RPA cards + a 3-item trio) that exceeds 100vh,
+   especially on mobile single-column layouts. Sticky-pinning
+   them at 100vh would hide everything past the first viewport,
+   so they need natural scroll to reveal every item. The stack
+   pauses there and resumes after.
+============================================================ */
+.dx-v3 > section.sec,
+.dx-v3 .ai,
+.dx-v3 .final {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+}
+/* Hero + Manifesto + Stats opted out of the sticky-stack — they
+   scroll normally so the hero → manifesto transition is a regular
+   scroll, not a sticky-pin "rise up and cover" animation. */
+.dx-v3 .hero,
+.dx-v3 .intro,
+.dx-v3 .stats {
+  position: relative;
+  min-height: auto;
+}
+
+/* Each panel needs an opaque background so it visually covers the
+   one beneath. Most already do via their existing rules — these
+   defaults catch any that fall through. */
+.dx-v3 .intro,
+.dx-v3 .stats,
+.dx-v3 > section.sec:not(.tinted):not(.dark),
+.dx-v3 .rpa,
+.dx-v3 .final {
+  background: var(--paper);
+}
+.dx-v3 .caps-section,
+.dx-v3 > section.sec.tinted {
+  background: var(--paper-2);
+}
+
+/* ============================================================
+   JUANMORA-STYLE LANGUAGE — custom cursor + char reveals
+============================================================ */
+
+/* Per-character spans on every section h2. .sec-head h2 contains an
+   <em> and a <span class="ja"> sibling — the JS splitter wraps the
+   English/em text into .ch spans and leaves .ja alone. */
+.dx-v3 .sec-head h2 .ch,
+.dx-v3 .sec-head h2 em .ch {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Hover-scale on interactive cards/buttons. Subtle — paired with the
+   custom cursor, this is what makes the page feel like Webflow IX2. */
+.dx-v3 .cap-card,
+.dx-v3 .bento .cell,
+.dx-v3 .rpa-card,
+.dx-v3 .btn {
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    background-color 0.4s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .dx-v3 .bento .cell:hover,
+  .dx-v3 .rpa-card:hover {
+    transform: translateY(-4px);
+  }
+  .dx-v3 .btn:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Custom cursor follower. Lives on document.body (outside .dx-v3) so
+   it can sit above all the sticky panels' stacking contexts. Only
+   shown on fine pointers — JS removes it on touch. */
+.dx-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px; /* center on x/y */
+  border-radius: 50%;
+  background: #635bff;
+  pointer-events: none;
+  z-index: 99999;
+  mix-blend-mode: difference;
+  transform: translate3d(-100px, -100px, 0); /* off-screen until first move */
+  transition:
+    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    margin 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease;
+}
+.dx-cursor.is-hover {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  background: #ffffff;
+}
+
+/* ============================================================
+   PIXELATED SCROLL TRANSITION (Osmo Supply)
+   Wrapper sits inside .hero-stage. JS builds a grid of pixels
+   inside it; ScrollTrigger fades them in/out as you scroll the
+   hero out, producing a digital-curtain transition.
+============================================================ */
+.dx-v3 .pixelated-scroll-transition {
+  z-index: 12;
+  pointer-events: none;
+  /* Pixel color — change to var(--blue) for blue, var(--paper-2)
+     for soft, etc. --ink gives the strongest contrast on the
+     light hero background. */
+  color: var(--ink);
+  position: absolute;
+  /* Full-cover the hero so pixels rise top-to-bottom across the
+     whole frame, not just the bottom 37%. */
+  inset: 0;
+}
+
+/* Fixed-position variant: overlays the entire viewport from the
+   .dx-v3 root, so the pixel layer cannot be covered by other
+   sticky panels rendering on top. Used for the hero scroll-out. */
+.dx-v3 .pixelated-scroll-transition--fixed {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  overflow: hidden;
+}
+.dx-v3 [data-pixelated-scroll-panel] {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+.dx-v3 [data-pixelated-scroll-column] {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.dx-v3 [data-pixelated-scroll-pixel] {
+  aspect-ratio: 1;
+  width: 100%;
+  background-color: currentColor;
+  backface-visibility: hidden;
+  will-change: opacity;
+}
+.dx-v3 [data-pixelated-scroll-transition][data-mode='reveal'] {
+  inset: 0;
+}
+
+/* ============================================================
+   DRAW-PATH-ON-SCROLL (Osmo Supply pattern)
+   Decorative SVG path that draws itself as the user scrolls.
+   The init code in JS sets stroke-dasharray + offset and tweens
+   offset → 0 to produce the draw effect (no DrawSVGPlugin needed).
+============================================================ */
+.dx-v3 .draw-flow {
+  position: absolute;
+  top: 0;
+  right: 3%;
+  width: 320px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  color: var(--blue);
+}
+@media (max-width: 1199px) {
+  .dx-v3 .draw-flow {
+    right: 1%;
+    width: 240px;
+  }
+}
+@media (max-width: 991px) {
+  .dx-v3 .draw-flow {
+    width: 180px;
+  }
+}
+@media (max-width: 767px) {
+  .dx-v3 .draw-flow {
+    display: none;
+  } /* hide on mobile to free up space */
+}
+.dx-v3 .draw-flow svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+/* Single bold uniform stroke — confident, hand-drawn feel. */
+.dx-v3 .draw-flow [data-draw-scroll-path] {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 26;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Hero background scrolling words ──────────────────────────
+   Large bold text rotated ~-18° so strips fill the diagonal.
+   The container extends 60% beyond hero bounds on each side;
+   hero-stage overflow:hidden clips the result cleanly.
+   Each lane uses animation-fill-mode:both — "from" state held
+   during the staggered delay, "to" state locked after end.
+──────────────────────────────────────────────────────────────── */
+@keyframes dx-hero-ltr {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes dx-hero-rtl {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+@keyframes dx-hero-lane-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dx-v3 .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.dx-v3 .hero-bg-lane {
+  overflow: hidden;
+  animation: dx-hero-lane-in 1s ease both;
+}
+
+.dx-v3 .hero-bg-track {
+  display: flex;
+  gap: 2.5rem;
+  white-space: nowrap;
+  width: max-content;
+  will-change: transform;
+  line-height: 1.1;
+}
+.dx-v3 .hero-bg-track--ltr { animation: dx-hero-ltr var(--dur, 40s) linear infinite; }
+.dx-v3 .hero-bg-track--rtl { animation: dx-hero-rtl var(--dur, 40s) linear infinite; }
+
+.dx-v3 .hero-bg-word {
+  font-family: 'General Sans', 'Noto Sans JP', system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  user-select: none;
+}
