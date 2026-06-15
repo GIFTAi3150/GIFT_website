@@ -126,28 +126,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (hidden) return;
                   hidden = true;
                   cover.style.opacity = '0';
+                  // page-ready triggers CSS animation-play-state: running on
+                  // .nav-reveal and .fade-up-word elements. Adding the class when
+                  // the cover STARTS fading (not after it's gone) lets nav items
+                  // fade in simultaneously with the cover fade-out, so users see
+                  // the reveal animation instead of text appearing pre-formed.
+                  document.body.classList.add('page-ready');
                   setTimeout(function () { cover.remove(); }, 600);
                 };
-                var windowLoaded = document.readyState === 'complete';
-                var logoReady = false;
-                var tryHide = function () {
-                  if (windowLoaded && logoReady) hide();
-                };
+                // Drop cover as soon as the hero signals it's painted.
+                // windowLoaded is NOT required — logo-ready fires before all
+                // images/fonts finish (hero is WebGL, not an image) and gating
+                // on it caused animations to complete under the cover, resulting
+                // in text that appeared to "jump" into its final state.
                 window.addEventListener('gift:logo-ready', function () {
-                  logoReady = true;
-                  tryHide();
+                  hide();
                 });
-                if (windowLoaded) {
-                  // already loaded
-                } else {
-                  window.addEventListener('load', function () {
-                    windowLoaded = true;
-                    tryHide();
-                  });
+                // For pages without a canvas hero (company, contact, …) no one
+                // dispatches gift:logo-ready. Drop the cover when the window
+                // finishes loading instead (typically 300-800ms).
+                window.addEventListener('load', function () {
+                  setTimeout(hide, 100);
+                }, { once: true });
+                // If already loaded (client-side nav to a non-hero page), fire now.
+                if (document.readyState === 'complete') {
+                  setTimeout(hide, 100);
                 }
-                // Safety fallback: if the logo never signals (error, no 3D on page),
-                // force-hide after 4s so the site is never stuck behind the cover.
-                setTimeout(hide, 4000);
+                // Hard safety cap — never leave the cover up beyond 3s.
+                setTimeout(hide, 3000);
               })();
             `,
           }}
