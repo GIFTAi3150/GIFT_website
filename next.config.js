@@ -37,10 +37,12 @@ const nextConfig = {
     return [
       { source: '/about', destination: '/company', permanent: true },
       { source: '/about/', destination: '/company', permanent: true },
-      { source: '/lstep', destination: '/services/dx-consulting', permanent: true },
-      { source: '/lstep/', destination: '/services/dx-consulting', permanent: true },
-      { source: '/lsteprpa', destination: '/services/dx-consulting', permanent: true },
-      { source: '/lsteprpa/', destination: '/services/dx-consulting', permanent: true },
+      { source: '/lstep', destination: '/services/aiops', permanent: true },
+      { source: '/lstep/', destination: '/services/aiops', permanent: true },
+      { source: '/lsteprpa', destination: '/services/aiops', permanent: true },
+      { source: '/lsteprpa/', destination: '/services/aiops', permanent: true },
+      { source: '/services/dx-consulting', destination: '/services/aiops', permanent: true },
+      { source: '/services/dx-consulting/:path*', destination: '/services/aiops/:path*', permanent: true },
       { source: '/privacypolicy', destination: '/privacy', permanent: true },
       { source: '/privacypolicy/', destination: '/privacy', permanent: true },
     ];

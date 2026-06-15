@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // DEV-ONLY recorder for the VAT bake pipeline (Plans.md T-010 / P1).
 //
@@ -13,32 +13,32 @@
 //   [0]  int32 texW
 //   [4]  int32 texH
 //   [8]  int32 frameCount
-//   [12] float32 × (frameCount × texW × texH × 4)   RGBA per particle per frame
+//   [12] float32 Ã— (frameCount Ã— texW Ã— texH Ã— 4)   RGBA per particle per frame
 //        (xyz = position, w = shield/G flag)
 //
-// This raw float dump is a DEV ARTIFACT, not the shipped asset — P2 compresses
+// This raw float dump is a DEV ARTIFACT, not the shipped asset â€” P2 compresses
 // it (quantized deltas, chosen loop length) into the few-MB VAT that playback
 // consumes. In production builds this route renders an explanatory stub.
 
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { vatCapture } from '@/app/services/dx-consulting/_components/_vatCapture';
+import { vatCapture } from '@/app/services/aiops/_components/_vatCapture';
 
 const GiftLogoFluid = dynamic(
-  () => import('@/app/services/dx-consulting/_components/GiftLogoFluid'),
+  () => import('@/app/services/aiops/_components/GiftLogoFluid'),
   { ssr: false },
 );
 
-// Lead-in before arming. The solver needs ~1–2s to load its GLBs + init the
+// Lead-in before arming. The solver needs ~1â€“2s to load its GLBs + init the
 // GPGPU sim, and when a form is PINNED the particles also have to travel to
 // that shape and the morph weights settle (~1.5s). 5s covers all of it.
 const SETTLE_DELAY_MS = 5_000;
 
-// Default capture length. At 96² = 9,216 particles, each frame is
-// 9216×4×4 ≈ 147 KB, so 150 frames ≈ 22 MB raw — fine for a dev artifact.
+// Default capture length. At 96Â² = 9,216 particles, each frame is
+// 9216Ã—4Ã—4 â‰ˆ 147 KB, so 150 frames â‰ˆ 22 MB raw â€” fine for a dev artifact.
 const DEFAULT_FRAMES = 150;
 
-// Form index → label/slug. Mirrors FORM_VALUES in GiftLogoFluid
+// Form index â†’ label/slug. Mirrors FORM_VALUES in GiftLogoFluid
 // (0 = head, 1 = GIFT logo, 2 = pet). One clean capture per shape.
 const SHAPES = [
   { idx: 0, label: 'Head', slug: 'head' },
@@ -59,7 +59,7 @@ export default function CaptureDxVatPage() {
   // Bump to force a clean remount of GiftLogoFluid between capture runs.
   const [mountKey, setMountKey] = useState(0);
   const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Slug of the shape the CURRENT run captured — frozen at start so changing
+  // Slug of the shape the CURRENT run captured â€” frozen at start so changing
   // the selector after a run doesn't rename the pending download.
   const runShapeRef = useRef<string>(SHAPES[0].slug);
   const isProduction = process.env.NODE_ENV === 'production';
@@ -104,7 +104,7 @@ export default function CaptureDxVatPage() {
   ) => {
     try {
       const frameLen = texW * texH * 4;
-      const headerBytes = 12; // 3 × int32
+      const headerBytes = 12; // 3 Ã— int32
       const buf = new ArrayBuffer(headerBytes + frames.length * frameLen * 4);
       const header = new Int32Array(buf, 0, 3);
       header[0] = texW;
@@ -117,7 +117,7 @@ export default function CaptureDxVatPage() {
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
       setFileInfo(
-        `${texW}×${texH} (${texW * texH} particles) · ${frames.length} frames · ${(blob.size / 1_048_576).toFixed(1)} MB`,
+        `${texW}Ã—${texH} (${texW * texH} particles) Â· ${frames.length} frames Â· ${(blob.size / 1_048_576).toFixed(1)} MB`,
       );
       setStatus('done');
     } catch (err) {
@@ -193,7 +193,7 @@ export default function CaptureDxVatPage() {
       >
         <h1 style={{ margin: '0 0 4px', fontSize: 16 }}>VAT capture (P1)</h1>
         <p style={{ margin: '0 0 16px', fontSize: 12, opacity: 0.6 }}>
-          Bakes GiftLogoFluid particle positions → downloadable .bin
+          Bakes GiftLogoFluid particle positions â†’ downloadable .bin
         </p>
 
         <div style={{ fontSize: 12, marginBottom: 6 }}>Shape to bake</div>
@@ -245,7 +245,7 @@ export default function CaptureDxVatPage() {
           }}
         >
           {status === 'settling'
-            ? 'Settling…'
+            ? 'Settlingâ€¦'
             : status === 'capturing'
               ? `Capturing ${captured}/${targetFrames}`
               : 'Start capture'}
@@ -253,7 +253,7 @@ export default function CaptureDxVatPage() {
 
         {status === 'settling' && (
           <p style={{ fontSize: 12, marginTop: 12, opacity: 0.7 }}>
-            Waiting {SETTLE_DELAY_MS / 1000}s for the sim to load & settle…
+            Waiting {SETTLE_DELAY_MS / 1000}s for the sim to load & settleâ€¦
           </p>
         )}
 
@@ -289,3 +289,4 @@ export default function CaptureDxVatPage() {
     </main>
   );
 }
+

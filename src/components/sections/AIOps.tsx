@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-const CIRCLE_TEXT = 'try clicking · something cool · ';
+const CIRCLE_TEXT = 'try clicking Â· something cool Â· ';
 const RADIUS = 54;
 const CURSOR_SIZE = 148;
 
@@ -83,7 +83,7 @@ export default function AIOps() {
         </p>
       </div>
 
-      {/* Giant text — hover zone only */}
+      {/* Giant text â€” hover zone only */}
       <div className="relative z-10 flex items-center justify-center">
         <span
           className="font-nube-display leading-none cursor-none select-none"
@@ -97,11 +97,11 @@ export default function AIOps() {
           }}
           onMouseMove={onMove}
           onMouseLeave={onLeave}
-          onClick={() => router.push('/services/dx-consulting')}
+          onClick={() => router.push('/services/aiops')}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && router.push('/services/dx-consulting')}
-          aria-label="AI OPS事業を見る"
+          onKeyDown={(e) => e.key === 'Enter' && router.push('/services/aiops')}
+          aria-label="AI OPSäº‹æ¥­ã‚’è¦‹ã‚‹"
         >
           AI OPS
         </span>
@@ -118,7 +118,7 @@ export default function AIOps() {
             animation: 'aiops-pointer 1.8s ease-in-out infinite',
           }}
         >
-          ›
+          â€º
         </span>
       </div>
 
@@ -178,3 +178,4 @@ export default function AIOps() {
     </section>
   );
 }
+

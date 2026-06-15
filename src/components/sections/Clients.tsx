@@ -1,22 +1,22 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { SERVICE_ICON_BY_ID } from '@/components/ui/ServiceIcons';
 
 const services = [
   {
     iconId: 'callcenter' as const,
-    labelJa: 'コールセンター事業',
+    labelJa: 'ã‚³ãƒ¼ãƒ«ã‚»ãƒ³ã‚¿ãƒ¼äº‹æ¥­',
     labelEn: 'Call Center',
     href: '/services/callcenter',
   },
   {
-    iconId: 'dx-consulting' as const,
-    labelJa: 'AIOps事業',
+    iconId: 'aiops' as const,
+    labelJa: 'AIOpsäº‹æ¥­',
     labelEn: 'AIOps',
-    href: '/services/dx-consulting',
+    href: '/services/aiops',
   },
   {
     iconId: 'finance-consulting' as const,
-    labelJa: '財務コンサル事業',
+    labelJa: 'è²¡å‹™ã‚³ãƒ³ã‚µãƒ«äº‹æ¥­',
     labelEn: 'Financial Consulting',
     href: '/services/finance-consulting',
   },
@@ -54,7 +54,7 @@ export default function Clients() {
                   aria-hidden
                   className="mt-5 inline-block text-[#2563EB] opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
                 >
-                  →
+                  â†’
                 </span>
               </Link>
             );
@@ -64,3 +64,4 @@ export default function Clients() {
     </section>
   );
 }
+

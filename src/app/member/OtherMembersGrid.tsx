@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ const pressStart = Press_Start_2P({
 
 const PLACEHOLDER_VIDEOS = [
   '/video/cc-vid.mp4',
-  '/video/dx-consulting-vid.mp4',
+  '/video/aiops-vid.mp4',
   '/video/financial-consulting-vid.mp4',
 ];
 
@@ -151,3 +151,4 @@ export default function OtherMembersGrid({
     </div>
   );
 }
+

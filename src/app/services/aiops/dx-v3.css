@@ -1756,30 +1756,30 @@
 .dx-v3 .dr-f10 { width: 90px; height:140px; top:65%; right:-18px; background:var(--dr-ghost); }
 
 /* ================================================================
-   FINAL CTA SECTION — 16 rects starting in the lower half.
-   top 55–85%: all rects begin below the text content and rise
-   upward via the GSAP y tween as the section scrolls into view.
+   FINAL CTA SECTION — 4-column spread, top 55–85%.
+   Cols A+D hug the edges (px); Cols B+C use % so the gap between
+   them and the edges stays proportional at any desktop width.
 ================================================================ */
-.dx-v3 .dr-c1 { width: 95px; height:145px; top: 58%; left:-20px;  background:var(--dr-ghost); }
-.dx-v3 .dr-c2 { width: 82px; height:125px; top: 72%; left: 18px;  background:var(--dr-solid); }
-.dx-v3 .dr-c3 { width: 88px; height:135px; top: 62%; left:calc(50% - 210px); background:var(--dr-ghost); }
-.dx-v3 .dr-c4 { width: 78px; height:120px; top: 80%; left:calc(50% - 150px); background:var(--dr-solid); }
-.dx-v3 .dr-c5 { width: 88px; height:135px; top: 66%; left:calc(50% + 70px);  background:var(--dr-ghost); }
-.dx-v3 .dr-c6 { width: 78px; height:120px; top: 76%; left:calc(50% + 100px); background:var(--dr-solid); }
-.dx-v3 .dr-c7 { width: 95px; height:145px; top: 55%; right:-20px; background:var(--dr-ghost); }
-.dx-v3 .dr-c8 { width: 82px; height:125px; top: 70%; right: 18px; background:var(--dr-solid); }
-/* Lower-left cluster */
-.dx-v3 .dr-c9  { width: 74px; height:114px; top: 64%; left:  8px;  background:var(--dr-ghost); }
-.dx-v3 .dr-c10 { width: 62px; height: 96px; top: 82%; left: 72px;  background:var(--dr-solid); }
-/* Lower-right cluster */
-.dx-v3 .dr-c11 { width: 74px; height:114px; top: 60%; right:  8px;  background:var(--dr-solid); }
-.dx-v3 .dr-c12 { width: 62px; height: 96px; top: 78%; right: 72px;  background:var(--dr-ghost); }
-/* Mid-centre flanks */
-.dx-v3 .dr-c13 { width: 56px; height: 84px; top: 65%; left: calc(50% - 280px); background:var(--dr-ghost); }
-.dx-v3 .dr-c14 { width: 56px; height: 84px; top: 85%; left: calc(50% + 220px); background:var(--dr-solid); }
-/* Wide bottom scatter */
-.dx-v3 .dr-c15 { width: 48px; height: 72px; top: 74%; left: calc(50% - 180px); background:var(--dr-solid); }
-.dx-v3 .dr-c16 { width: 48px; height: 72px; top: 79%; left: calc(50% + 130px); background:var(--dr-ghost); }
+/* Col A — far left edge */
+.dx-v3 .dr-c1  { width: 95px; height:145px; top: 58%; left: -20px;           background:var(--dr-ghost); }
+.dx-v3 .dr-c2  { width: 82px; height:125px; top: 72%; left:  18px;           background:var(--dr-solid); }
+.dx-v3 .dr-c9  { width: 74px; height:114px; top: 64%; left:   8px;           background:var(--dr-ghost); }
+.dx-v3 .dr-c10 { width: 62px; height: 96px; top: 82%; left:  72px;           background:var(--dr-solid); }
+/* Col B — left-inner (20-25% from left) */
+.dx-v3 .dr-c3  { width: 88px; height:135px; top: 62%; left: 22%;             background:var(--dr-ghost); }
+.dx-v3 .dr-c4  { width: 78px; height:120px; top: 80%; left: 25%;             background:var(--dr-solid); }
+.dx-v3 .dr-c13 { width: 56px; height: 84px; top: 65%; left: 20%;             background:var(--dr-ghost); }
+.dx-v3 .dr-c15 { width: 48px; height: 72px; top: 74%; left: 23%;             background:var(--dr-solid); }
+/* Col C — right-inner (20-25% from right) */
+.dx-v3 .dr-c5  { width: 88px; height:135px; top: 66%; right: 22%; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c6  { width: 78px; height:120px; top: 76%; right: 20%; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c14 { width: 56px; height: 84px; top: 85%; right: 24%; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c16 { width: 48px; height: 72px; top: 79%; right: 21%; left:auto; background:var(--dr-ghost); }
+/* Col D — far right edge */
+.dx-v3 .dr-c7  { width: 95px; height:145px; top: 55%; right: -20px; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c8  { width: 82px; height:125px; top: 70%; right:  18px; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c11 { width: 74px; height:114px; top: 60%; right:   8px; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c12 { width: 62px; height: 96px; top: 78%; right:  72px; left:auto; background:var(--dr-ghost); }
 
 /* ── Mobile: final-CTA rects ─────────────────────────────────────────────
    On narrow viewports the desktop layout breaks in two ways:

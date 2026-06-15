@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
@@ -7,12 +7,12 @@ import { useNavTheme, navThemeVars } from '@/lib/navTheme';
 import GiftLogo from '@/components/brand/GiftLogo';
 
 const footerNav = [
-  { href: '/company', en: 'ABOUT', ja: '会社概要' },
-  { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
+  { href: '/company', en: 'ABOUT', ja: 'ä¼šç¤¾æ¦‚è¦' },
+  { href: '/contact', en: 'CONTACT', ja: 'ãŠå•ã„åˆã‚ã›' },
 ];
 
 const footerServices = [
-  { href: '/services/dx-consulting', label: 'AIOps事業' },
+  { href: '/services/aiops', label: 'AIOpsäº‹æ¥­' },
 ];
 
 const socials = [
@@ -66,7 +66,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <Link
               href="/"
-              aria-label="株式会社GIFT トップページ"
+              aria-label="æ ªå¼ä¼šç¤¾GIFT ãƒˆãƒƒãƒ—ãƒšãƒ¼ã‚¸"
               className="inline-flex w-fit transition-transform duration-200 hover:scale-105"
             >
               <GiftLogo
@@ -80,7 +80,7 @@ export default function Footer() {
             </p>
             <p className="font-sans text-normal text-[var(--nav-text-muted)]">TEL: {company.phone}</p>
 
-            {/* Socials — themed via the same nav tokens so they swap palette
+            {/* Socials â€” themed via the same nav tokens so they swap palette
                 per page (was using global .cta-btn which is hard-coded green). */}
             <div className="mt-4 flex items-center gap-3">
               {socials.map((s) => (
@@ -111,7 +111,7 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col gap-10 sm:flex-row sm:gap-16">
-            <nav aria-label="フッターナビゲーション" className="flex flex-col gap-4">
+            <nav aria-label="ãƒ•ãƒƒã‚¿ãƒ¼ãƒŠãƒ“ã‚²ãƒ¼ã‚·ãƒ§ãƒ³" className="flex flex-col gap-4">
               {footerNav.map((item) => (
                 <Link
                   key={item.href}
@@ -129,7 +129,7 @@ export default function Footer() {
               ))}
             </nav>
 
-            <nav aria-label="事業内容ナビゲーション" className="flex flex-col gap-3">
+            <nav aria-label="äº‹æ¥­å†…å®¹ãƒŠãƒ“ã‚²ãƒ¼ã‚·ãƒ§ãƒ³" className="flex flex-col gap-3">
               <span className="font-display text-[13px] font-bold uppercase tracking-[0.15em] text-[var(--nav-text)]">
                 SERVICE
               </span>
@@ -154,10 +154,11 @@ export default function Footer() {
             href="/privacy"
             className="font-sans text-small text-[var(--nav-text-faint)] transition-colors hover:text-[var(--nav-text)]"
           >
-            プライバシーポリシー
+            ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼ãƒãƒªã‚·ãƒ¼
           </Link>
         </div>
       </div>
     </footer>
   );
 }
+

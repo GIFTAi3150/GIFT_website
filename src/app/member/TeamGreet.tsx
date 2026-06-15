@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -14,12 +14,12 @@ const pressStart = Press_Start_2P({
 
 // Video grid in the neu-ad.jp/team style:
 //   - 3 columns on desktop, 2 on tablet, 1 on mobile.
-//   - Every tile is a looped muted color video — the video itself is
+//   - Every tile is a looped muted color video â€” the video itself is
 //     the "hello", a real person moving in their frame rather than a
 //     static portrait.
 //   - On hover: video scales up gently and the member's name swaps
 //     from its small default size to a much larger size in place
-//     (no layout shift — two text layers crossfade on the same row).
+//     (no layout shift â€” two text layers crossfade on the same row).
 //
 // Performance: videos use preload="none" (matches neu-ad) and only
 // play when they enter the viewport via IntersectionObserver.
@@ -38,7 +38,7 @@ export interface MemberCard {
 
 const PLACEHOLDER_VIDEOS = [
   '/video/cc-vid.mp4',
-  '/video/dx-consulting-vid.mp4',
+  '/video/aiops-vid.mp4',
   '/video/financial-consulting-vid.mp4',
 ];
 
@@ -81,7 +81,7 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
     return (
       <section className="bg-[#F4EFE6] py-s-80">
         <p className="text-center font-sans text-normal text-[#6B5F52]">
-          メンバー情報を読み込めませんでした。
+          ãƒ¡ãƒ³ãƒãƒ¼æƒ…å ±ã‚’èª­ã¿è¾¼ã‚ã¾ã›ã‚“ã§ã—ãŸã€‚
         </p>
       </section>
     );
@@ -116,7 +116,7 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                 {/* Pixel "HELLO" sitting ABOVE the card. Anchored to
                   the top edge with bottom-full so it floats outside
                   the rounded video frame entirely. On mobile (< md)
-                  it's permanently visible — touch has no hover state.
+                  it's permanently visible â€” touch has no hover state.
                   On md+ it's hidden by default and reveals on hover
                   with a soft rise + fade. pointer-events-none so it
                   never blocks the click target. */}
@@ -125,7 +125,7 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                     sits in front of a bright-teal offset clone. The
                     two are slightly off-register, mimicking a
                     misaligned silkscreen / risograph pass. Secondary
-                    color #06D6A0 — high saturation, bright enough to
+                    color #06D6A0 â€” high saturation, bright enough to
                     read as a confident ink against the warm cream
                     instead of disappearing into the page. Offset
                     bumped to 4px so the misregister is obvious at
@@ -141,7 +141,7 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                   </p>
                 </div>
 
-                {/* Looped color video — full saturation always, like
+                {/* Looped color video â€” full saturation always, like
                   neu-ad. The video plays continuously while the tile
                   is on screen; hover never pauses, restarts, or
                   filters it. */}
@@ -174,7 +174,7 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                     {m.department}
                   </p>
 
-                  {/* NAME — masked slide. The container is sized to the
+                  {/* NAME â€” masked slide. The container is sized to the
                     LARGER copy so there's room for the hover state to
                     occupy. Both layers share one grid cell so the
                     sliding doesn't shift surrounding content. */}
@@ -206,7 +206,7 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
                     </p>
                   </div>
 
-                  {/* ROLE — same masked slide, smaller delta. Slight
+                  {/* ROLE â€” same masked slide, smaller delta. Slight
                     delay so the role enters after the name lands.
                     Default: warm gray. Hover: full warm ink. */}
                   <div
@@ -238,3 +238,4 @@ export default function TeamGreet({ members }: { members: MemberCard[] }) {
     </section>
   );
 }
+

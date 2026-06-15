@@ -1,17 +1,17 @@
-'use client';
+﻿'use client';
 
 // DEV preview for VAT playback (Plans.md T-010 / P3). Renders the baked
-// particle cloud for a chosen shape with NO solver — the same component that
+// particle cloud for a chosen shape with NO solver â€” the same component that
 // will drive the DX hero in P4. Use this to confirm the bake looks like the
 // live face (silhouette + shimmer) and that it runs in mobile device view
 // without a crash. Available in dev only.
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import type { VatShape } from '@/app/services/dx-consulting/_components/VatParticles';
+import type { VatShape } from '@/app/services/aiops/_components/VatParticles';
 
 const VatParticles = dynamic(
-  () => import('@/app/services/dx-consulting/_components/VatParticles'),
+  () => import('@/app/services/aiops/_components/VatParticles'),
   { ssr: false },
 );
 
@@ -52,7 +52,7 @@ export default function VatPreviewPage() {
       >
         <h1 style={{ margin: '0 0 4px', fontSize: 15 }}>VAT preview (P3)</h1>
         <p style={{ margin: '0 0 12px', fontSize: 12, opacity: 0.6 }}>
-          Baked playback · no solver · phone-safe
+          Baked playback Â· no solver Â· phone-safe
         </p>
         <div style={{ display: 'flex', gap: 6 }}>
           {SHAPES.map((s) => (
@@ -75,3 +75,4 @@ export default function VatPreviewPage() {
     </main>
   );
 }
+

@@ -1,4 +1,4 @@
-// Hand-drawn pixel-art icons for the 3 service cards.
+﻿// Hand-drawn pixel-art icons for the 3 service cards.
 // Uses integer-aligned <rect>s + shape-rendering=crispEdges for the blocky look.
 // Color comes from currentColor, so parent's text color controls the icon tint.
 
@@ -81,9 +81,10 @@ export function ChartIcon({ className = '' }: IconProps) {
   );
 }
 
-// Map service id → icon component. Lets ServicesCards pick the right one per card.
+// Map service id â†’ icon component. Lets ServicesCards pick the right one per card.
 export const SERVICE_ICON_BY_ID: Record<string, (p: IconProps) => JSX.Element> = {
   'callcenter': HeadsetIcon,
-  'dx-consulting': MonitorIcon,
+  'aiops': MonitorIcon,
   'finance-consulting': ChartIcon,
 };
+
