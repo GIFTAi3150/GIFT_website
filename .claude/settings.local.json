@@ -32,7 +32,10 @@
       "Bash(cd /tmp)",
       "Bash(grep -aoiE \".{20}loadImgs.{0,120}\" biscom_common_js_index.js)",
       "Bash(grep -aoiE \"[\\\\\"'\\\\`][^\\\\\"'\\\\`]*\\\\.\\(avif|webp|mp4|png|jpg\\)[\\\\\"'\\\\`]\" biscom_common_js_index.js)",
-      "WebFetch(domain:biscom.jp)"
+      "WebFetch(domain:biscom.jp)",
+      "Bash(curl -s https://biscom.jp/10th/ -o /tmp/biscom.html)",
+      "Read(//tmp/**)",
+      "Bash(Select-String -Pattern \"130svh|100svh|svh|scrollTrigger|height|sticky|end:|start:\" -Context 0,1)"
     ]
   }
 }
