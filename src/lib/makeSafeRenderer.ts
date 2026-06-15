@@ -61,11 +61,13 @@ export function makeSafeRenderer(
         // DEBUG 2026-05-29: surface every loss so the crash leaves a trail.
         // `disposing:true` = teardown noise (HMR / StrictMode / route change),
         // NOT a real driver loss. A real loss has disposing:false.
-        // eslint-disable-next-line no-console
-        console.warn('[webgl-debug] webglcontextlost', {
-          disposing,
-          statusMessage: (e as WebGLContextEvent).statusMessage || '(none)',
-        });
+        if (process.env.NODE_ENV !== 'production') {
+          // eslint-disable-next-line no-console
+          console.warn('[webgl-debug] webglcontextlost', {
+            disposing,
+            statusMessage: (e as WebGLContextEvent).statusMessage || '(none)',
+          });
+        }
         if (disposing) return;
         onContextLost();
       });
