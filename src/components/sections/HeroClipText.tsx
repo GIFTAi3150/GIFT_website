@@ -550,7 +550,7 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         style={{
           position: 'sticky', top: 0,
           width: '100%',
-          height: '100svh',
+          height: '100dvh',       // full DYNAMIC viewport: 100svh under-fills once the mobile URL bar collapses, exposing the pulled-up section behind
           background: 'transparent',
           zIndex: 10,
           overflow: 'hidden',
@@ -562,8 +562,8 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
           aria-hidden
           style={{
             position: 'absolute',
-            top: '-5svh', left: '-5vw',
-            width: '110vw', height: '110svh',
+            top: '-5dvh', left: '-5vw',
+            width: '110vw', height: '110dvh',   // tracks the dvh section so the field still over-covers (5dvh bleed) at every URL-bar state
             zIndex: 0, pointerEvents: 'none',
           }}
         />
