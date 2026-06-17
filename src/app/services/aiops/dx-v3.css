@@ -2091,12 +2091,18 @@
   .dx-v3 .cascade-slide {
     height: auto;
   }
-  .dx-v3 .cascade-card {
+  /* Extra .cascade-slide ancestor bumps specificity to 3 classes so these
+     beat the base `.dx-v3 .cascade-card` rules that appear LATER in this file
+     (height:100%, padding:36px, p font-size:15px). Without the bump, equal
+     specificity + later source order meant the base rules won on mobile too
+     and this whole auto-height fix was silently a no-op (cards stayed locked
+     to --slide-h and the long Japanese copy was clipped). */
+  .dx-v3 .cascade-slide .cascade-card {
     height: auto;
     padding: 28px 24px;
     gap: 16px;
   }
-  .dx-v3 .cascade-card p {
+  .dx-v3 .cascade-slide .cascade-card p {
     font-size: 14px;
     line-height: 1.65;
   }
