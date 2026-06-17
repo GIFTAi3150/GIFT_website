@@ -10,7 +10,19 @@
     line-height: 1.9;
     /* Break long URLs / tokens instead of overflowing the viewport */
     overflow-wrap: anywhere;
-    word-break: keep-all;
+    /* JP line-breaking. `keep-all` (previous value) only let text break at
+       spaces and 、。, so the whole trailing clause after the last punctuation
+       wrapped as one unbreakable block and dropped onto its own row — reads as
+       "the last words got cut to a new line". `auto-phrase` breaks at natural
+       phrase (bunsetsu) boundaries instead. The preceding `normal` is the
+       fallback for Safari/Firefox, which don't support auto-phrase yet (it is
+       also the initial value, so the effect is identical there). */
+    word-break: normal;
+    word-break: auto-phrase;
+    /* Orphan guard: nudges the final break points so the last line is never a
+       lone short word/phrase. (Chrome 117+, Safari 17.5+; degrades to normal
+       wrapping elsewhere.) */
+    text-wrap: pretty;
   }
 }
 
