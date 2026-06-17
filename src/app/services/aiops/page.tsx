@@ -10,25 +10,25 @@ export const metadata: Metadata = {
   alternates: { canonical: '/services/aiops' },
 };
 
-// Page-scoped fonts. General Sans (Fontshare) is the chunky geometric sans
-// used as the headline font — closest free analog to juanmora.co's Goga.
-// The Latin subset of dx-v3 type uses 'General Sans'; Japanese still falls
-// through to Noto Sans JP (kanji not in General Sans). Instrument Serif
-// stays for italic emphasis, JetBrains Mono for tech labels.
+// Page-scoped fonts.
+// Gen Interface JP (SIL OFL, jsDelivr) — harmonised Inter + Noto Sans JP,
+// the same typeface used by ai-ops-manager.com. Covers Latin + Japanese in
+// a single family so no fallback stack is needed. "Gen Interface JP Display"
+// variant is used for large headings (tighter letter-spacing).
+// JetBrains Mono is kept for terminal/code labels only.
 function DxFontsLink() {
   return (
     <>
+      <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="preconnect" href="https://api.fontshare.com" />
-      <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;800&display=swap"
+        href="https://cdn.jsdelivr.net/npm/gen-interface-jp@latest/cdn/all.css"
       />
       <link
         rel="stylesheet"
-        href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600,700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
       />
     </>
   );

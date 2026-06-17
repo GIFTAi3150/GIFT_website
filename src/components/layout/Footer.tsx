@@ -137,7 +137,7 @@ export default function Footer() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  className="font-sans text-small font-light text-[var(--nav-text-muted)] transition-colors duration-150 hover:text-[var(--nav-accent)]"
+                  className="whitespace-nowrap font-sans text-small font-light text-[var(--nav-text-muted)] transition-colors duration-150 hover:text-[var(--nav-accent)]"
                 >
                   {s.label}
                 </Link>
