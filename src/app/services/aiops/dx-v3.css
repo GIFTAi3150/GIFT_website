@@ -252,7 +252,7 @@
   color: var(--ink);
 }
 .dx-v3 .masthead .row .consulting {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--purple);
@@ -267,11 +267,13 @@
   color: var(--ink);
 }
 .dx-v3 .masthead .row .consulting {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
-  /* Bumped slightly so the serif feels editorial rather than secondary. */
-  font-size: 1.08em;
+  /* No size bump: the old 1.08em compensated for the serif Display face
+     rendering small, but it pushed the glyph past the line-height:1 box and
+     clipped it. The regular sans italic matches its sibling at 1em. */
+  font-size: 1em;
   letter-spacing: -0.012em;
   color: var(--purple);
   /* Keep "Consulting." atomic — the scramble effect wraps each letter in
@@ -296,7 +298,7 @@
   margin-top: 4px;
 }
 .dx-v3 .masthead .row.r2 em {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
@@ -927,7 +929,7 @@
   color: #fff;
 }
 .dx-v3 .sec-head h2 em {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
@@ -1091,7 +1093,7 @@
   will-change: transform, opacity;
 }
 .dx-v3 .caps-intro h2 em {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
@@ -2091,12 +2093,18 @@
   .dx-v3 .cascade-slide {
     height: auto;
   }
-  .dx-v3 .cascade-card {
+  /* Extra .cascade-slide ancestor bumps specificity to 3 classes so these
+     beat the base `.dx-v3 .cascade-card` rules that appear LATER in this file
+     (height:100%, padding:36px, p font-size:15px). Without the bump, equal
+     specificity + later source order meant the base rules won on mobile too
+     and this whole auto-height fix was silently a no-op (cards stayed locked
+     to --slide-h and the long Japanese copy was clipped). */
+  .dx-v3 .cascade-slide .cascade-card {
     height: auto;
     padding: 28px 24px;
     gap: 16px;
   }
-  .dx-v3 .cascade-card p {
+  .dx-v3 .cascade-slide .cascade-card p {
     font-size: 14px;
     line-height: 1.65;
   }
@@ -2865,7 +2873,7 @@
   margin-bottom: 56px;
 }
 .dx-v3 .ai-headline em {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: #fff;
@@ -3030,7 +3038,7 @@
   }
 }
 .dx-v3 .final h2 em {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);

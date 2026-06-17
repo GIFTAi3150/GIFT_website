@@ -1463,18 +1463,31 @@ export default function DxV3Page() {
       // CSS guard to the live page, eliminating any visible gap.
       setInlineCoverActive(false);
     };
-    // Hold the guard until the webfont has actually loaded. We still wait one
-    // rAF first so GSAP's from-states are laid out, THEN gate the reveal on
-    // document.fonts.ready. Releasing on the bare rAF (the previous behaviour)
-    // dropped the cover while the hero bg-words were still rendered in the
-    // fallback font — the instant Gen Interface JP swapped in, every lane
-    // reflowed and visibly "jumped" to full width before the canvas mounted.
-    // A 2s cap keeps a slow/blocked font CDN from holding the cover forever.
-    // revealAndRefresh runs ScrollTrigger.refresh() itself, so this also
-    // recalculates trigger positions against the final (swapped) font metrics.
+    // Hold the guard until the hero webfonts have ACTUALLY downloaded, then
+    // reveal. document.fonts.ready alone was not enough: while the guard is up
+    // the hero text is visibility:hidden, so the browser never starts fetching
+    // the font, document.fonts.ready resolves immediately, the cover drops, and
+    // the hero text then swaps fallback -> Gen Interface JP and visibly
+    // "jumps"/reflows for a second. Fix: explicitly kick off the downloads with
+    // document.fonts.load(), passing the real hero glyphs (Latin + Japanese) so
+    // the CJK unicode-range subsets are fetched too, and wait for them before
+    // releasing. A 2.5s cap keeps a slow/blocked font CDN from holding the cover
+    // forever. We still wait one rAF first so GSAP's from-states are laid out;
+    // revealAndRefresh runs ScrollTrigger.refresh() against the loaded-font metrics.
+    const heroGlyphs =
+      'AIOps. まだない業務を、AIでつくる。' +
+      HERO_BG_LANES.flatMap((l) => l.words).join('');
+    const heroFontLoads: Promise<unknown>[] = [];
+    for (const family of ['"Gen Interface JP"', '"Gen Interface JP Display"']) {
+      for (const weight of ['400', '700', '800']) {
+        heroFontLoads.push(
+          document.fonts.load(`${weight} 1rem ${family}`, heroGlyphs).catch(() => null)
+        );
+      }
+    }
     const fontsSettled = Promise.race([
-      document.fonts.ready,
-      new Promise((resolve) => window.setTimeout(resolve, 2000)),
+      Promise.all(heroFontLoads).then(() => document.fonts.ready),
+      new Promise((resolve) => window.setTimeout(resolve, 2500)),
     ]);
     rafId = requestAnimationFrame(() => {
       fontsSettled.then(() => revealAndRefresh());
@@ -1963,7 +1976,7 @@ export default function DxV3Page() {
         </div>
         <div className="wrap">
           <div className="ai-headline">
-            AI&nbsp;<em>fully</em>
+            AI <em>fully</em>
             <br />
             integrated.
           </div>
