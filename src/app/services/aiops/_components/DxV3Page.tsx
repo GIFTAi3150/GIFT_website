@@ -704,6 +704,7 @@ export default function DxV3Page() {
 
           gsap.set(slide, {
             x,
+            yPercent: -50,
             '--clip-l': clipL,
             '--clip-r': clipR,
             zIndex,
@@ -1462,10 +1463,21 @@ export default function DxV3Page() {
       // CSS guard to the live page, eliminating any visible gap.
       setInlineCoverActive(false);
     };
-    rafId = requestAnimationFrame(revealAndRefresh);
-
-    document.fonts.ready.then(() => {
-      if (alive) ScrollTrigger.refresh();
+    // Hold the guard until the webfont has actually loaded. We still wait one
+    // rAF first so GSAP's from-states are laid out, THEN gate the reveal on
+    // document.fonts.ready. Releasing on the bare rAF (the previous behaviour)
+    // dropped the cover while the hero bg-words were still rendered in the
+    // fallback font — the instant Gen Interface JP swapped in, every lane
+    // reflowed and visibly "jumped" to full width before the canvas mounted.
+    // A 2s cap keeps a slow/blocked font CDN from holding the cover forever.
+    // revealAndRefresh runs ScrollTrigger.refresh() itself, so this also
+    // recalculates trigger positions against the final (swapped) font metrics.
+    const fontsSettled = Promise.race([
+      document.fonts.ready,
+      new Promise((resolve) => window.setTimeout(resolve, 2000)),
+    ]);
+    rafId = requestAnimationFrame(() => {
+      fontsSettled.then(() => revealAndRefresh());
     });
 
     const onWindowLoad = () => {

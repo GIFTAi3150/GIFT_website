@@ -2056,7 +2056,10 @@
   width: var(--slide-w);
   height: var(--slide-h);
   margin-left: calc(var(--slide-w) * -0.5);
-  margin-top: calc(var(--slide-h) * -0.5);
+  /* Vertical centering via transform (not margin-top) so the slide can be
+     auto-height on mobile without going off-center. GSAP re-applies this as
+     yPercent:-50 alongside the cascade x-offset. */
+  transform: translateY(-50%);
   clip-path: inset(
     0px
     calc(var(--clip-r) * 1px)
@@ -2070,6 +2073,32 @@
   .dx-v3 .cascade-slide {
     --slide-w: clamp(420px, 44vw, 600px);
     --slide-h: clamp(420px, 58vh, 540px);
+  }
+}
+/* Mobile: let the card grow to fit its (long, Japanese) content instead of
+   being locked to --slide-h. A fixed height + clip-path:inset(0 …) silently
+   clipped the bottom of the card on the production build, where the real
+   web font renders taller than the local fallback. With auto height the
+   card box always wraps its content, so nothing is cropped; the slider
+   floor (min 440px) leaves headroom and translateY(-50%) keeps it centered. */
+@media (max-width: 899px) {
+  /* Slider floor must clear the tallest auto-height card (F.01 ≈ 462px at the
+     240px card-width floor) so the slider's overflow:hidden never clips the
+     card box. 70vh covers tall phones; the 500px floor covers short ones. */
+  .dx-v3 .cascade-slider {
+    height: clamp(500px, 70vh, 620px);
+  }
+  .dx-v3 .cascade-slide {
+    height: auto;
+  }
+  .dx-v3 .cascade-card {
+    height: auto;
+    padding: 28px 24px;
+    gap: 16px;
+  }
+  .dx-v3 .cascade-card p {
+    font-size: 14px;
+    line-height: 1.65;
   }
 }
 @media (min-width: 900px) {
