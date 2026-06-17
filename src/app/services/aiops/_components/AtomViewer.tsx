@@ -231,7 +231,7 @@ function AtomScene({ mobile }: { mobile: boolean }) {
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} scale={mobile ? 0.62 : 1}>
       <primitive object={scene} />
       {!mobile && (
         <pointLight ref={accentLight} color="#7dd3fc" intensity={0.55} distance={5.5} decay={2} />
