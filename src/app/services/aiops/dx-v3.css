@@ -1537,12 +1537,18 @@
     font-size: clamp(22px, 7.5vw, 38px);
     line-height: 1.1;
     letter-spacing: -0.04em;
-    /* white-space: nowrap removed — "The questions you ask" at 28px is
-       ~567px wide, far exceeding the 335px mobile container; it overflowed
-       and was clipped by overflow-x:clip on .dx-v3. Word-wrap at .sp spans
-       is fine — GSAP .ch spans are inline-block so only space chars break. */
-    word-break: keep-all;
-    overflow-wrap: anywhere;
+    /* GSAP splits the heading into per-char .ch spans with display:inline-block.
+       overflow-wrap:anywhere creates a break opportunity between every adjacent
+       inline-block on Safari → 1 character per line. Let it break only at the
+       .sp space spans (normal word-wrap). No overflow-wrap override needed. */
+    word-break: normal;
+  }
+  /* Q.01-Q.04 question text: keep-all prevents CJK line breaks on 600-899px
+     tablets where the longer questions (16 chars) would overflow the column.
+     Reset to normal so CJK wraps at character boundaries. */
+  .dx-v3 .pain .q {
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   .dx-v3 .pains-pin-content .sec-head h2 .ja {
     display: block;
@@ -1645,6 +1651,15 @@
      the Q lines are short enough to fit one line on real desktops. */
 }
 @media (max-width: 600px) {
+  /* Remove the section's 32px horizontal padding so it doesn't stack on
+     top of pains-pin-content's 20px inner padding. Without this, phones
+     (375-390px) only have 211px for the question column — the 16-char
+     questions (Q.03/04) overflow. With section padding 0, the column
+     is 275px (375px phone), easily fitting all four questions. */
+  .dx-v3 .pains-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
   .dx-v3 .pain {
     grid-template-columns: 48px 1fr;
     gap: 12px;
