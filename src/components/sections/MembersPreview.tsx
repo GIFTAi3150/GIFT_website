@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -24,7 +24,7 @@ export interface MemberPreviewCard {
 export default function MembersPreview({ members }: { members: MemberPreviewCard[] }) {
   return (
     <section className="relative bg-[#060A18] overflow-hidden">
-      {/* â”€â”€ Header â”€â”€ */}
+      {/* ── Header ── */}
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8 pt-24 md:pt-32 pb-14 md:pb-16">
         <div className="flex items-end justify-between">
           <div>
@@ -42,15 +42,15 @@ export default function MembersPreview({ members }: { members: MemberPreviewCard
             href="/member"
             className="group hidden items-center gap-2 font-sans text-sm font-medium text-[#2563EB] transition-opacity hover:opacity-70 md:flex"
           >
-            ãƒãƒ¼ãƒ ã‚’è¦‹ã‚‹
+            チームを見る
             <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
-              â†’
+              →
             </span>
           </Link>
         </div>
       </div>
 
-      {/* â”€â”€ Horizontal scroll strip (native, single-pass) â”€â”€ */}
+      {/* ── Horizontal scroll strip (native, single-pass) ── */}
       <div
         className="relative overflow-x-auto overflow-y-hidden no-scrollbar"
         style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
@@ -99,15 +99,15 @@ export default function MembersPreview({ members }: { members: MemberPreviewCard
         </div>
       </div>
 
-      {/* â”€â”€ CTA (mobile) â”€â”€ */}
+      {/* ── CTA (mobile) ── */}
       <div className="flex justify-center pt-10 pb-16 md:pb-24 md:hidden">
         <Link
           href="/member"
           className="group flex items-center gap-2 rounded-full border border-[#25D366] px-6 py-3 font-sans text-sm font-medium text-[#2563EB] transition-colors duration-200 hover:bg-[#25D366] hover:text-[#111B21]"
         >
-          ãƒãƒ¼ãƒ ã‚’è¦‹ã‚‹
+          チームを見る
           <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
-            â†’
+            →
           </span>
         </Link>
       </div>

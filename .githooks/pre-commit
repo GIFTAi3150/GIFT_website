@@ -1,0 +1,4 @@
+#!/bin/sh
+# Block commits containing double-encoded UTF-8 (mojibake) or a UTF-8 BOM.
+# Activated via core.hooksPath = .githooks (set by `npm run prepare`).
+node scripts/check-encoding.mjs --staged || exit 1

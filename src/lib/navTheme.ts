@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { usePathname } from 'next/navigation';
 
@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 // The default theme matches the WhatsApp-green system the rest of the site uses.
 
 export type NavTheme = {
-  /** Base background â€” used at top of page (no scroll). */
+  /** Base background — used at top of page (no scroll). */
   bg: string;
   /** Background when the page is scrolled (with alpha). */
   bgAlpha: string;
@@ -160,7 +160,7 @@ const ACHIEVEMENTS_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
-// /privacy page palette â€” deep judicial navy + gold. Reads as law / legal authority.
+// /privacy page palette — deep judicial navy + gold. Reads as law / legal authority.
 const PRIVACY_THEME: NavTheme = {
   bg: '#1B2A4A',
   bgAlpha: 'rgba(27, 42, 74, 0.95)',
@@ -178,7 +178,7 @@ const PRIVACY_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
-// /contact page palette â€” dark navy matching the contact hero.
+// /contact page palette — dark navy matching the contact hero.
 const CONTACT_THEME: NavTheme = {
   bg: '#0b1020',
   bgAlpha: 'rgba(11, 16, 32, 0.92)',
@@ -196,7 +196,7 @@ const CONTACT_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
-// /company page palette â€” light blue-grey bg + orange accent.
+// /company page palette — light blue-grey bg + orange accent.
 const COMPANY_THEME: NavTheme = {
   bg: '#EFF6F9',
   bgAlpha: 'rgba(239, 246, 249, 0.95)',
@@ -214,7 +214,7 @@ const COMPANY_THEME: NavTheme = {
   textFaint: 'rgba(17, 27, 33, 0.40)',
 };
 
-// AI light-mode theme for the homepage â€” clean white + electric violet.
+// AI light-mode theme for the homepage — clean white + electric violet.
 // Scoped to `/` only so service pages keep their own palettes.
 const HOME_THEME: NavTheme = {
   bg: '#F0F7FF',
@@ -258,7 +258,7 @@ export function useNavTheme(): NavTheme {
   return getNavThemeForPath(pathname || '/');
 }
 
-/** CSS variable bag â€” spread into a `style` prop to expose theme tokens. */
+/** CSS variable bag — spread into a `style` prop to expose theme tokens. */
 export function navThemeVars(theme: NavTheme): Record<string, string> {
   return {
     '--nav-bg': theme.bg,

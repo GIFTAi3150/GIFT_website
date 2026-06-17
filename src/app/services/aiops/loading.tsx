@@ -1,4 +1,4 @@
-﻿// Route-transition fallback for /services/aiops.
+// Route-transition fallback for /services/aiops.
 //
 // Background must match `.dx-v3 { background: var(--paper) }` in dx-v3.css
 // (#f5f7ff). Anything else creates a visible color flash between this
