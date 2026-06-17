@@ -3370,3 +3370,35 @@
   letter-spacing: -0.01em;
   user-select: none;
 }
+
+/* ============================================================
+   Italic accent font — real italic, no faux-oblique clip
+   ------------------------------------------------------------
+   ROOT CAUSE of the mobile "purple letters cropped" bug:
+   "Gen Interface JP" (and its Display cut) ship font-style:normal
+   ONLY — there is no italic face. So every `font-style: italic`
+   accent below was a browser-SYNTHESIZED oblique: a shear of the
+   upright glyph. That shear pushes ink past the glyph box; at the
+   smaller mobile font sizes the proportional overshoot is largest,
+   so the slanted ink clipped. It was ONLY ever the purple letters
+   because only the accents are italic — the upright dark text beside
+   them (same size / line-height / container) never clipped. Swapping
+   between "Gen Interface JP" and "...Display" in earlier fixes did
+   nothing because BOTH families are normal-only.
+
+   Inter is the exact Latin skeleton Gen Interface JP is built on and
+   HAS a true italic, so these render as a real italic with zero shear
+   and no crop. Each selector reuses its original specificity and wins
+   purely on source order (this block is last in the file). Accents are
+   Latin-only; Japanese subtitles live in .ja (upright) and are
+   unaffected. Keep "Gen Interface JP" in the stack as a graceful
+   fallback for the brief window before Inter loads. */
+.dx-v3 .masthead .row .consulting,
+.dx-v3 .masthead .row.r2 em,
+.dx-v3 .sec-head h2 em,
+.dx-v3 .caps-intro h2 em,
+.dx-v3 .pain-end .ans em,
+.dx-v3 .ai-headline em,
+.dx-v3 .final h2 em {
+  font-family: "Inter", "Gen Interface JP", sans-serif;
+}

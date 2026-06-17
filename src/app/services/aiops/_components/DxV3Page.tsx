@@ -1485,6 +1485,15 @@ export default function DxV3Page() {
         );
       }
     }
+    // Real italic for the purple accents (Inter — Gen Interface JP has no
+    // italic face, so italic on it synthesizes a faux oblique that clipped on
+    // mobile). Wait for the real italic too so accents never flash the faux
+    // oblique before Inter swaps in. Glyph hint covers every accent word.
+    heroFontLoads.push(
+      document.fonts
+        .load('italic 400 1rem "Inter"', 'solveitactionbuildfullyOnepatformyuaskAIOpsCnug')
+        .catch(() => null)
+    );
     const fontsSettled = Promise.race([
       Promise.all(heroFontLoads).then(() => document.fonts.ready),
       new Promise((resolve) => window.setTimeout(resolve, 2500)),

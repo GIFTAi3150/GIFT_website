@@ -15,6 +15,12 @@ export const metadata: Metadata = {
 // the same typeface used by ai-ops-manager.com. Covers Latin + Japanese in
 // a single family so no fallback stack is needed. "Gen Interface JP Display"
 // variant is used for large headings (tighter letter-spacing).
+// Inter italic (Google Fonts) is loaded for the purple accent words ONLY:
+// Gen Interface JP ships no italic face, so `font-style: italic` on it
+// synthesizes a faux oblique whose shear clips on mobile. Inter IS Gen
+// Interface JP's Latin skeleton and HAS a real italic, so the accents render
+// as a true italic with no shear/clip. Accents are Latin-only, so Inter covers
+// them; Japanese subtitles are upright (.ja) and untouched.
 // JetBrains Mono is kept for terminal/code labels only.
 function DxFontsLink() {
   return (
@@ -28,7 +34,7 @@ function DxFontsLink() {
       />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap"
       />
     </>
   );
