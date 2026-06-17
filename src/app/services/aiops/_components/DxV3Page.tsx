@@ -1976,7 +1976,7 @@ export default function DxV3Page() {
         </div>
         <div className="wrap">
           <div className="ai-headline">
-            AI&nbsp;<em>fully</em>
+            AI <em>fully</em>
             <br />
             integrated.
           </div>
