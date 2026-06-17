@@ -229,25 +229,21 @@
     max-width: 100%;
   }
 }
-/* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
-   was wider than "DX Consulting." (~14 chars) could fit at 375px with
-   24px side padding (327px usable). Drop the min so the row scales
-   down on truly small viewports. Hero-stats gap is also tightened so
-   the three stats fit on one line where possible. */
-@media (max-width: 480px) {
-  .dx-v3 .masthead .row {
-    font-size: clamp(32px, 9vw, 48px);
-  }
-}
 .dx-v3 .masthead .row {
   font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
-  /* Bumped up so the editorial DX + italic-serif Consulting reads as
-     a real headline, not a tag overlay. */
   font-size: clamp(48px, 6.6vw, 96px);
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--ink);
+}
+/* Narrow phones — drop the clamp min so the row scales down rather than
+   overflowing the 327px usable masthead width. Must come AFTER the base
+   rule (same specificity; later wins). */
+@media (max-width: 480px) {
+  .dx-v3 .masthead .row {
+    font-size: clamp(32px, 9vw, 48px);
+  }
 }
 .dx-v3 .masthead .row .dx {
   font-family: "Gen Interface JP", sans-serif;
@@ -325,7 +321,7 @@
   color: var(--ink-2);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  overflow: hidden;
+  overflow: visible;
 }
 .dx-v3 .masthead .ja .rule {
   display: block;
@@ -1428,7 +1424,9 @@
        ry from 90 → 8 pulls the focused card right up against the lead
        copy instead of leaving a ~90px dead band above it. */
     --orbit-ry: 8px;
-    --orbit-rx: 280px;
+    /* 340px pushes side tiles (tiles ±1) fully off-screen on all phones
+       ≤390px wide, eliminating the cropped-card peek at the frame edge. */
+    --orbit-rx: 340px;
   }
   .dx-v3 .caps-orbit {
     place-items: start center;
@@ -1452,6 +1450,9 @@
   }
   /* Tighten typography so the AI活用 card (longest body copy) fits
      inside the sticky frame on small phones like iPhone SE. */
+  .dx-v3 .orbit-tile .num {
+    font-size: 36px;
+  }
   .dx-v3 .orbit-tile h3 {
     font-size: 22px;
     line-height: 1.15;
@@ -1536,10 +1537,12 @@
     font-size: clamp(22px, 7.5vw, 38px);
     line-height: 1.1;
     letter-spacing: -0.04em;
-    /* .ch character spans are display:inline-block which allows mid-word
-       breaks. white-space:nowrap prevents that; at clamp(22px,7.5vw) the
-       phrase comfortably fits even on 320px iPhone SE viewports. */
-    white-space: nowrap;
+    /* white-space: nowrap removed — "The questions you ask" at 28px is
+       ~567px wide, far exceeding the 335px mobile container; it overflowed
+       and was clipped by overflow-x:clip on .dx-v3. Word-wrap at .sp spans
+       is fine — GSAP .ch spans are inline-block so only space chars break. */
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
   .dx-v3 .pains-pin-content .sec-head h2 .ja {
     display: block;

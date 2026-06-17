@@ -596,7 +596,10 @@ export default function DxV3Page() {
           const y = Math.cos(angle) * ry;
           const front = (Math.cos(angle) + 1) / 2; // 0..1
           const scale = 0.55 + 0.45 * front;
-          const opacity = 0.25 + 0.75 * front;
+          // On mobile: quadratic curve so back tiles (front≈0) fade to 0
+          // opacity — no blur on mobile means they'd otherwise show through
+          // the front card as a ghost. Desktop keeps the flat minimum floor.
+          const opacity = isMobile ? front * front : 0.25 + 0.75 * front;
           gsap.set(tile, {
             x,
             y,
