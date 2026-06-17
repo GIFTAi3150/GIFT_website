@@ -267,11 +267,13 @@
   color: var(--ink);
 }
 .dx-v3 .masthead .row .consulting {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
-  /* Bumped slightly so the serif feels editorial rather than secondary. */
-  font-size: 1.08em;
+  /* No size bump: the old 1.08em compensated for the serif Display face
+     rendering small, but it pushed the glyph past the line-height:1 box and
+     clipped it. The regular sans italic matches its sibling at 1em. */
+  font-size: 1em;
   letter-spacing: -0.012em;
   color: var(--purple);
   /* Keep "Consulting." atomic — the scramble effect wraps each letter in
@@ -2871,7 +2873,7 @@
   margin-bottom: 56px;
 }
 .dx-v3 .ai-headline em {
-  font-family: "Gen Interface JP Display", sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: #fff;
