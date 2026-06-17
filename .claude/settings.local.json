@@ -36,7 +36,9 @@
       "Bash(curl -s https://biscom.jp/10th/ -o /tmp/biscom.html)",
       "Read(//tmp/**)",
       "Bash(Select-String -Pattern \"130svh|100svh|svh|scrollTrigger|height|sticky|end:|start:\" -Context 0,1)",
-      "Bash(curl -s \"https://biscom.jp/10th/\")"
+      "Bash(curl -s \"https://biscom.jp/10th/\")",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { $c | Select-Object -Expand OwningProcess -Unique | ForEach-Object { try { Stop-Process -Id $_ -Force -ErrorAction Stop; \"killed $_\" } catch {} } } else { \"no listener on 3100\" })",
+      "WebFetch(domain:ai-ops-manager.com)"
     ]
   }
 }

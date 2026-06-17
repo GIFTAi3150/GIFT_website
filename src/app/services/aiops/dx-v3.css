@@ -229,25 +229,21 @@
     max-width: 100%;
   }
 }
-/* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
-   was wider than "DX Consulting." (~14 chars) could fit at 375px with
-   24px side padding (327px usable). Drop the min so the row scales
-   down on truly small viewports. Hero-stats gap is also tightened so
-   the three stats fit on one line where possible. */
-@media (max-width: 480px) {
-  .dx-v3 .masthead .row {
-    font-size: clamp(32px, 9vw, 48px);
-  }
-}
 .dx-v3 .masthead .row {
   font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
-  /* Bumped up so the editorial DX + italic-serif Consulting reads as
-     a real headline, not a tag overlay. */
   font-size: clamp(48px, 6.6vw, 96px);
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--ink);
+}
+/* Narrow phones — drop the clamp min so the row scales down rather than
+   overflowing the 327px usable masthead width. Must come AFTER the base
+   rule (same specificity; later wins). */
+@media (max-width: 480px) {
+  .dx-v3 .masthead .row {
+    font-size: clamp(32px, 9vw, 48px);
+  }
 }
 .dx-v3 .masthead .row .dx {
   font-family: "Gen Interface JP", sans-serif;
@@ -325,7 +321,7 @@
   color: var(--ink-2);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  overflow: hidden;
+  overflow: visible;
 }
 .dx-v3 .masthead .ja .rule {
   display: block;
@@ -1428,7 +1424,9 @@
        ry from 90 → 8 pulls the focused card right up against the lead
        copy instead of leaving a ~90px dead band above it. */
     --orbit-ry: 8px;
-    --orbit-rx: 280px;
+    /* 340px pushes side tiles (tiles ±1) fully off-screen on all phones
+       ≤390px wide, eliminating the cropped-card peek at the frame edge. */
+    --orbit-rx: 340px;
   }
   .dx-v3 .caps-orbit {
     place-items: start center;
@@ -1452,6 +1450,9 @@
   }
   /* Tighten typography so the AI活用 card (longest body copy) fits
      inside the sticky frame on small phones like iPhone SE. */
+  .dx-v3 .orbit-tile .num {
+    font-size: 36px;
+  }
   .dx-v3 .orbit-tile h3 {
     font-size: 22px;
     line-height: 1.15;
@@ -1536,10 +1537,18 @@
     font-size: clamp(22px, 7.5vw, 38px);
     line-height: 1.1;
     letter-spacing: -0.04em;
-    /* .ch character spans are display:inline-block which allows mid-word
-       breaks. white-space:nowrap prevents that; at clamp(22px,7.5vw) the
-       phrase comfortably fits even on 320px iPhone SE viewports. */
-    white-space: nowrap;
+    /* GSAP splits the heading into per-char .ch spans with display:inline-block.
+       overflow-wrap:anywhere creates a break opportunity between every adjacent
+       inline-block on Safari → 1 character per line. Let it break only at the
+       .sp space spans (normal word-wrap). No overflow-wrap override needed. */
+    word-break: normal;
+  }
+  /* Q.01-Q.04 question text: keep-all prevents CJK line breaks on 600-899px
+     tablets where the longer questions (16 chars) would overflow the column.
+     Reset to normal so CJK wraps at character boundaries. */
+  .dx-v3 .pain .q {
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   .dx-v3 .pains-pin-content .sec-head h2 .ja {
     display: block;
@@ -1642,6 +1651,15 @@
      the Q lines are short enough to fit one line on real desktops. */
 }
 @media (max-width: 600px) {
+  /* Remove the section's 32px horizontal padding so it doesn't stack on
+     top of pains-pin-content's 20px inner padding. Without this, phones
+     (375-390px) only have 211px for the question column — the 16-char
+     questions (Q.03/04) overflow. With section padding 0, the column
+     is 275px (375px phone), easily fitting all four questions. */
+  .dx-v3 .pains-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
   .dx-v3 .pain {
     grid-template-columns: 48px 1fr;
     gap: 12px;
@@ -2038,7 +2056,10 @@
   width: var(--slide-w);
   height: var(--slide-h);
   margin-left: calc(var(--slide-w) * -0.5);
-  margin-top: calc(var(--slide-h) * -0.5);
+  /* Vertical centering via transform (not margin-top) so the slide can be
+     auto-height on mobile without going off-center. GSAP re-applies this as
+     yPercent:-50 alongside the cascade x-offset. */
+  transform: translateY(-50%);
   clip-path: inset(
     0px
     calc(var(--clip-r) * 1px)
@@ -2052,6 +2073,32 @@
   .dx-v3 .cascade-slide {
     --slide-w: clamp(420px, 44vw, 600px);
     --slide-h: clamp(420px, 58vh, 540px);
+  }
+}
+/* Mobile: let the card grow to fit its (long, Japanese) content instead of
+   being locked to --slide-h. A fixed height + clip-path:inset(0 …) silently
+   clipped the bottom of the card on the production build, where the real
+   web font renders taller than the local fallback. With auto height the
+   card box always wraps its content, so nothing is cropped; the slider
+   floor (min 440px) leaves headroom and translateY(-50%) keeps it centered. */
+@media (max-width: 899px) {
+  /* Slider floor must clear the tallest auto-height card (F.01 ≈ 462px at the
+     240px card-width floor) so the slider's overflow:hidden never clips the
+     card box. 70vh covers tall phones; the 500px floor covers short ones. */
+  .dx-v3 .cascade-slider {
+    height: clamp(500px, 70vh, 620px);
+  }
+  .dx-v3 .cascade-slide {
+    height: auto;
+  }
+  .dx-v3 .cascade-card {
+    height: auto;
+    padding: 28px 24px;
+    gap: 16px;
+  }
+  .dx-v3 .cascade-card p {
+    font-size: 14px;
+    line-height: 1.65;
   }
 }
 @media (min-width: 900px) {
