@@ -1,4 +1,4 @@
-﻿import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 import { getArticleSlugs, getPublishedMembers } from '@/lib/notion';
 import membersFallback from '@/data/members.json';
 
@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: r.priority,
   }));
 
-  // Members â€” try Notion, fall back to static JSON so sitemap always builds.
+  // Members — try Notion, fall back to static JSON so sitemap always builds.
   let memberEntries: MetadataRoute.Sitemap = [];
   try {
     const members = await getPublishedMembers();
@@ -47,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   }
 
-  // News â€” try Notion; if it fails, skip (no JSON fallback for articles).
+  // News — try Notion; if it fails, skip (no JSON fallback for articles).
   let newsEntries: MetadataRoute.Sitemap = [];
   try {
     const articles = await getArticleSlugs();
