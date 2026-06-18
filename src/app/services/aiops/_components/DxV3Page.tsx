@@ -1502,22 +1502,27 @@ export default function DxV3Page() {
       fontsSettled.then(() => revealAndRefresh());
     });
 
-    const onWindowLoad = () => {
-      if (alive) ScrollTrigger.refresh();
-    };
+    // Restore the three-point refresh lifecycle required on both hard reloads
+    // and App-Router client-side navigations. window 'load' does NOT fire on
+    // a client-side nav (SPA shell already loaded), so a cold first nav had
+    // no refresh after late font-subset reflow → pinned/scrub triggers stale
+    // → scroll animations dead. fonts.ready runs independently (not raced),
+    // the load listener covers hard reloads, and the settle timer catches any
+    // remaining late-loading assets on cold routes.
+    const refreshIfAlive = () => { if (alive) ScrollTrigger.refresh(); };
+    document.fonts.ready.then(refreshIfAlive);
     if (document.readyState === 'complete') {
-      // Already loaded — schedule via a short timeout so it lands after the
-      // initial rAF reveal above, otherwise we'd refresh twice in the same
-      // tick and waste the second call.
-      window.setTimeout(onWindowLoad, 50);
+      window.setTimeout(refreshIfAlive, 50);
     } else {
-      window.addEventListener('load', onWindowLoad, { once: true });
+      window.addEventListener('load', refreshIfAlive, { once: true });
     }
+    const settleTimer = window.setTimeout(refreshIfAlive, 1200);
 
     return () => {
       alive = false;
       cancelAnimationFrame(rafId);
-      window.removeEventListener('load', onWindowLoad);
+      window.removeEventListener('load', refreshIfAlive);
+      window.clearTimeout(settleTimer);
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
       if (lenisRaf) gsap.ticker.remove(lenisRaf);

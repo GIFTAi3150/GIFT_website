@@ -3350,6 +3350,13 @@
 
 .dx-v3 .hero-bg-lane {
   overflow: hidden;
+  /* lane-in only starts after guard drops — prevents the bg text from
+     fading in visibly on fast/warm reveals (fonts cached → guard releases
+     in ~1 rAF, but the 1s opacity animation would still be mid-play).
+     Matches the pattern used for .atom-viewer. */
+  opacity: 0;
+}
+.dx-v3:not([data-flash-guard]) .hero-bg-lane {
   animation: dx-hero-lane-in 1s ease both;
 }
 
@@ -3361,8 +3368,10 @@
   will-change: transform;
   line-height: 1.1;
 }
-.dx-v3 .hero-bg-track--ltr { animation: dx-hero-ltr var(--dur, 40s) linear infinite; }
-.dx-v3 .hero-bg-track--rtl { animation: dx-hero-rtl var(--dur, 40s) linear infinite; }
+/* Marquee tracks also gated — avoids a one-frame pop of the track at its
+   translateX(0) start position before the animation clock begins. */
+.dx-v3:not([data-flash-guard]) .hero-bg-track--ltr { animation: dx-hero-ltr var(--dur, 40s) linear infinite; }
+.dx-v3:not([data-flash-guard]) .hero-bg-track--rtl { animation: dx-hero-rtl var(--dur, 40s) linear infinite; }
 
 .dx-v3 .hero-bg-word {
   font-family: "Gen Interface JP", sans-serif;
