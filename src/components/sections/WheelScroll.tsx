@@ -6,26 +6,47 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Japanese has no spaces, so the browser may soft-wrap a line between any two
+// characters and split a word. We join natural phrase units with a zero-width
+// space (U+200B) and pair that with word-break: keep-all on the <p> so wraps
+// only ever land on phrase boundaries. Each inner array is one visual line
+// (joined by ZWSP); the outer array's lines are joined by the literal newline
+// the <p> honours via white-space: pre-line.
+const ZWSP = String.fromCharCode(0x200b);
+const segBody = (lines: string[][]) => lines.map((phrases) => phrases.join(ZWSP)).join('\n');
+
 const STEPS = [
   {
     label: 'Why',
     title: 'キッカケで、世界が変わる',
-    body: '企業が本来持つ可能性を引き出す。\nその一点に、私たちGIFTは存在します。',
+    body: segBody([
+      ['企業が', '本来持つ', '可能性を', '引き出す。'],
+      ['その一点に、', '私たち', 'GIFTは', '存在します。'],
+    ]),
   },
   {
     label: 'What',
     title: '3つの専門領域で支援する',
-    body: 'コールセンター・DXコンサル・財務コンサル。\n多角的な知見で、事業の課題を解決します。',
+    body: segBody([
+      ['コールセンター・', 'DXコンサル・', '財務コンサル。'],
+      ['多角的な', '知見で、', '事業の', '課題を', '解決します。'],
+    ]),
   },
   {
     label: 'How',
     title: '戦略から実行まで、一貫して',
-    body: '立案だけで終わらない伴走型支援。\n現場に入り込み、共に結果を出します。',
+    body: segBody([
+      ['立案だけで', '終わらない', '伴走型支援。'],
+      ['現場に', '入り込み、', '共に', '結果を', '出します。'],
+    ]),
   },
   {
     label: 'Together',
     title: '共に、未来を創る',
-    body: '関わるすべての人に、新しいキッカケを。\nGIFTと共に、新しい未来を描きましょう。',
+    body: segBody([
+      ['関わる', 'すべての', '人に、', '新しい', 'キッカケを。'],
+      ['GIFTと', '共に、', '新しい', '未来を', '描きましょう。'],
+    ]),
   },
 ] as const;
 
@@ -228,6 +249,8 @@ export default function WheelScroll() {
                       fontSize: 'clamp(18px, 2vw, 26px)',
                       lineHeight: '2',
                       whiteSpace: 'pre-line',
+                      wordBreak: 'keep-all',
+                      overflowWrap: 'anywhere',
                     }}
                   >
                     {step.body}

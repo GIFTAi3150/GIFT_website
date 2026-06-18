@@ -23,10 +23,21 @@ export default function ScrollRevealText({ sectionId }: { sectionId: string }) {
     const split = SplitText.create(paragraphs, {
       type: 'words, chars',
       autoSplit: true,
+      // The Japanese copy is segmented into phrase units with zero-width spaces
+      // (U+200B). Split "words" on that delimiter so each phrase becomes one
+      // inline-block box — the chars inside it then can't wrap mid-phrase.
+      wordDelimiter: { delimiter: String.fromCharCode(0x200b), replaceWith: '' },
       onSplit(self) {
         instance.ctx?.revert();
         const ctx = gsap.context(() => {
           const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
+          // Keep each phrase intact: an inline-block, no-wrap box only breaks
+          // between phrases, never between the characters within one.
+          gsap.set(self.words, {
+            display: 'inline-block',
+            whiteSpace: 'nowrap',
+          });
 
           gsap.set(self.chars, {
             display: 'inline-block',

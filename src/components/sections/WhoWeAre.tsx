@@ -1,6 +1,57 @@
 import ScrollRevealText from '@/components/ui/ScrollRevealText';
 import GiftIncEcho from '@/components/ui/GiftIncEcho';
 
+// Japanese has no spaces, so the browser may break a line between any two
+// characters (splitting words like 実装). We join natural phrase units with a
+// zero-width space (U+200B) so line breaks only ever fall on phrase
+// boundaries — both for static render (word-break: keep-all below) and for the
+// SplitText reveal (which splits "words" on this same delimiter).
+const ZWSP = String.fromCharCode(0x200b); // U+200B zero-width space
+
+const PARA_1 = [
+  'AIを使えば、',
+  'もっと',
+  'うまくいく——',
+  'そう',
+  '気づいたとき、',
+  'GIFTがいます。',
+  '業務の',
+  '自動化から',
+  'AIエージェントの',
+  '構築まで、',
+  'あなたの',
+  'ビジネスに',
+  '合った',
+  '形で',
+  'AIを',
+  '実装します。',
+].join(ZWSP);
+
+const PARA_2 = [
+  'ツールを',
+  '入れて',
+  '終わり、',
+  'ではありません。',
+  '導入から',
+  '運用まで',
+  '一貫して',
+  '伴走し、',
+  'AIが',
+  '本当に',
+  '「使える状態」に',
+  'なるまで',
+  '一緒に',
+  '動きます。',
+].join(ZWSP);
+
+const PARA_STYLE: React.CSSProperties = {
+  fontSize: 'clamp(18px, 2vw, 22px)',
+  lineHeight: '2',
+  wordBreak: 'keep-all',
+  overflowWrap: 'anywhere',
+  textWrap: 'pretty',
+} as React.CSSProperties;
+
 export default function WhoWeAre() {
   return (
     <section
@@ -26,17 +77,17 @@ export default function WhoWeAre() {
           <p
             data-highlight-text
             className="mb-6 w-full font-sans font-light text-white"
-            style={{ fontSize: 'clamp(18px, 2vw, 22px)', lineHeight: '2', wordBreak: 'auto-phrase', textWrap: 'pretty' } as React.CSSProperties}
+            style={PARA_STYLE}
           >
-            AIを使えば、もっとうまくいく——そう気づいたとき、GIFTがいます。業務の自動化からAIエージェントの構築まで、あなたのビジネスに合った形でAIを実装します。
+            {PARA_1}
           </p>
 
           <p
             data-highlight-text
             className="mb-10 w-full font-sans font-light text-white"
-            style={{ fontSize: 'clamp(18px, 2vw, 22px)', lineHeight: '2', wordBreak: 'auto-phrase', textWrap: 'pretty' } as React.CSSProperties}
+            style={PARA_STYLE}
           >
-            ツールを入れて終わり、ではありません。導入から運用まで一貫して伴走し、AIが本当に「使える状態」になるまで一緒に動きます。
+            {PARA_2}
           </p>
 
           <GiftIncEcho />
