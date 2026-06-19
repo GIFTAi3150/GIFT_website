@@ -9,6 +9,7 @@ import HeroClipText from '@/components/sections/HeroClipText';
 import dynamic from 'next/dynamic';
 
 const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
+const CompanySphereBg = dynamic(() => import('./_components/CompanySphereBg'), { ssr: false });
 
 export const metadata: Metadata = {
   title: '会社概要',
@@ -98,6 +99,7 @@ export default function CompanyPage() {
 
         {/* ── CEO Message / Mission ────────────────────────────────────── */}
         <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: 'rgb(156, 203, 218)' }}>
+          <CompanySphereBg variant="hero" opacity={0.85} />
 
           <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
             <SectionLabel text="MISSION" />
@@ -150,6 +152,7 @@ export default function CompanyPage() {
 
         {/* ── Vision ───────────────────────────────────────────────────── */}
         <section className="relative overflow-hidden border-t border-gift-border bg-white py-s-80">
+          <CompanySphereBg variant="strength" opacity={0.7} />
 
           {/* Oversized watermark — sits behind content, bottom-right anchor */}
           <span
@@ -202,6 +205,7 @@ export default function CompanyPage() {
                 'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(190,65,8,0.28) 0%, transparent 55%), rgba(27,23,16,0.65)',
             }}
           >
+          <CompanySphereBg variant="values" opacity={0.6} />
           <section id="js-values-section" className="relative z-10 py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
 
