@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 
 const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
 const CompanySphereBg = dynamic(() => import('./_components/CompanySphereBg'), { ssr: false });
+const StrengthDots = dynamic(() => import('./_components/StrengthDots'), { ssr: false });
 
 export const metadata: Metadata = {
   title: '会社概要',
@@ -99,7 +100,7 @@ export default function CompanyPage() {
 
         {/* ── CEO Message / Mission ────────────────────────────────────── */}
         <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: 'rgb(156, 203, 218)' }}>
-          <CompanySphereBg variant="hero" opacity={0.85} />
+          <CompanySphereBg variant="hero" opacity={0.5} colorCycle />
 
           <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
             <SectionLabel text="MISSION" />
@@ -152,7 +153,9 @@ export default function CompanyPage() {
 
         {/* ── Vision ───────────────────────────────────────────────────── */}
         <section className="relative overflow-hidden border-t border-gift-border bg-white py-s-80">
-          <CompanySphereBg variant="strength" opacity={0.7} />
+          {/* The REAL plaid Strength animation: drifting solid dots + hollow
+              rings that pop in/out (lottie.host 51f95e13 + 381382b9), recolored. */}
+          <StrengthDots opacity={0.92} />
 
           {/* Oversized watermark — sits behind content, bottom-right anchor */}
           <span
@@ -205,7 +208,9 @@ export default function CompanyPage() {
                 'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(190,65,8,0.28) 0%, transparent 55%), rgba(27,23,16,0.65)',
             }}
           >
-          <CompanySphereBg variant="values" opacity={0.6} />
+          {/* Same plaid Strength dots motion as Vision, gold-recolored for the
+              dark card + mirrored layout so it reads distinct from Vision. */}
+          <StrengthDots variant="values" opacity={0.85} />
           <section id="js-values-section" className="relative z-10 py-s-80">
           <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
 
@@ -301,8 +306,24 @@ export default function CompanyPage() {
         </div>{/* end #js-values-blc */}
 
         {/* ── Company Info ─────────────────────────────────────────────── */}
-        <section className="border-t border-gift-border bg-white py-s-80">
-          <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        <section className="relative overflow-hidden border-t border-gift-border bg-white py-s-80">
+          {/* Faint background strings — decorative only */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-6 right-0 select-none font-display font-black uppercase leading-none text-black/[0.035]"
+            style={{ fontSize: 'clamp(96px, 18vw, 240px)', letterSpacing: '-0.05em' }}
+          >
+            COMPANY
+          </span>
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-4 top-8 select-none font-forum uppercase tracking-[0.4em] text-black/[0.05]"
+            style={{ fontSize: 'clamp(11px, 1.3vw, 14px)' }}
+          >
+            Est. 2018 — Sapporo, Japan
+          </span>
+
+          <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
             <div className="mb-12">
               <SectionLabel text="COMPANY INFORMATION" />
               <h2
@@ -394,14 +415,9 @@ export default function CompanyPage() {
         </section>
 
         {/* ── CTA ──────────────────────────────────────────────────────── */}
-        <section className="border-t border-gift-border bg-[#EFF6F9] py-s-80">
-          <div className="mx-auto max-w-container px-4 text-center md:px-6 lg:px-8" data-gsap="fade">
-            <h2
-              className="mb-8 font-shippori text-gift-ink"
-              style={{ fontSize: 'clamp(24px, 3vw, 36px)', lineHeight: '1.25' }}
-            >
-              お気軽にお問い合わせください
-            </h2>
+        <section className="relative overflow-hidden border-t border-gift-border bg-[#EFF6F9] py-s-80">
+          <CompanySphereBg variant="blob" opacity={0.5} colorCycle />
+          <div className="relative z-10 mx-auto max-w-container px-4 text-center md:px-6 lg:px-8" data-gsap="fade">
             <Link href="/contact" className="cta-btn cta-btn--company">
               <span>お問い合わせ</span>
             </Link>

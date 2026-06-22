@@ -1501,6 +1501,11 @@ body.page-ready .nav-reveal {
   96%           { transform: translateX(-50%) scaleX(1.10); opacity: 0.50; }
 }
 
+@keyframes blob-hue-cycle {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .works-mascot > img,
   .works-mascot::after { animation: none; }

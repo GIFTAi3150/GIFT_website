@@ -702,9 +702,13 @@ export default function DxV3Page() {
           }
           const zIndex = 50 - Math.floor(absDist);
 
+          // Horizontal cascade offset is fed through a CSS variable (not gsap's
+          // transform) so CSS keeps ownership of the full transform string and
+          // its translateY(-50%) re-resolves live against the card's current
+          // (auto) height. Using gsap's `x`/`yPercent` here baked a stale px
+          // translate on mobile and pushed cards off-center vertically.
           gsap.set(slide, {
-            x,
-            yPercent: -50,
+            '--cascade-x': x,
             '--clip-l': clipL,
             '--clip-r': clipR,
             zIndex,

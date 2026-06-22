@@ -20,10 +20,11 @@
 import { useEffect, useRef, useState } from "react";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 
-type Variant = "hero" | "strength" | "values";
+type Variant = "hero" | "blob" | "strength" | "values";
 
 const SRC: Record<Variant, string> = {
   hero: "/lottie/company-orbit-hero.json",
+  blob: "/lottie/company-orbit-blob.json",
   strength: "/lottie/company-orbit-strength.json",
   values: "/lottie/company-orbit-values.json",
 };
@@ -34,6 +35,7 @@ const SRC: Record<Variant, string> = {
 // just show the section background). Mission = the untouched hero framing.
 const FX: Record<Variant, string> = {
   hero: "none",
+  blob: "none",
   strength: "rotate(118deg) scale(1.7)",
   values: "rotate(236deg) scale(1.7)",
 };
@@ -44,6 +46,8 @@ type Props = {
   opacity?: number;
   /** preserveAspectRatio — "slice" covers, "meet" contains */
   fit?: "slice" | "meet";
+  /** cycle hue continuously so the blob shifts through different colors */
+  colorCycle?: boolean;
   className?: string;
 };
 
@@ -51,6 +55,7 @@ export default function CompanySphereBg({
   variant = "strength",
   opacity = 0.6,
   fit = "slice",
+  colorCycle = false,
   className = "",
 }: Props) {
   const [data, setData] = useState<object | null>(null);
@@ -101,6 +106,9 @@ export default function CompanySphereBg({
           inset: 0,
           transform: FX[variant],
           transformOrigin: "center",
+          ...(colorCycle && {
+            animation: "blob-hue-cycle 8s linear infinite",
+          }),
         }}
       >
         <Lottie

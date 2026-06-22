@@ -2052,16 +2052,24 @@
   --slide-h: clamp(380px, 58vh, 480px);
   --clip-l: 0;
   --clip-r: 0;
+  --cascade-x: 0;
   position: absolute;
   top: 50%;
   left: 50%;
   width: var(--slide-w);
   height: var(--slide-h);
   margin-left: calc(var(--slide-w) * -0.5);
-  /* Vertical centering via transform (not margin-top) so the slide can be
-     auto-height on mobile without going off-center. GSAP re-applies this as
-     yPercent:-50 alongside the cascade x-offset. */
-  transform: translateY(-50%);
+  /* Vertical centering stays in CSS (translateY(-50%)) so it re-resolves live
+     against the card's CURRENT height — critical on mobile where cards are
+     auto-height. The cascade's horizontal offset is driven by GSAP through the
+     --cascade-x variable (same pattern as --clip-l/--clip-r) rather than a
+     GSAP transform, because gsap's yPercent bakes a px value against the height
+     at set-time and does NOT re-resolve when the auto-height card later settles
+     (e.g. after the web font loads) — that left mobile cards translated by the
+     wrong amount and visibly misaligned vertically. Keeping Y in pure CSS and
+     X in a variable lets CSS own the whole transform string, so neither axis
+     can go stale. */
+  transform: translate(calc(var(--cascade-x) * 1px), -50%);
   clip-path: inset(
     0px
     calc(var(--clip-r) * 1px)

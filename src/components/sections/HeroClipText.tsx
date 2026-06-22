@@ -409,6 +409,11 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
 
     /* ── Phase C — load sequence ──────────────────────────────────────── */
     const loadTl = gsap.timeline({ delay: 0.05 });
+    // Held so the scroll-out can kill it the instant scrolling starts — otherwise
+    // the still-running real-time fly-in keeps forcing the leak back to full
+    // opacity while you scroll, and the blade rides down over the revealed CEO
+    // section ("comes with me when I scroll").
+    let leakIntro: gsap.core.Tween | null = null;
 
     if (reducedMotion) {
       // Skip intro; set end states immediately, keep field static
@@ -450,6 +455,7 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         loadTl.to(leakRef.current, {
           x: 0, y: 0, rotate: 0, autoAlpha: 1, duration: 1.6, ease: 'power1.out',
         }, 1.0);
+        leakIntro = loadTl.recent() as gsap.core.Tween; // fly-in tween (killed on first scroll)
       }
 
       // 5. Scroll cue
@@ -481,6 +487,11 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
           start: 'top top',
           end: 'bottom bottom',
           scrub: true,
+          onUpdate: (self) => {
+            // The moment the user scrolls at all, abort the leak fly-in so it can't
+            // keep re-asserting full opacity over the scrub fade-out below.
+            if (self.progress > 0 && leakIntro) { leakIntro.kill(); leakIntro = null; }
+          },
           onLeave: () => stopLoop(),
           onEnterBack: () => startLoop(),
         },
@@ -501,11 +512,18 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         scrollTl.to(descRef.current, { autoAlpha: 0, ease: 'none', duration: 0.05 }, 0.33);
       }
 
-      // Orange leak flies away
+      // Orange leak fades out immediately on scroll — same reason as the cue/meta
+      // below: during the wipe the hero is a transparent overlay, and this
+      // multiply-blended blade must not linger over the CEO section the wipe
+      // reveals (it would tint it orange and the clipped blade reads "chopped").
       if (leakRef.current) {
         scrollTl.to(leakRef.current, {
-          y: -600, x: -450, rotate: -20, autoAlpha: 0, ease: 'none', duration: 0.7,
-        }, 0.1);
+          autoAlpha: 0, ease: 'none', duration: 0.12,
+          // overwrite kills any still-active fly-in on the blade; immediateRender:false
+          // makes the fade capture the live opacity at scroll-time, not the hidden
+          // mount-time value (which would no-op the fade).
+          overwrite: 'auto', immediateRender: false,
+        }, 0);
       }
 
       // Scroll cue fades out the instant scrolling begins — otherwise the line

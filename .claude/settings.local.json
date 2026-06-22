@@ -39,7 +39,11 @@
       "Bash(curl -s \"https://biscom.jp/10th/\")",
       "PowerShell($c = Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { $c | Select-Object -Expand OwningProcess -Unique | ForEach-Object { try { Stop-Process -Id $_ -Force -ErrorAction Stop; \"killed $_\" } catch {} } } else { \"no listener on 3100\" })",
       "WebFetch(domain:ai-ops-manager.com)",
-      "PowerShell(npx tsc --noEmit 2>&1 | Select-Object -First 30; \"---TSC DONE---\")"
+      "PowerShell(npx tsc --noEmit 2>&1 | Select-Object -First 30; \"---TSC DONE---\")",
+      "Bash(npm root *)",
+      "Bash(ls \"$\\(npm root -g\\)/playwright/package.json\")",
+      "Bash(ls \"$\\(npm root -g\\)/playwright-core/package.json\")",
+      "Read(//c/Users/owner/AppData/Local/ms-playwright/**)"
     ]
   }
 }
