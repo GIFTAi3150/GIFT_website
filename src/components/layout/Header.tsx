@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,12 +8,12 @@ import { useNavTheme, navThemeVars } from '@/lib/navTheme';
 import GiftLogo from '@/components/brand/GiftLogo';
 
 const navItems = [
-  { href: '/company', en: 'ABOUT', ja: 'ä¼šç¤¾æ¦‚è¦' },
-  { href: '/contact', en: 'CONTACT', ja: 'ãŠå•ã„åˆã‚ã›' },
+  { href: '/company', en: 'ABOUT', ja: '会社概要' },
+  { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
 ];
 
 const serviceItems = [
-  { href: '/services/aiops', label: 'AIOpsäº‹æ¥­', labelEn: 'AIOps' },
+  { href: '/services/aiops', label: 'AIOps事業', labelEn: 'AIOps' },
 ];
 
 export default function Header() {
@@ -29,12 +29,12 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Active link detection â€” root is exact match, others match by prefix
+  // Active link detection — root is exact match, others match by prefix
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
   const isServiceActive = pathname.startsWith('/services');
 
-  // Flash a brief green highlight on the clicked link (280ms) â€” works reliably on both desktop and mobile
+  // Flash a brief green highlight on the clicked link (280ms) — works reliably on both desktop and mobile
   const flashClick = (href: string) => {
     setClickedHref(href);
     setTimeout(() => setClickedHref(null), 280);
@@ -97,7 +97,7 @@ export default function Header() {
         <Link
           href="/"
           className="nav-reveal flex items-center"
-          aria-label="æ ªå¼ä¼šç¤¾GIFT ãƒˆãƒƒãƒ—ãƒšãƒ¼ã‚¸"
+          aria-label="株式会社GIFT トップページ"
           style={{ ['--reveal-delay' as string]: '0ms' }}
         >
           <GiftLogo
@@ -107,7 +107,7 @@ export default function Header() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="ãƒ¡ã‚¤ãƒ³ãƒŠãƒ“ã‚²ãƒ¼ã‚·ãƒ§ãƒ³">
+        <nav className="hidden items-center gap-8 md:flex" aria-label="メインナビゲーション">
           {navItems.map((item, i) => {
             // Render SERVICE dropdown at the right position
             const actualIndex = i >= serviceNavIndex ? i + 1 : i;
@@ -141,7 +141,7 @@ export default function Header() {
                           SERVICE
                         </span>
                         <span className="block h-5 font-sans text-[13px] font-medium text-[var(--nav-accent)]">
-                          äº‹æ¥­å†…å®¹
+                          事業内容
                         </span>
                       </span>
                     </span>
@@ -223,7 +223,7 @@ export default function Header() {
           style={{ ['--reveal-delay' as string]: '150ms' }}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label="ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’é–‹ã"
+          aria-label="メニューを開く"
         >
           {open ? (
             <X size={28} strokeWidth={2.5} />
@@ -239,7 +239,7 @@ export default function Header() {
       <nav
         className="fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto bg-[var(--nav-bg-full)] px-6 pb-10 pt-10 md:hidden"
         style={themeStyle}
-        aria-label="ãƒ¢ãƒã‚¤ãƒ«ãƒŠãƒ“ã‚²ãƒ¼ã‚·ãƒ§ãƒ³"
+        aria-label="モバイルナビゲーション"
       >
         {/* ABOUT */}
         <Link
@@ -257,7 +257,7 @@ export default function Header() {
           </span>
           <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
           <span className="font-sans text-[15px] font-medium text-[var(--nav-text-muted)]">
-            ä¼šç¤¾æ¦‚è¦
+            会社概要
           </span>
         </Link>
 
@@ -276,7 +276,7 @@ export default function Header() {
             </span>
             <span aria-hidden className="h-7 w-[2px] shrink-0 bg-[var(--nav-border)]" />
             <span className="font-sans text-[15px] font-medium text-[var(--nav-text-muted)]">
-              äº‹æ¥­å†…å®¹
+              事業内容
             </span>
             <svg
               className={`ml-1 h-4 w-4 text-[var(--nav-text-muted)] transition-transform duration-200 ${mobileServiceOpen ? 'rotate-180' : ''}`}

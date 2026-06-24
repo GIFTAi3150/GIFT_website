@@ -48,7 +48,7 @@ const CAPABILITIES: ReadonlyArray<{
     num: '01',
     color: 'color-paper',
     title: 'AIエージェント\n設計・構築',
-    body: '計画・推論・実行を自律的にこなすAIエージェントを設計・構築。複数ステップにわたる業務を人の介入なしにこなします。',
+    body: 'AIエージェントを設計・実装し、複雑な業務プロセスを自律化。計画・推論・実行をすべてエージェントが担い、月100時間超の定型作業を消滅させた実績。',
     tags: ['AI Agents', 'LLM', 'Autonomous'],
     lottie: '/lottie/robot-animation.json',
   },
@@ -57,7 +57,7 @@ const CAPABILITIES: ReadonlyArray<{
     num: '02',
     color: 'color-blue',
     title: 'インテリジェント\n自動化',
-    body: 'ルールベースの脆い自動化をAIパイプラインに置き換え。条件が変わっても自己修復し、人が再設定する必要はありません。',
+    body: '脆いルールベース自動化をAIパイプラインに刷新。条件変化に自己修復し、再設定コストをゼロに。導入後、月160時間分の業務が消えた事例あり。',
     tags: ['Pipelines', 'Automation', 'Self-healing'],
     lottie: '/lottie/datab-animation.json',
   },
@@ -66,7 +66,7 @@ const CAPABILITIES: ReadonlyArray<{
     num: '03',
     color: 'color-sky',
     title: 'LLM\nインテグレーション',
-    body: 'プロダクト・バックオフィス・顧客接点に言語モデルを直接組み込み。RAG・ファインチューニング・ツール呼び出しまで一貫して対応。',
+    body: '自社ナレッジにLLMを直接接続し、ハルシネーションのない業務AIを構築。RAG・ファインチューニング・API連携まで、一気通貫で設計・実装。',
     tags: ['LLM', 'RAG', 'Fine-tuning'],
     lottie: '/lottie/animation.json',
   },
@@ -75,54 +75,54 @@ const CAPABILITIES: ReadonlyArray<{
     num: '04',
     color: 'color-deep',
     title: 'AIOps\n監視・運用',
-    body: '全モデル・エージェントをリアルタイムで監視。異常検知からコスト管理まで、AIが何をしているか常に把握できる基盤を提供。',
+    body: 'すべてのAIが「何をしているか」をリアルタイムで可視化。コスト管理・異常検知・監査ログを一元化し、AIガバナンスを組織に根付かせる。',
     tags: ['Monitoring', 'Observability', 'Governance'],
     lottie: '/lottie/saas-animation.json',
   },
 ];
 
 const PAINS = [
-  { n: 'Q.01', q: '手作業が毎日繰り返される' },
-  { n: 'Q.02', q: 'データがバラバラで使えない' },
-  { n: 'Q.03', q: '顧客対応が遅すぎる' },
-  { n: 'Q.04', q: '人件費が売上を圧迫している' },
+  { n: 'Q.01', q: 'AI活用、何から始めればいい？' },
+  { n: 'Q.02', q: 'AIを入れても、業務が変わらない' },
+  { n: 'Q.03', q: '現場と経営の板挟みで推進が止まる' },
+  { n: 'Q.04', q: 'AIを使いこなせる社内人材がいない' },
 ];
 
 const FEATURES = [
   {
     id: 'F.01',
     title: 'エージェント\nオーケストレーション',
-    body: '複数のAIエージェントをタスク依存関係・リトライロジック・フォールバックで制御。どのステップも無音で失敗しない設計。',
+    body: 'エージェントが多段階タスクを計画・実行・自己修正。タスク依存・リトライ・フォールバックを完備し、どのステップも無音で失敗しない。',
     icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
   },
   {
     id: 'F.02',
     title: 'RAGパイプライン',
-    body: 'モデルの回答を自社ナレッジベースに紐づけ。ハルシネーションのない、根拠のある回答を一貫して生成。',
+    body: '社内ドキュメントをRAGで横断検索し、根拠ある回答を生成。ハルシネーションを抑え、情報アクセスを劇的に改善。',
     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
   },
   {
     id: 'F.03',
     title: 'ツール・API連携',
-    body: 'CRM・ERP・データベース・Webhookなど、あらゆる社内外システムをエージェントが直接読み書き・トリガー。',
+    body: 'CRM・ERP・データベース・Webhookを一元接続。エージェントが社内外のすべてのシステムを直接読み書きし、データサイロを解消。',
     icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
   },
   {
     id: 'F.04',
     title: 'メモリ管理',
-    body: 'セッションをまたいで文脈を保持。過去の判断・ユーザー設定・会話履歴をエージェントが自動で記憶・活用。',
+    body: '過去の判断・設定・会話履歴をエージェントが自動記憶。セッションをまたいで文脈を維持し、毎回ゼロから教える手間をなくす。',
     icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
   },
   {
     id: 'F.05',
     title: '人間参加型フロー',
-    body: '信頼スコアが閾値を下回ると、重要アクションの実行前に人間へエスカレーション。設計段階から安全な自律性を確保。',
+    body: '信頼スコアが閾値を下回った瞬間、重要アクション前に人間へエスカレーション。「任せすぎ」のリスクを設計段階から排除。',
     icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
   },
   {
     id: 'F.06',
     title: 'コスト・監査ログ',
-    body: 'リクエスト単位のトークン集計・判断トレース・コンプライアンスエクスポートを完備。全AIアクションを完全に追跡。',
+    body: 'トークン集計・判断トレース・コンプライアンスエクスポートを完備。すべてのAIアクションを追跡し、説明責任を担保。',
     icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
   },
 ];
@@ -130,17 +130,17 @@ const FEATURES = [
 const RPA_TRIO = [
   {
     title: '自律的なタスク実行',
-    body: 'エージェントが多段階の業務を計画・実行・自己修正。定型業務に人の監視は不要。',
+    body: 'エージェントが計画・実行・自己修正を一人でこなす。定型業務の監視に、人の時間は使わない。',
     icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
   },
   {
     title: 'システム横断\nインテリジェンス',
-    body: '単一のオーケストレーションレイヤーで全ソフトウェアをAIが横断。データサイロを根本から解消。',
+    body: '単一のAIレイヤーが、すべてのシステムを横断する。サイロ化したデータが、リアルタイムで繋がる。',
     icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
   },
   {
     title: '継続的な改善',
-    body: '完了したタスクがエージェントにフィードバック。精度・速度・コスト効率が自動で向上し続ける。',
+    body: 'こなしたタスクがエージェントにフィードバックされ、精度・速度・コストが自動で改善し続ける。放置するほど賢くなる。',
     icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
   },
 ];
@@ -149,12 +149,12 @@ const RPA_CARDS = [
   {
     title: 'SaaSスタートアップ',
     tools: 'GPT-4o × 社内API',
-    result: 'オンボーディング・利用アラート・更新促進をAIエージェントが自律実行。サポートチケット数60%削減。',
+    result: 'オンボーディング・利用アラート・更新促進をAIが自律実行。サポートチケット60%削減（▲60%）、対応コスト大幅圧縮。',
   },
   {
     title: '医療機関',
     tools: 'Claude 3.5 × 電子カルテ',
-    result: '診療記録をAIが要約・構造化し、医師レビュー前に完成。記録作業が患者あたり40分→5分に短縮。',
+    result: '診療記録の要約・構造化をAIが自動化。医師の記録作業が患者あたり40分→5分（▲88%）に激減。',
   },
 ];
 
@@ -168,12 +168,12 @@ const IMAGINE_EMOJIS = ['✨', '💡', '🚀'];
 // Large bold horizontal scrolling text behind the hero.
 // Straight rows — no rotation. Big font, solid brand blue.
 const HERO_BG_LANES = [
-  { words: ['AIが動かす。', '自律運用。', '業務を変える。', 'Build to Win.', 'AI最前線。', '最適化する。', 'AI駆動。'],              dur: 30, rtl: false, fs: 56, delay: 0.4 },
-  { words: ['自動化する。', 'デジタルDX。', 'Run Forever.', '変革する。', '次世代AI。', 'スマートOps。', 'AIと共に。'],             dur: 38, rtl: true,  fs: 40, delay: 0.6 },
-  { words: ['革新する。', 'LLM連携。', 'Autonomous.', '自律判断。', '業務効率化。', 'AIエージェント。'],                            dur: 34, rtl: false, fs: 52, delay: 0.8 },
-  { words: ['超自動化。', 'Build Once.', 'AI意思決定。', 'クラウドAI。', '継続改善。', 'RAGシステム。'],                            dur: 42, rtl: true,  fs: 38, delay: 1.0 },
-  { words: ['自律AI。', 'Intelligent Ops.', 'エンタープライズAI。', '24時間稼働。', 'AIオーケストレーション。'],                   dur: 28, rtl: false, fs: 48, delay: 1.2 },
-  { words: ['AIと共に進化する。', 'Build it once. Run forever.', 'AIが、未来を動かす。', '人が考え、AIが動かす。'],                 dur: 48, rtl: true,  fs: 36, delay: 1.4 },
+  { words: ['まだない仕事を。', 'AIが動かす。', '業務を変える。', 'Build to Win.', 'AI最前線。', '自律運用。', 'AI駆動。'],         dur: 30, rtl: false, fs: 56, delay: 0.4 },
+  { words: ['AIをつくる。', 'Run Forever.', '変革する組織。', '次世代AI。', 'スマートOps。', 'AIと共に。', '自動化する。'],          dur: 38, rtl: true,  fs: 40, delay: 0.6 },
+  { words: ['革新する。', 'LLM連携。', 'Autonomous.', '変化を求める。', '業務効率化。', 'AIエージェント。'],                        dur: 34, rtl: false, fs: 52, delay: 0.8 },
+  { words: ['1社に1人。', 'Build Once.', 'AI意思決定。', 'AI推進の右腕。', '継続改善。', 'RAGシステム。'],                          dur: 42, rtl: true,  fs: 38, delay: 1.0 },
+  { words: ['自律AI。', 'Intelligent Ops.', 'AIネイティブ組織。', '24時間稼働。', 'AIオーケストレーション。'],                      dur: 28, rtl: false, fs: 48, delay: 1.2 },
+  { words: ['AIと共に進化する。', 'Build it once. Run forever.', 'まだない業務を、AIでつくる。', '人が考え、AIが動かす。'],          dur: 48, rtl: true,  fs: 36, delay: 1.4 },
 ];
 
 export default function DxV3Page() {
@@ -596,7 +596,10 @@ export default function DxV3Page() {
           const y = Math.cos(angle) * ry;
           const front = (Math.cos(angle) + 1) / 2; // 0..1
           const scale = 0.55 + 0.45 * front;
-          const opacity = 0.25 + 0.75 * front;
+          // On mobile: quadratic curve so back tiles (front≈0) fade to 0
+          // opacity — no blur on mobile means they'd otherwise show through
+          // the front card as a ghost. Desktop keeps the flat minimum floor.
+          const opacity = isMobile ? front * front : 0.25 + 0.75 * front;
           gsap.set(tile, {
             x,
             y,
@@ -699,8 +702,13 @@ export default function DxV3Page() {
           }
           const zIndex = 50 - Math.floor(absDist);
 
+          // Horizontal cascade offset is fed through a CSS variable (not gsap's
+          // transform) so CSS keeps ownership of the full transform string and
+          // its translateY(-50%) re-resolves live against the card's current
+          // (auto) height. Using gsap's `x`/`yPercent` here baked a stale px
+          // translate on mobile and pushed cards off-center vertically.
           gsap.set(slide, {
-            x,
+            '--cascade-x': x,
             '--clip-l': clipL,
             '--clip-r': clipR,
             zIndex,
@@ -1459,28 +1467,66 @@ export default function DxV3Page() {
       // CSS guard to the live page, eliminating any visible gap.
       setInlineCoverActive(false);
     };
-    rafId = requestAnimationFrame(revealAndRefresh);
-
-    document.fonts.ready.then(() => {
-      if (alive) ScrollTrigger.refresh();
+    // Hold the guard until the hero webfonts have ACTUALLY downloaded, then
+    // reveal. document.fonts.ready alone was not enough: while the guard is up
+    // the hero text is visibility:hidden, so the browser never starts fetching
+    // the font, document.fonts.ready resolves immediately, the cover drops, and
+    // the hero text then swaps fallback -> Gen Interface JP and visibly
+    // "jumps"/reflows for a second. Fix: explicitly kick off the downloads with
+    // document.fonts.load(), passing the real hero glyphs (Latin + Japanese) so
+    // the CJK unicode-range subsets are fetched too, and wait for them before
+    // releasing. A 2.5s cap keeps a slow/blocked font CDN from holding the cover
+    // forever. We still wait one rAF first so GSAP's from-states are laid out;
+    // revealAndRefresh runs ScrollTrigger.refresh() against the loaded-font metrics.
+    const heroGlyphs =
+      'AIOps. まだない業務を、AIでつくる。' +
+      HERO_BG_LANES.flatMap((l) => l.words).join('');
+    const heroFontLoads: Promise<unknown>[] = [];
+    for (const family of ['"Gen Interface JP"', '"Gen Interface JP Display"']) {
+      for (const weight of ['400', '700', '800']) {
+        heroFontLoads.push(
+          document.fonts.load(`${weight} 1rem ${family}`, heroGlyphs).catch(() => null)
+        );
+      }
+    }
+    // Real italic for the purple accents (Inter — Gen Interface JP has no
+    // italic face, so italic on it synthesizes a faux oblique that clipped on
+    // mobile). Wait for the real italic too so accents never flash the faux
+    // oblique before Inter swaps in. Glyph hint covers every accent word.
+    heroFontLoads.push(
+      document.fonts
+        .load('italic 400 1rem "Inter"', 'solveitactionbuildfullyOnepatformyuaskAIOpsCnug')
+        .catch(() => null)
+    );
+    const fontsSettled = Promise.race([
+      Promise.all(heroFontLoads).then(() => document.fonts.ready),
+      new Promise((resolve) => window.setTimeout(resolve, 2500)),
+    ]);
+    rafId = requestAnimationFrame(() => {
+      fontsSettled.then(() => revealAndRefresh());
     });
 
-    const onWindowLoad = () => {
-      if (alive) ScrollTrigger.refresh();
-    };
+    // Restore the three-point refresh lifecycle required on both hard reloads
+    // and App-Router client-side navigations. window 'load' does NOT fire on
+    // a client-side nav (SPA shell already loaded), so a cold first nav had
+    // no refresh after late font-subset reflow → pinned/scrub triggers stale
+    // → scroll animations dead. fonts.ready runs independently (not raced),
+    // the load listener covers hard reloads, and the settle timer catches any
+    // remaining late-loading assets on cold routes.
+    const refreshIfAlive = () => { if (alive) ScrollTrigger.refresh(); };
+    document.fonts.ready.then(refreshIfAlive);
     if (document.readyState === 'complete') {
-      // Already loaded — schedule via a short timeout so it lands after the
-      // initial rAF reveal above, otherwise we'd refresh twice in the same
-      // tick and waste the second call.
-      window.setTimeout(onWindowLoad, 50);
+      window.setTimeout(refreshIfAlive, 50);
     } else {
-      window.addEventListener('load', onWindowLoad, { once: true });
+      window.addEventListener('load', refreshIfAlive, { once: true });
     }
+    const settleTimer = window.setTimeout(refreshIfAlive, 1200);
 
     return () => {
       alive = false;
       cancelAnimationFrame(rafId);
-      window.removeEventListener('load', onWindowLoad);
+      window.removeEventListener('load', refreshIfAlive);
+      window.clearTimeout(settleTimer);
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
       if (lenisRaf) gsap.ticker.remove(lenisRaf);
@@ -1571,7 +1617,7 @@ export default function DxV3Page() {
               </div>
               <div className="ja">
                 <span className="rule" aria-hidden />
-                <span className="ja-inner">Build it once. Run forever.</span>
+                <span className="ja-inner">まだない業務を、AIでつくる。</span>
               </div>
             </div>
           </div>
@@ -1690,8 +1736,7 @@ export default function DxV3Page() {
               <em>{splitChars('One platform.')}</em>
             </h2>
             <p className="lead">
-              AIエージェント、インテリジェント自動化、LLMインテグレーション、リアルタイム監視。
-              4つのAIOpsピラーを、ひとつのチームでワンストップ。
+              AIエージェント設計から監視・運用まで。AIが実際に動く業務プロセスを、ひとつのチームで設計・実装・運用します。
             </p>
           </div>
 
@@ -1821,8 +1866,8 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="sec-head">
             <h2>
-              Six tools, <em className="whitespace-nowrap">one platform.</em>
-              <span className="ja">AIOpsの機能</span>
+              How we <em className="whitespace-nowrap">solve it.</em>
+              <span className="ja">その課題への、6つの答え。</span>
             </h2>
           </div>
         </div>
@@ -1948,25 +1993,8 @@ export default function DxV3Page() {
           </div>
         </div>
         <div className="wrap">
-          <div
-            className="num"
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              letterSpacing: '0.25em',
-              color: '#fff',
-              textTransform: 'uppercase',
-              marginBottom: 24,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-            }}
-          >
-            <span style={{ width: 32, height: 1, background: '#fff' }} />
-            06 — Our Edge
-          </div>
           <div className="ai-headline">
-            AI&nbsp;<em>fully</em>
+            AI <em>fully</em>
             <br />
             integrated.
           </div>
@@ -1975,23 +2003,14 @@ export default function DxV3Page() {
               OUR EDGE
               <br />
               <span style={{ opacity: 0.7 }}>AIをフル活用</span>
-              <br />
-              <br />
-              <span style={{ opacity: 0.55 }}>
-                — 003 / Edge
-                <br />
-                — Process Re-design
-                <br />— Day-to-day AI
-              </span>
             </div>
             <div className="body">
               <p>
-                GIFTの独自色は、<strong>AIエージェントを実業務に深く組み込んでいる</strong>ことです。
-                自社でAIOpsを日常的に運用しているからこそ、クライアントの現場にも同じ水準の自律化を実装できます。
+                GIFTは、<strong>AIを実業務で動かしているチームです</strong>。
+                自社でAIOpsを日常運用しているからこそ、現場で通用する自律化を設計できます。
               </p>
               <p>
-                ツールを並べるだけでは終わりません。<strong>エージェントが主役の業務プロセス再設計</strong>
-                から一緒に取り組みます。
+                ツールを入れるだけでは終わりません。<strong>エージェントが主役の業務プロセス再設計</strong>から、一緒に取り組みます。
               </p>
             </div>
           </div>
@@ -2024,7 +2043,7 @@ export default function DxV3Page() {
           <h2>
             Let&rsquo;s <em>build.</em>
           </h2>
-          <p className="ja">一緒に、未来を構築しましょう。</p>
+          <p className="ja">あなたのAI推進を、私たちが動かします。</p>
           <div className="row">
             <a href="/contact" className="btn primary">
               お問い合わせ

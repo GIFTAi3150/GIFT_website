@@ -60,7 +60,7 @@
 
   background: var(--paper);
   color: var(--ink);
-  font-family: 'General Sans', 'Noto Sans JP', system-ui, sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -229,34 +229,30 @@
     max-width: 100%;
   }
 }
-/* Narrow phones (iPhone SE etc.) — the masthead's clamp min of 48px
-   was wider than "DX Consulting." (~14 chars) could fit at 375px with
-   24px side padding (327px usable). Drop the min so the row scales
-   down on truly small viewports. Hero-stats gap is also tightened so
-   the three stats fit on one line where possible. */
-@media (max-width: 480px) {
-  .dx-v3 .masthead .row {
-    font-size: clamp(32px, 9vw, 48px);
-  }
-}
 .dx-v3 .masthead .row {
-  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
-  /* Bumped up so the editorial DX + italic-serif Consulting reads as
-     a real headline, not a tag overlay. */
   font-size: clamp(48px, 6.6vw, 96px);
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--ink);
 }
+/* Narrow phones — drop the clamp min so the row scales down rather than
+   overflowing the 327px usable masthead width. Must come AFTER the base
+   rule (same specificity; later wins). */
+@media (max-width: 480px) {
+  .dx-v3 .masthead .row {
+    font-size: clamp(32px, 9vw, 48px);
+  }
+}
 .dx-v3 .masthead .row .dx {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   letter-spacing: -0.05em;
   color: var(--ink);
 }
 .dx-v3 .masthead .row .consulting {
-  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--purple);
@@ -266,16 +262,18 @@
   font-size: 1.1em;
 }
 .dx-v3 .masthead .row .dx {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   color: var(--ink);
 }
 .dx-v3 .masthead .row .consulting {
-  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
-  /* Bumped slightly so the serif feels editorial rather than secondary. */
-  font-size: 1.08em;
+  /* No size bump: the old 1.08em compensated for the serif Display face
+     rendering small, but it pushed the glyph past the line-height:1 box and
+     clipped it. The regular sans italic matches its sibling at 1em. */
+  font-size: 1em;
   letter-spacing: -0.012em;
   color: var(--purple);
   /* Keep "Consulting." atomic — the scramble effect wraps each letter in
@@ -300,7 +298,7 @@
   margin-top: 4px;
 }
 .dx-v3 .masthead .row.r2 em {
-  font-family: 'Instrument Serif', 'Noto Sans JP', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
@@ -319,13 +317,13 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 400;
   font-size: clamp(13px, 1.1vw, 16px);
   color: var(--ink-2);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  overflow: hidden;
+  overflow: visible;
 }
 .dx-v3 .masthead .ja .rule {
   display: block;
@@ -391,7 +389,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
   font-size: 11px;
 }
@@ -418,7 +416,7 @@
   display: flex;
   gap: 56px;
   white-space: nowrap;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: 16px;
   letter-spacing: 0.04em;
@@ -506,7 +504,7 @@
   background: var(--blue);
 }
 .dx-v3 .intro .text {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 300;
   font-size: clamp(24px, 4.4vw, 68px);
   line-height: 1.45;
@@ -568,7 +566,7 @@
 }
 .dx-v3 .intro-ja {
   margin-top: 32px;
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-size: clamp(13px, 1.3vw, 18px);
   letter-spacing: 0.05em;
   color: var(--ink-2);
@@ -920,7 +918,7 @@
   background: #fff;
 }
 .dx-v3 .sec-head h2 {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(40px, 7vw, 110px);
   line-height: 0.95;
@@ -931,7 +929,7 @@
   color: #fff;
 }
 .dx-v3 .sec-head h2 em {
-  font-family: 'Instrument Serif', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
@@ -942,7 +940,7 @@
 }
 .dx-v3 .sec-head h2 .ja {
   display: block;
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   font-size: 0.5em;
   color: var(--silver);
@@ -1003,7 +1001,7 @@
   padding-left: 24px;
 }
 .dx-v3 .stat .num {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(64px, 11vw, 168px);
   line-height: 0.92;
@@ -1026,7 +1024,7 @@
   margin-top: 8px;
 }
 .dx-v3 .stat .ja {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-size: 14px;
   color: var(--silver);
   font-weight: 300;
@@ -1080,7 +1078,7 @@
   background: var(--blue);
 }
 .dx-v3 .caps-intro h2 {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(40px, 9vw, 128px);
   line-height: 0.95;
@@ -1095,7 +1093,7 @@
   will-change: transform, opacity;
 }
 .dx-v3 .caps-intro h2 em {
-  font-family: 'Instrument Serif', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
@@ -1338,7 +1336,7 @@
   background: rgba(255, 255, 255, 0.08);
 }
 .dx-v3 .orbit-tile .num {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(56px, 6vw, 96px);
   line-height: 0.9;
@@ -1355,7 +1353,7 @@
   margin-bottom: 12px;
 }
 .dx-v3 .orbit-tile h3 {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(28px, 3.4vw, 48px);
   line-height: 1.1;
@@ -1428,7 +1426,9 @@
        ry from 90 → 8 pulls the focused card right up against the lead
        copy instead of leaving a ~90px dead band above it. */
     --orbit-ry: 8px;
-    --orbit-rx: 280px;
+    /* 340px pushes side tiles (tiles ±1) fully off-screen on all phones
+       ≤390px wide, eliminating the cropped-card peek at the frame edge. */
+    --orbit-rx: 340px;
   }
   .dx-v3 .caps-orbit {
     place-items: start center;
@@ -1452,6 +1452,9 @@
   }
   /* Tighten typography so the AI活用 card (longest body copy) fits
      inside the sticky frame on small phones like iPhone SE. */
+  .dx-v3 .orbit-tile .num {
+    font-size: 36px;
+  }
   .dx-v3 .orbit-tile h3 {
     font-size: 22px;
     line-height: 1.15;
@@ -1536,10 +1539,18 @@
     font-size: clamp(22px, 7.5vw, 38px);
     line-height: 1.1;
     letter-spacing: -0.04em;
-    /* .ch character spans are display:inline-block which allows mid-word
-       breaks. white-space:nowrap prevents that; at clamp(22px,7.5vw) the
-       phrase comfortably fits even on 320px iPhone SE viewports. */
-    white-space: nowrap;
+    /* GSAP splits the heading into per-char .ch spans with display:inline-block.
+       overflow-wrap:anywhere creates a break opportunity between every adjacent
+       inline-block on Safari → 1 character per line. Let it break only at the
+       .sp space spans (normal word-wrap). No overflow-wrap override needed. */
+    word-break: normal;
+  }
+  /* Q.01-Q.04 question text: keep-all prevents CJK line breaks on 600-899px
+     tablets where the longer questions (16 chars) would overflow the column.
+     Reset to normal so CJK wraps at character boundaries. */
+  .dx-v3 .pain .q {
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   .dx-v3 .pains-pin-content .sec-head h2 .ja {
     display: block;
@@ -1628,7 +1639,7 @@
      pain-selector brackets end up sized to a narrow strip instead of
      the whole question. */
   display: block;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 500;
   font-size: clamp(22px, 4.4vw, 56px);
   color: var(--ink);
@@ -1642,6 +1653,15 @@
      the Q lines are short enough to fit one line on real desktops. */
 }
 @media (max-width: 600px) {
+  /* Remove the section's 32px horizontal padding so it doesn't stack on
+     top of pains-pin-content's 20px inner padding. Without this, phones
+     (375-390px) only have 211px for the question column — the 16-char
+     questions (Q.03/04) overflow. With section padding 0, the column
+     is 275px (375px phone), easily fitting all four questions. */
+  .dx-v3 .pains-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
   .dx-v3 .pain {
     grid-template-columns: 48px 1fr;
     gap: 12px;
@@ -1667,7 +1687,7 @@
   margin: 0 auto 20px;
 }
 .dx-v3 .pain-end .ans {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(24px, 4vw, 48px);
   color: var(--ink);
@@ -1678,7 +1698,7 @@
   color: var(--blue);
 }
 .dx-v3 .pain-end .ja {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-size: 14px;
   color: var(--silver);
   margin-top: 12px;
@@ -1694,7 +1714,7 @@
     font-size: clamp(24px, min(3.5vw, 5vh), 52px);
   }
   .dx-v3 .pains-pin-frame .pain .q {
-    font-size: clamp(22px, min(3.8vw, 7vh), 52px);
+    font-size: clamp(20px, min(3.2vw, 6vh), 44px);
   }
 }
 
@@ -1761,25 +1781,25 @@
    them and the edges stays proportional at any desktop width.
 ================================================================ */
 /* Col A — far left edge */
-.dx-v3 .dr-c1  { width: 95px; height:145px; top: 58%; left: -20px;           background:var(--dr-ghost); }
-.dx-v3 .dr-c2  { width: 82px; height:125px; top: 72%; left:  18px;           background:var(--dr-solid); }
-.dx-v3 .dr-c9  { width: 74px; height:114px; top: 64%; left:   8px;           background:var(--dr-ghost); }
-.dx-v3 .dr-c10 { width: 62px; height: 96px; top: 82%; left:  72px;           background:var(--dr-solid); }
-/* Col B — left-inner (20-25% from left) */
-.dx-v3 .dr-c3  { width: 88px; height:135px; top: 62%; left: 22%;             background:var(--dr-ghost); }
-.dx-v3 .dr-c4  { width: 78px; height:120px; top: 80%; left: 25%;             background:var(--dr-solid); }
-.dx-v3 .dr-c13 { width: 56px; height: 84px; top: 65%; left: 20%;             background:var(--dr-ghost); }
-.dx-v3 .dr-c15 { width: 48px; height: 72px; top: 74%; left: 23%;             background:var(--dr-solid); }
-/* Col C — right-inner (20-25% from right) */
-.dx-v3 .dr-c5  { width: 88px; height:135px; top: 66%; right: 22%; left:auto; background:var(--dr-ghost); }
-.dx-v3 .dr-c6  { width: 78px; height:120px; top: 76%; right: 20%; left:auto; background:var(--dr-solid); }
-.dx-v3 .dr-c14 { width: 56px; height: 84px; top: 85%; right: 24%; left:auto; background:var(--dr-solid); }
-.dx-v3 .dr-c16 { width: 48px; height: 72px; top: 79%; right: 21%; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c1  { width: 95px; height:145px; top:  6%; left: -20px;           background:var(--dr-ghost); }
+.dx-v3 .dr-c2  { width: 82px; height:125px; top: 40%; left:  18px;           background:var(--dr-solid); }
+.dx-v3 .dr-c9  { width: 74px; height:114px; top: 66%; left:   8px;           background:var(--dr-ghost); }
+.dx-v3 .dr-c10 { width: 62px; height: 96px; top: 83%; left:  72px;           background:var(--dr-solid); }
+/* Col B — left-inner (18-24% from left) */
+.dx-v3 .dr-c3  { width: 88px; height:135px; top: 16%; left: 18%;             background:var(--dr-ghost); }
+.dx-v3 .dr-c4  { width: 78px; height:120px; top: 50%; left: 22%;             background:var(--dr-solid); }
+.dx-v3 .dr-c13 { width: 56px; height: 84px; top: 72%; left: 16%;             background:var(--dr-ghost); }
+.dx-v3 .dr-c15 { width: 48px; height: 72px; top: 30%; left: 24%;             background:var(--dr-solid); }
+/* Col C — right-inner (18-24% from right) */
+.dx-v3 .dr-c5  { width: 88px; height:135px; top: 10%; right: 18%; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c6  { width: 78px; height:120px; top: 44%; right: 16%; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c14 { width: 56px; height: 84px; top: 74%; right: 20%; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c16 { width: 48px; height: 72px; top: 28%; right: 22%; left:auto; background:var(--dr-ghost); }
 /* Col D — far right edge */
-.dx-v3 .dr-c7  { width: 95px; height:145px; top: 55%; right: -20px; left:auto; background:var(--dr-ghost); }
-.dx-v3 .dr-c8  { width: 82px; height:125px; top: 70%; right:  18px; left:auto; background:var(--dr-solid); }
+.dx-v3 .dr-c7  { width: 95px; height:145px; top:  4%; right: -20px; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c8  { width: 82px; height:125px; top: 36%; right:  18px; left:auto; background:var(--dr-solid); }
 .dx-v3 .dr-c11 { width: 74px; height:114px; top: 60%; right:   8px; left:auto; background:var(--dr-solid); }
-.dx-v3 .dr-c12 { width: 62px; height: 96px; top: 78%; right:  72px; left:auto; background:var(--dr-ghost); }
+.dx-v3 .dr-c12 { width: 62px; height: 96px; top: 80%; right:  72px; left:auto; background:var(--dr-ghost); }
 
 /* ── Mobile: final-CTA rects ─────────────────────────────────────────────
    On narrow viewports the desktop layout breaks in two ways:
@@ -1794,29 +1814,29 @@
      Zone A (far-left) | Zone B (left-centre) | Zone C (right-centre) | Zone D (far-right)
      top 58–84% keeps every rect in the lower half so they rise on scroll. */
 
-  /* Zone A — far left (hugs left edge like desktop) */
-  .dx-v3 .dr-c1  { left: -12px; right: auto; top: 62%; }
-  .dx-v3 .dr-c2  { left:  15px; right: auto; top: 74%; }
-  .dx-v3 .dr-c9  { left:   3px; right: auto; top: 64%; }
+  /* Zone A — far left */
+  .dx-v3 .dr-c1  { left: -12px; right: auto; top:  8%; }
+  .dx-v3 .dr-c2  { left:  15px; right: auto; top: 42%; }
+  .dx-v3 .dr-c9  { left:   3px; right: auto; top: 65%; }
   .dx-v3 .dr-c10 { left:  22px; right: auto; top: 82%; }
 
-  /* Zone B — left-centre (~65–90px from left) */
-  .dx-v3 .dr-c3  { left:  65px; right: auto; top: 67%; }
-  .dx-v3 .dr-c4  { left:  85px; right: auto; top: 82%; }
-  .dx-v3 .dr-c13 { left:  72px; right: auto; top: 60%; }
-  .dx-v3 .dr-c15 { left:  80px; right: auto; top: 76%; }
+  /* Zone B — left-inner (~60–80px from left) */
+  .dx-v3 .dr-c3  { left:  60px; right: auto; top: 18%; }
+  .dx-v3 .dr-c4  { left:  75px; right: auto; top: 52%; }
+  .dx-v3 .dr-c13 { left:  65px; right: auto; top: 72%; }
+  .dx-v3 .dr-c15 { left:  70px; right: auto; top: 32%; }
 
-  /* Zone C — right-centre (~70–85px from right) */
-  .dx-v3 .dr-c5  { right:  70px; left: auto; top: 66%; }
-  .dx-v3 .dr-c6  { right:  82px; left: auto; top: 79%; }
-  .dx-v3 .dr-c14 { right:  75px; left: auto; top: 84%; }
-  .dx-v3 .dr-c16 { right:  80px; left: auto; top: 80%; }
+  /* Zone C — right-inner (~60–80px from right) */
+  .dx-v3 .dr-c5  { right:  60px; left: auto; top: 12%; }
+  .dx-v3 .dr-c6  { right:  72px; left: auto; top: 46%; }
+  .dx-v3 .dr-c14 { right:  68px; left: auto; top: 74%; }
+  .dx-v3 .dr-c16 { right:  75px; left: auto; top: 28%; }
 
-  /* Zone D — far right (hugs right edge like desktop) */
-  .dx-v3 .dr-c7  { right: -12px; left: auto; top: 58%; }
-  .dx-v3 .dr-c8  { right:  15px; left: auto; top: 70%; }
-  .dx-v3 .dr-c11 { right:   3px; left: auto; top: 68%; }
-  .dx-v3 .dr-c12 { right:  22px; left: auto; top: 78%; }
+  /* Zone D — far right */
+  .dx-v3 .dr-c7  { right: -12px; left: auto; top:  5%; }
+  .dx-v3 .dr-c8  { right:  15px; left: auto; top: 38%; }
+  .dx-v3 .dr-c11 { right:   3px; left: auto; top: 62%; }
+  .dx-v3 .dr-c12 { right:  22px; left: auto; top: 80%; }
 }
 
 /* Ensure in-flow content paints above the deco rects */
@@ -2032,13 +2052,24 @@
   --slide-h: clamp(380px, 58vh, 480px);
   --clip-l: 0;
   --clip-r: 0;
+  --cascade-x: 0;
   position: absolute;
   top: 50%;
   left: 50%;
   width: var(--slide-w);
   height: var(--slide-h);
   margin-left: calc(var(--slide-w) * -0.5);
-  margin-top: calc(var(--slide-h) * -0.5);
+  /* Vertical centering stays in CSS (translateY(-50%)) so it re-resolves live
+     against the card's CURRENT height — critical on mobile where cards are
+     auto-height. The cascade's horizontal offset is driven by GSAP through the
+     --cascade-x variable (same pattern as --clip-l/--clip-r) rather than a
+     GSAP transform, because gsap's yPercent bakes a px value against the height
+     at set-time and does NOT re-resolve when the auto-height card later settles
+     (e.g. after the web font loads) — that left mobile cards translated by the
+     wrong amount and visibly misaligned vertically. Keeping Y in pure CSS and
+     X in a variable lets CSS own the whole transform string, so neither axis
+     can go stale. */
+  transform: translate(calc(var(--cascade-x) * 1px), -50%);
   clip-path: inset(
     0px
     calc(var(--clip-r) * 1px)
@@ -2052,6 +2083,38 @@
   .dx-v3 .cascade-slide {
     --slide-w: clamp(420px, 44vw, 600px);
     --slide-h: clamp(420px, 58vh, 540px);
+  }
+}
+/* Mobile: let the card grow to fit its (long, Japanese) content instead of
+   being locked to --slide-h. A fixed height + clip-path:inset(0 …) silently
+   clipped the bottom of the card on the production build, where the real
+   web font renders taller than the local fallback. With auto height the
+   card box always wraps its content, so nothing is cropped; the slider
+   floor (min 440px) leaves headroom and translateY(-50%) keeps it centered. */
+@media (max-width: 899px) {
+  /* Slider floor must clear the tallest auto-height card (F.01 ≈ 462px at the
+     240px card-width floor) so the slider's overflow:hidden never clips the
+     card box. 70vh covers tall phones; the 500px floor covers short ones. */
+  .dx-v3 .cascade-slider {
+    height: clamp(500px, 70vh, 620px);
+  }
+  .dx-v3 .cascade-slide {
+    height: auto;
+  }
+  /* Extra .cascade-slide ancestor bumps specificity to 3 classes so these
+     beat the base `.dx-v3 .cascade-card` rules that appear LATER in this file
+     (height:100%, padding:36px, p font-size:15px). Without the bump, equal
+     specificity + later source order meant the base rules won on mobile too
+     and this whole auto-height fix was silently a no-op (cards stayed locked
+     to --slide-h and the long Japanese copy was clipped). */
+  .dx-v3 .cascade-slide .cascade-card {
+    height: auto;
+    padding: 28px 24px;
+    gap: 16px;
+  }
+  .dx-v3 .cascade-slide .cascade-card p {
+    font-size: 14px;
+    line-height: 1.65;
   }
 }
 @media (min-width: 900px) {
@@ -2093,7 +2156,7 @@
   color: var(--blue);
 }
 .dx-v3 .cascade-card h3 {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(22px, 2.6vw, 32px);
   line-height: 1.2;
@@ -2181,7 +2244,7 @@
   color: #fff;
 }
 .dx-v3 .feat-card h3 {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(17px, 1.8vw, 22px);
   line-height: 1.25;
@@ -2235,7 +2298,7 @@
   margin-bottom: 28px;
 }
 .dx-v3 .bento .cell h3 {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   font-size: 24px;
   color: var(--ink);
@@ -2450,7 +2513,7 @@
   justify-content: center;
 }
 .dx-v3 .case-block .left .num {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: 180px;
   line-height: 0.9;
@@ -2468,7 +2531,7 @@
   margin-bottom: 14px;
 }
 .dx-v3 .case-block .left h3 {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   font-size: clamp(24px, 3.2vw, 44px);
   line-height: 1.25;
@@ -2493,7 +2556,7 @@
   padding-left: 16px;
 }
 .dx-v3 .case-block .left .pt h4 {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
   font-size: 14px;
   color: var(--ink);
@@ -2533,7 +2596,7 @@
   padding: 56px 32px;
 }
 .dx-v3 .case-vis .big-num {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(200px, 28vw, 380px);
   line-height: 0.82;
@@ -2549,7 +2612,7 @@
   text-align: center;
 }
 .dx-v3 .case-vis .theme .en {
-  font-family: 'General Sans', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
   font-size: clamp(28px, 3.6vw, 52px);
   letter-spacing: -0.02em;
@@ -2557,7 +2620,7 @@
   color: var(--blue);
 }
 .dx-v3 .case-vis .theme .ja {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 400;
   font-size: clamp(13px, 1.1vw, 16px);
   letter-spacing: 0.4em;
@@ -2651,7 +2714,7 @@
   position: absolute;
   top: 24px;
   right: 24px;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(96px, 11vw, 160px);
   line-height: 0.85;
@@ -2691,14 +2754,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
   font-size: 12px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 .dx-v3 .rpa-card .top h4 {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   font-size: clamp(20px, 2.4vw, 26px);
   color: var(--ink);
@@ -2714,7 +2777,7 @@
 }
 .dx-v3 .rpa-card .val {
   color: var(--ink);
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: 18px;
   margin-bottom: 24px;
@@ -2778,7 +2841,7 @@
   grid-row: 1 / span 2;
 }
 .dx-v3 .rpa-trio .item h4 {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 700;
   font-size: 15px;
   color: var(--ink);
@@ -2809,7 +2872,7 @@
   width: 100%;
 }
 .dx-v3 .ai-headline {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(48px, 9vw, 168px);
   line-height: 0.92;
@@ -2818,7 +2881,7 @@
   margin-bottom: 56px;
 }
 .dx-v3 .ai-headline em {
-  font-family: 'Instrument Serif', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: #fff;
@@ -2845,7 +2908,7 @@
   line-height: 1.8;
 }
 .dx-v3 .ai .body p {
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 300;
   font-size: clamp(18px, 2.2vw, 28px);
   line-height: 1.9;
@@ -2873,7 +2936,7 @@
   display: flex;
   gap: 60px;
   white-space: nowrap;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: clamp(96px, 18vw, 280px);
   line-height: 1;
@@ -2966,7 +3029,7 @@
   background: var(--blue);
 }
 .dx-v3 .final h2 {
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   /* Min dropped from 48 → 36 so "Let's build." doesn't push past the
      375px viewport on iPhone SE (with 32px side padding, only 311px
@@ -2983,14 +3046,14 @@
   }
 }
 .dx-v3 .final h2 em {
-  font-family: 'Instrument Serif', serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-style: italic;
   font-weight: 400;
   color: var(--blue);
   letter-spacing: -0.01em;
 }
 .dx-v3 .final .ja {
-  font-family: 'Noto Sans JP', 'General Sans', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 400;
   font-size: clamp(15px, 1.5vw, 20px);
   letter-spacing: 0.04em;
@@ -3009,7 +3072,7 @@
   gap: 14px;
   padding: 20px 36px;
   border-radius: 999px;
-  font-family: 'General Sans', 'Noto Sans JP', sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.02em;
@@ -3295,6 +3358,13 @@
 
 .dx-v3 .hero-bg-lane {
   overflow: hidden;
+  /* lane-in only starts after guard drops — prevents the bg text from
+     fading in visibly on fast/warm reveals (fonts cached → guard releases
+     in ~1 rAF, but the 1s opacity animation would still be mid-play).
+     Matches the pattern used for .atom-viewer. */
+  opacity: 0;
+}
+.dx-v3:not([data-flash-guard]) .hero-bg-lane {
   animation: dx-hero-lane-in 1s ease both;
 }
 
@@ -3306,12 +3376,46 @@
   will-change: transform;
   line-height: 1.1;
 }
-.dx-v3 .hero-bg-track--ltr { animation: dx-hero-ltr var(--dur, 40s) linear infinite; }
-.dx-v3 .hero-bg-track--rtl { animation: dx-hero-rtl var(--dur, 40s) linear infinite; }
+/* Marquee tracks also gated — avoids a one-frame pop of the track at its
+   translateX(0) start position before the animation clock begins. */
+.dx-v3:not([data-flash-guard]) .hero-bg-track--ltr { animation: dx-hero-ltr var(--dur, 40s) linear infinite; }
+.dx-v3:not([data-flash-guard]) .hero-bg-track--rtl { animation: dx-hero-rtl var(--dur, 40s) linear infinite; }
 
 .dx-v3 .hero-bg-word {
-  font-family: 'General Sans', 'Noto Sans JP', system-ui, sans-serif;
+  font-family: "Gen Interface JP", sans-serif;
   font-weight: 800;
   letter-spacing: -0.01em;
   user-select: none;
+}
+
+/* ============================================================
+   Italic accent font — real italic, no faux-oblique clip
+   ------------------------------------------------------------
+   ROOT CAUSE of the mobile "purple letters cropped" bug:
+   "Gen Interface JP" (and its Display cut) ship font-style:normal
+   ONLY — there is no italic face. So every `font-style: italic`
+   accent below was a browser-SYNTHESIZED oblique: a shear of the
+   upright glyph. That shear pushes ink past the glyph box; at the
+   smaller mobile font sizes the proportional overshoot is largest,
+   so the slanted ink clipped. It was ONLY ever the purple letters
+   because only the accents are italic — the upright dark text beside
+   them (same size / line-height / container) never clipped. Swapping
+   between "Gen Interface JP" and "...Display" in earlier fixes did
+   nothing because BOTH families are normal-only.
+
+   Inter is the exact Latin skeleton Gen Interface JP is built on and
+   HAS a true italic, so these render as a real italic with zero shear
+   and no crop. Each selector reuses its original specificity and wins
+   purely on source order (this block is last in the file). Accents are
+   Latin-only; Japanese subtitles live in .ja (upright) and are
+   unaffected. Keep "Gen Interface JP" in the stack as a graceful
+   fallback for the brief window before Inter loads. */
+.dx-v3 .masthead .row .consulting,
+.dx-v3 .masthead .row.r2 em,
+.dx-v3 .sec-head h2 em,
+.dx-v3 .caps-intro h2 em,
+.dx-v3 .pain-end .ans em,
+.dx-v3 .ai-headline em,
+.dx-v3 .final h2 em {
+  font-family: "Inter", "Gen Interface JP", sans-serif;
 }

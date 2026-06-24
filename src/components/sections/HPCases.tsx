@@ -1,34 +1,34 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 const CASES = [
   {
-    client: 'AIOps / ã‚«ã‚¹ã‚¿ãƒžãƒ¼ã‚µãƒãƒ¼ãƒˆ',
-    title: 'å•ã„åˆã‚ã›å¯¾å¿œã®å®Œå…¨è‡ªå‹•åŒ–ã§ä¸€æ¬¡è§£æ±ºçŽ‡98%ã‚’é”æˆ',
-    summary: 'ç¹°ã‚Šè¿”ã—æ¥­å‹™ã«è¿½ã‚ã‚Œã‚‹ã‚µãƒãƒ¼ãƒˆãƒãƒ¼ãƒ ã®è² è·ã‚’AIã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆãŒè‚©ä»£ã‚ã‚Šã€‚800ç¨®é¡žä»¥ä¸Šã®å•ã„åˆã‚ã›ã‚’ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ã§åˆ†é¡žãƒ»å›žç­”ã—ã€äººçš„å¯¾å¿œã¯æœ¬å½“ã«å¿…è¦ãªã‚±ãƒ¼ã‚¹ã ã‘ã«çµžã‚‹ã€‚',
+    client: 'AIOps / カスタマーサポート',
+    title: '問い合わせ対応の完全自動化で一次解決率98%を達成',
+    summary: '繰り返し業務に追われるサポートチームの負荷をAIエージェントが肩代わり。800種類以上の問い合わせをリアルタイムで分類・回答し、人的対応は本当に必要なケースだけに絞る。',
   },
   {
-    client: 'AIOps / ç¤¾å†…æ¥­å‹™è‡ªå‹•åŒ–',
-    title: 'æ‰¿èªãƒ»å ±å‘Šãƒ»é›†è¨ˆãƒ•ãƒ­ãƒ¼ã‚’AIãŒè‡ªå¾‹å®Ÿè¡Œã—å·¥æ•°ã‚’65%å‰Šæ¸›',
-    summary: 'è¤‡æ•°ã‚·ã‚¹ãƒ†ãƒ ã‚’ã¾ãŸãå®šåž‹æ¥­å‹™ã‚’AIã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆãŒä»£æ›¿ã€‚ãƒ‡ãƒ¼ã‚¿åŽé›†ã‹ã‚‰æ‰¿èªãƒ«ãƒ¼ãƒ†ã‚£ãƒ³ã‚°ãƒ»ãƒ¬ãƒãƒ¼ãƒˆç”Ÿæˆã¾ã§ã€æ¯Žæ—¥ç¹°ã‚Šè¿”ã•ã‚Œã¦ã„ãŸæ‰‹ä½œæ¥­ã‚’ã‚¼ãƒ­ã«ã™ã‚‹ã€‚',
+    client: 'AIOps / 社内業務自動化',
+    title: '承認・報告・集計フローをAIが自律実行し工数を65%削減',
+    summary: '複数システムをまたぐ定型業務をAIエージェントが代替。データ収集から承認ルーティング・レポート生成まで、毎日繰り返されていた手作業をゼロにする。',
   },
   {
-    client: 'AIOps / ç•°å¸¸æ¤œçŸ¥ãƒ»ã‚³ãƒ³ãƒ—ãƒ©ã‚¤ã‚¢ãƒ³ã‚¹',
-    title: 'ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ç›£è¦–ã§éšœå®³ãƒ»é•åãƒªã‚¹ã‚¯ã‚’äººæ‰‹ã‚¼ãƒ­ã§æ¤œå‡º',
-    summary: 'ãƒ­ã‚°ã‚„ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã‚’AIãŒå¸¸æ™‚ã‚¹ã‚­ãƒ£ãƒ³ã—ã€ç•°å¸¸ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’å³åº§ã«ãƒ•ãƒ©ã‚°ã€‚æ‹…å½“è€…ãŒãƒ¬ãƒãƒ¼ãƒˆã‚’ç¢ºèªã™ã‚‹ã“ã‚ã«ã¯åŽŸå› åˆ†æžã¨å¯¾å¿œæ¡ˆã¾ã§è‡ªå‹•ç”Ÿæˆã•ã‚Œã¦ã„ã‚‹ã€‚',
+    client: 'AIOps / 異常検知・コンプライアンス',
+    title: 'リアルタイム監視で障害・違反リスクを人手ゼロで検出',
+    summary: 'ログやトランザクションデータをAIが常時スキャンし、異常パターンを即座にフラグ。担当者がレポートを確認するころには原因分析と対応案まで自動生成されている。',
   },
   {
-    client: 'AIOps / ã‚µãƒ—ãƒ©ã‚¤ãƒã‚§ãƒ¼ãƒ³æœ€é©åŒ–',
-    title: 'éœ€è¦äºˆæ¸¬ã¨ç™ºæ³¨è‡ªå‹•åŒ–ã§ã‚­ãƒ£ãƒƒã‚·ãƒ¥ãƒ•ãƒ­ãƒ¼ã‚’æ”¹å–„',
-    summary: 'è²©å£²ãƒ‡ãƒ¼ã‚¿ãƒ»åœ¨åº«ãƒ»å¤–éƒ¨å¤‰æ•°ã‚’AIãŒçµ±åˆåˆ†æžã—ã€é©æ­£ç™ºæ³¨é‡ã‚’ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ç®—å‡ºã€‚éŽå‰°åœ¨åº«ã¨æ¬ å“ã‚’åŒæ™‚ã«æŠ‘ãˆãªãŒã‚‰ã€ç™ºæ³¨æ¥­å‹™ãã®ã‚‚ã®ã‚’è‡ªå‹•åŒ–ã™ã‚‹ã€‚',
+    client: 'AIOps / サプライチェーン最適化',
+    title: '需要予測と発注自動化でキャッシュフローを改善',
+    summary: '販売データ・在庫・外部変数をAIが統合分析し、適正発注量をリアルタイム算出。過剰在庫と欠品を同時に抑えながら、発注業務そのものを自動化する。',
   },
 ];
 
 // Append clones of all cards so the forward loop is seamless:
 // after the last real card (index CASES.length) we see the first clone,
-// then onTransitionEnd snaps back to 0 with no animation â†’ invisible seam.
+// then onTransitionEnd snaps back to 0 with no animation → invisible seam.
 const ITEMS = [...CASES, ...CASES];
 const GAP = 32; // px between cards
 
@@ -128,7 +128,7 @@ export default function HPCases() {
     >
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
 
-        {/* Top rule â€” matches the reference's thin animated border-heading line */}
+        {/* Top rule — matches the reference's thin animated border-heading line */}
         <div className="mb-10 h-px bg-[#111B21]" />
 
         {/* Heading row + arrow buttons */}
@@ -140,16 +140,16 @@ export default function HPCases() {
               Case
             </h2>
             <span className="bg-[#111B21] px-3 py-1.5 font-sans text-[14px] font-bold leading-normal tracking-tight text-white">
-              æ´»ç”¨äº‹ä¾‹
+              活用事例
             </span>
           </div>
 
-          {/* Square arrow buttons, top-right â€” rgba(0,0,0,0.2) background, 40Ã—40 */}
+          {/* Square arrow buttons, top-right — rgba(0,0,0,0.2) background, 40×40 */}
           <div className="flex shrink-0 gap-2.5">
             <button
               onClick={goBack}
               disabled={idx === 0}
-              aria-label="å‰ã¸"
+              aria-label="前へ"
               className="flex h-10 w-10 items-center justify-center bg-black/20 text-[#111B21] transition-colors hover:bg-[#111B21] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -158,7 +158,7 @@ export default function HPCases() {
             </button>
             <button
               onClick={advance}
-              aria-label="æ¬¡ã¸"
+              aria-label="次へ"
               className="flex h-10 w-10 items-center justify-center bg-black/20 text-[#111B21] transition-colors hover:bg-[#111B21] hover:text-white"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -195,12 +195,12 @@ export default function HPCases() {
                   overflow: 'hidden',
                 }}
               >
-                {/* Quotation mark â€” top-right, faint, serif */}
+                {/* Quotation mark — top-right, faint, serif */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute right-4 top-2 select-none font-forum text-[68px] leading-none text-[#111B21]/10"
                 >
-                  {'â€œ'}
+                  {'“'}
                 </span>
 
                 {/* Card body */}
@@ -224,7 +224,7 @@ export default function HPCases() {
                     </h3>
                   </div>
 
-                  {/* Summary â€” 2-line clamp */}
+                  {/* Summary — 2-line clamp */}
                   <p
                     className="font-sans text-[15px] leading-relaxed text-[#111B21]"
                     style={{
@@ -242,7 +242,7 @@ export default function HPCases() {
           </div>
         </div>
 
-        {/* View More â€” dark rectangle, right-aligned */}
+        {/* View More — dark rectangle, right-aligned */}
         <div className="mt-10 flex justify-end">
           <Link
             href="/services/aiops"
