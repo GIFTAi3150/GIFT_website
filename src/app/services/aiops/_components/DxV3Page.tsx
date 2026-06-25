@@ -1,32 +1,44 @@
 'use client';
 
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, Component, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
 
-class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch() { /* suppress console noise */ }
-  render() { return this.state.failed ? (this.props.fallback ?? null) : this.props.children; }
-}
-
-const AtomViewer  = dynamic(() => import('./AtomViewer'),  { ssr: false });
-const SvgLogoHero = dynamic(() => import('./SvgLogoHero'), { ssr: false });
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
+// LiquidHero is a client-only WebGL canvas; load it without SSR so the first
+// server paint stays text-only (the flash guard covers the swap-in).
+const LiquidHero = dynamic(() => import('./LiquidHero'), { ssr: false });
 
-// Split a string into per-character spans so GSAP can stagger them.
-// Spaces become non-breaking unicode spaces wrapped in a non-`.ch` span
-// so they're skipped by the cascade tween (whitespace doesn't animate).
+// Split a string into per-character `.ch` spans so GSAP can stagger them,
+// with each word's chars grouped in a `.wd` wrapper (white-space:nowrap in
+// CSS) so a word wraps as a unit and never splits mid-word — each `.ch` is
+// display:inline-block, which would otherwise create a wrap opportunity
+// between every glyph (e.g. "One" breaking into "O" / "ne"). Whitespace
+// becomes a standalone `.sp` span: the only real break opportunity, and
+// skipped by the cascade tween (whitespace doesn't animate).
 const splitChars = (text: string) =>
-  text.split('').map((c, i) => (
-    <span key={i} className={c === ' ' ? 'sp' : 'ch'}>
-      {c === ' ' ? ' ' : c}
-    </span>
-  ));
+  text.split(/(\s+)/).map((segment, si) => {
+    if (!segment) return null;
+    if (/^\s+$/.test(segment)) {
+      return (
+        <span key={si} className="sp">
+          {' '}
+        </span>
+      );
+    }
+    return (
+      <span key={si} className="wd">
+        {segment.split('').map((c, ci) => (
+          <span key={ci} className="ch">
+            {c}
+          </span>
+        ))}
+      </span>
+    );
+  });
 
 // ============================================================
 //  Static content — pulled from page-v3.html design
@@ -162,19 +174,6 @@ const RPA_CARDS = [
 // Emoji rain pulled from RecruitCta — same Osmo Supply pattern.
 // Fires when the user clicks the "imagine" pill in the intro line.
 const IMAGINE_EMOJIS = ['✨', '💡', '🚀'];
-
-// Hero background scrolling word lanes.
-// Each entry is doubled in JSX for the seamless -50% loop.
-// Large bold horizontal scrolling text behind the hero.
-// Straight rows — no rotation. Big font, solid brand blue.
-const HERO_BG_LANES = [
-  { words: ['まだない仕事を。', 'AIが動かす。', '業務を変える。', 'Build to Win.', 'AI最前線。', '自律運用。', 'AI駆動。'],         dur: 30, rtl: false, fs: 56, delay: 0.4 },
-  { words: ['AIをつくる。', 'Run Forever.', '変革する組織。', '次世代AI。', 'スマートOps。', 'AIと共に。', '自動化する。'],          dur: 38, rtl: true,  fs: 40, delay: 0.6 },
-  { words: ['革新する。', 'LLM連携。', 'Autonomous.', '変化を求める。', '業務効率化。', 'AIエージェント。'],                        dur: 34, rtl: false, fs: 52, delay: 0.8 },
-  { words: ['1社に1人。', 'Build Once.', 'AI意思決定。', 'AI推進の右腕。', '継続改善。', 'RAGシステム。'],                          dur: 42, rtl: true,  fs: 38, delay: 1.0 },
-  { words: ['自律AI。', 'Intelligent Ops.', 'AIネイティブ組織。', '24時間稼働。', 'AIオーケストレーション。'],                      dur: 28, rtl: false, fs: 48, delay: 1.2 },
-  { words: ['AIと共に進化する。', 'Build it once. Run forever.', 'まだない業務を、AIでつくる。', '人が考え、AIが動かす。'],          dur: 48, rtl: true,  fs: 36, delay: 1.4 },
-];
 
 export default function DxV3Page() {
   // Inline flash guard — CSS-independent cover that stays up until GSAP
@@ -1478,9 +1477,7 @@ export default function DxV3Page() {
     // releasing. A 2.5s cap keeps a slow/blocked font CDN from holding the cover
     // forever. We still wait one rAF first so GSAP's from-states are laid out;
     // revealAndRefresh runs ScrollTrigger.refresh() against the loaded-font metrics.
-    const heroGlyphs =
-      'AIOps. まだない業務を、AIでつくる。' +
-      HERO_BG_LANES.flatMap((l) => l.words).join('');
+    const heroGlyphs = 'AIOps. まだない業務を、AIでつくる。';
     const heroFontLoads: Promise<unknown>[] = [];
     for (const family of ['"Gen Interface JP"', '"Gen Interface JP Display"']) {
       for (const weight of ['400', '700', '800']) {
@@ -1572,42 +1569,18 @@ export default function DxV3Page() {
       </div>
 
       {/* HERO */}
-      <section className="hero" ref={heroRef}>
+      <section className="hero liquid" ref={heroRef}>
         <div className="hero-stage">
 
-          {/* BG scrolling Japanese words — z-index 0, behind canvas (z-index 1).
-              Canvas is alpha:true so text shows through transparent areas. */}
-          <div className="hero-bg" aria-hidden>
-            {HERO_BG_LANES.map((lane, i) => {
-              const doubled = [...lane.words, ...lane.words];
-              return (
-                <div
-                  key={i}
-                  className="hero-bg-lane"
-                  style={{ animationDelay: `${lane.delay}s` }}
-                >
-                  <div
-                    className={`hero-bg-track hero-bg-track--${lane.rtl ? 'rtl' : 'ltr'}`}
-                    style={{ '--dur': `${lane.dur}s` } as React.CSSProperties}
-                  >
-                    {doubled.map((w, j) => (
-                      <span
-                        key={j}
-                        className="hero-bg-word"
-                        style={{ fontSize: lane.fs, color: 'rgba(11,19,64,0.18)' }}
-                      >
-                        {w}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <WebGLBoundary fallback={<SvgLogoHero />}>
-            <AtomViewer />
-          </WebGLBoundary>
+          {/* Liquid paint backdrop (loudsrl.com port) — dark navy preset,
+              non-interactive, no shader intro. Keeps its own gentle motion;
+              fades in calmly via CSS on reveal (see .hero-liquid-canvas). */}
+          <LiquidHero
+            className="hero-liquid-canvas"
+            presetIndex={0}
+            interactive={false}
+            intro={false}
+          />
 
           <div className="hero-stage-inner">
             <div className="masthead">

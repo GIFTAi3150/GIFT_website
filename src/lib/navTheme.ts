@@ -196,22 +196,22 @@ const CONTACT_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
-// /company page palette — light blue-grey bg + orange accent.
+// /company page palette — matches the homepage AI light-mode theme.
 const COMPANY_THEME: NavTheme = {
-  bg: '#EFF6F9',
-  bgAlpha: 'rgba(239, 246, 249, 0.95)',
-  bgFull: '#EFF6F9',
-  accent: '#D95208',
-  accentDeep: '#B84010',
-  border: '#CDD0D5',
-  bgAlt: '#FFFFFF',
-  ink: '#111B21',
-  muted: '#3A3A3A',
-  logoShield: '#D95208',
-  logoInner: '#EFF6F9',
-  text: '#111B21',
-  textMuted: '#3A3A3A',
-  textFaint: 'rgba(17, 27, 33, 0.40)',
+  bg: '#F0F7FF',
+  bgAlpha: 'rgba(248, 249, 255, 0.95)',
+  bgFull: '#F0F7FF',
+  accent: '#2563EB',
+  accentDeep: '#1D4ED8',
+  border: '#BFDBFE',
+  bgAlt: '#EFF6FF',
+  ink: '#0C0E1A',
+  muted: '#5B6B8A',
+  logoShield: '#2563EB',
+  logoInner: '#ffffff',
+  text: '#0C0E1A',
+  textMuted: '#5B6B8A',
+  textFaint: 'rgba(12, 14, 26, 0.38)',
 };
 
 // AI light-mode theme for the homepage — clean white + electric violet.

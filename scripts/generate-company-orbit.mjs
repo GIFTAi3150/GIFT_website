@@ -164,8 +164,8 @@ const DOTS_SOURCES = {
   '-tall': 'scripts/company-strength-dots-tall.source.json', // tall strip (330×660)
 };
 const DOTS_PALETTES = {
-  '':        { '#ff3c1e': '#D95208', '#005aff': '#F07A30', '#202020': '#64757D' }, // vision
-  '-values': { '#ff3c1e': '#F0D372', '#005aff': '#E8B24A', '#202020': '#8A7A45' }, // values
+  '':        { '#ff3c1e': '#2563EB', '#005aff': '#60a5fa', '#202020': '#94a3b8' }, // vision  — primary blue + light blue + slate rings
+  '-values': { '#ff3c1e': '#6366F1', '#005aff': '#818CF8', '#202020': '#4F46E5' }, // values  — indigo + light indigo + deep indigo rings
 };
 for (const [paletteKey, map] of Object.entries(DOTS_PALETTES)) {
   for (const [sizeKey, srcPath] of Object.entries(DOTS_SOURCES)) {

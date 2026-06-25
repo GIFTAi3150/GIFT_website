@@ -1020,18 +1020,17 @@ body.page-ready .fade-up-word {
   color: #ffffff;
 }
 
-/* Company/about page variant — hero orange outline, white text on hover.
-   Updated to match the hero's warm orange light-leak palette. */
+/* Company/about page variant — matches homepage electric blue. */
 .cta-btn--company {
-  border-color: #D95208;
-  color: #D95208;
+  border-color: #2563EB;
+  color: #2563EB;
 }
 .cta-btn--company::before {
-  background-color: #D95208;
+  background-color: #2563EB;
 }
 .cta-btn--company:hover,
 .cta-btn--company:focus-visible {
-  border-color: #D95208;
+  border-color: #2563EB;
   color: #ffffff;
 }
 
@@ -1052,23 +1051,22 @@ body.page-ready .fade-up-word {
   box-shadow: 0 0 0 4px #2563EB;
 }
 
-/* Company/about page — animated-button in hero orange (Google Maps button in Access section).
-   Mirrors the base .animated-button but with hero orange replacing oxblood. */
+/* Company/about page — animated-button in HP electric blue (Google Maps button in Access section). */
 .animated-button--company {
-  color: #D95208;
-  box-shadow: 0 0 0 2px #D95208;
+  color: #2563EB;
+  box-shadow: 0 0 0 2px #2563EB;
 }
 .animated-button--company svg {
-  fill: #D95208;
+  fill: #2563EB;
 }
 .animated-button--company .circle {
-  background-color: #D95208;
+  background-color: #2563EB;
 }
 .animated-button--company:hover {
   color: #212121;
 }
 .animated-button--company:active {
-  box-shadow: 0 0 0 4px #D95208;
+  box-shadow: 0 0 0 4px #2563EB;
 }
 
 @media (prefers-reduced-motion: reduce) {

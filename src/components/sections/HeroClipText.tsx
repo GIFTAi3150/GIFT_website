@@ -166,7 +166,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
   const clipIncRef   = useRef<SVGTextElement>(null);
   const lettersRef   = useRef<HTMLDivElement>(null);
   const descRef      = useRef<HTMLDivElement>(null);
-  const leakRef      = useRef<HTMLImageElement>(null);
   const scrollRef    = useRef<HTMLDivElement>(null);
   const metaRef      = useRef<HTMLDivElement>(null);
   const rafRef       = useRef<number>(0);
@@ -409,12 +408,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
 
     /* ── Phase C — load sequence ──────────────────────────────────────── */
     const loadTl = gsap.timeline({ delay: 0.05 });
-    // Held so the scroll-out can kill it the instant scrolling starts — otherwise
-    // the still-running real-time fly-in keeps forcing the leak back to full
-    // opacity while you scroll, and the blade rides down over the revealed CEO
-    // section ("comes with me when I scroll").
-    let leakIntro: gsap.core.Tween | null = null;
-
     if (reducedMotion) {
       // Skip intro; set end states immediately, keep field static
       state.showProgress = 1;
@@ -422,8 +415,8 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
       if (lettersRef.current)  gsap.set(lettersRef.current,  { clipPath: 'inset(0 0% 0 0)' });
       if (descRef.current)     gsap.set(descRef.current,     { autoAlpha: 1, y: 0 });
       if (scrollRef.current)   gsap.set(scrollRef.current,   { autoAlpha: 1 });
-      if (leakRef.current)     gsap.set(leakRef.current,     { autoAlpha: 1, x: 0, y: 0, rotate: 0 });
       if (metaRef.current)     gsap.set(metaRef.current,     { autoAlpha: 1 });
+
     } else {
       // 1. Grey overlay fade out + uShowProgress grey→texture in parallel
       if (overlayRef.current)
@@ -449,21 +442,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         loadTl.to(descRef.current, { y: 0, autoAlpha: 1, duration: 1.2, ease: 'power4.out' }, 1.0);
       }
 
-      // 4. Orange leak fly-in from upper-right (biscom §1.4 step 6)
-      if (leakRef.current) {
-        gsap.set(leakRef.current, { x: '15vw', y: '30vh', rotate: 18, autoAlpha: 0 });
-        loadTl.to(leakRef.current, {
-          x: 0, y: 0, rotate: 0, autoAlpha: 1, duration: 1.6, ease: 'power1.out',
-        }, 1.0);
-        leakIntro = loadTl.recent() as gsap.core.Tween; // fly-in tween (killed on first scroll)
-      }
-
-      // 5. Scroll cue
-      if (scrollRef.current) {
-        gsap.set(scrollRef.current, { autoAlpha: 0 });
-        loadTl.to(scrollRef.current, { autoAlpha: 1, duration: 0.2 }, 1.5);
-      }
-
       // 6. Editorial frame + corner meta — staggered fade after letters land
       if (metaRef.current) {
         const items = Array.from(metaRef.current.children);
@@ -473,6 +451,24 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         }, 1.2);
       }
     }
+
+    // Scroll cue: show after 1.5 s, hide the instant the user first scrolls.
+    // Kept entirely outside loadTl/scrollTl to avoid scrub state conflicts —
+    // the old scrollTl.to captured autoAlpha:0 (from gsap.set) as its "from"
+    // value, making it a no-op once loadTl later raised it to 1.
+    gsap.set(scrollRef.current, { autoAlpha: 0 });
+    let scrollCueTween: gsap.core.Tween | null = null;
+    const hideScrollCue = () => {
+      if (scrollCueTween) { scrollCueTween.kill(); scrollCueTween = null; }
+      gsap.to(scrollRef.current, { autoAlpha: 0, duration: 0.2, overwrite: true });
+      window.removeEventListener('scroll', hideScrollCue);
+    };
+    if (!reducedMotion) {
+      scrollCueTween = gsap.delayedCall(1.5, () => {
+        scrollCueTween = gsap.to(scrollRef.current, { autoAlpha: 1, duration: 0.2 });
+      });
+    }
+    window.addEventListener('scroll', hideScrollCue, { passive: true, once: true });
 
     window.dispatchEvent(new Event('gift:logo-ready'));
     window.addEventListener('resize', resize);
@@ -487,11 +483,7 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
           start: 'top top',
           end: 'bottom bottom',
           scrub: true,
-          onUpdate: (self) => {
-            // The moment the user scrolls at all, abort the leak fly-in so it can't
-            // keep re-asserting full opacity over the scrub fade-out below.
-            if (self.progress > 0 && leakIntro) { leakIntro.kill(); leakIntro = null; }
-          },
+          onUpdate: () => {},
           onLeave: () => stopLoop(),
           onEnterBack: () => startLoop(),
         },
@@ -512,27 +504,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         scrollTl.to(descRef.current, { autoAlpha: 0, ease: 'none', duration: 0.05 }, 0.33);
       }
 
-      // Orange leak fades out immediately on scroll — same reason as the cue/meta
-      // below: during the wipe the hero is a transparent overlay, and this
-      // multiply-blended blade must not linger over the CEO section the wipe
-      // reveals (it would tint it orange and the clipped blade reads "chopped").
-      if (leakRef.current) {
-        scrollTl.to(leakRef.current, {
-          autoAlpha: 0, ease: 'none', duration: 0.12,
-          // overwrite kills any still-active fly-in on the blade; immediateRender:false
-          // makes the fade capture the live opacity at scroll-time, not the hidden
-          // mount-time value (which would no-op the fade).
-          overwrite: 'auto', immediateRender: false,
-        }, 0);
-      }
-
-      // Scroll cue fades out the instant scrolling begins — otherwise the line
-      // stays at full opacity and floats over the CEO message the column-wipe
-      // reveals behind the (transparent, pointer-events-none) hero.
-      if (scrollRef.current) {
-        scrollTl.to(scrollRef.current, { autoAlpha: 0, ease: 'none', duration: 0.06 }, 0);
-      }
-
       // Frame + corner meta fade out with the cue — same reason: the hero layer
       // is a transparent overlay during the wipe, these must not float over the
       // revealed content.
@@ -547,7 +518,9 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('scroll', hideScrollCue);
       canvas.removeEventListener('webglcontextlost', onLost, true);
+      if (scrollCueTween) scrollCueTween.kill();
       loadTl.kill();
       if (scrollTl) { scrollTl.scrollTrigger?.kill(); scrollTl.kill(); }
     };
@@ -681,21 +654,16 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
           </p>
         </div>
 
-        {/* Layer 3 — orange light-leak blade (hard-light, upper-right, DOM img) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={leakRef}
-          src="/company/hero-leak.webp"
-          alt=""
+        {/* Layer 3 — blue light-leak gradient (top-right, pure CSS — no GSAP state) */}
+        <div
           aria-hidden
           style={{
             position: 'absolute',
-            right: '-5vw', top: '-5svh',
-            width: '68vw',
+            inset: 0,
+            background: 'radial-gradient(ellipse 70% 55% at 92% 0%, rgba(37,99,235,0.22) 0%, transparent 65%)',
             mixBlendMode: 'multiply',
             pointerEvents: 'none',
             zIndex: 4,
-            opacity: 0,
           }}
         />
 
