@@ -22,7 +22,7 @@
  * the section is offscreen or the tab is hidden, freezes on reduced-motion.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /* ----------------------------------------------------------------------------
  * Presets — lifted 1:1 from loudsrl's `liquidBackground` config array.
@@ -47,11 +47,13 @@ export type LiquidPreset = {
 };
 
 export const LIQUID_PRESETS: LiquidPreset[] = [
-  // 0 — HERO: dark navy / liquid chrome. Tuned so the chrome is visible at EVERY
-  // animation phase (loudsrl's exact values swept bright veins in/out, leaving
-  // the frame near-black at rest): low contrast broadens the veins, high lighting
-  // keeps them bright, colour3 lifted off pure black so voids read as navy.
-  { spinRotation: 0, spinSpeed: 3, colour1: '#1a1a5c', colour2: '#a6a7c2', colour3: '#101038', contrast: 2.0, lighting: 0.9, spinAmount: 0.4, pixelFilter: 10000, grainStrength: 0.2, useGrain: false, effectDepth: 10 },
+  // 0 — HERO: deep indigo / bright liquid chrome. The old values rendered a
+  // near-black field on this sparse hero (the swirl's dark navy ≈ the page bg,
+  // so everything but one vein read as empty). Lifted across the board so the
+  // liquid paint is clearly PRESENT: brighter base + chrome, broad veins (low
+  // contrast), high lighting. A hard brightness floor in main() guarantees no
+  // pixel ever collapses below a visible indigo regardless of swirl phase.
+  { spinRotation: 0, spinSpeed: 4, colour1: '#2f35a0', colour2: '#cdd0f5', colour3: '#1b2068', contrast: 2.6, lighting: 0.6, spinAmount: 0.5, pixelFilter: 10000, grainStrength: 0.2, useGrain: false, effectDepth: 10 },
   // 1 — terracotta
   { spinRotation: 3, spinSpeed: 10, colour1: '#CF907B', colour2: '#DDB1A3', colour3: '#CF907B', contrast: 1.5, lighting: 0, spinAmount: 0.85, pixelFilter: 10000, grainStrength: 0.2, useGrain: false, effectDepth: 4 },
   // 2 — periwinkle blue (fits our --blue identity)
@@ -158,7 +160,14 @@ vec4 effect(vec2 screenSize, vec2 screen_coords){
 }
 
 void main(){
-  gl_FragColor = effect(iResolution.xy, gl_FragCoord.xy);
+  vec4 c = effect(iResolution.xy, gl_FragCoord.xy);
+  // No brightness floor — it washed the veins into a flat field. The dark
+  // high-contrast preset (yesterday's approved look) keeps the chrome visible
+  // on its own. Force fully opaque: the canvas is alpha:true/premultipliedAlpha
+  // :false, so pinning a=1 stops the CSS fallback on .hero.liquid bleeding
+  // THROUGH the live paint. On context loss nothing draws, the canvas is
+  // transparent, and the CSS fallback shows as intended.
+  gl_FragColor = vec4(c.rgb, 1.0);
 }`;
 
 /* hex "#rrggbb" -> [r,g,b] 0..1 */
@@ -187,6 +196,14 @@ type Props = {
 // chaos and resolves (eased) to the rest preset, like a signal locking in.
 // Colours stay on the rest preset throughout (the look stays dark); only the
 // structure/sharpness params animate.
+// After a real context loss the browser may fire `webglcontextrestored`
+// once it can hand back a working context. We rebuild on that signal, but
+// cap total attempts: on a wedged GPU (TDR / "guilty origin") the loss can
+// recur immediately, and an uncapped loss→restore→loss loop would peg the
+// CPU. Past the cap we stop and let the baked CSS fallback on .hero.liquid
+// carry the hero (a static indigo field, never a dead black rectangle).
+const MAX_RESTORES = 3;
+
 const CHAOS = {
   pixelFilter: 34, // heavy blockiness (rest ~10000 = smooth)
   spinSpeed: 14, // fast churn (rest 2)
@@ -215,10 +232,16 @@ export default function LiquidHero({
   presetsRef.current = presets;
   const interactiveRef = useRef(interactive);
   interactiveRef.current = interactive;
+  // Bumped by `webglcontextrestored` to re-run the init effect on a fresh
+  // context. restoreAttemptsRef persists across re-runs to enforce MAX_RESTORES.
+  const [restoreKey, setRestoreKey] = useState(0);
+  const restoreAttemptsRef = useRef(0);
 
   useEffect(() => {
+    const LOG = (...a: unknown[]) => console.log('[LH]', ...a);
+    LOG('mount (build diag-2026-06-26) restoreKey=', restoreKey);
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) { LOG('ABORT: no canvas ref'); return; }
 
     const gl = canvas.getContext('webgl', {
       alpha: true,
@@ -226,15 +249,33 @@ export default function LiquidHero({
       antialias: true,
       powerPreference: 'high-performance',
     });
-    if (!gl) return;
+    if (!gl) { LOG('ABORT: getContext(webgl) === null — browser refused a WebGL context'); return; }
+    {
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      LOG('context OK | renderer=', dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : '(no debug ext)',
+          '| isContextLost=', gl.isContextLost());
+    }
 
     // Repo convention: block context-loss restoration on a dying canvas
     // (capture phase, preventDefault); never call loseContext() ourselves.
     const onLost = (e: Event) => {
       e.preventDefault();
       cancelAnimationFrame(rafRef.current);
+      LOG('*** webglcontextlost *** statusMessage=', (e as WebGLContextEvent).statusMessage || '(none)');
     };
     canvas.addEventListener('webglcontextlost', onLost, true);
+
+    // Recovery: when the browser restores the context (transient driver
+    // hiccup / GPU process recycle), rebuild by re-running this effect on a
+    // fresh context — but only up to MAX_RESTORES, so a permanently-wedged
+    // GPU falls through to the static CSS field instead of looping forever.
+    const onRestored = () => {
+      LOG('webglcontextrestored — attempt', restoreAttemptsRef.current + 1, 'of', MAX_RESTORES);
+      if (restoreAttemptsRef.current >= MAX_RESTORES) { LOG('restore cap reached — staying on CSS fallback'); return; }
+      restoreAttemptsRef.current += 1;
+      setRestoreKey((k) => k + 1);
+    };
+    canvas.addEventListener('webglcontextrestored', onRestored, true);
 
     const sh = (type: number, src: string) => {
       const s = gl.createShader(type)!;
@@ -312,6 +353,8 @@ export default function LiquidHero({
       canvas.width = Math.max(2, Math.floor(r.width * SCALE));
       canvas.height = Math.max(2, Math.floor(r.height * SCALE));
       gl.viewport(0, 0, canvas.width, canvas.height);
+      LOG('resize: cssRect', Math.round(r.width) + 'x' + Math.round(r.height),
+          '-> drawBuffer', canvas.width + 'x' + canvas.height);
     };
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
@@ -331,16 +374,22 @@ export default function LiquidHero({
 
     // --- pause offscreen / hidden tab ---
     let visible = true;
-    const io = new IntersectionObserver(([entry]) => (visible = entry.isIntersecting), {
+    const io = new IntersectionObserver(([entry]) => {
+      const was = visible;
+      visible = entry.isIntersecting;
+      if (was !== visible) LOG('visibility ->', visible);
+    }, {
       threshold: 0,
     });
     io.observe(canvas);
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    LOG('prefers-reduced-motion =', reduced, reduced ? '(!! animation FROZEN: iTime pinned to 0)' : '', '| intro=', intro);
     // reduced-motion or intro disabled -> skip straight to rest
     const introSec = intro && !reduced ? introMs / 1000 : 0;
 
     const t0 = performance.now();
+    let drawCount = 0;
     const frame = (now: number) => {
       rafRef.current = requestAnimationFrame(frame);
       if (!visible || document.hidden) return;
@@ -411,6 +460,9 @@ export default function LiquidHero({
 
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+      drawCount++;
+      if (drawCount === 1) LOG('first frame drawn OK | buffer', canvas.width + 'x' + canvas.height, '| reduced=', reduced);
+      else if (drawCount === 150) LOG('150 frames drawn OK — render loop healthy');
     };
     rafRef.current = requestAnimationFrame(frame);
 
@@ -420,10 +472,12 @@ export default function LiquidHero({
       ro.disconnect();
       io.disconnect();
       canvas.removeEventListener('webglcontextlost', onLost, true);
+      canvas.removeEventListener('webglcontextrestored', onRestored, true);
     };
-    // shaders + listeners are static; morph reads refs, so no deps needed.
+    // restoreKey re-runs this effect to rebuild on a restored context; the
+    // morph reads refs so prop changes don't need to re-init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [restoreKey]);
 
   return (
     <canvas

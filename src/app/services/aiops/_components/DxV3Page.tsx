@@ -8,9 +8,15 @@ import dynamic from 'next/dynamic';
 
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
-// LiquidHero is a client-only WebGL canvas; load it without SSR so the first
-// server paint stays text-only (the flash guard covers the swap-in).
-const LiquidHero = dynamic(() => import('./LiquidHero'), { ssr: false });
+// Liquid-paint hero backdrop — faithful R3F/three.js port of loudsrl.com's
+// "Balatro" swirl shader (LiquidHeroBackground → LiquidHeroCanvas →
+// LiquidHeroScene). It code-splits the WebGL bundle internally (ssr:false) and
+// falls back to the GPU-free CSS "liquid" field (dx-v3.css .hero.liquid) when
+// WebGL is unavailable or the context is lost. The earlier raw-WebGL-1 port
+// was replaced: it black-screened on integrated AMD because WebGL1 can clamp
+// `precision highp float` to mediump; three.js renders on WebGL2 (guaranteed
+// highp), which is how loudsrl runs the identical shader on the same GPUs.
+import LiquidHeroBackground from './LiquidHeroBackground';
 
 // Split a string into per-character `.ch` spans so GSAP can stagger them,
 // with each word's chars grouped in a `.wd` wrapper (white-space:nowrap in
@@ -184,6 +190,7 @@ export default function DxV3Page() {
   const [inlineCoverActive, setInlineCoverActive] = useState(true);
 
   const heroRef = useRef<HTMLElement | null>(null);
+  const inlineCoverRef = useRef<HTMLDivElement | null>(null);
   const progRef = useRef<HTMLDivElement | null>(null);
   const rainContainerRef = useRef<HTMLDivElement | null>(null);
   const rainRunningRef = useRef(false);
@@ -1114,25 +1121,16 @@ export default function DxV3Page() {
       });
     };
 
-    // Hero masthead rows — split into chars, then fire the scramble
-    // immediately on page load. Previously this fired on first scroll,
-    // but first-scroll is now the warp interstitial's trigger, so the
-    // two would race. Firing on mount = visitor sees the decode on
-    // landing, then scrolls to enter the warp.
+    // Hero masthead rows — split into chars on mount so the layout is final
+    // while the guard is up. The scramble itself is NOT fired here: it's
+    // triggered from revealAndRefresh (below) as the dark load cover lifts, so
+    // the visitor actually SEES the decode on landing instead of it completing
+    // hidden behind the cover during the font-load wait.
     const heroRows = Array.from(
       document.querySelectorAll<HTMLElement>('.dx-v3 .masthead .row')
     );
     heroRows.forEach((row) => {
       if (!row.querySelector('.ch')) splitInto(row, '');
-    });
-    heroRows.forEach((row, i) => {
-      const chars = Array.from(row.querySelectorAll<HTMLElement>('.ch'));
-      if (!chars.length) return;
-      scrambleSpans(chars, {
-        startDelay: i * 0.18,
-        stagger: 0.03,
-        charDuration: 0.5,
-      });
     });
 
     document
@@ -1224,6 +1222,63 @@ export default function DxV3Page() {
           triggers.push(dotTrigger);
         }
       });
+
+    // ---- Shutter scroll transition — hero exit (Osmo Supply pattern) ----
+    // Uses clip-path (not scaleY) so rows are truly invisible before they
+    // animate. scaleY:0 paints a 1px hairline at the transform-origin even
+    // at zero scale, which appeared as "2 strings" at the top of the hero
+    // while the last rows waited for their stagger turn. clip-path clips
+    // the element to zero and paints nothing — no hairlines.
+    // inset(100% 0 0 0) = clipped 100% from the top = fully hidden.
+    // inset(0% 0 0 0) = no clip = fully visible.
+    // stagger from:'end' fires the bottommost row first → hero closes upward.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const shutterEl = document.querySelector<HTMLElement>('.dx-v3 .shutter-overlay');
+      if (shutterEl && heroRef.current) {
+        shutterEl.innerHTML = ''; // clear HMR/StrictMode leftovers
+        const rowCount = isMobile ? 8 : 14;
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < rowCount; i++) {
+          const row = document.createElement('div');
+          row.className = 'shutter-row';
+          frag.appendChild(row);
+        }
+        shutterEl.appendChild(frag);
+
+        const shutterRows = Array.from(
+          shutterEl.querySelectorAll<HTMLElement>('.shutter-row')
+        );
+        gsap.set(shutterRows, { clipPath: 'inset(100% 0 0 0)' });
+
+        // Desktop gets more scrub lag (Lenis butters the scroll so extra lag
+        // reads as silk). Mobile uses native scroll — too much lag feels
+        // disconnected from the finger, so we keep it tighter.
+        const shutterScrub = isMobile ? 0.6 : 1.5;
+
+        const shutterTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: shutterScrub,
+            invalidateOnRefresh: true,
+            onLeave: () => gsap.set(shutterRows, { clipPath: 'inset(0% 0 0 0)' }),
+          },
+        });
+        shutterTl.fromTo(
+          shutterRows,
+          { clipPath: 'inset(100% 0 0 0)' },
+          {
+            clipPath: 'inset(0% 0 0 0)',
+            // power2.out: each row accelerates open then decelerates into its
+            // closed position — feels physical rather than mechanical.
+            ease: 'power2.out',
+            stagger: { each: 0.05, from: 'end' },
+          }
+        );
+        if (shutterTl.scrollTrigger) triggers.push(shutterTl.scrollTrigger);
+      }
+    }
 
     // ---- Pixelated scroll-out transition (Osmo Supply pattern) ----
     // Builds a grid of pixel divs inside the [data-pixelated-scroll-...]
@@ -1460,11 +1515,51 @@ export default function DxV3Page() {
         { autoAlpha: 0, y: 18 },
         { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.07 }
       );
-      // Drop the inline cover after all GSAP initial states are set.
-      // React will process this update on its next render cycle — that extra
-      // frame keeps the cover up while the browser transitions from the
-      // CSS guard to the live page, eliminating any visible gap.
-      setInlineCoverActive(false);
+
+      // ---- Hero entrance — masthead rises + decodes as the dark cover lifts ----
+      // autoAlpha:0 is applied synchronously here (same tick as the guard
+      // removal, before the browser paints the revealed frame), so the masthead
+      // never flashes pre-formed. It then rises into place over the liquid
+      // bloom, and the scramble fires on the tween's start so the decode is
+      // visible — timed (delay) to land just as the cover finishes fading.
+      const mastheadEl = document.querySelector<HTMLElement>('.dx-v3 .hero .masthead');
+      if (mastheadEl) {
+        gsap.fromTo(
+          mastheadEl,
+          { autoAlpha: 0, y: 30 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 1.1,
+            ease: 'power3.out',
+            delay: 0.3,
+            onStart: () => {
+              heroRows.forEach((row, i) => {
+                const chars = Array.from(row.querySelectorAll<HTMLElement>('.ch'));
+                if (!chars.length) return;
+                scrambleSpans(chars, { startDelay: i * 0.18, stagger: 0.03, charDuration: 0.5 });
+              });
+            },
+          }
+        );
+      }
+
+      // Fade the dark load cover out to reveal the hero — a calm cross-fade
+      // (dark cover → dark liquid, no light seam) rather than a hard cut. The
+      // CSS guard was already removed above; the still-opaque inline cover on
+      // top carries the visible transition, then unmounts on complete. If the
+      // ref is somehow missing, drop it immediately so we never get stuck dark.
+      const coverEl = inlineCoverRef.current;
+      if (coverEl) {
+        gsap.to(coverEl, {
+          opacity: 0,
+          duration: 0.7,
+          ease: 'power2.inOut',
+          onComplete: () => setInlineCoverActive(false),
+        });
+      } else {
+        setInlineCoverActive(false);
+      }
     };
     // Hold the guard until the hero webfonts have ACTUALLY downloaded, then
     // reveal. document.fonts.ready alone was not enough: while the guard is up
@@ -1545,12 +1640,17 @@ export default function DxV3Page() {
           its next render cycle. On every remount useState(true) re-arms it. */}
       {inlineCoverActive && (
         <div
+          ref={inlineCoverRef}
           aria-hidden
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            background: '#f5f7ff',
+            // Dark load field (blackish-grey) — matches the CSS guard cover,
+            // loading.tsx and the #page-cover recolor. revealAndRefresh fades
+            // this out to reveal the liquid hero (the entrance), so it never
+            // hard-cuts from cover to page.
+            background: 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -1572,15 +1672,11 @@ export default function DxV3Page() {
       <section className="hero liquid" ref={heroRef}>
         <div className="hero-stage">
 
-          {/* Liquid paint backdrop (loudsrl.com port) — dark navy preset,
-              non-interactive, no shader intro. Keeps its own gentle motion;
-              fades in calmly via CSS on reveal (see .hero-liquid-canvas). */}
-          <LiquidHero
-            className="hero-liquid-canvas"
-            presetIndex={0}
-            interactive={false}
-            intro={false}
-          />
+          {/* Hero backdrop = loudsrl "liquid paint" WebGL shader, rendered via
+              R3F/three.js (WebGL2). Sits at z-1 over the CSS .hero.liquid field
+              (z-0), which serves as the automatic fallback when WebGL is
+              unavailable / the context is lost. */}
+          <LiquidHeroBackground className="hero-liquid-canvas" presetIndex={0} />
 
           <div className="hero-stage-inner">
             <div className="masthead">
@@ -1594,6 +1690,9 @@ export default function DxV3Page() {
               </div>
             </div>
           </div>
+
+          {/* Shutter transition — rows built + animated in useEffect */}
+          <div className="shutter-overlay" aria-hidden />
 
         </div>
       </section>

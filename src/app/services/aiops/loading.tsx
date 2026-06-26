@@ -1,8 +1,9 @@
 // Route-transition fallback for /services/aiops.
 //
-// Background must match `.dx-v3 { background: var(--paper) }` in dx-v3.css
-// (#f5f7ff). Anything else creates a visible color flash between this
-// fallback and the real page paint.
+// Background is the dark load field used across this route's covers (the
+// [data-flash-guard] ::after, the inline cover, and the route-scoped
+// #page-cover recolor). The hero is a dark liquid backdrop, so a light
+// fallback would flash before it. Keep this string in sync with those.
 //
 // We intentionally render NO skeleton content here. A skeleton would have
 // to track every layout change in DxV3Page, and any drift produces the
@@ -16,7 +17,7 @@ export default function DxConsultingLoading() {
         position: 'fixed',
         inset: 0,
         zIndex: 9998,
-        background: '#f5f7ff',
+        background: 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)',
       }}
       aria-label="Loading"
     />
