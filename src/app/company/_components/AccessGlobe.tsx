@@ -26,7 +26,7 @@ import { useWebGLAvailable } from '@/lib/useWebGLAvailable';
 // position — no DOM queries, no overlay buttons, no flickering.
 
 const SAPPORO: [number, number] = [43.0642, 141.3469];
-const MARKER_COLOR: [number, number, number] = [0.851, 0.322, 0.031]; // hero orange #D95208
+const MARKER_COLOR: [number, number, number] = [0.145, 0.388, 0.922]; // page primary #2563EB
 const GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
   company.address
 )}`;
@@ -327,7 +327,7 @@ export default function AccessGlobe() {
           </svg>
         </button>
 
-        <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.25em] text-[#D95208]">
+        <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.25em] text-[#2563EB]">
           HQ · SAPPORO
         </p>
         <p className="mb-2 font-sans text-[15px] font-semibold leading-tight">
@@ -340,7 +340,7 @@ export default function AccessGlobe() {
           href={GMAPS_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#D95208] px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.03]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#2563EB] px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-transform hover:scale-[1.03]"
         >
           Google Mapsで開く
           <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>

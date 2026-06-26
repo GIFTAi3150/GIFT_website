@@ -121,6 +121,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function () {
                 var cover = document.getElementById('page-cover');
                 if (!cover) return;
+                // Dark load background on /services/aiops — its hero is a dark
+                // liquid field, so the default light cover would flash before
+                // it paints. Recolour BEFORE the cover is shown/faded; every
+                // other route keeps the light default. Runs in the same
+                // parser-blocking pass as the cover div, so it applies before
+                // first paint.
+                if (location.pathname.indexOf('/services/aiops') === 0) {
+                  cover.style.background = 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)';
+                }
                 var hidden = false;
                 var hide = function () {
                   if (hidden) return;

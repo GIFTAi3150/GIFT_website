@@ -64,17 +64,19 @@ const valueCards = [
 const antiValues = ['古いやり方にしがみつく', '受け身で、変化を恐れる'];
 
 /* ── Section label with decorative animated line ────────────────────────── */
-function SectionLabel({ text }: { text: string }) {
+function SectionLabel({ text, color = '#2563EB' }: { text: string; color?: string }) {
   return (
     <div className="mb-3 flex items-center gap-3">
       <span
         data-deco-line
-        className="inline-block h-px w-8 origin-left bg-[#D95208]"
+        className="inline-block h-px w-8 origin-left"
+        style={{ backgroundColor: color }}
         aria-hidden
       />
       <p
         data-gsap="label"
-        className="font-forum text-small font-bold uppercase tracking-widest text-[#D95208]"
+        className="font-forum text-small font-bold uppercase tracking-widest"
+        style={{ color }}
       >
         {text}
       </p>
@@ -88,7 +90,7 @@ export default function CompanyPage() {
       {/* GSAP + Lenis orchestrator — client-only, renders null */}
       <CompanyAnimations />
 
-      <main className="company-palette bg-[#EFF6F9]">
+      <main className="company-palette bg-[#F0F7FF]">
 
         {/* ── Hero ─────────────────────────────────────────────────────── */}
         <HeroClipText />
@@ -99,7 +101,7 @@ export default function CompanyPage() {
         <div style={{ marginTop: '-100svh', position: 'relative', zIndex: 0 }}>
 
         {/* ── CEO Message / Mission ────────────────────────────────────── */}
-        <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: 'rgb(156, 203, 218)' }}>
+        <section id="ceo-message" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: '#F0F7FF' }}>
           <CompanySphereBg variant="hero" opacity={0.5} colorCycle />
 
           <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
@@ -112,7 +114,7 @@ export default function CompanyPage() {
             >
               関わるすべての人に、
               <br className="hidden sm:inline" />
-              人生が変わる<span className="text-[#D95208]">きっかけ</span>を贈る。
+              人生が変わる<span className="text-[#2563EB]">きっかけ</span>を贈る。
             </h2>
 
             <p
@@ -121,7 +123,7 @@ export default function CompanyPage() {
               style={{ fontSize: 'clamp(17px, 1.8vw, 22px)', lineHeight: '1.2', letterSpacing: '0.02em' }}
             >
               Gift an{' '}
-              <span className="font-medium text-[#F07A30]">opportunity.</span>
+              <span className="font-medium text-[#60a5fa]">opportunity.</span>
             </p>
 
             <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
@@ -168,7 +170,7 @@ export default function CompanyPage() {
 
           <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
 
-            <SectionLabel text="VISION" />
+            <SectionLabel text="VISION" color="#6366F1" />
 
             {/* Big editorial statement — the visual centrepiece */}
             <h2
@@ -177,12 +179,11 @@ export default function CompanyPage() {
               style={{ fontSize: 'clamp(26px, 4.6vw, 58px)', lineHeight: '1.4' }}
             >
               AIが当たり前の<br className="sm:hidden" />時代にこそ、<br />
-              <span className="text-[#D95208]">人の心を動かす</span><br className="sm:hidden" />
+              <span className="text-[#6366F1]">人の心を動かす</span><br className="sm:hidden" />
               会社であり続ける。
             </h2>
 
-            {/* Thin orange rule */}
-            <div className="mt-10 h-px w-16 bg-[#D95208]" aria-hidden />
+            <div className="mt-10 h-px w-16 bg-[#6366F1]" aria-hidden />
 
             {/* EN subtitle */}
             <p
@@ -205,7 +206,7 @@ export default function CompanyPage() {
             className="relative overflow-clip rounded-2xl backdrop-blur-sm"
             style={{
               background:
-                'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(190,65,8,0.28) 0%, transparent 55%), rgba(27,23,16,0.65)',
+                'radial-gradient(ellipse 60% 50% at 5% 95%, rgba(99,102,241,0.22) 0%, transparent 55%), rgba(10,14,26,0.85)',
             }}
           >
           {/* Same plaid Strength dots motion as Vision, gold-recolored for the
@@ -217,7 +218,7 @@ export default function CompanyPage() {
             {/* Section header — full width, label left / descriptor right */}
             <div className="mb-16 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <SectionLabel text="VALUES" />
+                <SectionLabel text="VALUES" color="#6366F1" />
                 <h2
                   data-gsap="heading"
                   className="font-shippori text-white"
@@ -253,7 +254,7 @@ export default function CompanyPage() {
                     >
                       {v.title}
                     </h3>
-                    <span className="shrink-0 rounded-full bg-[#D95208] px-4 py-[5px] font-forum text-[12px] font-semibold text-white">
+                    <span className="shrink-0 rounded-full bg-[#6366F1] px-4 py-[5px] font-forum text-[12px] font-semibold text-white">
                       {v.label}
                     </span>
                   </div>
@@ -269,8 +270,8 @@ export default function CompanyPage() {
             <div className="relative mt-20 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-7 md:p-10">
               <div className="relative z-10">
                 <div className="mb-6 flex items-center gap-3">
-                  <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#B84010]" />
-                  <p className="font-forum text-small font-bold uppercase tracking-widest text-[#B84010]">
+                  <span aria-hidden className="h-[2px] w-10 rounded-full bg-[#4F46E5]" />
+                  <p className="font-forum text-small font-bold uppercase tracking-widest text-[#4F46E5]">
                     We&apos;ll Never
                   </p>
                 </div>
@@ -286,9 +287,9 @@ export default function CompanyPage() {
                     <div
                       key={item}
                       data-gsap="anti-card"
-                      className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#B84010]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(184,64,16,0.4),0_0_30px_-5px_rgba(184,64,16,0.25)] active:scale-[0.99]"
+                      className="group flex cursor-pointer items-start gap-4 rounded-xl border border-white/15 bg-white/[0.07] p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[#4F46E5]/50 hover:bg-white/[0.1] hover:shadow-[0_20px_40px_-12px_rgba(99,102,241,0.4),0_0_30px_-5px_rgba(99,102,241,0.25)] active:scale-[0.99]"
                     >
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#B84010] text-white shadow-[0_2px_8px_rgba(184,64,16,0.35)] transition-transform duration-300 group-hover:scale-110">
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4F46E5] text-white shadow-[0_2px_8px_rgba(99,102,241,0.35)] transition-transform duration-300 group-hover:scale-110">
                         <NoIcon className="h-6 w-6" />
                       </span>
                       <p className="pt-1 font-shippori text-[15px] leading-relaxed text-white/90">
@@ -342,7 +343,7 @@ export default function CompanyPage() {
                   data-gsap="row"
                   className="grid grid-cols-1 border-b border-gift-border py-5 sm:grid-cols-4 sm:gap-6"
                 >
-                  <dt className="mb-1 font-forum text-small uppercase tracking-widest text-[#D95208] sm:mb-0 sm:col-span-1">
+                  <dt className="mb-1 font-forum text-small uppercase tracking-widest text-[#2563EB] sm:mb-0 sm:col-span-1">
                     {row.label}
                   </dt>
                   <dd className="font-shippori text-normal text-gift-ink sm:col-span-3">
@@ -356,7 +357,7 @@ export default function CompanyPage() {
 
         {/* ── History — temporarily hidden (一旦非表示) ───────────────── */}
         {false && (
-        <section className="border-t border-gift-border bg-[#EFF6F9] pb-0 pt-s-80">
+        <section className="border-t border-gift-border bg-[#F0F7FF] pb-0 pt-s-80">
           <div className="mx-auto max-w-container px-4 pb-10 md:px-6 lg:px-8">
             <SectionLabel text="HISTORY" />
             <h2
@@ -415,7 +416,7 @@ export default function CompanyPage() {
         </section>
 
         {/* ── CTA ──────────────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden border-t border-gift-border bg-[#EFF6F9] py-s-80">
+        <section className="relative overflow-hidden border-t border-gift-border bg-[#F0F7FF] py-s-80">
           <CompanySphereBg variant="blob" opacity={0.5} colorCycle />
           <div className="relative z-10 mx-auto max-w-container px-4 text-center md:px-6 lg:px-8" data-gsap="fade">
             <Link href="/contact" className="cta-btn cta-btn--company">

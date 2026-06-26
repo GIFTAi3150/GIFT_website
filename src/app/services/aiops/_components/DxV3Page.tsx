@@ -1,32 +1,50 @@
 'use client';
 
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, Component, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
 
-class WebGLBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch() { /* suppress console noise */ }
-  render() { return this.state.failed ? (this.props.fallback ?? null) : this.props.children; }
-}
-
-const AtomViewer  = dynamic(() => import('./AtomViewer'),  { ssr: false });
-const SvgLogoHero = dynamic(() => import('./SvgLogoHero'), { ssr: false });
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
+// Liquid-paint hero backdrop — faithful R3F/three.js port of loudsrl.com's
+// "Balatro" swirl shader (LiquidHeroBackground → LiquidHeroCanvas →
+// LiquidHeroScene). It code-splits the WebGL bundle internally (ssr:false) and
+// falls back to the GPU-free CSS "liquid" field (dx-v3.css .hero.liquid) when
+// WebGL is unavailable or the context is lost. The earlier raw-WebGL-1 port
+// was replaced: it black-screened on integrated AMD because WebGL1 can clamp
+// `precision highp float` to mediump; three.js renders on WebGL2 (guaranteed
+// highp), which is how loudsrl runs the identical shader on the same GPUs.
+import LiquidHeroBackground from './LiquidHeroBackground';
 
-// Split a string into per-character spans so GSAP can stagger them.
-// Spaces become non-breaking unicode spaces wrapped in a non-`.ch` span
-// so they're skipped by the cascade tween (whitespace doesn't animate).
+// Split a string into per-character `.ch` spans so GSAP can stagger them,
+// with each word's chars grouped in a `.wd` wrapper (white-space:nowrap in
+// CSS) so a word wraps as a unit and never splits mid-word — each `.ch` is
+// display:inline-block, which would otherwise create a wrap opportunity
+// between every glyph (e.g. "One" breaking into "O" / "ne"). Whitespace
+// becomes a standalone `.sp` span: the only real break opportunity, and
+// skipped by the cascade tween (whitespace doesn't animate).
 const splitChars = (text: string) =>
-  text.split('').map((c, i) => (
-    <span key={i} className={c === ' ' ? 'sp' : 'ch'}>
-      {c === ' ' ? ' ' : c}
-    </span>
-  ));
+  text.split(/(\s+)/).map((segment, si) => {
+    if (!segment) return null;
+    if (/^\s+$/.test(segment)) {
+      return (
+        <span key={si} className="sp">
+          {' '}
+        </span>
+      );
+    }
+    return (
+      <span key={si} className="wd">
+        {segment.split('').map((c, ci) => (
+          <span key={ci} className="ch">
+            {c}
+          </span>
+        ))}
+      </span>
+    );
+  });
 
 // ============================================================
 //  Static content — pulled from page-v3.html design
@@ -163,19 +181,6 @@ const RPA_CARDS = [
 // Fires when the user clicks the "imagine" pill in the intro line.
 const IMAGINE_EMOJIS = ['✨', '💡', '🚀'];
 
-// Hero background scrolling word lanes.
-// Each entry is doubled in JSX for the seamless -50% loop.
-// Large bold horizontal scrolling text behind the hero.
-// Straight rows — no rotation. Big font, solid brand blue.
-const HERO_BG_LANES = [
-  { words: ['まだない仕事を。', 'AIが動かす。', '業務を変える。', 'Build to Win.', 'AI最前線。', '自律運用。', 'AI駆動。'],         dur: 30, rtl: false, fs: 56, delay: 0.4 },
-  { words: ['AIをつくる。', 'Run Forever.', '変革する組織。', '次世代AI。', 'スマートOps。', 'AIと共に。', '自動化する。'],          dur: 38, rtl: true,  fs: 40, delay: 0.6 },
-  { words: ['革新する。', 'LLM連携。', 'Autonomous.', '変化を求める。', '業務効率化。', 'AIエージェント。'],                        dur: 34, rtl: false, fs: 52, delay: 0.8 },
-  { words: ['1社に1人。', 'Build Once.', 'AI意思決定。', 'AI推進の右腕。', '継続改善。', 'RAGシステム。'],                          dur: 42, rtl: true,  fs: 38, delay: 1.0 },
-  { words: ['自律AI。', 'Intelligent Ops.', 'AIネイティブ組織。', '24時間稼働。', 'AIオーケストレーション。'],                      dur: 28, rtl: false, fs: 48, delay: 1.2 },
-  { words: ['AIと共に進化する。', 'Build it once. Run forever.', 'まだない業務を、AIでつくる。', '人が考え、AIが動かす。'],          dur: 48, rtl: true,  fs: 36, delay: 1.4 },
-];
-
 export default function DxV3Page() {
   // Inline flash guard — CSS-independent cover that stays up until GSAP
   // has committed all initial states. The CSS data-flash-guard mechanism
@@ -185,6 +190,7 @@ export default function DxV3Page() {
   const [inlineCoverActive, setInlineCoverActive] = useState(true);
 
   const heroRef = useRef<HTMLElement | null>(null);
+  const inlineCoverRef = useRef<HTMLDivElement | null>(null);
   const progRef = useRef<HTMLDivElement | null>(null);
   const rainContainerRef = useRef<HTMLDivElement | null>(null);
   const rainRunningRef = useRef(false);
@@ -1115,25 +1121,16 @@ export default function DxV3Page() {
       });
     };
 
-    // Hero masthead rows — split into chars, then fire the scramble
-    // immediately on page load. Previously this fired on first scroll,
-    // but first-scroll is now the warp interstitial's trigger, so the
-    // two would race. Firing on mount = visitor sees the decode on
-    // landing, then scrolls to enter the warp.
+    // Hero masthead rows — split into chars on mount so the layout is final
+    // while the guard is up. The scramble itself is NOT fired here: it's
+    // triggered from revealAndRefresh (below) as the dark load cover lifts, so
+    // the visitor actually SEES the decode on landing instead of it completing
+    // hidden behind the cover during the font-load wait.
     const heroRows = Array.from(
       document.querySelectorAll<HTMLElement>('.dx-v3 .masthead .row')
     );
     heroRows.forEach((row) => {
       if (!row.querySelector('.ch')) splitInto(row, '');
-    });
-    heroRows.forEach((row, i) => {
-      const chars = Array.from(row.querySelectorAll<HTMLElement>('.ch'));
-      if (!chars.length) return;
-      scrambleSpans(chars, {
-        startDelay: i * 0.18,
-        stagger: 0.03,
-        charDuration: 0.5,
-      });
     });
 
     document
@@ -1225,6 +1222,63 @@ export default function DxV3Page() {
           triggers.push(dotTrigger);
         }
       });
+
+    // ---- Shutter scroll transition — hero exit (Osmo Supply pattern) ----
+    // Uses clip-path (not scaleY) so rows are truly invisible before they
+    // animate. scaleY:0 paints a 1px hairline at the transform-origin even
+    // at zero scale, which appeared as "2 strings" at the top of the hero
+    // while the last rows waited for their stagger turn. clip-path clips
+    // the element to zero and paints nothing — no hairlines.
+    // inset(100% 0 0 0) = clipped 100% from the top = fully hidden.
+    // inset(0% 0 0 0) = no clip = fully visible.
+    // stagger from:'end' fires the bottommost row first → hero closes upward.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const shutterEl = document.querySelector<HTMLElement>('.dx-v3 .shutter-overlay');
+      if (shutterEl && heroRef.current) {
+        shutterEl.innerHTML = ''; // clear HMR/StrictMode leftovers
+        const rowCount = isMobile ? 8 : 14;
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < rowCount; i++) {
+          const row = document.createElement('div');
+          row.className = 'shutter-row';
+          frag.appendChild(row);
+        }
+        shutterEl.appendChild(frag);
+
+        const shutterRows = Array.from(
+          shutterEl.querySelectorAll<HTMLElement>('.shutter-row')
+        );
+        gsap.set(shutterRows, { clipPath: 'inset(100% 0 0 0)' });
+
+        // Desktop gets more scrub lag (Lenis butters the scroll so extra lag
+        // reads as silk). Mobile uses native scroll — too much lag feels
+        // disconnected from the finger, so we keep it tighter.
+        const shutterScrub = isMobile ? 0.6 : 1.5;
+
+        const shutterTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: shutterScrub,
+            invalidateOnRefresh: true,
+            onLeave: () => gsap.set(shutterRows, { clipPath: 'inset(0% 0 0 0)' }),
+          },
+        });
+        shutterTl.fromTo(
+          shutterRows,
+          { clipPath: 'inset(100% 0 0 0)' },
+          {
+            clipPath: 'inset(0% 0 0 0)',
+            // power2.out: each row accelerates open then decelerates into its
+            // closed position — feels physical rather than mechanical.
+            ease: 'power2.out',
+            stagger: { each: 0.05, from: 'end' },
+          }
+        );
+        if (shutterTl.scrollTrigger) triggers.push(shutterTl.scrollTrigger);
+      }
+    }
 
     // ---- Pixelated scroll-out transition (Osmo Supply pattern) ----
     // Builds a grid of pixel divs inside the [data-pixelated-scroll-...]
@@ -1461,11 +1515,51 @@ export default function DxV3Page() {
         { autoAlpha: 0, y: 18 },
         { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.07 }
       );
-      // Drop the inline cover after all GSAP initial states are set.
-      // React will process this update on its next render cycle — that extra
-      // frame keeps the cover up while the browser transitions from the
-      // CSS guard to the live page, eliminating any visible gap.
-      setInlineCoverActive(false);
+
+      // ---- Hero entrance — masthead rises + decodes as the dark cover lifts ----
+      // autoAlpha:0 is applied synchronously here (same tick as the guard
+      // removal, before the browser paints the revealed frame), so the masthead
+      // never flashes pre-formed. It then rises into place over the liquid
+      // bloom, and the scramble fires on the tween's start so the decode is
+      // visible — timed (delay) to land just as the cover finishes fading.
+      const mastheadEl = document.querySelector<HTMLElement>('.dx-v3 .hero .masthead');
+      if (mastheadEl) {
+        gsap.fromTo(
+          mastheadEl,
+          { autoAlpha: 0, y: 30 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 1.1,
+            ease: 'power3.out',
+            delay: 0.3,
+            onStart: () => {
+              heroRows.forEach((row, i) => {
+                const chars = Array.from(row.querySelectorAll<HTMLElement>('.ch'));
+                if (!chars.length) return;
+                scrambleSpans(chars, { startDelay: i * 0.18, stagger: 0.03, charDuration: 0.5 });
+              });
+            },
+          }
+        );
+      }
+
+      // Fade the dark load cover out to reveal the hero — a calm cross-fade
+      // (dark cover → dark liquid, no light seam) rather than a hard cut. The
+      // CSS guard was already removed above; the still-opaque inline cover on
+      // top carries the visible transition, then unmounts on complete. If the
+      // ref is somehow missing, drop it immediately so we never get stuck dark.
+      const coverEl = inlineCoverRef.current;
+      if (coverEl) {
+        gsap.to(coverEl, {
+          opacity: 0,
+          duration: 0.7,
+          ease: 'power2.inOut',
+          onComplete: () => setInlineCoverActive(false),
+        });
+      } else {
+        setInlineCoverActive(false);
+      }
     };
     // Hold the guard until the hero webfonts have ACTUALLY downloaded, then
     // reveal. document.fonts.ready alone was not enough: while the guard is up
@@ -1478,9 +1572,7 @@ export default function DxV3Page() {
     // releasing. A 2.5s cap keeps a slow/blocked font CDN from holding the cover
     // forever. We still wait one rAF first so GSAP's from-states are laid out;
     // revealAndRefresh runs ScrollTrigger.refresh() against the loaded-font metrics.
-    const heroGlyphs =
-      'AIOps. まだない業務を、AIでつくる。' +
-      HERO_BG_LANES.flatMap((l) => l.words).join('');
+    const heroGlyphs = 'AIOps. まだない業務を、AIでつくる。';
     const heroFontLoads: Promise<unknown>[] = [];
     for (const family of ['"Gen Interface JP"', '"Gen Interface JP Display"']) {
       for (const weight of ['400', '700', '800']) {
@@ -1548,12 +1640,17 @@ export default function DxV3Page() {
           its next render cycle. On every remount useState(true) re-arms it. */}
       {inlineCoverActive && (
         <div
+          ref={inlineCoverRef}
           aria-hidden
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            background: '#f5f7ff',
+            // Dark load field (blackish-grey) — matches the CSS guard cover,
+            // loading.tsx and the #page-cover recolor. revealAndRefresh fades
+            // this out to reveal the liquid hero (the entrance), so it never
+            // hard-cuts from cover to page.
+            background: 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -1572,42 +1669,14 @@ export default function DxV3Page() {
       </div>
 
       {/* HERO */}
-      <section className="hero" ref={heroRef}>
+      <section className="hero liquid" ref={heroRef}>
         <div className="hero-stage">
 
-          {/* BG scrolling Japanese words — z-index 0, behind canvas (z-index 1).
-              Canvas is alpha:true so text shows through transparent areas. */}
-          <div className="hero-bg" aria-hidden>
-            {HERO_BG_LANES.map((lane, i) => {
-              const doubled = [...lane.words, ...lane.words];
-              return (
-                <div
-                  key={i}
-                  className="hero-bg-lane"
-                  style={{ animationDelay: `${lane.delay}s` }}
-                >
-                  <div
-                    className={`hero-bg-track hero-bg-track--${lane.rtl ? 'rtl' : 'ltr'}`}
-                    style={{ '--dur': `${lane.dur}s` } as React.CSSProperties}
-                  >
-                    {doubled.map((w, j) => (
-                      <span
-                        key={j}
-                        className="hero-bg-word"
-                        style={{ fontSize: lane.fs, color: 'rgba(11,19,64,0.18)' }}
-                      >
-                        {w}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <WebGLBoundary fallback={<SvgLogoHero />}>
-            <AtomViewer />
-          </WebGLBoundary>
+          {/* Hero backdrop = loudsrl "liquid paint" WebGL shader, rendered via
+              R3F/three.js (WebGL2). Sits at z-1 over the CSS .hero.liquid field
+              (z-0), which serves as the automatic fallback when WebGL is
+              unavailable / the context is lost. */}
+          <LiquidHeroBackground className="hero-liquid-canvas" presetIndex={0} />
 
           <div className="hero-stage-inner">
             <div className="masthead">
@@ -1621,6 +1690,9 @@ export default function DxV3Page() {
               </div>
             </div>
           </div>
+
+          {/* Shutter transition — rows built + animated in useEffect */}
+          <div className="shutter-overlay" aria-hidden />
 
         </div>
       </section>
