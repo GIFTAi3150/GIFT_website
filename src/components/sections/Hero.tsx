@@ -1,10 +1,17 @@
+'use client';
+
+import { useRef } from 'react';
 import Link from 'next/link';
 import FadeUpText from '@/components/ui/FadeUpText';
 import HeroBackground from './hero-gradient/HeroBackground';
+import HeroScrollGuard from './HeroScrollGuard';
 
 export default function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+
   return (
     <section
+      ref={sectionRef}
       className="relative flex w-full items-center justify-start overflow-hidden"
       style={{
         minHeight: '100vh',
@@ -47,7 +54,7 @@ export default function Hero() {
               } as React.CSSProperties
             }
           >
-            AIと人が共に創る、ビジネスの新時代。
+            仕事の前提が、変わろうとしている。
           </p>
           <Link
             href="/contact"
@@ -59,6 +66,7 @@ export default function Hero() {
           </Link>
         </div>
       </div>
+      <HeroScrollGuard sectionRef={sectionRef} />
     </section>
   );
 }

@@ -17,35 +17,35 @@ const segBody = (lines: string[][]) => lines.map((phrases) => phrases.join(ZWSP)
 
 const STEPS = [
   {
-    label: 'Why',
-    title: 'キッカケで、世界が変わる',
+    label: 'Aware',
+    title: '気づくキッカケ',
     body: segBody([
-      ['企業が', '本来持つ', '可能性を', '引き出す。'],
-      ['その一点に、', '私たち', 'GIFTは', '存在します。'],
+      ['AIは、', 'ただ質問に', '答えるだけの', 'ものではない。'],
+      ['会社の仕事を', '動かす力に', 'なる。'],
     ]),
   },
   {
-    label: 'What',
-    title: '3つの専門領域で支援する',
+    label: 'Shape',
+    title: '整えるキッカケ',
     body: segBody([
-      ['コールセンター・', 'DXコンサル・', '財務コンサル。'],
-      ['多角的な', '知見で、', '事業の', '課題を', '解決します。'],
+      ['会社の', '知識や', '判断基準を、'],
+      ['AIが', '使える形へ', '整える。'],
     ]),
   },
   {
-    label: 'How',
-    title: '戦略から実行まで、一貫して',
+    label: 'Root',
+    title: '根づくキッカケ',
     body: segBody([
-      ['立案だけで', '終わらない', '伴走型支援。'],
-      ['現場に', '入り込み、', '共に', '結果を', '出します。'],
+      ['研修で', '終わらせず、'],
+      ['毎日の業務で', '使われる', '状態へ。'],
     ]),
   },
   {
-    label: 'Together',
-    title: '共に、未来を創る',
+    label: 'Spread',
+    title: '広がるキッカケ',
     body: segBody([
-      ['関わる', 'すべての', '人に、', '新しい', 'キッカケを。'],
-      ['GIFTと', '共に、', '新しい', '未来を', '描きましょう。'],
+      ['一部の人', 'だけでなく、'],
+      ['チームから', '組織全体へ', '広げる。'],
     ]),
   },
 ] as const;
@@ -181,6 +181,12 @@ export default function WheelScroll() {
             <p className="font-display text-small font-bold uppercase tracking-widest text-[#2563EB]">
               OUR PHILOSOPHY
             </p>
+            <h2
+              className="mx-auto mt-3 max-w-3xl px-6 font-sans font-extrabold text-[#0C0E1A]"
+              style={{ fontSize: 'clamp(20px, 3vw, 34px)', lineHeight: '1.3' }}
+            >
+              キッカケで、会社は変わる。
+            </h2>
           </div>
 
           {/* Rotating dashed circle */}

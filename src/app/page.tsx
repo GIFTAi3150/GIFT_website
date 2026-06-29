@@ -24,7 +24,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: '株式会社GIFT | Gift an opportunity',
   description:
-    'コールセンター・DXコンサル・財務コンサルの3事業で、企業のチャンスを形にする。株式会社GIFTの公式サイト。',
+    'AIを、会社に根づかせる。学習から実装、定着まで——人とAIが一緒に成果を出す環境をつくる、株式会社GIFTのAIOps。',
   alternates: { canonical: '/' },
 };
 
@@ -78,7 +78,7 @@ export default async function HomePage() {
         {/* ABOUT */}
         <HPAbout />
 
-        {/* AIOPS */}
+        {/* AIOPS — scroll-pinned cascade + giant text */}
         <AIOps />
 
         {/* CASES */}

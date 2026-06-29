@@ -174,6 +174,32 @@ export default function CompanyAnimations() {
         });
       }
 
+      // ---- Why AIOps paragraphs: per-paragraph reveal as each enters view ----
+      const whyAiopsSection = document.querySelector<HTMLElement>('#why-aiops');
+      if (whyAiopsSection) {
+        const paras = Array.from(
+          whyAiopsSection.querySelectorAll<HTMLElement>('[data-highlight-text]'),
+        );
+        paras.forEach((para) => {
+          gsap.fromTo(
+            para,
+            { opacity: 0, y: 28, x: -6 },
+            {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              duration: 0.72,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: para,
+                start: 'top 88%',
+                once: true,
+              },
+            },
+          );
+        });
+      }
+
       // ---- Generic fade-up blocks ----
       gsap.utils.toArray<HTMLElement>('[data-gsap="fade"]').forEach((el) => {
         gsap.fromTo(

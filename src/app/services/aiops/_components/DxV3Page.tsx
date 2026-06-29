@@ -65,114 +65,147 @@ const CAPABILITIES: ReadonlyArray<{
     id: 'CAP_001',
     num: '01',
     color: 'color-paper',
-    title: 'AIエージェント\n設計・構築',
-    body: 'AIエージェントを設計・実装し、複雑な業務プロセスを自律化。計画・推論・実行をすべてエージェントが担い、月100時間超の定型作業を消滅させた実績。',
-    tags: ['AI Agents', 'LLM', 'Autonomous'],
+    title: '業務の\n棚卸し',
+    body: 'どの業務にAIを使うべきか、会社の仕事を一緒に整理する。何から変えるか、最初の優先順位を明確にします。',
+    tags: ['業務整理', '優先度設計', '現状把握'],
     lottie: '/lottie/robot-animation.json',
   },
   {
     id: 'CAP_002',
     num: '02',
     color: 'color-blue',
-    title: 'インテリジェント\n自動化',
-    body: '脆いルールベース自動化をAIパイプラインに刷新。条件変化に自己修復し、再設定コストをゼロに。導入後、月160時間分の業務が消えた事例あり。',
-    tags: ['Pipelines', 'Automation', 'Self-healing'],
+    title: 'AI\n研修',
+    body: '経営者と現場が、AIで何ができるのかを同じ目線で理解する。知識の温度差をなくし、推進の土台をつくります。',
+    tags: ['学習', '経営×現場', 'AI理解'],
     lottie: '/lottie/datab-animation.json',
   },
   {
     id: 'CAP_003',
     num: '03',
     color: 'color-sky',
-    title: 'LLM\nインテグレーション',
-    body: '自社ナレッジにLLMを直接接続し、ハルシネーションのない業務AIを構築。RAG・ファインチューニング・API連携まで、一気通貫で設計・実装。',
-    tags: ['LLM', 'RAG', 'Fine-tuning'],
+    title: '最初の\n成果づくり',
+    body: 'まずひとつ、現場が「使える」と感じる業務をAIで変える。小さな成功体験が、社内のAI活用を加速させます。',
+    tags: ['最初の一歩', '業務改善', '成果実感'],
     lottie: '/lottie/animation.json',
   },
   {
     id: 'CAP_004',
     num: '04',
     color: 'color-deep',
-    title: 'AIOps\n監視・運用',
-    body: 'すべてのAIが「何をしているか」をリアルタイムで可視化。コスト管理・異常検知・監査ログを一元化し、AIガバナンスを組織に根付かせる。',
-    tags: ['Monitoring', 'Observability', 'Governance'],
+    title: '会社の\n情報整理',
+    body: '商品、顧客、判断基準、ルール、仕事の流れをAIが使える形に整える。会社の知識をAIが活かせる状態にします。',
+    tags: ['構造化', 'ナレッジ整備', 'RAG基盤'],
     lottie: '/lottie/saas-animation.json',
+  },
+  {
+    id: 'CAP_005',
+    num: '05',
+    color: 'color-paper',
+    title: 'AIエージェント\n構築',
+    body: '会社の仕事に合わせて、業務を支えるAIエージェントをつくる。汎用AIではなく、自社専用の働き手を実装します。',
+    tags: ['エージェント', 'LLM', 'カスタム実装'],
+    lottie: '/lottie/agent-build-animation.json',
+  },
+  {
+    id: 'CAP_006',
+    num: '06',
+    color: 'color-blue',
+    title: '運用・\n定着支援',
+    body: '使って終わりではなく、自社で育てられる状態まで伴走する。納品後も改善を続け、AIが会社に根づく環境をつくります。',
+    tags: ['定着', '伴走支援', '継続改善'],
+    lottie: '/lottie/support-grow-animation.json',
   },
 ];
 
 const PAINS = [
-  { n: 'Q.01', q: 'AI活用、何から始めればいい？' },
-  { n: 'Q.02', q: 'AIを入れても、業務が変わらない' },
-  { n: 'Q.03', q: '現場と経営の板挟みで推進が止まる' },
-  { n: 'Q.04', q: 'AIを使いこなせる社内人材がいない' },
+  { n: 'Q.01', q: 'AIを入れたのに、会社の仕事は変わっていない。' },
+  { n: 'Q.02', q: 'AIを使っている人と、使っていない人に差がある。' },
+  { n: 'Q.03', q: '必要な情報が、人やフォルダに散らばっている。' },
+  { n: 'Q.04', q: '判断が、社長や一部の担当者に集まっている。' },
 ];
 
 const FEATURES = [
   {
-    id: 'F.01',
-    title: 'エージェント\nオーケストレーション',
-    body: 'エージェントが多段階タスクを計画・実行・自己修正。タスク依存・リトライ・フォールバックを完備し、どのステップも無音で失敗しない。',
+    id: '01',
+    title: '学習',
+    body: 'AIで何ができるのかを、経営者と現場が同じ目線で理解する。',
     icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
   },
   {
-    id: 'F.02',
-    title: 'RAGパイプライン',
-    body: '社内ドキュメントをRAGで横断検索し、根拠ある回答を生成。ハルシネーションを抑え、情報アクセスを劇的に改善。',
+    id: '02',
+    title: '業務整理',
+    body: 'AIを活かせる業務と、最初に変える業務を見つける。',
     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
   },
   {
-    id: 'F.03',
-    title: 'ツール・API連携',
-    body: 'CRM・ERP・データベース・Webhookを一元接続。エージェントが社内外のすべてのシステムを直接読み書きし、データサイロを解消。',
+    id: '03',
+    title: '最初の成果',
+    body: 'まずひとつ、現場が「使える」と感じる業務をAIで変える。',
     icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
   },
   {
-    id: 'F.04',
-    title: 'メモリ管理',
-    body: '過去の判断・設定・会話履歴をエージェントが自動記憶。セッションをまたいで文脈を維持し、毎回ゼロから教える手間をなくす。',
+    id: '04',
+    title: '構造化',
+    body: '商品、顧客、判断基準、ルール、仕事の流れを、AIが使える形に整える。',
     icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
   },
   {
-    id: 'F.05',
-    title: '人間参加型フロー',
-    body: '信頼スコアが閾値を下回った瞬間、重要アクション前に人間へエスカレーション。「任せすぎ」のリスクを設計段階から排除。',
+    id: '05',
+    title: '実装',
+    body: '会社の仕事に合わせて、AIエージェントを構築する。',
     icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
   },
   {
-    id: 'F.06',
-    title: 'コスト・監査ログ',
-    body: 'トークン集計・判断トレース・コンプライアンスエクスポートを完備。すべてのAIアクションを追跡し、説明責任を担保。',
+    id: '06',
+    title: '定着',
+    body: '納品して終わりではなく、自社で育てられる状態へ進める。',
     icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
   },
 ];
 
 const RPA_TRIO = [
   {
-    title: '自律的なタスク実行',
-    body: 'エージェントが計画・実行・自己修正を一人でこなす。定型業務の監視に、人の時間は使わない。',
+    title: '会社の情報が整うほど、\nAIは深く機能する。',
+    body: '商品・顧客・判断基準をAIが使える形に整えることで、汎用AIが自社専用の知識を持った存在に変わります。',
     icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
   },
   {
-    title: 'システム横断\nインテリジェンス',
-    body: '単一のAIレイヤーが、すべてのシステムを横断する。サイロ化したデータが、リアルタイムで繋がる。',
+    title: '現場の言葉で動く、\n自社専用のAI。',
+    body: '業種・業務フローに合わせて設計するから、エージェントは現場で実際に役立ちます。汎用ツールでは届かない精度。',
     icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4',
   },
   {
-    title: '継続的な改善',
-    body: 'こなしたタスクがエージェントにフィードバックされ、精度・速度・コストが自動で改善し続ける。放置するほど賢くなる。',
+    title: '使いながら育てる、\n伴走型の実装。',
+    body: '納品して終わりではなく、自社チームが自律的にAIを更新・改善できる状態まで伴走します。',
     icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
   },
 ];
 
 const RPA_CARDS = [
   {
-    title: 'SaaSスタートアップ',
-    tools: 'GPT-4o × 社内API',
-    result: 'オンボーディング・利用アラート・更新促進をAIが自律実行。サポートチケット60%削減（▲60%）、対応コスト大幅圧縮。',
+    title: '現場エージェント',
+    tools: '建設・工事業',
+    result: '現場写真や作業報告から、日報・報告書・共有事項をまとめる。',
   },
   {
-    title: '医療機関',
-    tools: 'Claude 3.5 × 電子カルテ',
-    result: '診療記録の要約・構造化をAIが自動化。医師の記録作業が患者あたり40分→5分（▲88%）に激減。',
+    title: '提案エージェント',
+    tools: '士業・コンサル業',
+    result: '相談内容や過去提案から、論点整理・提案骨子・次回打ち合わせ準備を進める。',
+  },
+  {
+    title: '問い合わせエージェント',
+    tools: '小売・EC',
+    result: '商品情報や対応履歴から、回答案・FAQ・販促文をつくる。',
+  },
+  {
+    title: 'トラブル対応エージェント',
+    tools: '製造業',
+    result: '不具合履歴や作業手順から、原因候補・確認手順・対応記録を整理する。',
+  },
+  {
+    title: '物件提案エージェント',
+    tools: '不動産業',
+    result: '顧客希望や物件情報から、候補物件・提案文・確認事項をまとめる。',
   },
 ];
 
@@ -831,12 +864,14 @@ export default function DxV3Page() {
           // this item; 0 before it enters. Items below the cursor fade
           // back in slightly, never fully disappearing once revealed.
           const reveal = clamp(cursor - i + 1, 0, 1);
-          const opacity = reveal * (0.22 + focus * 0.78);
-          const scale = 0.94 + focus * 0.08;
+          // Floor 0.6 keeps every revealed question clearly legible on desktop
+          // AND mobile; the focused one still pops to full strength + crisp.
+          const opacity = reveal * (0.6 + focus * 0.4);
+          const scale = 0.96 + focus * 0.06;
           if (isMobile) {
             gsap.set(el, { opacity, scale });
           } else {
-            const blur = (1 - focus) * 2.2;
+            const blur = (1 - focus) * 0.8;
             gsap.set(el, { opacity, scale, filter: `blur(${blur.toFixed(2)}px)` });
           }
         });
@@ -1572,7 +1607,7 @@ export default function DxV3Page() {
     // releasing. A 2.5s cap keeps a slow/blocked font CDN from holding the cover
     // forever. We still wait one rAF first so GSAP's from-states are laid out;
     // revealAndRefresh runs ScrollTrigger.refresh() against the loaded-font metrics.
-    const heroGlyphs = 'AIOps. まだない業務を、AIでつくる。';
+    const heroGlyphs = 'AIOps. 研修だけでも、実装だけでも、AIは会社に根づかない。';
     const heroFontLoads: Promise<unknown>[] = [];
     for (const family of ['"Gen Interface JP"', '"Gen Interface JP Display"']) {
       for (const weight of ['400', '700', '800']) {
@@ -1686,7 +1721,7 @@ export default function DxV3Page() {
               </div>
               <div className="ja">
                 <span className="rule" aria-hidden />
-                <span className="ja-inner">まだない業務を、AIでつくる。</span>
+                <span className="ja-inner">研修だけでも、実装だけでも、AIは会社に根づかない。</span>
               </div>
             </div>
           </div>
@@ -1701,18 +1736,41 @@ export default function DxV3Page() {
       <section className="intro">
         <div className="wrap">
           <div className="text" id="introText">
-            <span className="word">Whatever</span> <span className="word">you</span>{' '}
-            <button
-              type="button"
-              className="word accent imagine-cta"
-              onClick={fireImagineRain}
-            >
-              imagine
-            </button>
-            ,{' '}
-            <span className="word">we&rsquo;ll</span>{' '}
-            <span className="word">make</span> <span className="word">it</span>{' '}
-            <span className="word accent">run itself.</span>
+            <span className="word">なぜ、</span>
+            <span className="word">AIは</span>
+            <span className="word">優秀なのに</span>
+            <span className="word">仕事は</span>
+            <span className="word">変わらないのか。</span>
+            {' '}
+            <span className="word">AIが</span>
+            <span className="word">どれだけ</span>
+            <span className="word">優秀でも、</span>
+            <span className="word">あなたの</span>
+            <span className="word">会社のことを</span>
+            <span className="word">知らなければ、</span>
+            <span className="word">入社初日の</span>
+            <span className="word">新人と</span>
+            <span className="word">同じです。</span>
+            {' '}
+            <span className="word">商品や</span>
+            <span className="word">サービスのこと。</span>
+            <span className="word">お客様との</span>
+            <span className="word">やり取り。</span>
+            <span className="word">社長や</span>
+            <span className="word">担当者の</span>
+            <span className="word">判断基準。</span>
+            <span className="word">社内のルールや、</span>
+            <span className="word">仕事の</span>
+            <span className="word">進め方。</span>
+            {' '}
+            <span className="word">それらを</span>
+            <span className="word">AIが</span>
+            <span className="word">使える形に</span>
+            <span className="word">整えて</span>
+            <span className="word accent">はじめて、</span>
+            <span className="word">AIは</span>
+            <span className="word">会社の中で</span>
+            <span className="word accent">動き始めます。</span>
           </div>
         </div>
 
@@ -1768,32 +1826,30 @@ export default function DxV3Page() {
 
       </section>
 
-      {/* STATS */}
+      {/* STATS — THREE PILLARS */}
       <section className="stats">
         <div className="wrap">
           <div className="row">
             <div className="stat">
-              <div className="num" data-count="50">
-                <span className="value">0</span>
-                <small>社+</small>
+              <div className="num">
+                <em>学習</em>
               </div>
-              <div className="lab">AIOps Support</div>
-              <div className="ja">AI支援企業数</div>
+              <div className="lab">Understand AI</div>
+              <div className="ja">AIを正しく理解する</div>
             </div>
             <div className="stat">
-              <div className="num" data-count="1000">
-                <span className="value">0</span>
-                <small>時間+</small>
+              <div className="num">
+                <em>実装</em>
               </div>
-              <div className="lab">Hours Automated</div>
-              <div className="ja">AIによる業務削減</div>
+              <div className="lab">Drive Results</div>
+              <div className="ja">業務で成果を出す</div>
             </div>
             <div className="stat partner-stat">
               <div className="num">
-                <em>Agent</em>Native
+                <em>定着</em>
               </div>
-              <div className="lab">AI-First Team</div>
-              <div className="ja">AIネイティブチーム</div>
+              <div className="lab">Grow In-House</div>
+              <div className="ja">自社で育てられる状態へ</div>
             </div>
           </div>
         </div>
@@ -1804,11 +1860,11 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="caps-intro">
             <h2>
-              <Fragment>{splitChars('Four pillars. ')}</Fragment>
-              <em>{splitChars('One platform.')}</em>
+              <Fragment>{splitChars('私たちが ')}</Fragment>
+              <em>{splitChars('やること。')}</em>
             </h2>
             <p className="lead">
-              AIエージェント設計から監視・運用まで。AIが実際に動く業務プロセスを、ひとつのチームで設計・実装・運用します。
+              AIを会社に根づかせるために。学習・実装・定着まで、6つの視点で伴走します。
             </p>
           </div>
 
@@ -1893,8 +1949,8 @@ export default function DxV3Page() {
             <div className="pains-pin-content">
               <div className="sec-head">
                 <h2>
-                  The questions <em>you ask</em>
-                  <span className="ja">こんなお悩み、ありませんか？</span>
+                  Signs AI <em>hasn&rsquo;t rooted.</em>
+                  <span className="ja">こんな状況、ありませんか？</span>
                 </h2>
               </div>
               <div className="pains-list">
@@ -1926,9 +1982,9 @@ export default function DxV3Page() {
           <div className="pain-end">
             <div className="arrow-down" />
             <div className="ans">
-              All resolved by <em>AIOps.</em>
+              All resolved by <em>GIFT.</em>
             </div>
-            <div className="ja">その課題、AIOpsが解決します。</div>
+            <div className="ja">その課題に、GIFTが向き合います。</div>
           </div>
         </div>
       </section>
@@ -1938,8 +1994,8 @@ export default function DxV3Page() {
         <div className="wrap">
           <div className="sec-head">
             <h2>
-              How we <em className="whitespace-nowrap">solve it.</em>
-              <span className="ja">その課題への、6つの答え。</span>
+              How we <em className="whitespace-nowrap">work.</em>
+              <span className="ja">AIを会社に根づかせる、6つのステップ。</span>
             </h2>
           </div>
         </div>
@@ -1990,13 +2046,13 @@ export default function DxV3Page() {
       <section className="rpa">
         <div className="wrap">
           <div className="sec-head" style={{ marginBottom: 64 }}>
-            <div className="num">05 — AIOps × Agents</div>
+            <div className="num">05 — エージェント事例</div>
             <h2>
               Agents in <em>action.</em>
-              <span className="ja">AIが動かす業務基盤</span>
+              <span className="ja">会社の文脈があるから、AIエージェントの役割はここまで広がる。</span>
             </h2>
             <div className="meta">
-              02 case
+              05 case
               <br />
               Agent Live
             </div>
@@ -2010,9 +2066,9 @@ export default function DxV3Page() {
                   <span className="pill">Agent</span>
                   <h4>{c.title}</h4>
                 </div>
-                <div className="lab">— 使用モデル・ツール</div>
+                <div className="lab">— 対象業種</div>
                 <div className="val">{c.tools}</div>
-                <div className="lab">— 成果</div>
+                <div className="lab">— AIエージェントの役割</div>
                 <p className="res">{c.result}</p>
               </article>
             ))}
@@ -2020,7 +2076,7 @@ export default function DxV3Page() {
 
           <div className="rpa-cap-head">
             <span className="rule" aria-hidden />
-            <span>AIOpsで実現できること</span>
+            <span>GIFTが考える、AIが根づく3つの条件</span>
             <span className="rule" aria-hidden />
           </div>
           <div className="rpa-trio">
@@ -2066,23 +2122,23 @@ export default function DxV3Page() {
         </div>
         <div className="wrap">
           <div className="ai-headline">
-            AI <em>fully</em>
+            AIを動かすのは、
             <br />
-            integrated.
+            <em>会社の中身。</em>
           </div>
           <div className="ai-grid">
             <div className="ja-block">
-              OUR EDGE
+              GIFTの考え方
               <br />
-              <span style={{ opacity: 0.7 }}>AIをフル活用</span>
+              <span style={{ opacity: 0.7 }}>Our Thinking</span>
             </div>
             <div className="body">
               <p>
-                GIFTは、<strong>AIを実業務で動かしているチームです</strong>。
-                自社でAIOpsを日常運用しているからこそ、現場で通用する自律化を設計できます。
+                商品、顧客、判断基準、ルール、仕事の流れ。
+                <strong>それらが整ってはじめて、AIはただのチャットではなく、現場で成果を出す存在になります。</strong>
               </p>
               <p>
-                ツールを入れるだけでは終わりません。<strong>エージェントが主役の業務プロセス再設計</strong>から、一緒に取り組みます。
+                GIFTは、AIが働くための<strong>会社の土台を整えます</strong>。
               </p>
             </div>
           </div>
@@ -2111,14 +2167,14 @@ export default function DxV3Page() {
         </div>
         <div className="glow" id="finalGlow" />
         <div className="wrap">
-          <div className="label">Get In Touch &nbsp;/&nbsp; お問い合わせ</div>
+          <div className="label">Get In Touch &nbsp;/&nbsp; AI活用診断</div>
           <h2>
-            Let&rsquo;s <em>build.</em>
+            Let&rsquo;s <em>root it.</em>
           </h2>
-          <p className="ja">あなたのAI推進を、私たちが動かします。</p>
+          <p className="ja">AIを会社に根づかせる、最初の一歩を一緒に踏み出しましょう。</p>
           <div className="row">
             <a href="/contact" className="btn primary">
-              お問い合わせ
+              個別AI活用診断を相談する。
             </a>
           </div>
         </div>

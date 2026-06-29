@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: '%s | 株式会社GIFT',
   },
   description:
-    'コールセンター・DXコンサル・財務コンサル事業を展開する株式会社GIFTの公式サイト。',
+    'AIを、会社に根づかせる。学習から実装、定着まで、人とAIが一緒に成果を出す環境をつくる株式会社GIFTの公式サイト。',
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     siteName: '株式会社GIFT',
     title: '株式会社GIFT | Gift an opportunity',
     description:
-      'コールセンター・DXコンサル・財務コンサル事業を展開する株式会社GIFTの公式サイト。',
+      'AIを、会社に根づかせる。学習から実装、定着まで、人とAIが一緒に成果を出す環境をつくる株式会社GIFTの公式サイト。',
   },
   twitter: {
     card: 'summary_large_image',
     title: '株式会社GIFT | Gift an opportunity',
     description:
-      'コールセンター・DXコンサル・財務コンサル事業を展開する株式会社GIFTの公式サイト。',
+      'AIを、会社に根づかせる。学習から実装、定着まで、人とAIが一緒に成果を出す環境をつくる株式会社GIFTの公式サイト。',
   },
   robots: {
     index: true,

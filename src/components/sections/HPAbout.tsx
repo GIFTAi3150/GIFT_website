@@ -73,70 +73,32 @@ export default function HPAbout() {
           </span>
         </div>
 
-        {/* 2-col grid: text left, video right — stacked on mobile (video first) */}
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-center">
-
-          {/* video — order-1 on mobile (top), order-2 on desktop (right) */}
-          <div className="order-1 flex justify-center md:order-2">
-            <div className="relative">
-              {/* soft purple glow */}
-              <div
-                aria-hidden
-                className="absolute left-1/2 top-1/2 h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-                style={{
-                  background: 'radial-gradient(circle, rgba(139,92,246,0.30) 0%, transparent 70%)',
-                  animation: 'about-pulse 4s ease-in-out infinite',
-                  filter: 'blur(28px)',
-                  pointerEvents: 'none',
-                }}
-              />
-              {/* Transparent animated WebP (alpha) — loops natively in <img>,
-                  works on iOS Safari + desktop Chrome/FF/Edge with no black box
-                  and no <video> autoplay/UA-sniffing. drop-shadow now traces the
-                  square's real alpha shape. Source keyed from about-loop.mp4. */}
-              <div style={{ filter: 'drop-shadow(0 8px 32px rgba(120,60,255,0.22))' }}>
-                <img
-                  src="/videos/about-cube.webp"
-                  alt=""
-                  className="relative z-10 block h-auto w-[280px] md:w-[400px]"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* text + CTA — order-2 on mobile (bottom), order-1 on desktop (left) */}
-          <div className="order-2 md:order-1">
-            <div className="mb-10 max-w-[520px]">
-              <p
-                className="mb-4 font-display font-bold leading-snug text-[#111B21]"
-                style={{ fontSize: 'clamp(22px, 3.2vw, 32px)' }}
-              >
-                業務を、AIで自律化する。
-              </p>
-              <p className="font-sans text-[19px] leading-relaxed text-[#111B21]">
-                GIFTのAIOpsは、反復業務の自動化にとどまりません。データをもとに自ら判断・改善するシステムを構築し、人が創造的な仕事に集中できる次世代の業務基盤を提供します。
-              </p>
-            </div>
-
-            <Link
-              href="/company"
-              className="group inline-flex items-center gap-3 border border-[#111B21] bg-[#111B21] px-5 py-2.5 text-white transition-all duration-300 hover:bg-transparent hover:text-[#111B21]"
+        {/* text + CTA */}
+        <div>
+          <div className="mb-10 max-w-[520px]">
+            <p
+              className="mb-4 font-display font-bold leading-snug text-[#111B21]"
+              style={{ fontSize: 'clamp(22px, 3.2vw, 32px)' }}
             >
-              <span className="font-display text-sm font-bold tracking-widest">View More</span>
-              <span className="text-base transition-transform duration-300 group-hover:translate-x-1">›</span>
-            </Link>
+              GIFTが、AIOpsに取り組む理由。
+            </p>
+            <p className="font-sans text-[19px] leading-relaxed text-[#111B21]">
+              GIFTは、現場で人と組織を動かしてきた会社です。その経験があるからこそ、AIを「使える状態」まで根づかせられる。私たちがAIOpsに取り組む理由を、ここに。
+            </p>
           </div>
 
+          <Link
+            href="/company"
+            className="group inline-flex items-center gap-3 border border-[#111B21] bg-[#111B21] px-5 py-2.5 text-white transition-all duration-300 hover:bg-transparent hover:text-[#111B21]"
+          >
+            <span className="font-display text-sm font-bold tracking-widest">View More</span>
+            <span className="text-base transition-transform duration-300 group-hover:translate-x-1">›</span>
+          </Link>
         </div>
 
       </div>
 
-      <style>{`
-        @keyframes about-pulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 0.7; }
-          50%       { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
-        }
-      `}</style>
+
     </section>
   );
 }
