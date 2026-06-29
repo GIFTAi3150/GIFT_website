@@ -1,122 +1,122 @@
-# GIFT Inc. Corporate Website
+# 株式会社GIFT コーポレートサイト
 
-Official corporate website for **株式会社GIFT (GIFT Inc.)** — rebuilt from WordPress to a modern Next.js stack and deployed on Vercel.
+**株式会社GIFT** の公式コーポレートサイトです。WordPressから最新のNext.jsスタックへ刷新し、Vercelにてデプロイしています。
 
-The site communicates GIFT's core business: **AIOps** — a consulting and implementation service that helps small-to-medium enterprises embed AI into their daily operations, covering learning, implementation, and long-term adoption.
+本サイトでは、GIFTのコア事業である **AIOps**（中小企業へのAI活用支援：学習・実装・定着）を中心に情報を発信しています。
 
 ---
 
-## Pages
+## ページ構成
 
-| Route | Content |
+| ルート | 内容 |
 |---|---|
-| `/` | Home — hero, philosophy wheel, about, AIOps overview, case studies |
-| `/services/aiops` | AIOps service detail — 3-step roadmap (学習 → 実装 → 定着) |
-| `/company` | Company overview — mission/vision/values, CEO message, history, access |
-| `/news` | News & column articles (Notion-backed, ISR) |
-| `/news/[slug]` | Individual article page |
-| `/member` | Team member directory |
-| `/member/[id]` | Individual member profile |
-| `/recruit` | Recruitment page |
-| `/achievements` | Case studies / achievements |
-| `/contact` | Contact form |
-| `/privacy` | Privacy policy |
+| `/` | ホーム — ヒーロー、フィロソフィーホイール、会社概要、AIOps紹介、実績 |
+| `/services/aiops` | AIOpsサービス詳細 — 3ステップロードマップ（学習 → 実装 → 定着） |
+| `/company` | 会社情報 — ミッション／ビジョン／バリュー、代表メッセージ、沿革、アクセス |
+| `/news` | ニュース・コラム記事（Notionバックエンド、ISR） |
+| `/news/[slug]` | 個別記事ページ |
+| `/member` | メンバー一覧 |
+| `/member/[id]` | メンバー個別プロフィール |
+| `/recruit` | 採用情報 |
+| `/achievements` | 実績・事例紹介 |
+| `/contact` | お問い合わせフォーム |
+| `/privacy` | プライバシーポリシー |
 
 ---
 
-## Tech Stack
+## 技術スタック
 
-| Layer | Technology |
+| レイヤー | 技術 |
 |---|---|
-| Framework | [Next.js 14](https://nextjs.org/) (App Router) |
-| Language | TypeScript 5.5 |
-| Styling | Tailwind CSS 3.4 |
-| 3D / WebGL | Three.js + React Three Fiber (`@react-three/fiber`, `@react-three/drei`) |
-| Animation | GSAP 3, Lenis (smooth scroll), Lottie (`lottie-react`) |
-| CMS | Notion API (`@notionhq/client`) — articles and member profiles |
-| Email | Resend — contact form delivery |
-| Deployment | Vercel |
-| Testing | Playwright |
-| Formatting | Prettier + `prettier-plugin-tailwindcss` |
+| フレームワーク | [Next.js 14](https://nextjs.org/)（App Router） |
+| 言語 | TypeScript 5.5 |
+| スタイリング | Tailwind CSS 3.4 |
+| 3D / WebGL | Three.js + React Three Fiber（`@react-three/fiber`、`@react-three/drei`） |
+| アニメーション | GSAP 3、Lenis（スムーズスクロール）、Lottie（`lottie-react`） |
+| CMS | Notion API（`@notionhq/client`）— 記事・メンバー情報 |
+| メール送信 | Resend — お問い合わせフォーム |
+| デプロイ | Vercel |
+| テスト | Playwright |
+| フォーマット | Prettier + `prettier-plugin-tailwindcss` |
 
 ---
 
-## Local Development
+## ローカル開発
 
-### Prerequisites
+### 前提条件
 
-- Node.js 20+
+- Node.js 20以上
 - npm
 
-### Setup
+### セットアップ
 
 ```bash
-# 1. Install dependencies
+# 1. 依存パッケージのインストール
 npm install
 
-# 2. Copy the example env file and fill in your keys
+# 2. 環境変数ファイルのコピーと設定
 cp .env.example .env.local
 ```
 
-Required environment variables:
+必要な環境変数：
 
 ```
-NOTION_API_KEY=        # Notion integration token
-NOTION_ARTICLES_DB=    # Notion database ID for news articles
-NOTION_MEMBERS_DB=     # Notion database ID for team members
-RESEND_API_KEY=        # Resend API key for the contact form
+NOTION_API_KEY=        # Notionインテグレーショントークン
+NOTION_ARTICLES_DB=    # ニュース記事用NotionデータベースID
+NOTION_MEMBERS_DB=     # メンバー情報用NotionデータベースID
+RESEND_API_KEY=        # お問い合わせフォーム用Resend APIキー
 ```
 
-### Run the dev server
+### 開発サーバー起動
 
 ```bash
 npm run dev
 # → http://localhost:3000
 ```
 
-### Production build (recommended for visual QA)
+### 本番ビルド（ビジュアルQA推奨）
 
 ```bash
 npm run build && npm run start
 ```
 
-Use the production build to catch flash/flicker bugs that only appear after SSR optimizations — the dev server can mask them.
+フラッシュ・チラつき等のSSR関連バグはdev環境では再現しない場合があります。本番ビルドで確認してください。
 
 ---
 
-## Useful Scripts
+## 主要コマンド
 
-| Command | Purpose |
+| コマンド | 内容 |
 |---|---|
-| `npm run dev` | Start local dev server |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build locally |
-| `npm run lint` | ESLint check |
-| `npm run format` | Prettier format all files |
-| `npm run format:check` | Prettier check (CI) |
-| `npm run check:encoding` | Detect mojibake in source files |
-| `npm run fix:encoding` | Auto-fix mojibake |
+| `npm run dev` | ローカル開発サーバー起動 |
+| `npm run build` | 本番ビルド |
+| `npm run start` | 本番ビルドをローカルで起動 |
+| `npm run lint` | ESLintチェック |
+| `npm run format` | Prettierで全ファイルフォーマット |
+| `npm run format:check` | Prettierチェック（CI用） |
+| `npm run check:encoding` | ソースファイルの文字化けチェック |
+| `npm run fix:encoding` | 文字化けの自動修正 |
 
 ---
 
-## Branching Strategy
+## ブランチ戦略
 
 ```
-main           ← production (auto-deploys on Vercel)
-dev            ← integration branch
-features/devN  ← working feature branches
+main           ← 本番（Vercelへ自動デプロイ）
+dev            ← 統合ブランチ
+features/devN  ← 機能開発ブランチ
 ```
 
-Pull requests target `dev`; `dev` is merged to `main` for releases.
+プルリクエストは `dev` へマージし、リリース時に `dev` → `main` へマージします。
 
 ---
 
-## Project Structure
+## プロジェクト構成
 
 ```
 src/
-├── app/                  # Next.js App Router — one folder per route
-│   ├── page.tsx          # Home page
+├── app/                  # Next.js App Router — ルートごとにフォルダ分割
+│   ├── page.tsx          # ホームページ
 │   ├── company/          # /company
 │   ├── services/aiops/   # /services/aiops
 │   ├── news/             # /news + /news/[slug]
@@ -124,27 +124,27 @@ src/
 │   ├── contact/          # /contact
 │   └── ...
 ├── components/
-│   ├── layout/           # Navbar, Footer
-│   ├── sections/         # Page-level section components
-│   └── ui/               # Reusable UI primitives
-├── data/                 # Static JSON (company info, fallback member data)
-├── lib/                  # Notion client, utilities
-└── styles/               # Global CSS
+│   ├── layout/           # ナビバー、フッター
+│   ├── sections/         # ページレベルのセクションコンポーネント
+│   └── ui/               # 汎用UIコンポーネント
+├── data/                 # 静的JSON（会社情報、メンバーデータ等）
+├── lib/                  # Notionクライアント、ユーティリティ
+└── styles/               # グローバルCSS
 
 public/
 ├── images/
-├── lottie/               # Lottie animation JSON files
+├── lottie/               # LottieアニメーションJSONファイル
 └── ...
 ```
 
 ---
 
-## Content Management
+## コンテンツ管理
 
-Articles and member profiles are managed in **Notion** and pulled at build time via ISR (Incremental Static Regeneration, 60-second revalidation window). No CMS login is needed to browse the site — content updates in Notion appear on the live site within one minute without a redeploy.
+記事・メンバー情報は **Notion** で管理し、ISR（インクリメンタル静的再生成、60秒の再検証ウィンドウ）によりビルド時に取得します。サイト閲覧にCMSへのログインは不要で、Notionを更新してから最大1分以内に再デプロイなしで本番サイトへ反映されます。
 
 ---
 
-## License
+## ライセンス
 
-Private repository — all rights reserved by 株式会社GIFT.
+プライベートリポジトリ — 著作権は株式会社GIFTに帰属します。
