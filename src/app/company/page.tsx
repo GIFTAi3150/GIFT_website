@@ -15,7 +15,7 @@ const StrengthDots = dynamic(() => import('./_components/StrengthDots'), { ssr: 
 export const metadata: Metadata = {
   title: '会社概要',
   description:
-    '株式会社GIFTの会社情報、ミッション・ビジョン・バリュー、沿革、代表メッセージをご紹介します。',
+    'GIFTがAIOpsに取り組む理由、その背景と思想。会社情報・ミッション・ビジョン・バリューをご紹介します。',
   alternates: { canonical: '/company' },
 };
 
@@ -25,7 +25,7 @@ const infoRows = [
   { label: '代表取締役', value: company.ceo },
   { label: '所在地', value: company.address },
   { label: 'TEL', value: company.phone },
-  { label: '事業内容', value: 'Business Content AIOps事業' },
+  { label: '事業内容', value: 'AIOps事業' },
   { label: 'インボイス番号', value: company.invoiceNumber },
 ];
 
@@ -127,20 +127,16 @@ export default function CompanyPage() {
             </p>
 
             <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
-              かつて、自分の人生について深く考えたのは、ある出来事がキッカケだった。
+              GIFTは、現場から生まれた会社です。人と組織が毎日向き合い、成果を積み上げる——そんな現場を、私たちは長年にわたって動かしてきました。
             </p>
             <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
-              私の過去、現在、そして未来。
-              自分自身がこれまでに数え切れないほどの出会い、挑戦、成功、失敗、そして挫折を経験し、
-              それら全てが「キッカケ」という貴重なギフトだと気づいた。
+              その経験の中で、私たちは気づきました。どれだけ優れたツールがあっても、使いこなせる人と、使い続けられる仕組みがなければ、何も変わらない。現場こそが、変化の起点だということを。
             </p>
             <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
-              それに気づいたときから、私たちの使命は、
-              株式会社GIFTを設立し『人と企業の人生に寄り添いながら』事業を展開していくこと。
-              そして、誰かの人生を変えるような「キッカケ」というギフトを与え続けること。
+              AIが急速に普及するいま、この問いはさらに切実になっています。多くの企業でAIが「導入されたまま止まっている」現実があります。技術の問題ではありません。現場の仕事に溶け込んでいないから、人が使わないのです。
             </p>
             <p data-highlight-text className="font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
-              そんな会社を目指し、今日も私たちは前進する。
+              GIFTがAIOpsに取り組むのは、この課題を、私たち自身の現場経験から解けると確信しているからです。人とAIが、毎日の業務の中で一緒に動く——その状態をつくることが、私たちの使命です。
             </p>
 
             <CeoMessageReveal />
@@ -194,6 +190,36 @@ export default function CompanyPage() {
               Move hearts, even in the age of AI.
             </p>
 
+          </div>
+        </section>
+
+        {/* ── Why AIOps（GIFTがAIOpsに取り組む理由） ───────────────────── */}
+        <section id="why-aiops" className="relative overflow-hidden border-t border-gift-border py-s-80" style={{ background: '#F0F7FF' }}>
+          <div className="relative z-10 mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
+            <SectionLabel text="WHY AIOPS" />
+
+            <h2
+              data-gsap="heading"
+              className="mb-10 font-shippori text-gift-ink"
+              style={{ fontSize: 'clamp(28px, 4.4vw, 48px)', lineHeight: '1.5' }}
+            >
+              なぜ、GIFTは
+              <br className="hidden sm:inline" />
+              AIOpsなのか。
+            </h2>
+
+            <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
+              GIFTはもともと、大規模な現場組織を運営してきた会社です。エンジニアではない多くのスタッフが、毎日の業務の中で成果を出す——そんな環境を長年にわたって動かしてきました。
+            </p>
+            <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
+              その経験から、私たちは確信しています。AIが本当に力を発揮するのは、ツールを導入したときではなく、現場の一人ひとりが日常的に使いこなせるようになったときだということを。
+            </p>
+            <p data-highlight-text className="mb-6 font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
+              AIを動かすのは、会社の中身です。業務の流れ、判断基準の言語化、顧客との対話ルール——それらが整ってはじめて、AIは現場で成果を出す存在になります。私たちはその「中身」をつくることを、現場で学んできました。
+            </p>
+            <p data-highlight-text className="font-shippori text-gift-silver" style={{ lineHeight: '2' }}>
+              専門知識がなくても、AIを使いこなせる組織をつくる。GIFTがAIOpsに取り組む理由は、ここにあります。
+            </p>
           </div>
         </section>
 
@@ -311,8 +337,8 @@ export default function CompanyPage() {
           {/* Faint background strings — decorative only */}
           <span
             aria-hidden
-            className="pointer-events-none absolute -bottom-6 right-0 select-none font-display font-black uppercase leading-none text-black/[0.035]"
-            style={{ fontSize: 'clamp(96px, 18vw, 240px)', letterSpacing: '-0.05em' }}
+            className="pointer-events-none absolute bottom-0 right-0 select-none font-display font-black uppercase leading-none text-black/[0.035] md:-bottom-6"
+            style={{ fontSize: 'clamp(50px, 18vw, 240px)', letterSpacing: '-0.05em' }}
           >
             COMPANY
           </span>

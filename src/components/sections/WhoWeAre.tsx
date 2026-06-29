@@ -9,39 +9,30 @@ import GiftIncEcho from '@/components/ui/GiftIncEcho';
 const ZWSP = String.fromCharCode(0x200b); // U+200B zero-width space
 
 const PARA_1 = [
-  'AIを使えば、',
-  'もっと',
-  'うまくいく——',
-  'そう',
-  '気づいたとき、',
-  'GIFTがいます。',
-  '業務の',
-  '自動化から',
-  'AIエージェントの',
-  '構築まで、',
-  'あなたの',
-  'ビジネスに',
-  '合った',
-  '形で',
-  'AIを',
-  '実装します。',
+  'ホワイトカラーの',
+  '仕事の多くが、',
+  'AIに',
+  '置き換わるとも',
+  '言われています。',
+  'それでも',
+  '多くの会社では、',
+  'AIはまだ',
+  '「質問に答えてくれる',
+  'チャット」の',
+  'ままです。',
 ].join(ZWSP);
 
 const PARA_2 = [
-  'ツールを',
-  '入れて',
-  '終わり、',
-  'ではありません。',
-  '導入から',
-  '運用まで',
-  '一貫して',
-  '伴走し、',
-  'AIが',
-  '本当に',
-  '「使える状態」に',
-  'なるまで',
-  '一緒に',
-  '動きます。',
+  '業務に',
+  '落とし込まれて、',
+  'はじめて',
+  '会社は',
+  '変わり始めます。',
+  'GIFTは、',
+  'その変化が',
+  '始まる',
+  'キッカケを',
+  'つくります。',
 ].join(ZWSP);
 
 const PARA_STYLE: React.CSSProperties = {
@@ -62,14 +53,14 @@ export default function WhoWeAre() {
       <div className="relative z-10 mx-auto max-w-container px-4 md:px-6 lg:px-8">
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#60a5fa]">
-            WHO WE ARE
+            THE SHIFT
           </p>
 
           <h2
             className="mb-8 font-sans font-extrabold leading-tight text-white"
             style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
           >
-            キッカケで、世界が変わる。
+            知っているだけでは、変わらない。
           </h2>
 
           <div className="mb-8 h-0.5 w-12 bg-[#3b82f6]" />

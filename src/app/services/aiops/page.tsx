@@ -6,7 +6,7 @@ import './dx-v3.css';
 export const metadata: Metadata = {
   title: 'AIOps事業',
   description:
-    'Lステップ運用、RPA導入、AI活用による業務自動化。中小企業のデジタル変革を支援する株式会社GIFTのAIOps事業。',
+    '中小企業がAIを会社に根づかせるためのロードマップ。学習・実装・定着の3ステップで、AIを現場で動かす状態へ。株式会社GIFTのAIOps事業。',
   alternates: { canonical: '/services/aiops' },
 };
 
