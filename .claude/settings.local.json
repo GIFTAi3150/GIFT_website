@@ -43,7 +43,8 @@
       "Bash(npm root *)",
       "Bash(ls \"$\\(npm root -g\\)/playwright/package.json\")",
       "Bash(ls \"$\\(npm root -g\\)/playwright-core/package.json\")",
-      "Read(//c/Users/owner/AppData/Local/ms-playwright/**)"
+      "Read(//c/Users/owner/AppData/Local/ms-playwright/**)",
+      "WebFetch(domain:gift-original.sakura.ne.jp)"
     ]
   }
 }
