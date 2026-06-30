@@ -110,7 +110,7 @@ export default function AIOps() {
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-start',
             paddingTop: 'clamp(48px, 7vh, 88px)',
             paddingBottom: 'clamp(24px, 4vh, 48px)',
           }}
@@ -197,7 +197,7 @@ export default function AIOps() {
           <div
             ref={aiopsWrapRef}
             className="relative z-10 flex justify-center"
-            style={{ opacity: 0, transform: 'translateY(64px)' }}
+            style={{ opacity: 0, transform: 'translateY(64px)', marginTop: 'clamp(32px, 6vh, 80px)' }}
           >
             <span
               className="font-nube-display leading-none cursor-none select-none"
