@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import AuroraLines from './AuroraLines';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -115,21 +116,12 @@ export default function AIOps() {
             paddingBottom: 'clamp(24px, 4vh, 48px)',
           }}
         >
-          {/* Background gradient blobs */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div style={{
-              position: 'absolute', top: '10%', left: '15%',
-              width: '55%', height: '70%', borderRadius: '50%',
-              background: 'radial-gradient(ellipse, rgba(14,40,100,0.55) 0%, transparent 70%)',
-              animation: 'aiops-blob-1 12s ease-in-out infinite',
-            }} />
-            <div style={{
-              position: 'absolute', top: '30%', right: '10%',
-              width: '45%', height: '60%', borderRadius: '50%',
-              background: 'radial-gradient(ellipse, rgba(30,15,80,0.5) 0%, transparent 70%)',
-              animation: 'aiops-blob-2 15s ease-in-out infinite',
-            }} />
-          </div>
+          {/* Aurora background — flowing glow lines in place of the old static blobs */}
+          <AuroraLines
+            className="pointer-events-none absolute inset-0"
+            ribbons={6}
+            intensity={0.75}
+          />
 
           {/* ── TOP: narrative text ── */}
           <div className="relative z-10 w-full max-w-container mx-auto px-6 md:px-8 lg:px-12">
@@ -151,7 +143,7 @@ export default function AIOps() {
                 >
                   <p
                     className="font-sans font-light text-white"
-                    style={{ fontSize: 'clamp(20px, 3.2vw, 46px)', lineHeight: '1.45', letterSpacing: '-0.01em' }}
+                    style={{ fontSize: 'clamp(20px, min(3.2vw, 3.6vh), 40px)', lineHeight: '1.45', letterSpacing: '-0.01em' }}
                   >
                     <span className="font-bold">{line.bold}</span>
                     {line.rest}
@@ -167,7 +159,7 @@ export default function AIOps() {
             >
               <p
                 className="font-sans font-extrabold text-white"
-                style={{ fontSize: 'clamp(22px, 3.5vw, 50px)', lineHeight: '1.4', letterSpacing: '-0.02em', maxWidth: '800px' }}
+                style={{ fontSize: 'clamp(22px, min(3.5vw, 3.8vh), 44px)', lineHeight: '1.4', letterSpacing: '-0.02em', maxWidth: '800px' }}
               >
                 そんな状態から、
                 <br />
@@ -202,7 +194,7 @@ export default function AIOps() {
             <span
               className="font-nube-display leading-none cursor-none select-none"
               style={{
-                fontSize: 'clamp(80px, 15vw, 230px)',
+                fontSize: 'clamp(60px, min(14vw, 15vh), 230px)',
                 color: '#363b9e',
                 letterSpacing: '-0.01em',
                 display: 'inline-block',

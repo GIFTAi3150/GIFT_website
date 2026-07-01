@@ -165,7 +165,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
   const clipGiftRef  = useRef<SVGTextElement>(null);
   const clipIncRef   = useRef<SVGTextElement>(null);
   const lettersRef   = useRef<HTMLDivElement>(null);
-  const descRef      = useRef<HTMLDivElement>(null);
   const scrollRef    = useRef<HTMLDivElement>(null);
   const metaRef      = useRef<HTMLDivElement>(null);
   const rafRef       = useRef<number>(0);
@@ -350,12 +349,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         clipIncRef.current.setAttribute('y', `${yInc}`);
         clipIncRef.current.setAttribute('font-size', `${fsInc}`);
       }
-
-      if (descRef.current) {
-        const gap = Math.max(h * 0.04, 24);
-        descRef.current.style.top    = `${Math.round(yInc + gap)}px`;
-        descRef.current.style.bottom = 'auto';
-      }
     };
 
     /* ── render loop — rAF-gated on visibility + intersection ─────────── */
@@ -413,7 +406,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
       state.showProgress = 1;
       if (overlayRef.current)  gsap.set(overlayRef.current,  { autoAlpha: 0 });
       if (lettersRef.current)  gsap.set(lettersRef.current,  { clipPath: 'inset(0 0% 0 0)' });
-      if (descRef.current)     gsap.set(descRef.current,     { autoAlpha: 1, y: 0 });
       if (scrollRef.current)   gsap.set(scrollRef.current,   { autoAlpha: 1 });
       if (metaRef.current)     gsap.set(metaRef.current,     { autoAlpha: 1 });
 
@@ -434,12 +426,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         loadTl.fromTo([giftRef.current, incRef.current],
           { letterSpacing: '0.12em' },
           { letterSpacing: '0em', duration: 1.7, ease: EASE }, 0.45);
-      }
-
-      // 3. Description rise (y 25→0, 1.2s, quart.out — biscom §1.4 step 4)
-      if (descRef.current) {
-        gsap.set(descRef.current, { y: 25, autoAlpha: 0 });
-        loadTl.to(descRef.current, { y: 0, autoAlpha: 1, duration: 1.2, ease: 'power4.out' }, 1.0);
       }
 
       // 6. Editorial frame + corner meta — staggered fade after letters land
@@ -497,11 +483,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
         scrollTl.fromTo(lettersRef.current, { y: 0 },
           { y: '-85svh', ease: 'none', duration: 1 }, 0);
         scrollTl.to(lettersRef.current, { autoAlpha: 0, ease: 'none', duration: 0.05 }, 0.33);
-      }
-      if (descRef.current) {
-        scrollTl.fromTo(descRef.current, { y: 0 },
-          { y: '-80svh', ease: 'none', duration: 1 }, 0);
-        scrollTl.to(descRef.current, { autoAlpha: 0, ease: 'none', duration: 0.05 }, 0.33);
       }
 
       // Frame + corner meta fade out with the cue — same reason: the hero layer
@@ -631,27 +612,6 @@ export default function HeroClipText({ letterVideoSrc: _letterVideoSrc }: HeroCl
               style={{ fontFamily: 'var(--font-forum), serif', fontWeight: 400 } as React.CSSProperties}
             >INC.</text>
           </svg>
-        </div>
-
-        {/* Layer 2 — JP description */}
-        <div
-          ref={descRef}
-          style={{
-            position: 'absolute', left: 0, right: 0, top: '74svh',
-            zIndex: 2, textAlign: 'center', padding: '0 6vw',
-          }}
-        >
-          <p style={{
-            margin: 0,
-            color: '#1d1d1d',
-            fontFamily: 'var(--font-shippori), var(--font-noto-jp), serif',
-            fontSize: 'clamp(13px, 1.15vw, 19px)',
-            lineHeight: 2.1,
-            letterSpacing: '0.02em',
-          }}>
-            AIと人が共に創る、ビジネスの新時代。<br />
-            GIFTは、その出会いを贈り続けます。
-          </p>
         </div>
 
         {/* Layer 3 — blue light-leak gradient (top-right, pure CSS — no GSAP state) */}
