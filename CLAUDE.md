@@ -14,7 +14,7 @@ GIFT Inc corporate website — rebuild from WordPress to Next.js + Tailwind + TS
 
 ## Working norms
 - Dev environment is **PowerShell + Windows Node** on `C:\`. Do not switch to WSL — the boundary is too slow for this tree.
-- The user runs all `git commit` / `git push` operations themselves. Agents should not run git write commands.
+- Agents may run `git add` / `git commit` / `git push` when the user explicitly asks in the moment. (Changed 2026-07-01 — previously agents were barred from all git write commands; the user lifted that restriction.)
 - Most session-persistent project context (palette gotchas, design decisions, rejected directions) lives in the user-level memory at `C:\Users\owner\.claude\projects\C--Users-owner-Desktop-GIFT-website\memory\` — consult `MEMORY.md` there before proposing new directions.
 
 ## Cost discipline
