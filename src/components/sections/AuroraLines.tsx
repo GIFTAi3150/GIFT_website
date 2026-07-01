@@ -188,7 +188,9 @@ export default function AuroraLines({
     // --- fixed-background clip: keep the fixed viewport canvas masked to the
     // parent section's on-screen rect, so it stays put while the section scrolls
     // and never paints over neighbouring sections. ---
-    const host = canvas.parentElement;
+    // (canvas's immediate parent is this component's own wrapper div — the CSS
+    // fallback gradient's sibling — so the true consumer host is one level up.)
+    const host = canvas.parentElement?.parentElement ?? null;
     const updateClip = () => {
       if (!host) return;
       const r = host.getBoundingClientRect();
@@ -262,16 +264,34 @@ export default function AuroraLines({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ribbons, speed, intensity, mouseParallax, fixedBackground, ...colorA, ...colorB]);
 
+  const rgba = (c: [number, number, number], a: number) =>
+    `rgba(${Math.round(c[0] * 255)}, ${Math.round(c[1] * 255)}, ${Math.round(c[2] * 255)}, ${a})`;
+
   return (
-    <canvas
-      ref={canvasRef}
+    <div
       className={className}
       style={
         fixedBackground
-          ? { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'block' }
-          : { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }
+          ? { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }
+          : { position: 'absolute', inset: 0 }
       }
-      aria-hidden="true"
-    />
+    >
+      {/* CSS-only fallback — visible from first paint (no JS needed), so there's
+          no flat empty gap while the WebGL canvas hydrates + compiles on a real
+          network. The canvas draws over this once its first frame is ready. */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `linear-gradient(155deg, ${rgba(colorA, 0.16)} 0%, transparent 45%, ${rgba(colorB, 0.14)} 100%)`,
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
+        aria-hidden="true"
+      />
+    </div>
   );
 }
