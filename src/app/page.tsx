@@ -4,7 +4,6 @@ import Hero from '@/components/sections/Hero';
 import WhoWeAre from '@/components/sections/WhoWeAre';
 import CaseStudy from '@/components/sections/CaseStudy';
 import WheelScroll from '@/components/sections/WheelScroll';
-import SocialLinks from '@/components/sections/SocialLinks';
 import Column from '@/components/sections/Column';
 import AIOps from '@/components/sections/AIOps';
 import HPAbout from '@/components/sections/HPAbout';
