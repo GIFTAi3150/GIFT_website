@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, Component, type ReactNode } from 'react';
+import { useState, useCallback, useEffect, useRef, Component, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import HeroGradientStatic from './HeroGradientStatic';
 
@@ -34,9 +34,29 @@ export default function HeroBackground({ className }: Props) {
   const [contextLost, setContextLost] = useState(false);
   // Ball-expand entrance: starts clipped to a small ball, then grows to fill.
   const [revealed, setRevealed] = useState(false);
+  // Pause the fluid sim when the hero scrolls out of view (see effect below).
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
   const onContextLost = useCallback(() => setContextLost(true), []);
 
   useEffect(() => { setClientReady(true); }, []);
+
+  // Only run the (expensive) fluid simulation while the hero is actually on
+  // screen. Once it scrolls out of view, flip the Canvas to frameloop:'never' so
+  // R3F stops the per-frame 32-iteration solve entirely — that constant GPU load
+  // is what made scrolling the rest of the homepage feel heavy on mobile. It
+  // resumes when the hero scrolls back up. Defaults visible so the entry render
+  // and reveal fire normally on load.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   // Start the expansion only once there's painted content to reveal. The
   // double rAF guarantees one painted frame of the small ball before the
@@ -75,11 +95,16 @@ export default function HeroBackground({ className }: Props) {
 
   return (
     <div
+      ref={containerRef}
       className={`${className ?? ''} hero-ball-reveal${revealed ? ' is-revealed' : ''}`}
     >
       {clientReady && !contextLost ? (
         <GradientErrorBoundary fallback={staticFallback}>
-          <HeroGradientCanvas onContextLost={onContextLost} onReady={onCanvasReady} />
+          <HeroGradientCanvas
+            onContextLost={onContextLost}
+            onReady={onCanvasReady}
+            frameloop={heroVisible ? 'always' : 'never'}
+          />
         </GradientErrorBoundary>
       ) : (
         staticFallback
