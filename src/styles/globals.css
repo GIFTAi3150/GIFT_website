@@ -103,6 +103,10 @@ body.page-ready .fade-up-word {
   100% { transform: translate(0%, 0%) scale(1); }
 }
 
+/* (The old AuroraLines CSS fallback lived here. It's gone: AuroraLines now draws
+   the aurora on a 2D canvas that renders on every device, so there's no WebGL
+   second-context problem and no CSS fallback to gate.) */
+
 @keyframes fadeUpReveal {
   0% {
     opacity: 0;

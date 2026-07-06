@@ -1,27 +1,23 @@
 'use client';
 
 /**
- * AuroraLines — flowing silk-ribbon lines on a TRANSPARENT canvas.
- * No background, no text — just the glowing lines. Drop it over any section.
+ * AuroraLines — flowing silk-ribbon aurora drawn on a 2D canvas.
+ *
+ * Renders the SAME animated ribbons on every device (desktop + mobile). It uses a
+ * 2D canvas, NOT WebGL, on purpose: on the homepage the hero fluid sim already
+ * owns the page's one reliable WebGL context, and mobile GPUs refuse to paint a
+ * SECOND live WebGL context — it stays blank until a touch forces a composite,
+ * the old "aurora only shows when you tap it" bug. A 2D canvas has no such limit,
+ * so one code path covers all devices with no fallback and no context-loss risk.
  *
  *   <section className="relative">
- *     <AuroraLines className="z-[1] pointer-events-none" />
+ *     <AuroraLines className="pointer-events-none absolute inset-0" />
  *     ...content...
  *   </section>
  *
- * The field always animates by itself (time-driven). Two positioning modes:
- *   - default            -> canvas is absolute, fills + scrolls WITH the section
- *   - fixedBackground    -> canvas is position:fixed, fills the viewport and is
- *                           clipped to the parent section each frame. The field
- *                           then stays locked to the SCREEN while the section
- *                           scrolls past it (background-attachment: fixed), and
- *                           never paints outside the section. Use this when you
- *                           want a still-on-scroll backdrop that keeps animating.
- *
- * Perf: 1 draw call, renders at 0.5x internal res, pauses when the section is
- * offscreen or the tab is hidden. Raw WebGL — follows the repo context-loss
- * convention (capture-phase preventDefault listener, NO loseContext() on
- * unmount; see MissionGrainBg.tsx + the raw-webgl-guilty-pattern memory).
+ * Perf: a few soft additive strokes per frame (no per-frame allocation); pauses
+ * when the section is offscreen or the tab is hidden; holds one static frame
+ * under prefers-reduced-motion.
  */
 
 import { useEffect, useRef } from 'react';
@@ -33,62 +29,8 @@ type Props = {
   intensity?: number; // line brightness (default 1)
   colorA?: [number, number, number]; // first color, 0..1 RGB
   colorB?: [number, number, number]; // last color,  0..1 RGB
-  mouseParallax?: boolean; // field leans toward cursor (default true)
-  fixedBackground?: boolean; // pin to the screen + clip to the parent section (default false)
+  mouseParallax?: boolean; // field leans toward cursor (desktop only, default true)
 };
-
-const VERT = `
-attribute vec2 aPos;
-void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
-
-const FRAG = `
-precision highp float;
-uniform vec2  uRes;
-uniform float uTime;
-uniform vec2  uMouse;
-uniform float uSpeed;
-uniform float uIntensity;
-uniform vec3  uColA;
-uniform vec3  uColB;
-
-#define RIBBONS_MAX 16
-uniform int uRibbons;
-
-void main(){
-  vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p  = uv*2.0 - 1.0;
-  p.x *= uRes.x/uRes.y;
-
-  float t = uTime*0.12*uSpeed;
-  p += (uMouse - 0.5)*0.35;
-
-  vec3 col = vec3(0.0);
-  float alpha = 0.0;
-  float yPrev = 0.0;
-  float n = float(uRibbons);
-
-  for (int i = 0; i < RIBBONS_MAX; i++) {
-    if (i >= uRibbons) break;
-    float fi = float(i);
-    float freq  = 0.6 + fi*0.33;
-    float speed = (mod(fi,2.0)<1.0 ? 1.0 : -1.0) * (0.7 + fi*0.17);
-    float amp   = 0.55 - fi*0.045;
-    float y = sin(p.x*freq + t*speed*2.0 + yPrev*2.2) * amp;
-    float offset = -0.52 + fi*(1.04/max(n-1.0, 1.0));
-    float dist = abs(p.y - y*0.7 + offset);
-    float band = 0.018 / max(dist, 0.002);   // bright core line
-    float glow = exp(-dist*2.0);             // wide soft aura
-    vec3 c = mix(uColA, uColB, fi/max(n-1.0, 1.0));
-    float e = (band*0.055 + glow*0.055) * uIntensity;
-    col += c * e;
-    alpha += e;
-    yPrev = y;
-  }
-
-  alpha = clamp(alpha, 0.0, 1.0);
-  // premultiplied alpha output -> blends correctly over any page background
-  gl_FragColor = vec4(col, alpha);
-}`;
 
 export default function AuroraLines({
   className = '',
@@ -98,7 +40,6 @@ export default function AuroraLines({
   colorA = [0.2, 0.8, 1.0],
   colorB = [0.58, 0.38, 1.0],
   mouseParallax = true,
-  fixedBackground = false,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number>(0);
@@ -106,105 +47,35 @@ export default function AuroraLines({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const gl = canvas.getContext('webgl', {
-      alpha: true, // transparent canvas
-      premultipliedAlpha: true,
-      antialias: false,
-      powerPreference: 'low-power',
-    });
-    if (!gl) return;
+    const n = Math.min(Math.max(Math.round(ribbons), 1), 16);
+    const [ar, ag, ab] = colorA;
+    const [br, bg, bb] = colorB;
+    // mix colorA -> colorB at t (0..1) -> "r, g, b" 0..255 triplet for rgba()
+    const mix = (t: number) =>
+      `${Math.round((ar + (br - ar) * t) * 255)}, ` +
+      `${Math.round((ag + (bg - ag) * t) * 255)}, ` +
+      `${Math.round((ab + (bb - ab) * t) * 255)}`;
 
-    // Repo convention: block context-loss restoration on a dying canvas
-    // (capture phase, preventDefault) and never call loseContext() ourselves.
-    const onLost = (e: Event) => {
-      e.preventDefault();
-      cancelAnimationFrame(rafRef.current);
-    };
-    canvas.addEventListener('webglcontextlost', onLost, true);
-
-    // --- compile ---
-    const sh = (type: number, src: string) => {
-      const s = gl.createShader(type)!;
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
-        console.error('[AuroraLines] shader:', gl.getShaderInfoLog(s));
-      return s;
-    };
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
-      console.error('[AuroraLines] link:', gl.getProgramInfoLog(prog));
-    gl.useProgram(prog);
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      gl.STATIC_DRAW,
-    );
-    const aPos = gl.getAttribLocation(prog, 'aPos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-    const U = {
-      res: gl.getUniformLocation(prog, 'uRes'),
-      time: gl.getUniformLocation(prog, 'uTime'),
-      mouse: gl.getUniformLocation(prog, 'uMouse'),
-      speed: gl.getUniformLocation(prog, 'uSpeed'),
-      intensity: gl.getUniformLocation(prog, 'uIntensity'),
-      colA: gl.getUniformLocation(prog, 'uColA'),
-      colB: gl.getUniformLocation(prog, 'uColB'),
-      ribbons: gl.getUniformLocation(prog, 'uRibbons'),
-    };
-
-    // static uniforms
-    gl.uniform1f(U.speed, speed);
-    gl.uniform1f(U.intensity, intensity);
-    gl.uniform3f(U.colA, colorA[0], colorA[1], colorA[2]);
-    gl.uniform3f(U.colB, colorB[0], colorB[1], colorB[2]);
-    gl.uniform1i(U.ribbons, Math.min(Math.max(ribbons, 1), 16));
-
-    gl.clearColor(0, 0, 0, 0);
-
-    // --- size: render at 0.5x of the element, CSS scales up ---
-    // In fixedBackground mode the canvas is a viewport-filling fixed layer, so
-    // its box == the viewport; otherwise it == the section it sits in.
-    const SCALE = 0.5;
+    // Render below CSS resolution and let CSS scale it up — the soft additive
+    // strokes hide the low res and it keeps mobile cheap.
+    const SCALE = 0.85;
+    let W = 2,
+      H = 2;
     const resize = () => {
       const r = canvas.getBoundingClientRect();
-      canvas.width = Math.max(2, Math.floor(r.width * SCALE));
-      canvas.height = Math.max(2, Math.floor(r.height * SCALE));
-      gl.viewport(0, 0, canvas.width, canvas.height);
+      W = Math.max(2, Math.floor(r.width * SCALE));
+      H = Math.max(2, Math.floor(r.height * SCALE));
+      canvas.width = W;
+      canvas.height = H;
     };
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     resize();
 
-    // --- fixed-background clip: keep the fixed viewport canvas masked to the
-    // parent section's on-screen rect, so it stays put while the section scrolls
-    // and never paints over neighbouring sections. ---
-    // (canvas's immediate parent is this component's own wrapper div — the CSS
-    // fallback gradient's sibling — so the true consumer host is one level up.)
-    const host = canvas.parentElement?.parentElement ?? null;
-    const updateClip = () => {
-      if (!host) return;
-      const r = host.getBoundingClientRect();
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const top = Math.max(0, r.top);
-      const right = Math.max(0, vw - r.right);
-      const bottom = Math.max(0, vh - r.bottom);
-      const left = Math.max(0, r.left);
-      canvas.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
-    };
-    if (fixedBackground) updateClip();
-
-    // --- mouse (smoothed) ---
+    // mouse parallax (desktop only; touch never fires mousemove so it stays put)
     let mx = 0.5,
       my = 0.5,
       smx = 0.5,
@@ -213,78 +84,110 @@ export default function AuroraLines({
       if (!mouseParallax) return;
       const r = canvas.getBoundingClientRect();
       mx = (e.clientX - r.left) / r.width;
-      my = 1 - (e.clientY - r.top) / r.height;
+      my = (e.clientY - r.top) / r.height;
     };
     window.addEventListener('mousemove', onMove);
 
-    // --- visibility: pause offscreen / hidden tab. Watch the SECTION (the fixed
-    // canvas itself is always on screen, so it can't gate visibility). ---
+    // pause while the section is offscreen
     let visible = true;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        visible = entry.isIntersecting;
-        // Fully hide the fixed layer once the section is gone so no clipped
-        // sliver lingers at the viewport edge while the loop is paused.
-        if (fixedBackground && !visible) canvas.style.clipPath = 'inset(100%)';
-      },
-      { threshold: 0 },
-    );
-    io.observe(fixedBackground && host ? host : canvas);
+    const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, {
+      threshold: 0,
+    });
+    io.observe(canvas);
 
-    // --- reduced motion: hold a static frame ---
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const SAMPLES = 64;
+    const yPrev = new Float32Array(SAMPLES + 1); // couples each ribbon to the last
+    const xs = new Float32Array(SAMPLES + 1); // reused per ribbon (no GC churn)
+    const ys = new Float32Array(SAMPLES + 1);
+
     const t0 = performance.now();
+    let drawnOnce = false;
+
+    const draw = (time: number) => {
+      const aspect = W / H;
+      smx += (mx - smx) * 0.04;
+      smy += (my - smy) * 0.04;
+      const parX = mouseParallax ? (smx - 0.5) * 0.18 : 0;
+      const parY = mouseParallax ? (smy - 0.5) * 0.18 : 0;
+      const t = time * 0.12 * speed;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      yPrev.fill(0);
+
+      const strokePath = (lw: number, alpha: number, col: string) => {
+        ctx.beginPath();
+        ctx.moveTo(xs[0], ys[0]);
+        for (let s = 1; s <= SAMPLES; s++) ctx.lineTo(xs[s], ys[s]);
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = `rgba(${col}, ${alpha})`;
+        ctx.stroke();
+      };
+
+      for (let i = 0; i < n; i++) {
+        const freq = 0.6 + i * 0.33;
+        const rspeed = (i % 2 === 0 ? 1 : -1) * (0.7 + i * 0.17);
+        const amp = 0.55 - i * 0.045;
+        const offset = -0.52 + i * (1.04 / Math.max(n - 1, 1));
+        const col = mix(i / Math.max(n - 1, 1));
+
+        for (let s = 0; s <= SAMPLES; s++) {
+          const u = s / SAMPLES; // 0..1 across the width
+          const px = (u * 2 - 1) * aspect + parX; // normalized x, aspect-scaled
+          const yN = Math.sin(px * freq + t * rspeed * 2 + yPrev[s] * 2.2) * amp;
+          yPrev[s] = yN;
+          const pYc = yN * 0.7 - offset + parY; // normalized centerline (-1..1)
+          xs[s] = u * W;
+          ys[s] = (1 - (pYc + 1) / 2) * H;
+        }
+
+        // soft aura -> mid halo -> bright core, all additively blended
+        strokePath(H * 0.14, 0.05 * intensity, col);
+        strokePath(H * 0.05, 0.09 * intensity, col);
+        strokePath(Math.max(1.5, H * 0.006), 0.55 * intensity, col);
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      drawnOnce = true;
+    };
+
     const frame = (now: number) => {
       rafRef.current = requestAnimationFrame(frame);
       if (!visible || document.hidden) return;
-      if (fixedBackground) updateClip(); // re-mask to the section as it scrolls
-      smx += (mx - smx) * 0.04;
-      smy += (my - smy) * 0.04;
-      gl.uniform2f(U.res, canvas.width, canvas.height);
-      gl.uniform1f(U.time, reduced ? 0 : (now - t0) / 1000);
-      gl.uniform2f(U.mouse, smx, smy);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      // Reduced-motion: the field never changes, but in fixed mode we must keep
-      // looping to track the clip as the page scrolls — only stop when neither
-      // the field nor the clip can change.
-      if (reduced && !fixedBackground) cancelAnimationFrame(rafRef.current);
+      if (reduced && drawnOnce) return; // reduced motion: one static frame, then idle
+      // NB: seconds, not ms — the ribbon math below is tuned for a seconds clock
+      // (the old WebGL version fed uTime in seconds). Passing raw ms ran it 1000× fast.
+      draw(reduced ? 0 : (now - t0) / 1000);
     };
     rafRef.current = requestAnimationFrame(frame);
 
-    // --- cleanup ---
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('mousemove', onMove);
       ro.disconnect();
       io.disconnect();
-      canvas.removeEventListener('webglcontextlost', onLost, true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ribbons, speed, intensity, mouseParallax, fixedBackground, ...colorA, ...colorB]);
+  }, [ribbons, speed, intensity, mouseParallax, ...colorA, ...colorB]);
 
   const rgba = (c: [number, number, number], a: number) =>
     `rgba(${Math.round(c[0] * 255)}, ${Math.round(c[1] * 255)}, ${Math.round(c[2] * 255)}, ${a})`;
 
   return (
-    <div
-      className={className}
-      style={
-        fixedBackground
-          ? { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }
-          : { position: 'absolute', inset: 0 }
-      }
-    >
-      {/* CSS-only fallback — visible from first paint (no JS needed), so there's
-          no flat empty gap while the WebGL canvas hydrates + compiles on a real
-          network. The canvas draws over this once its first frame is ready. */}
+    <div className={className} style={{ position: 'absolute', inset: 0 }}>
+      {/* Faint static base — covers the split second before the first canvas
+          frame so the dark section never flashes bare. The animated ribbons draw
+          on top of it. */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
-          background: `linear-gradient(155deg, ${rgba(colorA, 0.16)} 0%, transparent 45%, ${rgba(colorB, 0.14)} 100%)`,
+          background: `linear-gradient(155deg, ${rgba(colorA, 0.14)} 0%, transparent 46%, ${rgba(colorB, 0.12)} 100%)`,
         }}
       />
       <canvas
