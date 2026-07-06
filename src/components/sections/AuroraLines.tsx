@@ -61,17 +61,39 @@ export default function AuroraLines({
 
     // Render below CSS resolution and let CSS scale it up — the soft additive
     // strokes hide the low res and it keeps mobile cheap.
-    const SCALE = 0.85;
+    const SCALE = 0.7;
     let W = 2,
       H = 2;
-    const resize = () => {
+    // Resizing the canvas (canvas.width = …) CLEARS it. On mobile the URL bar
+    // shows/hides while scrolling, which jitters the sticky section's 100dvh
+    // height and fires ResizeObserver mid-scroll. If we cleared then and rAF was
+    // throttled by the active scroll, the canvas would sit blank for a beat —
+    // the "background blinks on/off while I scroll" bug. So: only resize when the
+    // size actually changed, and repaint the fresh buffer synchronously right
+    // after (see redrawAfterResize) so it never shows blank even if rAF is paused.
+    const resize = (): boolean => {
       const r = canvas.getBoundingClientRect();
-      W = Math.max(2, Math.floor(r.width * SCALE));
-      H = Math.max(2, Math.floor(r.height * SCALE));
+      const nw = Math.max(2, Math.floor(r.width * SCALE));
+      const nh = Math.max(2, Math.floor(r.height * SCALE));
+      if (nw === W && nh === H) return false;
+      W = nw;
+      H = nh;
       canvas.width = W;
       canvas.height = H;
+      return true;
     };
-    const ro = new ResizeObserver(resize);
+    // Coalesce the burst of RO callbacks the URL-bar animation emits, then resize
+    // once and immediately repaint. During the debounce window the last good
+    // frame stays on screen (buffer untouched) — no blink.
+    let roTimer = 0;
+    const scheduleResize = () => {
+      if (roTimer) clearTimeout(roTimer);
+      roTimer = window.setTimeout(() => {
+        roTimer = 0;
+        if (resize() && drawnOnce) draw(lastSec);
+      }, 160);
+    };
+    const ro = new ResizeObserver(scheduleResize);
     ro.observe(canvas);
     resize();
 
@@ -104,6 +126,7 @@ export default function AuroraLines({
 
     const t0 = performance.now();
     let drawnOnce = false;
+    let lastSec = 0; // seconds passed to the last draw() — reused for resize repaints
 
     const draw = (time: number) => {
       const aspect = W / H;
@@ -155,18 +178,28 @@ export default function AuroraLines({
       drawnOnce = true;
     };
 
+    // Cap the aurora at ~30fps. The ribbons drift slowly (t = time * 0.12), so
+    // 30fps is visually identical to 60 — but halving the redraws frees the main
+    // thread during scroll, which is what made the pinned section feel heavy/hard
+    // to scroll on mobile (6 ribbons × 3 wide additive strokes is a lot of fill).
+    const FRAME_MS = 1000 / 30;
+    let lastFrame = -Infinity;
     const frame = (now: number) => {
       rafRef.current = requestAnimationFrame(frame);
       if (!visible || document.hidden) return;
       if (reduced && drawnOnce) return; // reduced motion: one static frame, then idle
+      if (now - lastFrame < FRAME_MS) return;
+      lastFrame = now;
       // NB: seconds, not ms — the ribbon math below is tuned for a seconds clock
       // (the old WebGL version fed uTime in seconds). Passing raw ms ran it 1000× fast.
-      draw(reduced ? 0 : (now - t0) / 1000);
+      lastSec = reduced ? 0 : (now - t0) / 1000;
+      draw(lastSec);
     };
     rafRef.current = requestAnimationFrame(frame);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      if (roTimer) clearTimeout(roTimer);
       window.removeEventListener('mousemove', onMove);
       ro.disconnect();
       io.disconnect();

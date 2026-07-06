@@ -121,6 +121,7 @@ export default function AIOps() {
             className="pointer-events-none absolute inset-0"
             ribbons={6}
             intensity={0.75}
+            mouseParallax={false}
           />
 
           {/* ── TOP: narrative text ── */}
