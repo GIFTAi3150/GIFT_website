@@ -801,7 +801,11 @@ export default function DxV3Page() {
         trigger: cascadePinStack,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.4,
+        // Desktop scrolls through Lenis (already smoothed), so a little scrub
+        // reads as buttery. On touch Lenis is skipped and native scroll drives
+        // the trigger directly, so the same 0.4s of scrub lags visibly behind
+        // the finger — the cards feel sluggish. Tighten it on mobile.
+        scrub: isMobile ? 0.12 : 0.4,
         invalidateOnRefresh: true,
         onRefresh: () => {
           slideW = slides[0]?.offsetWidth || 400;

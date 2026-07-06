@@ -2138,22 +2138,33 @@
   content: '';
   position: absolute;
   /* Fixed-aspect SQUARE centered on the frame — not inset:-30%, which
-     inherits the frame's aspect ratio. background-position % resolves
-     against the box's own geometry, so on an aspect-following box the
-     same keyframe progress sampled a DIFFERENT part of the gradient on
-     a tall phone than on a wide desktop (phone read cyan while desktop
-     read flat violet at the same moment). A square box makes the
-     % → gradient mapping identical on every screen; vmax keeps band
-     width and blur proportional to the viewport so the wash reads the
-     same scale everywhere. 150vmax overscans the 100vmax frame by
-     25vmax per side, which the wrapper's overflow:hidden clips. */
+     inherits the frame's aspect ratio. The drift is driven by `transform`
+     (see keyframes), and transform % resolves against the element's OWN
+     border-box, so on this square box the % → motion mapping is identical
+     on every screen (a tall phone and a wide desktop sample the same
+     progress). vmax keeps band width and blur proportional to the viewport
+     so the wash reads the same scale everywhere.
+
+     Why transform and not background-position: animating background-position
+     forced a full repaint of this layer EVERY frame, and because each layer
+     carries filter: blur(3vmax) that meant re-blurring a larger-than-viewport
+     surface 60×/s — the section's scroll dropped to a crawl on phones. With a
+     transform animation the browser paints (and blurs) the layer ONCE, caches
+     it, and only re-composites the cached texture as it moves — no per-frame
+     repaint, no per-frame blur. The blur is now a one-time cost.
+
+     180vmax overscans the 100vmax frame by 40vmax per side; the layer's
+     inscribed circle (r=90vmax) still fully covers the frame's corners
+     (~71vmax from center) even after the keyframes translate it up to
+     ~11vmax and rotate ±4deg, so no hard edge is ever exposed. The
+     wrapper's overflow:hidden clips the overscan. */
   left: 50%;
   top: 50%;
-  width: 150vmax;
-  height: 150vmax;
-  margin: -75vmax 0 0 -75vmax;
+  width: 180vmax;
+  height: 180vmax;
+  margin: -90vmax 0 0 -90vmax;
   filter: blur(3vmax);
-  will-change: background-position;
+  will-change: transform;
 }
 /* Layer 1 — broad flowing bands drifting sideways. */
 .dx-v3 .colorbends-css-layer::before {
@@ -2187,26 +2198,27 @@
   opacity: 0.9;
   animation: colorbends-drift-2 32s ease-in-out infinite;
 }
+/* Bands drift sideways as the whole plane glides + tilts. Compositor-only
+   (transform), so no repaint/re-blur per frame. translate % is relative to
+   the layer's own 180vmax square → screen-independent. */
 @keyframes colorbends-drift {
-  0% {
-    background-position: 0% 50%;
+  0%,
+  100% {
+    transform: translate3d(-6%, -3%, 0) rotate(-3deg) scale(1.04);
   }
   50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+    transform: translate3d(6%, 3%, 0) rotate(3deg) scale(1.06);
   }
 }
+/* Second plane drifts on a different vector so the two blended fields bend
+   past each other instead of sliding as flat stripes. */
 @keyframes colorbends-drift-2 {
-  0% {
-    background-position: 100% 0%;
+  0%,
+  100% {
+    transform: translate3d(6%, -4%, 0) rotate(4deg) scale(1.05);
   }
   50% {
-    background-position: 0% 100%;
-  }
-  100% {
-    background-position: 100% 0%;
+    transform: translate3d(-6%, 4%, 0) rotate(-4deg) scale(1.04);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2286,7 +2298,10 @@
     calc(var(--clip-l) * 1px)
     round 24px
   );
-  will-change: transform, clip-path;
+  /* Only transform is compositor-cheap; listing clip-path here can't help it
+     paint faster and just pins an extra buffer. At most two slides re-clip per
+     frame (the pair straddling the front), so the clip cost is already small. */
+  will-change: transform;
 }
 @media (min-width: 900px) {
   .dx-v3 .cascade-slide {
@@ -2320,6 +2335,10 @@
     height: auto;
     padding: 28px 24px;
     gap: 16px;
+    /* Cheaper shadow on phones: the front-straddling pair repaints its shadow
+       every frame as the clip animates, and an 80px blur is costly to paint on
+       mobile GPUs. A tighter blur is nearly indistinguishable at phone size. */
+    box-shadow: 0 16px 40px -22px rgba(11, 19, 64, 0.22);
   }
   .dx-v3 .cascade-slide .cascade-card p {
     font-size: 14px;
