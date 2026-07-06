@@ -35,16 +35,39 @@ export default function ErrorReporter(): null {
       return true;
     };
 
+    // Third-party scripts (analytics tags, ad pixels, browser extensions) throw
+    // their own errors we can neither fix nor act on — e.g. Microsoft Clarity's
+    // "Cannot read properties of null (reading 'sequence')". Drop anything whose
+    // source URL / stack points at a known third party so the Slack channel stays
+    // signal-only. Matched as substrings against the filename and the stack.
+    const NOISE_SOURCES = [
+      'clarity.ms',
+      'googletagmanager.com',
+      'google-analytics.com',
+      'doubleclick',
+      'facebook.net',
+      'connect.facebook',
+      'chrome-extension://',
+      'moz-extension://',
+      'safari-web-extension://',
+    ];
+    const isNoise = (text: string | null | undefined): boolean =>
+      !!text && NOISE_SOURCES.some((s) => text.includes(s));
+
     const onError = (event: ErrorEvent): void => {
       // Resource load failures (img/script) surface here with no message/error —
       // skip them, they're not app crashes.
       if (!event.message && !event.error) return;
+      const stack = event.error instanceof Error ? event.error.stack : undefined;
+      // Opaque cross-origin errors arrive as "Script error." with no detail and
+      // are almost always third-party — skip those plus any known-noise source.
+      if (event.message === 'Script error.' || isNoise(event.filename) || isNoise(stack)) return;
       const msg = event.message || 'Unknown error';
       if (!allow(msg)) return;
       report({
         kind: 'window.onerror',
         message: msg,
-        stack: event.error instanceof Error ? event.error.stack : undefined,
+        stack,
         source: event.filename ? `${event.filename}:${event.lineno}:${event.colno}` : undefined,
         url: window.location.href,
       });
@@ -52,13 +75,17 @@ export default function ErrorReporter(): null {
 
     const onRejection = (event: PromiseRejectionEvent): void => {
       const reason = event.reason;
+      const stack = reason instanceof Error ? reason.stack : undefined;
       const msg =
         reason instanceof Error ? reason.message : String(reason ?? 'Unhandled rejection');
+      // Third-party rejections (e.g. Clarity) carry their own bundle URL in the
+      // stack — drop them the same way as onError.
+      if (isNoise(stack) || isNoise(msg)) return;
       if (!allow(msg)) return;
       report({
         kind: 'unhandledrejection',
         message: msg,
-        stack: reason instanceof Error ? reason.stack : undefined,
+        stack,
         url: window.location.href,
       });
     };
