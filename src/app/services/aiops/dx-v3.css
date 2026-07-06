@@ -1637,6 +1637,16 @@
        .sp space spans (normal word-wrap). No overflow-wrap override needed. */
     word-break: normal;
   }
+  /* "Signs AI hasn't rooted." is ~330px at this size — it JUST fits one line
+     on a 393px phone, so the browser doesn't wrap it and it clips off the right
+     edge (html has overflow-x:hidden, so it's cut, not scrollable). Force the
+     italic clause onto its own line: "Signs AI" / "hasn't rooted." / .ja. The
+     .ch scramble spans inside still animate normally (block only affects the
+     parent's line box). Scoped to the pains heading so other section headings
+     are untouched. */
+  .dx-v3 .pains-pin-content .sec-head h2 em {
+    display: block;
+  }
   /* Q.01-Q.04 question text: keep-all prevents CJK line breaks on 600-899px
      tablets where the longer questions (16 chars) would overflow the column.
      Reset to normal so CJK wraps at character boundaries. */
@@ -1743,6 +1753,13 @@
      landscape and devices between 600px and the desktop breakpoint —
      wrapping reads better than truncation in every case here, since
      the Q lines are short enough to fit one line on real desktops. */
+  /* When these DO wrap to two lines on mobile, balance the lines so the
+     tail never orphans a lone trailing character (…変わってい / ない。).
+     text-wrap:balance is supported on iOS Safari 17.5+ and Chrome; it's a
+     no-op on desktop where the question fits one line. word-break:auto-phrase
+     (the repo's other anti-orphan tool) is Chrome-only, so it can't carry the
+     iPhone here — balance is the cross-browser fix for these short lines. */
+  text-wrap: balance;
 }
 @media (max-width: 600px) {
   /* Remove the section's 32px horizontal padding so it doesn't stack on
