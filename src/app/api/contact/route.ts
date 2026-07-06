@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { notifySlack, describeError } from '@/lib/notify-slack';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Contact form error:', error);
+    const { message, stack } = describeError(error);
+    await notifySlack({
+      title: 'お問い合わせフォーム送信エラー',
+      message: stack ?? message,
+      fields: { Route: '/api/contact', Env: process.env.VERCEL_ENV || 'development' },
+      dedupKey: 'contact-error',
+    });
     return NextResponse.json(
       { error: '送信に失敗しました。時間をおいて再度お試しください。' },
       { status: 500 }

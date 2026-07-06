@@ -5,6 +5,7 @@ import CtaHoverHydrator from '@/components/util/CtaHoverHydrator';
 import ScrollToTopOnRouteChange from '@/components/util/ScrollToTopOnRouteChange';
 import RootCanvasMount from '@/components/three/RootCanvasMount';
 import Header from '@/components/layout/Header';
+import ErrorReporter from '@/components/util/ErrorReporter';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -172,6 +173,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CtaHoverHydrator />
         <ScrollToTopOnRouteChange />
         <RootCanvasMount />
+        <ErrorReporter />
       </body>
     </html>
   );
