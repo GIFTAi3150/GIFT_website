@@ -60,8 +60,12 @@ export default function AuroraLines({
       `${Math.round((ab + (bb - ab) * t) * 255)}`;
 
     // Render below CSS resolution and let CSS scale it up — the soft additive
-    // strokes hide the low res and it keeps mobile cheap.
-    const SCALE = 0.7;
+    // strokes hide the low res and it keeps mobile cheap. Drop further on phones:
+    // the aurora is fill-rate bound (6 ribbons × 3 wide additive strokes over a
+    // full-screen sticky section), and 0.5 halves the pixel count vs 0.7 with no
+    // visible change through the soft blur.
+    const isMobile = window.matchMedia('(max-width: 899px)').matches;
+    const SCALE = isMobile ? 0.5 : 0.7;
     let W = 2,
       H = 2;
     // Resizing the canvas (canvas.width = …) CLEARS it. On mobile the URL bar

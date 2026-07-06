@@ -30,20 +30,28 @@ export default function AIOps() {
 
   const [pos, setPos]         = useState({ x: 0, y: 0 });
   const [visible, setVisible] = useState(false);
-  const [rotation, setRotation] = useState(0);
-  const rafRef = useRef<number>(0);
+  const ringRef = useRef<SVGSVGElement | null>(null);
 
-  // Rotating cursor ring
+  // Rotating cursor ring — spins ONLY while the custom cursor is actually shown
+  // (desktop hover). On touch devices `visible` never flips true, so this loop
+  // never starts on mobile at all. It also writes the rotation straight to the
+  // DOM via a ref instead of React state: the old setRotation(angle) re-rendered
+  // this entire section 60×/sec *unconditionally* — offscreen and on phones
+  // where the cursor is invisible — which is what made the section fight the
+  // scroll and drop frames on mobile.
   useEffect(() => {
+    if (!visible) return;
+    const ring = ringRef.current;
     let angle = 0;
+    let raf = 0;
     const tick = () => {
       angle += 0.4;
-      setRotation(angle);
-      rafRef.current = requestAnimationFrame(tick);
+      if (ring) ring.style.transform = `rotate(${angle}deg)`;
+      raf = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [visible]);
 
   // Cursor position relative to sticky div (not the full-height outer)
   const onMove = useCallback((e: React.MouseEvent) => {
@@ -231,13 +239,14 @@ export default function AIOps() {
             }}
           >
             <svg
+              ref={ringRef}
               width={CURSOR_SIZE}
               height={CURSOR_SIZE}
               style={{
                 position: 'absolute',
                 left: -CURSOR_SIZE / 2,
                 top: -CURSOR_SIZE / 2,
-                transform: `rotate(${rotation}deg)`,
+                transform: 'rotate(0deg)',
                 overflow: 'visible',
               }}
             >
