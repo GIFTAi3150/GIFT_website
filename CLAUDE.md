@@ -8,8 +8,8 @@ GIFT Inc corporate website — rebuild from WordPress to Next.js + Tailwind + TS
 - Vercel deploys
 
 ## Branching
-- `main` → production
-- `dev` → integration
+- `main` → intended eventual production once the real domain (gift-inc.org) cuts over from the old WordPress site — not live yet
+- `dev` → **this is the branch that actually matters right now.** Vercel auto-deploys it to `https://gift-website-git-dev-itgiftai-4573s-projects.vercel.app/`, which is the URL the user checks as "the website" day to day. Merging a PR into `dev` is enough to see a change live — don't assume a further `dev → main` merge is needed for the user to verify something. (Confirmed 2026-07-01.)
 - `features/devN` → working branches
 
 ## Working norms

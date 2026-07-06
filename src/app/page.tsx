@@ -74,11 +74,11 @@ export default async function HomePage() {
         {/* OUR PHILOSOPHY — scroll-pinned rotating wheel (no Reveal: manages its own sticky scroll) */}
         <WheelScroll />
 
-        {/* ABOUT */}
-        <HPAbout />
-
         {/* AIOPS — scroll-pinned cascade + giant text */}
         <AIOps />
+
+        {/* ABOUT */}
+        <HPAbout />
 
         {/* CASES */}
         <HPCases />

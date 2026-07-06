@@ -17,6 +17,11 @@ const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
 // `precision highp float` to mediump; three.js renders on WebGL2 (guaranteed
 // highp), which is how loudsrl runs the identical shader on the same GPUs.
 import LiquidHeroBackground from './LiquidHeroBackground';
+// "Color Bends" (reactbits) shader backdrop for the "How we work" section.
+// Ported into the repo's context-loss-safe raw-WebGL scaffold (NOT the
+// upstream THREE.WebGLRenderer + forceContextLoss version — that trips the
+// guilty-GPU bug on this already-WebGL page). See ColorBends.tsx.
+import ColorBends from './ColorBends';
 
 // Split a string into per-character `.ch` spans so GSAP can stagger them,
 // with each word's chars grouped in a `.wd` wrapper (white-space:nowrap in
@@ -418,6 +423,32 @@ export default function DxV3Page() {
         },
       })
     );
+
+    // ---- Intro: each authored line rises + fades + un-blurs as it
+    //      scrolls into view. This is the visible "entrance" motion; it
+    //      animates the .line wrapper's transform/opacity/filter and is
+    //      independent of the word-by-word colour scrub above (which only
+    //      touches .word `color`), so the two layer cleanly. ----
+    const introLines = [...document.querySelectorAll<HTMLElement>('.dx-v3 #introText .line')];
+    introLines.forEach((line) => {
+      const tween = gsap.fromTo(
+        line,
+        { opacity: 0, y: 30, filter: 'blur(6px)' },
+        {
+          opacity: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: line,
+            start: 'top 88%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
+    });
 
     // ---- Manifesto scene: 2D accents AND PNG shapes drift on scroll ----
     // Each shape has its own drift amount and direction so the cluster
@@ -1736,41 +1767,75 @@ export default function DxV3Page() {
       <section className="intro">
         <div className="wrap">
           <div className="text" id="introText">
-            <span className="word">なぜ、</span>
-            <span className="word">AIは</span>
-            <span className="word">優秀なのに</span>
-            <span className="word">仕事は</span>
-            <span className="word">変わらないのか。</span>
-            {' '}
-            <span className="word">AIが</span>
-            <span className="word">どれだけ</span>
-            <span className="word">優秀でも、</span>
-            <span className="word">あなたの</span>
-            <span className="word">会社のことを</span>
-            <span className="word">知らなければ、</span>
-            <span className="word">入社初日の</span>
-            <span className="word">新人と</span>
-            <span className="word">同じです。</span>
-            {' '}
-            <span className="word">商品や</span>
-            <span className="word">サービスのこと。</span>
-            <span className="word">お客様との</span>
-            <span className="word">やり取り。</span>
-            <span className="word">社長や</span>
-            <span className="word">担当者の</span>
-            <span className="word">判断基準。</span>
-            <span className="word">社内のルールや、</span>
-            <span className="word">仕事の</span>
-            <span className="word">進め方。</span>
-            {' '}
-            <span className="word">それらを</span>
-            <span className="word">AIが</span>
-            <span className="word">使える形に</span>
-            <span className="word">整えて</span>
-            <span className="word accent">はじめて、</span>
-            <span className="word">AIは</span>
-            <span className="word">会社の中で</span>
-            <span className="word accent">動き始めます。</span>
+            {/* Authored as stanzas → lines. Each intended line break is a
+                block-level .line and each blank line is a .stanza gap, so the
+                copy reads exactly as written (no arbitrary wrap). The per-phrase
+                .word spans are preserved in DOM order for the scroll light-up. */}
+            <span className="stanza">
+              <span className="line">
+                <span className="word">なぜ、</span>
+                <span className="word">AIは</span>
+                <span className="word">優秀なのに</span>
+              </span>
+              <span className="line">
+                <span className="word">仕事は</span>
+                <span className="word">変わらないのか。</span>
+              </span>
+            </span>
+
+            <span className="stanza">
+              <span className="line">
+                <span className="word">AIが</span>
+                <span className="word">どれだけ</span>
+                <span className="word">優秀でも、</span>
+              </span>
+              <span className="line">
+                <span className="word">あなたの</span>
+                <span className="word">会社のことを</span>
+                <span className="word">知らなければ、</span>
+              </span>
+              <span className="line">
+                <span className="word">入社初日の</span>
+                <span className="word">新人と</span>
+                <span className="word">同じです。</span>
+              </span>
+            </span>
+
+            <span className="stanza">
+              <span className="line">
+                <span className="word">商品や</span>
+                <span className="word">サービスのこと。</span>
+              </span>
+              <span className="line">
+                <span className="word">お客様との</span>
+                <span className="word">やり取り。</span>
+              </span>
+              <span className="line">
+                <span className="word">社長や</span>
+                <span className="word">担当者の</span>
+                <span className="word">判断基準。</span>
+              </span>
+              <span className="line">
+                <span className="word">社内のルールや、</span>
+                <span className="word">仕事の</span>
+                <span className="word">進め方。</span>
+              </span>
+            </span>
+
+            <span className="stanza">
+              <span className="line">
+                <span className="word">それらを</span>
+                <span className="word">AIが</span>
+                <span className="word">使える形に</span>
+                <span className="word">整えて</span>
+                <span className="word accent">はじめて、</span>
+              </span>
+              <span className="line">
+                <span className="word">AIは</span>
+                <span className="word">会社の中で</span>
+                <span className="word accent">動き始めます。</span>
+              </span>
+            </span>
           </div>
         </div>
 
@@ -1844,7 +1909,7 @@ export default function DxV3Page() {
               <div className="lab">Drive Results</div>
               <div className="ja">業務で成果を出す</div>
             </div>
-            <div className="stat partner-stat">
+            <div className="stat">
               <div className="num">
                 <em>定着</em>
               </div>
@@ -2002,6 +2067,15 @@ export default function DxV3Page() {
 
         <div className="cascade-pin-stack">
           <div className="cascade-pin-frame">
+            {/* Color Bends (reactbits) shader backdrop — this section's own
+                motion identity, replacing the rising deco-rects used elsewhere
+                on the page. Ported into the repo's context-loss-safe raw-WebGL
+                scaffold (see ColorBends.tsx). Sits behind the cards
+                (z-index:0; .cascade-slider is z-index:1). */}
+            <ColorBends
+              className="cascade-bends"
+              style={{ left: -32, right: -32, width: 'auto' }}
+            />
             <div className="cascade-slider" data-cascading-slider-wrap>
               <div className="cascade-viewport" data-cascading-viewport>
                 {FEATURES.map((f, i) => (
@@ -2013,14 +2087,14 @@ export default function DxV3Page() {
                   >
                     <div className="cascade-card">
                       <div className="cascade-id">{f.id}</div>
-                      <div className="cascade-ic">
+                      <div className="cascade-media">
                         <svg
-                          width="28"
-                          height="28"
+                          className="cascade-icon"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
-                          strokeWidth="1.5"
+                          strokeWidth="1.4"
+                          aria-hidden
                         >
                           <path d={f.icon} strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
