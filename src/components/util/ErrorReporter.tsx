@@ -55,6 +55,11 @@ export default function ErrorReporter(): null {
       !!text && NOISE_SOURCES.some((s) => text.includes(s));
 
     const onError = (event: ErrorEvent): void => {
+      // Dead old URLs (/DashBoard, /support997/*) get crawled after the domain
+      // cutover and render the 404 page, where a few bot/legacy browsers throw a
+      // non-reproducible React error. Those pages don't exist and there's
+      // nothing to fix — skip them so the Slack channel stays signal-only.
+      if (window.__giftNotFound) return;
       // Resource load failures (img/script) surface here with no message/error —
       // skip them, they're not app crashes.
       if (!event.message && !event.error) return;

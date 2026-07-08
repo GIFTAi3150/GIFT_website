@@ -60,6 +60,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
+        {/* Survive Google-Translate / extension DOM edits. When the browser's
+            translator swaps text nodes, React's later removeChild/insertBefore
+            throws NotFoundError and takes down the whole page (seen on /contact:
+            "removeChild" crash + form couldn't submit). Patch both to no-op
+            instead of throw when the node was moved out from under React. Runs
+            before hydration so it's in place for the first commit. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(typeof Node!=='function'||!Node.prototype)return;var r=Node.prototype.removeChild;Node.prototype.removeChild=function(c){if(c&&c.parentNode!==this){return c;}return r.apply(this,arguments);};var i=Node.prototype.insertBefore;Node.prototype.insertBefore=function(n,ref){if(ref&&ref.parentNode!==this){return n;}return i.apply(this,arguments);};})();`,
+          }}
+        />
         {/* Suppress known third-party and framework noise.
             - THREE.Clock: deprecated in r165+, R3F 8.x still uses it — unfixable without upstream upgrade.
             - Skipping auto-scroll: Next.js dev-only check hitting our fixed-position overlays — harmless. */}
