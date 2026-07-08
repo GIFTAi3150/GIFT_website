@@ -37,7 +37,31 @@ export type NavTheme = {
   textFaint: string;
 };
 
+// Default / fallback chrome — used by any route without an explicit mapping,
+// which in practice is only the 404 (not-found) page. Matches the homepage's
+// blue AI palette so a mistyped URL still reads as part of the current site
+// rather than the legacy WhatsApp-green system.
 const DEFAULT_THEME: NavTheme = {
+  bg: '#F0F7FF',
+  bgAlpha: 'rgba(248, 249, 255, 0.95)',
+  bgFull: '#F0F7FF',
+  accent: '#2563EB',
+  accentDeep: '#1D4ED8',
+  border: '#BFDBFE',
+  bgAlt: '#EFF6FF',
+  ink: '#0C0E1A',
+  muted: '#5B6B8A',
+  logoShield: '#2563EB',
+  logoInner: '#ffffff',
+  text: '#0C0E1A',
+  textMuted: '#5B6B8A',
+  textFaint: 'rgba(12, 14, 26, 0.38)',
+};
+
+// /news + /news/[slug] — the article section still wears the legacy WhatsApp
+// green in its body (text-gift-green / bg-gift-near-black), so its chrome stays
+// green to match. Mapped explicitly now that the default fallback is blue.
+const NEWS_THEME: NavTheme = {
   bg: '#EBEEF3',
   bgAlpha: 'rgba(235, 238, 243, 0.95)',
   bgFull: '#EBEEF3',
@@ -238,6 +262,7 @@ const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/contact(\/|$)/, CONTACT_THEME],
   [/^\/privacy(\/|$)/, PRIVACY_THEME],
   [/^\/company(\/|$)/, COMPANY_THEME],
+  [/^\/news(\/|$)/, NEWS_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/aiops(\/|$)/, DX_CONSULTING_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
