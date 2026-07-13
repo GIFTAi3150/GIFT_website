@@ -67,14 +67,22 @@ export default function ErrorReporter(): null {
       // Opaque cross-origin errors arrive as "Script error." with no detail and
       // are almost always third-party — skip those plus any known-noise source.
       if (event.message === 'Script error.' || isNoise(event.filename) || isNoise(stack)) return;
-      const msg = event.message || 'Unknown error';
+      // Safari fires some errors (notably stack overflows raised inside a
+      // library's rAF callback) with an empty event.message, so the alert
+      // arrives as a bare stack with nothing naming it. Fall back to the
+      // Error's own name/message, and send the UA — "which browser" is the
+      // first question every one of these raises.
+      const err = event.error instanceof Error ? event.error : undefined;
+      const msg = event.message || (err && (err.message || err.name)) || 'Unknown error';
       if (!allow(msg)) return;
       report({
         kind: 'window.onerror',
         message: msg,
+        name: err?.name,
         stack,
         source: event.filename ? `${event.filename}:${event.lineno}:${event.colno}` : undefined,
         url: window.location.href,
+        userAgent: navigator.userAgent,
       });
     };
 

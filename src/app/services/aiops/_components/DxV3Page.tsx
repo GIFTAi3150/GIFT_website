@@ -1553,19 +1553,50 @@ export default function DxV3Page() {
     //      hundred px. A final refresh here is the belt around the suspenders.
     let alive = true;
     let rafId = 0;
+
+    // Content on this page starts at opacity:0 and is revealed by ScrollTrigger.
+    // That makes visibility depend on the animation pipeline surviving — and on
+    // iOS Safari it does not always survive (a refresh throws, and every reveal
+    // registered behind it never fires, stranding whole sections invisible on a
+    // page that otherwise looks loaded).
+    //
+    // This is the escape hatch: finish the entrance reveals by hand so the page
+    // degrades to "readable but unanimated" instead of "blank". Only non-scrub
+    // triggers are completed — scrub-driven sections (orbit, cascade, pins) are
+    // already placed by their initial applyTransforms(0)/applyFocus(0) call, and
+    // forcing those to progress(1) would jump them to their scrolled-past state.
+    const revealWithoutAnimation = () => {
+      triggers.forEach((t) => {
+        try {
+          if (!t.vars?.scrub && t.animation) t.animation.progress(1);
+        } catch {
+          /* one bad trigger must not stop the rest from revealing */
+        }
+      });
+    };
+
+    // Scroll-reset + refresh are the only calls here that can throw. They are
+    // fenced off so that everything below — the guard release in particular —
+    // always runs. Before this fence, a throw on line 1 left [data-flash-guard]
+    // on the wrapper and the entire page hidden behind the cover.
     const revealAndRefresh = () => {
       if (!alive) return;
-      // Use Lenis's own reset when it's active so its internal target-scroll
-      // state stays in sync. A bare window.scrollTo() bypasses Lenis — it sees
-      // the actual DOM position jump to 0 but keeps its own target elsewhere,
-      // then fights to scroll back to its target on the next RAF tick, which
-      // breaks scroll-driven animations immediately after the guard drops.
-      if (lenis) {
-        lenis.scrollTo(0, { immediate: true });
-      } else {
-        window.scrollTo(0, 0);
+      try {
+        // Use Lenis's own reset when it's active so its internal target-scroll
+        // state stays in sync. A bare window.scrollTo() bypasses Lenis — it sees
+        // the actual DOM position jump to 0 but keeps its own target elsewhere,
+        // then fights to scroll back to its target on the next RAF tick, which
+        // breaks scroll-driven animations immediately after the guard drops.
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        } else {
+          window.scrollTo(0, 0);
+        }
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.error('[dx-v3] ScrollTrigger.refresh failed — revealing unanimated', err);
+        revealWithoutAnimation();
       }
-      ScrollTrigger.refresh();
       // Remove the useLayoutEffect's opacity:0!important so GSAP can take
       // control of opacity on these elements.
       document
@@ -1675,7 +1706,19 @@ export default function DxV3Page() {
     // → scroll animations dead. fonts.ready runs independently (not raced),
     // the load listener covers hard reloads, and the settle timer catches any
     // remaining late-loading assets on cold routes.
-    const refreshIfAlive = () => { if (alive) ScrollTrigger.refresh(); };
+    // Same fence as revealAndRefresh. These fire after the guard is already
+    // released, so a throw here doesn't blank the page — it strands the reveals
+    // that hadn't fired yet, leaving visible-but-empty sections. Catch, then
+    // force those reveals so the content is readable either way.
+    const refreshIfAlive = () => {
+      if (!alive) return;
+      try {
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.error('[dx-v3] ScrollTrigger.refresh failed — revealing unanimated', err);
+        revealWithoutAnimation();
+      }
+    };
     document.fonts.ready.then(refreshIfAlive);
     if (document.readyState === 'complete') {
       window.setTimeout(refreshIfAlive, 50);
