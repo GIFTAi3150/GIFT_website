@@ -52,7 +52,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="ja"
-      className={`${notoSansJP.variable} ${poppins.variable} ${anton.variable} ${openSans.variable} ${forum.variable} ${shipporiAntique.variable}`}
+      // Opt the site out of browser translation (Chrome/Safari honour both the
+      // attribute and the class; Chrome-on-iOS needs the class).
+      //
+      // Why: our pages hide content at opacity:0 and reveal it with GSAP, which
+      // holds references to the DOM nodes it animates. Browser translation
+      // rewrites those nodes continuously as you scroll, so GSAP ends up
+      // animating detached ghosts while the elements actually on screen stay at
+      // opacity:0 — a page that loads fine with permanently empty sections
+      // (reported on /services/aiops via Chrome-on-iOS, 2026-07-13; confirmed by
+      // the reporter: translation off → renders, translation on → blank). It
+      // also produces the React #418/#422 hydration mismatches, and it is the
+      // same mechanism behind the earlier /contact removeChild crash that the
+      // Node.prototype guard below was added to survive.
+      //
+      // Trade-off accepted: non-Japanese visitors lose one-tap auto-translate.
+      // The durable answer is a real localised site, not a rewritten DOM.
+      translate="no"
+      className={`notranslate ${notoSansJP.variable} ${poppins.variable} ${anton.variable} ${openSans.variable} ${forum.variable} ${shipporiAntique.variable}`}
       // Browsers serialize inline-style hex colors as rgb(), which
       // React reads back as a different string than its JSX source —
       // produces a noisy but harmless hydration warning. Suppress it.
@@ -60,6 +77,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
+        {/* Belt-and-braces with translate="no" + .notranslate on <html>: Chrome
+            also honours this meta, and it's the signal Chrome-on-iOS respects
+            most reliably. See the comment on <html> for why we opt out. */}
+        <meta name="google" content="notranslate" />
         {/* Survive Google-Translate / extension DOM edits. When the browser's
             translator swaps text nodes, React's later removeChild/insertBefore
             throws NotFoundError and takes down the whole page (seen on /contact:

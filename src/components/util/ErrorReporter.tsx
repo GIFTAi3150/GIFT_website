@@ -67,6 +67,17 @@ export default function ErrorReporter(): null {
       // Opaque cross-origin errors arrive as "Script error." with no detail and
       // are almost always third-party — skip those plus any known-noise source.
       if (event.message === 'Script error.' || isNoise(event.filename) || isNoise(stack)) return;
+      // Unattributed errors: code the browser can't tie to any script it loaded.
+      // Chrome-on-iOS injects such code — it surfaced here as a repeating
+      // "RangeError: Maximum call stack size exceeded" with filename set to the
+      // literal string "undefined", not one stack frame carrying a URL, and a
+      // line number that moved between loads (31:70, then 38:249) even though a
+      // deployed bundle's line numbers are fixed. It fires on every page,
+      // including ones that render perfectly, so it breaks nothing and there is
+      // nothing on our side to fix. Our own frames always carry a chunk URL, so
+      // "has a stack but not one http(s) reference" is a safe test for not-ours.
+      if (event.filename === 'undefined') return;
+      if (stack && !/https?:\/\//.test(stack)) return;
       // Safari fires some errors (notably stack overflows raised inside a
       // library's rAF callback) with an empty event.message, so the alert
       // arrives as a bare stack with nothing naming it. Fall back to the
