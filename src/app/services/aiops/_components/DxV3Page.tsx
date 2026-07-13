@@ -327,6 +327,46 @@ export default function DxV3Page() {
     gsap.registerPlugin(ScrollTrigger);
     const triggers: ScrollTrigger[] = [];
 
+    // ---- "Page loads, sections are empty" safety net (iOS Chrome) ----
+    // Everything below the hero starts at opacity:0 and is revealed by
+    // ScrollTrigger. Visibility therefore depends on two things holding: this
+    // effect running to completion, AND its triggers firing on scroll. On iOS
+    // Chrome neither is guaranteed — a RangeError raised by injected
+    // third-party code (no source URL, not from our bundle) lands while this is
+    // running — and the failure mode is a page that looks fully loaded with
+    // nothing inside its sections.
+    //
+    // The phase marker distinguishes the two halves, which we cannot tell apart
+    // from the outside: ErrorReporter attaches it to the Slack alert, so
+    // 'setup-start' means this effect died before finishing, and 'setup-done'
+    // means it completed and the triggers themselves are what's not firing.
+    window.__dxV3Phase = 'setup-start';
+
+    // If setup never completes, GSAP's opacity:0 from-states are left on the DOM
+    // with nothing left alive to clear them. Rather than leave a reader staring
+    // at blank sections, strip the inline hiding once it's clear setup is not
+    // coming back. Transforms are deliberately left alone — orbit tiles and
+    // cascade cards depend on them for position, and it's opacity/visibility/
+    // blur, not transform, that make the content unreadable.
+    const emergencyReveal = () => {
+      const root = document.querySelector<HTMLElement>('.dx-v3');
+      if (!root) return;
+      root.removeAttribute('data-flash-guard');
+      root.querySelectorAll<HTMLElement>('[style]').forEach((el) => {
+        const s = el.style;
+        if (s.opacity !== '' && Number(s.opacity) < 1) s.removeProperty('opacity');
+        if (s.visibility === 'hidden') s.removeProperty('visibility');
+        if (s.filter.includes('blur')) s.removeProperty('filter');
+      });
+      setInlineCoverActive(false);
+    };
+    const setupWatchdog = window.setTimeout(() => {
+      if (window.__dxV3Phase !== 'setup-done') {
+        console.error('[dx-v3] setup never completed — revealing content unanimated');
+        emergencyReveal();
+      }
+    }, 6000);
+
     // Belt-and-suspenders scroll reset in case Next.js scroll restoration fires
     // between useLayoutEffect and useEffect (e.g., history.back() path).
     window.scrollTo(0, 0);
@@ -1727,11 +1767,17 @@ export default function DxV3Page() {
     }
     const settleTimer = window.setTimeout(refreshIfAlive, 1200);
 
+    // Reached only if every line above ran without throwing. If a Slack alert
+    // from this page ever shows Phase: setup-start, the effect died before here.
+    window.__dxV3Phase = 'setup-done';
+
     return () => {
       alive = false;
       cancelAnimationFrame(rafId);
       window.removeEventListener('load', refreshIfAlive);
       window.clearTimeout(settleTimer);
+      window.clearTimeout(setupWatchdog);
+      window.__dxV3Phase = undefined;
       pixelatedMM.revert();
       triggers.forEach((t) => t.kill());
       if (lenisRaf) gsap.ticker.remove(lenisRaf);

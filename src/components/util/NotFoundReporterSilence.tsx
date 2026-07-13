@@ -10,6 +10,14 @@ declare global {
      * don't exist. See NotFoundReporterSilence below for the why.
      */
     __giftNotFound?: boolean;
+    /**
+     * Set by the /services/aiops page while its scroll-animation setup runs:
+     * 'setup-start' until the effect finishes, then 'setup-done'. ErrorReporter
+     * forwards it so a Slack alert from that page says whether the setup effect
+     * survived — the difference between "the effect died" and "the effect ran
+     * but its ScrollTriggers never fired", which look identical from outside.
+     */
+    __dxV3Phase?: string;
   }
 }
 

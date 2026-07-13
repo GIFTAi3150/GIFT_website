@@ -83,6 +83,7 @@ export default function ErrorReporter(): null {
         source: event.filename ? `${event.filename}:${event.lineno}:${event.colno}` : undefined,
         url: window.location.href,
         userAgent: navigator.userAgent,
+        phase: window.__dxV3Phase,
       });
     };
 

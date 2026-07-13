@@ -36,6 +36,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       source?: string;
       url?: string;
       userAgent?: string;
+      phase?: string;
     };
 
     if (!body.message) {
@@ -55,6 +56,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         Source: body.source,
         Digest: body.digest,
         Browser: body.userAgent?.slice(0, 200),
+        Phase: body.phase,
         Env: process.env.VERCEL_ENV || 'development',
       },
       dedupKey: `client:${body.message.slice(0, 200)}`,
