@@ -6,6 +6,7 @@ import ScrollToTopOnRouteChange from '@/components/util/ScrollToTopOnRouteChange
 import RootCanvasMount from '@/components/three/RootCanvasMount';
 import Header from '@/components/layout/Header';
 import ErrorReporter from '@/components/util/ErrorReporter';
+import { HYDRATION_PROBE_JS } from '@/components/util/hydrationProbeScript';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gift-inc.org'),
@@ -77,6 +78,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
+        {/* TEMPORARY: iOS hydration-mismatch probe (React #418/#422 — fires only
+            on real iPhones on the live domain; a byte-identical prod build served
+            over LAN to the same phone is clean, so the probe has to run on
+            www.gift-inc.org itself).
+
+            It no-ops unless the URL carries ?probe=1 — a normal visitor executes
+            one indexOf and stops — so it ships unconditionally rather than behind
+            an env var, which would cost a Vercel dashboard round-trip and a second
+            deploy to switch on.
+
+            Must be the FIRST script in <head>: it patches console.error before
+            anything else can log to it, and starts its MutationObserver before our
+            own inline scripts (or anything on the device) touch the DOM.
+
+            REMOVE once the bug is root-caused. */}
+        <script dangerouslySetInnerHTML={{ __html: HYDRATION_PROBE_JS }} />
         {/* iOS Safari auto-detects phone numbers, addresses and dates in text and
             rewrites them into <a> tags ITSELF, before React hydrates. The DOM then
             no longer matches the server HTML and React throws #418 (hydration
