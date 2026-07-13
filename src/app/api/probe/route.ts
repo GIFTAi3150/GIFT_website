@@ -17,6 +17,7 @@ export const dynamic = 'force-dynamic';
 
 interface ProbePayload {
   url?: string;
+  navType?: string;
   ua?: string;
   lang?: string;
   langs?: string;
@@ -41,6 +42,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   line('═══════════════════════════════════════════════════════════════');
   line(`url        ${body.url ?? '?'}`);
+  line(`nav type   ${body.navType ?? '?'}   ← navigate / reload / back_forward, and cache vs network`);
   line(`ua         ${body.ua ?? '?'}`);
   line(`lang       ${body.lang ?? '?'} (${body.langs ?? ''})   viewport ${body.viewport ?? '?'} @${body.dpr ?? '?'}x`);
   line(

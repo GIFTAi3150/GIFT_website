@@ -42,9 +42,37 @@
  * HYDRATION_PROBE=on, and even then it no-ops unless the URL carries ?probe=1.
  */
 export const HYDRATION_PROBE_JS = `(function () {
-  if (location.search.indexOf('probe=1') === -1) return;
+  // STICKY ARMING. The bug did not fire on a ?probe=1&x=1 load — but that URL is
+  // cache-busted by construction, so it tests the one condition under which a
+  // cache-related mismatch cannot happen. And a URL you have to type is never the
+  // URL a normal visit uses. So ?probe=1 ARMS the probe for this device, and it
+  // then runs on every subsequent page load — normal browsing, normal URLs, warm
+  // cache, back/forward — until ?probe=0 disarms it. Findings persist across
+  // loads, so a mismatch on page 3 is still readable on page 5.
+  var armed = false;
+  try {
+    if (location.search.indexOf('probe=0') !== -1) { localStorage.removeItem('giftProbe'); return; }
+    if (location.search.indexOf('probe=1') !== -1) { localStorage.setItem('giftProbe', 'on'); armed = true; }
+    else armed = localStorage.getItem('giftProbe') === 'on';
+  } catch (e) {
+    armed = location.search.indexOf('probe=1') !== -1;
+  }
+  if (!armed) return;
   if (window.__giftProbe) return;
   window.__giftProbe = true;
+
+  // How did we ARRIVE at this page? A hydration mismatch that only shows up on a
+  // reload, or on a back/forward (bfcache) restore, or only on a warm cache, is a
+  // completely different bug from one that fires on a cold navigate — and we have
+  // so far only ever tested cold navigates.
+  var navType = 'unknown';
+  try {
+    var nav = performance.getEntriesByType('navigation')[0];
+    if (nav && nav.type) navType = nav.type;
+    if (nav && typeof nav.transferSize === 'number') {
+      navType += nav.transferSize === 0 ? ' (from-cache)' : ' (from-network)';
+    }
+  } catch (e) {}
 
   var t0 = Date.now();
   var since = function () { return Date.now() - t0; };
@@ -273,25 +301,47 @@ export const HYDRATION_PROBE_JS = `(function () {
         var L = payload.logs[i];
         if (/418|422|423|425|hydrat|did not match|server html/i.test(L.text)) hyd.push(L);
       }
+      // Persist hits across page loads: the mismatch may fire on a page you
+      // reached three navigations ago, and it must still be readable here.
+      var history = [];
+      try {
+        history = JSON.parse(localStorage.getItem('giftProbeHits') || '[]');
+        for (var q = 0; q < hyd.length; q++) {
+          history.push({ url: location.pathname + location.search, nav: navType, text: hyd[q].text.slice(0, 400) });
+        }
+        while (history.length > 10) history.shift();
+        localStorage.setItem('giftProbeHits', JSON.stringify(history));
+      } catch (e) {}
+      var everHit = history.length > 0;
       var pre = [];
       for (var m = 0; m < payload.mutations.length; m++) {
         if (payload.mutations[m].phase !== 'hydrating') pre.push(payload.mutations[m]);
       }
+      var accent = everHit ? '#ff4d4f' : '#22c55e';
       var box = document.createElement('div');
       box.setAttribute('style', [
-        'position:fixed', 'left:0', 'right:0', 'bottom:0', 'max-height:55vh', 'overflow:auto',
+        'position:fixed', 'left:0', 'right:0', 'bottom:0',
+        'max-height:' + (everHit ? '60vh' : '90px'), 'overflow:auto',
         'z-index:2147483647', 'background:#0b1020', 'color:#e6edf3', 'font:11px/1.45 ui-monospace,Menlo,monospace',
-        'padding:12px 14px', 'border-top:3px solid ' + (hyd.length ? '#ff4d4f' : '#22c55e'),
+        'padding:10px 12px', 'border-top:3px solid ' + accent,
         '-webkit-overflow-scrolling:touch', 'white-space:pre-wrap', 'word-break:break-word'
       ].join(';'));
       var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
-      var html = '<b style="color:' + (hyd.length ? '#ff4d4f' : '#22c55e') + '">' +
-        (hyd.length ? '● HYDRATION ERROR REPRODUCED (' + hyd.length + ')' : '○ no hydration error seen') +
+      var html = '<b style="color:' + accent + '">' +
+        (everHit ? '● HYDRATION ERROR CAUGHT ×' + history.length + ' — SCREENSHOT THIS' : '○ armed · nothing caught yet') +
         '</b>  <span style="opacity:.6">tap to dismiss</span>\\n' +
-        'react mounted +' + payload.reactMountedAt + 'ms · pre-hydration mutations: ' + pre.length +
+        'this load: ' + esc(location.pathname) + ' · nav: ' + esc(navType) + '\\n' +
+        'react +' + payload.reactMountedAt + 'ms · pre-hyd mutations: ' + pre.length +
         ' · console errors: ' + payload.logs.length + '\\n';
-      for (var h = 0; h < hyd.length && h < 4; h++) {
-        html += '\\n<span style="color:#ffb4b4">[' + esc(hyd[h].level) + ' +' + hyd[h].t + 'ms] ' + esc(hyd[h].text.slice(0, 700)) + '</span>\\n';
+      for (var h = 0; h < history.length && h < 5; h++) {
+        html += '\\n<span style="color:#ffb4b4">[' + esc(history[h].url) + ' · ' + esc(history[h].nav) + ']\\n' +
+          esc(history[h].text) + '</span>\\n';
+      }
+      if (!everHit) {
+        box.innerHTML = html + '<span style="opacity:.6">browse the site normally — reload, tap around, use back/forward. Probe stays armed. Visit /?probe=0 to switch off.</span>';
+        box.addEventListener('click', function () { box.remove(); });
+        document.body.appendChild(box);
+        return;
       }
       var fpKeys = [];
       var fpLoad = payload.fingerprints['load'] || {};
@@ -318,6 +368,7 @@ export const HYDRATION_PROBE_JS = `(function () {
     try { obs.disconnect(); } catch (e) {}
     var payload = {
       url: location.href,
+      navType: navType,
       ua: navigator.userAgent,
       lang: navigator.language,
       langs: (navigator.languages || []).join(','),
