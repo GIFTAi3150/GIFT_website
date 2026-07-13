@@ -77,6 +77,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ backgroundColor: '#F0F7FF', colorScheme: 'light' }}
     >
       <head>
+        {/* iOS Safari auto-detects phone numbers, addresses and dates in text and
+            rewrites them into <a> tags ITSELF, before React hydrates. The DOM then
+            no longer matches the server HTML and React throws #418 (hydration
+            mismatch) and re-renders the whole root on the client. The footer
+            carries a TEL and an address on every page, which is why the error
+            fired site-wide, only ever on iOS Safari, never on desktop.
+            Opting out is the fix; the phone stays tappable because Footer now
+            renders a real tel: link itself (React knows about that one). */}
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, address=no, email=no"
+        />
         {/* Belt-and-braces with translate="no" + .notranslate on <html>: Chrome
             also honours this meta, and it's the signal Chrome-on-iOS respects
             most reliably. See the comment on <html> for why we opt out. */}

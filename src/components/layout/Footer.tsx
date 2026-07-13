@@ -40,7 +40,15 @@ export default function Footer() {
             <p className="font-sans text-normal text-[var(--nav-text-muted)]" style={{ lineHeight: '1.8' }}>
               {company.address}
             </p>
-            <p className="font-sans text-normal text-[var(--nav-text-muted)]">TEL: {company.phone}</p>
+            {/* Explicit tel: link. format-detection is off site-wide (iOS Safari
+                would otherwise inject this anchor itself and break hydration), so
+                tap-to-call has to be something React actually renders. */}
+            <p className="font-sans text-normal text-[var(--nav-text-muted)]">
+              TEL:{' '}
+              <a href={`tel:${company.phone.replace(/[^0-9+]/g, '')}`} className="hover:underline">
+                {company.phone}
+              </a>
+            </p>
           </div>
 
           <div className="flex flex-col gap-10 sm:flex-row sm:gap-16">
