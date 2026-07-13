@@ -48,19 +48,43 @@ export async function POST(req: Request): Promise<NextResponse> {
     // bare stack with nothing naming it — unactionable.
     const headline = body.name ? `${body.name}: ${body.message}` : body.message;
 
-    await notifySlack({
-      title: `サイトエラー (${body.kind || 'client'})`,
-      message: [headline, body.stack].filter(Boolean).join('\n\n').slice(0, 3000),
-      fields: {
-        Page: body.url,
-        Source: body.source,
-        Digest: body.digest,
-        Browser: body.userAgent?.slice(0, 200),
-        Phase: body.phase,
-        Env: process.env.VERCEL_ENV || 'development',
-      },
-      dedupKey: `client:${body.message.slice(0, 200)}`,
-    });
+    const detail = {
+      page: body.url,
+      source: body.source,
+      digest: body.digest,
+      browser: body.userAgent?.slice(0, 200),
+      phase: body.phase,
+      env: process.env.VERCEL_ENV || 'development',
+    };
+
+    // Always land in the Vercel server logs — that's a private surface, so it
+    // costs nobody anything and keeps us from going blind.
+    console.error('[client-error]', headline, JSON.stringify(detail), body.stack ?? '');
+
+    // Slack relay is OPT-IN. The channel is shared with the whole team, and a
+    // browser-side bug can fire on every page load for every visitor — during
+    // the 2026-07-13 iOS hunt it buried the channel. Client errors are rarely
+    // urgent enough to page a team in real time, so they stay in the logs unless
+    // someone deliberately turns the firehose on.
+    //
+    // To re-enable: set CLIENT_ERROR_SLACK=on in the Vercel project env vars
+    // (no redeploy needed beyond the next build). Turn it off again by removing
+    // it. Server-side errors are unaffected — they still notify as before.
+    if (process.env.CLIENT_ERROR_SLACK === 'on') {
+      await notifySlack({
+        title: `サイトエラー (${body.kind || 'client'})`,
+        message: [headline, body.stack].filter(Boolean).join('\n\n').slice(0, 3000),
+        fields: {
+          Page: detail.page,
+          Source: detail.source,
+          Digest: detail.digest,
+          Browser: detail.browser,
+          Phase: detail.phase,
+          Env: detail.env,
+        },
+        dedupKey: `client:${body.message.slice(0, 200)}`,
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch {
