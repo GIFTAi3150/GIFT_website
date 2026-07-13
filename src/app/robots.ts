@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = 'https://gift-inc.org';
+// Canonical host is www — see the note in sitemap.ts.
+const SITE_URL = 'https://www.gift-inc.org';
 
 export default function robots(): MetadataRoute.Robots {
   return {

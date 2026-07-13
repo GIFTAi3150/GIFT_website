@@ -2,7 +2,10 @@ import type { MetadataRoute } from 'next';
 import { getArticleSlugs, getPublishedMembers } from '@/lib/notion';
 import membersFallback from '@/data/members.json';
 
-const SITE_URL = 'https://gift-inc.org';
+// Canonical host is www — gift-inc.org 301s here (2026-07-13 domain switch).
+// Listing the bare host would fill the sitemap with URLs that all redirect,
+// which is how Google ends up treating the two hosts as two different sites.
+const SITE_URL = 'https://www.gift-inc.org';
 
 const STATIC_ROUTES: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
   { path: '', priority: 1.0, changeFrequency: 'weekly' },

@@ -8,7 +8,10 @@ import Header from '@/components/layout/Header';
 import ErrorReporter from '@/components/util/ErrorReporter';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://gift-inc.org'),
+  // Canonical host is www — gift-inc.org 301s here (2026-07-13 domain switch).
+  // metadataBase drives every absolute URL Next generates (canonical, OG, Twitter),
+  // so pointing it at the bare host makes us advertise URLs that all redirect.
+  metadataBase: new URL('https://www.gift-inc.org'),
   title: {
     default: '株式会社GIFT | Gift an opportunity',
     template: '%s | 株式会社GIFT',
@@ -18,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    url: 'https://gift-inc.org',
+    url: 'https://www.gift-inc.org',
     siteName: '株式会社GIFT',
     title: '株式会社GIFT | Gift an opportunity',
     description:

@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: '個人情報に関する公表文 | 株式会社GIFT',
+  // No "| 株式会社GIFT" suffix here — layout.tsx's title.template appends it.
+  // Hardcoding it produced "…公表文 | 株式会社GIFT | 株式会社GIFT" in the wild.
+  title: '個人情報に関する公表文',
   description: '株式会社GIFTの個人情報保護方針および個人情報に関する公表文。',
 };
 
