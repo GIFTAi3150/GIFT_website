@@ -61,7 +61,8 @@ export default function CompanyAnimations() {
       document.querySelectorAll<HTMLElement>('[data-gsap="label"]').forEach((label) => {
         const line = label.previousElementSibling as HTMLElement | null;
         const tl = gsap.timeline({
-          scrollTrigger: { trigger: label, start: 'top 88%', once: true },
+          // toggleActions, NOT once:true — see the note at the bottom of this file.
+          scrollTrigger: { trigger: label, start: 'top 88%', toggleActions: 'play none none none' },
         });
         if (line?.hasAttribute('data-deco-line')) {
           gsap.set(line, { scaleX: 0, transformOrigin: 'left center' });
@@ -121,7 +122,8 @@ export default function CompanyAnimations() {
             scrollTrigger: {
               trigger: valuesGrid || valuesSection,
               start: 'top 82%',
-              once: true,
+              // toggleActions, NOT once:true — see the note at the bottom of this file.
+              toggleActions: 'play none none none',
             },
           })
             .to(titles, { y: 0, opacity: 1, duration: 1.0, delay: 0.2, ease: E, stagger: { amount: 0.45 } })
@@ -225,3 +227,34 @@ export default function CompanyAnimations() {
 
   return null;
 }
+
+// ---------------------------------------------------------------------------
+// Never put `once: true` on a gsap.timeline()'s scrollTrigger. Use
+// `toggleActions: 'play none none none'` — same behaviour, no crash.
+//
+// Why (GSAP 3.15, ScrollTrigger.js line numbers):
+//   1934  A TIMELINE-attached ScrollTrigger cannot measure itself at creation
+//         (its children aren't added yet), so GSAP defers: `start = end = 0`
+//         and schedules the refresh a tick later. A TWEEN-attached trigger
+//         (gsap.to/fromTo) and a callback-only ScrollTrigger.create()/batch()
+//         refresh immediately, so they are NOT affected by any of this.
+//   1366  When the NEXT trigger is created, it walks _triggers backwards and
+//         force-refreshes any it finds with a falsy .end — i.e. exactly the
+//         deferred timeline ones above.
+//   1606  That forced refresh calls self.update(). GSAP's own comment there
+//         names the scenario: "when you reload a page when it's already
+//         scrolled down".
+//   1772  update() sees the trigger is already past its start, and `once`
+//         makes it kill() ITSELF...
+//   1890  ...which splices it out of _triggers — the array the loop at 1366
+//         is in the middle of indexing. The loop only compensates for ONE
+//         removal (1377-1381), so it then reads _triggers[i] === undefined:
+//
+//         TypeError: Cannot read properties of undefined (reading 'end')
+//
+// That error took down /company in production on 2026-07-14: it escaped to the
+// root error boundary, so the visitor got a full-page error screen. Reproduced
+// in a prod build (triggers created while the page was already scrolled) and
+// verified fixed. Tweens keeping `once: true` below are intentional — they are
+// not deferred and cannot hit this.
+// ---------------------------------------------------------------------------

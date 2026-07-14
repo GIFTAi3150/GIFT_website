@@ -189,7 +189,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   // fade in simultaneously with the cover fade-out, so users see
                   // the reveal animation instead of text appearing pre-formed.
                   document.body.classList.add('page-ready');
-                  setTimeout(function () { cover.remove(); }, 600);
+                  // Hide it, never remove it. #page-cover is rendered by React
+                  // (see the JSX above) as a direct child of <body>, outside every
+                  // Suspense boundary. Deleting it from outside React makes the DOM
+                  // diverge from the server HTML, and if this wins the race against
+                  // hydration — which it does on a slow connection, where the 3s cap
+                  // below fires before the JS has even executed — React throws #418
+                  // and then #423: "the entire root will switch to client rendering".
+                  // Style mutations are safe (the div carries suppressHydrationWarning);
+                  // structural ones are not. Verified 2026-07-14: .remove() reproduces
+                  // #418 + #423 on /company, visibility:hidden is clean.
+                  setTimeout(function () { cover.style.visibility = 'hidden'; }, 600);
                 };
                 // Drop cover as soon as the hero signals it's painted.
                 // windowLoaded is NOT required — logo-ready fires before all

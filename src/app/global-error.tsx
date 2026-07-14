@@ -13,9 +13,9 @@ import { useEffect } from 'react';
  */
 export default function GlobalError({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
+  // Next also passes `reset`. We deliberately do not use it — see the button below.
   reset: () => void;
 }) {
   useEffect(() => {
@@ -29,6 +29,10 @@ export default function GlobalError({
           stack: error.stack,
           digest: error.digest,
           url: typeof window !== 'undefined' ? window.location.href : undefined,
+          // Send the UA from here too. Without it these reports arrive with only
+          // a page + env, and "which browser" is the first question every one of
+          // them raises — the 2026-07-14 hunt cost a session for want of this.
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
         }),
         keepalive: true,
       }).catch(() => {});
@@ -64,7 +68,22 @@ export default function GlobalError({
             ページの読み込み中にエラーが発生しました。お手数ですが、再読み込みをお試しください。
           </p>
           <button
-            onClick={() => reset()}
+            // Full page reload — NOT Next's reset().
+            //
+            // reset() re-renders the tree under the root error boundary, which
+            // remounts Next's <Router>. On mount Router runs
+            // createInitialRouterState(initialParallelRoutes), and Next nulls that
+            // module-level variable in Router's own mount effect
+            // (`useEffect(() => { initialParallelRoutes = null }, [])`). So the
+            // second mount builds a cache with parallelRoutes: null and immediately
+            // does cache.parallelRoutes.get(key) — "TypeError: Cannot read
+            // properties of null (reading 'get')". The recovery button was itself
+            // the crash: a visitor hit an error, tapped 再読み込み, and got a second
+            // error. That is the exact stack that reached Slack from /company on
+            // 2026-07-14; reproduced locally frame-for-frame and verified fixed.
+            //
+            // A reload is what the label promises anyway, and it always recovers.
+            onClick={() => window.location.reload()}
             style={{
               appearance: 'none',
               border: 'none',
