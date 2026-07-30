@@ -20,6 +20,16 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
 - file format (public/vat/*.vat.bin, LE): magic u32 'VAT1'(0x31544156), texW u16, texH u16, frames u16, flags u16, scale f32×3 (sx,sy,sz), base float16×(N*3) mean-pose RGB, deltas int8×(frames*N*3) frame-major RGB. Reconstruct: pos = base + (delta/127)*scale. N=texW*texH.
 - notes: tap point is GiftLogoFluid useFrame after `sim.gpu.compute()` — `sim.gpu.getCurrentRenderTarget(sim.posVar)` holds positions; read via `gl.readRenderTargetPixels`. RT may be Half/FloatType — match buffer.
 
+### T-011 /plans page (AIOps plans & services, placeholder pricing)
+- status: cc:WIP — hero + card reel built on `features/plans-page`; nothing below the hero yet
+- owner: frontend / content
+- goal: new `/plans` page for AIOps plans & services. Tiers/pricing not decided yet — placeholder content only. Reuse `/services/aiops` palette (`DX_CONSULTING_THEME`) + fonts (Gen Interface JP / Inter italic accents). Low animation budget — no WebGL/GSAP pinning.
+- procedure: build on `features/plans-page` branch (off `dev`), local review, merge to `dev` only on explicit go-ahead — `dev` is now the live Vercel Production branch (`www.gift-inc.org`), so merging ships it.
+- plan doc: `docs/plans-page-plan.md` (structure draft, open decisions, verification checklist)
+- done so far: hero (split headline + draggable infinite card reel, desktop vertical / mobile horizontal, click-to-expand overlay, desktop auto-advance 1 card / 3s). Cards are still blank navy rectangles — no content in them.
+- manual for editing it by hand: `docs/NOLLM-plans-page.md`
+- next: resolve open decisions in the plan doc (tier mapping, add-on row y/n, nav entry), then draft placeholder copy before any code. `/plans` is NOT linked from the nav or sitemap — only reachable by typing the URL.
+
 <!-- Add tasks here. Example:
 ### T-001 Hero variant exploration
 - status: cc:TODO

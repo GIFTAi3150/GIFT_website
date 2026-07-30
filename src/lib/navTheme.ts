@@ -265,6 +265,7 @@ const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/news(\/|$)/, NEWS_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/aiops(\/|$)/, DX_CONSULTING_THEME],
+  [/^\/plans(\/|$)/, DX_CONSULTING_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
   [/^\/member(\/|$)/, MEMBER_THEME],
   [/^\/recruit(\/|$)/, RECRUIT_THEME],
