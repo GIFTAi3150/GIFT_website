@@ -102,9 +102,18 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
     hero: {
       h1: 'また、辞めましたか。',
       sub: '採用して、教えて、辞められる。その繰り返し、いつまで続けますか。',
-      // Still a placeholder — the A-concept CM has not been shot/exported yet.
-      video: '/video/recruitment-hero-video.mp4',
-      poster: '/img/team/team-1.jpg',
+      // ⚠️ TEMPORARY. This is the manager's "video2" cut, supplied 2026-07-31
+      // with the explicit note that it is NOT the final film for this concept —
+      // that one is still being edited. It is here so A is not sitting on a
+      // stock placeholder while B has a real CM. Swap the file when the final
+      // export lands; nothing else needs touching.
+      //
+      // Re-encoded for the web the same way as B: 38MB → 2.5MB, 1280×722 H.264
+      // CRF 28, AAC 96k (audio KEPT — the hero's sound toggle needs a track to
+      // unmute), +faststart. Original untouched at
+      // C:\Users\owner\Desktop\video img\video2\video2.mp4
+      video: '/video/lp-video2.mp4',
+      poster: '/img/lp-video2-poster.jpg',
     },
     flow: {
       heading: ['採用しても、また止まる。', 'AIなら、仕事が会社に残る。'],
