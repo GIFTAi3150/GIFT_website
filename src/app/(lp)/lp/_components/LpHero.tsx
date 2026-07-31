@@ -16,6 +16,22 @@ export default function LpHero({ hero }: LpHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // Sound starts OFF and can only ever be turned on by a click. This is not a
+  // preference — every browser refuses to autoplay a video with audio, so a
+  // hero that arrives already making noise simply would not play at all.
+  const [soundOn, setSoundOn] = useState(false);
+
+  const toggleSound = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const next = !soundOn;
+    video.muted = !next;
+    setSoundOn(next);
+    // Unmuting is a user gesture, so this is also the one moment we are
+    // allowed to start playback if the browser refused it earlier (iOS
+    // low-power mode being the common case).
+    if (next) void video.play().catch(() => {});
+  };
 
   // prefers-reduced-motion: reduce -> hold the poster, never actually play
   // the (muted, looping) background video. The <video> element still
@@ -99,6 +115,32 @@ export default function LpHero({ hero }: LpHeroProps) {
         >
           <source src={hero.video} type="video/mp4" />
         </video>
+
+        {/* Sound toggle. Sits ON the film, bottom-right, so it is obviously
+            attached to this video and not to the page. Labelled in Japanese
+            rather than being a bare speaker glyph — a lone icon reads as
+            decoration and gets ignored, and the whole point is that people
+            notice they can turn the sound on. */}
+        <button
+          type="button"
+          className="lp-sound"
+          onClick={toggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? '動画の音声をオフにする' : '動画の音声をオンにする'}
+        >
+          <span className="lp-sound-icon" aria-hidden="true">
+            {soundOn ? (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a6.8 6.8 0 0 1 0 13.4v2.1a8.9 8.9 0 0 0 0-17.6z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M3 9v6h4l5 4V5L7 9H3zm18.2-.8-1.4-1.4L17 9.6l-2.8-2.8-1.4 1.4L15.6 11l-2.8 2.8 1.4 1.4L17 12.4l2.8 2.8 1.4-1.4L18.4 11l2.8-2.8z" />
+              </svg>
+            )}
+          </span>
+          {soundOn ? '音声オフ' : '音声オン'}
+        </button>
       </div>
       <div className="lp-hero-copy">
         <h1>{hero.h1}</h1>

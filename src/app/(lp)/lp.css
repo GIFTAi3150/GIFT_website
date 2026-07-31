@@ -123,6 +123,57 @@
 .lp-hero-video {
   transition: opacity 500ms ease;
 }
+
+/* Sound toggle, sitting on the bottom-right of the film. The video is muted on
+   arrival because no browser will autoplay audio; this is the click that turns
+   it on. Deliberately high-contrast rather than a ghost control — if nobody
+   notices it, the sound may as well not exist. */
+.lp-sound {
+  position: absolute;
+  /* LEFT, not right — the CM's burned-in caption runs down the RIGHT edge of
+     the frame 「やっぱり、俺がいないと回らないな。」 and the button would sit
+     on top of it. Keep it left. */
+  left: clamp(12px, 2vw, 24px);
+  bottom: clamp(12px, 2vw, 24px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(5, 5, 5, 0.68);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--lp-white);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+.lp-sound:hover {
+  border-color: var(--lp-white);
+  background: rgba(5, 5, 5, 0.86);
+}
+.lp-sound:focus-visible {
+  outline: 2px solid var(--lp-white);
+  outline-offset: 2px;
+}
+.lp-sound-icon {
+  display: inline-flex;
+}
+@media (max-width: 560px) {
+  .lp-sound {
+    min-height: 36px;
+    padding: 0 11px;
+    font-size: 11px;
+  }
+}
 /* The mock's darkening gradient over the film is GONE, and must stay gone
    while the headline sits below the video rather than on top of it. It existed
    only to keep white type legible over moving footage; with nothing overlaid
