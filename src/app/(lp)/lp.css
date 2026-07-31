@@ -50,7 +50,9 @@
 .lp-page {
   font-family: var(--lp-sans);
   color: var(--lp-white);
-  line-height: 1.55;
+  /* 1.8, not the mock's 1.55 — Japanese body text needs more leading than
+     Latin at the same size to stay readable. */
+  line-height: 1.8;
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
 }
@@ -81,21 +83,18 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: clamp(26px, 4vw, 52px);
+  justify-content: flex-end;
   padding: clamp(76px, 10vw, 120px) clamp(18px, 6vw, 84px) clamp(34px, 7vw, 76px);
   background: var(--lp-black);
   isolation: isolate;
 }
-/* Sized to the film's own aspect so `contain` never letterboxes in practice,
-   while `max-height` keeps the frame plus the headline on one screen. The
-   video is 1916×1080, not a clean 1920 — use its real ratio. */
+/* DESKTOP: the film is the background, filling the section, headline on top —
+   the manager's original mock. Below 900px this same element becomes a normal
+   in-flow block (see the media query at the bottom of this file). */
 .lp-hero-media {
-  position: relative;
-  width: min(100%, calc(62dvh * 1916 / 1080));
-  aspect-ratio: 1916 / 1080;
-  margin: 0 auto;
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  z-index: -3;
   background: #000;
 }
 .lp-hero-video,
@@ -104,8 +103,14 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* `contain`, NOT `cover` — see the block comment above. */
-  object-fit: contain;
+  object-fit: cover;
+  /* ⚠️ `right`, NOT `center`. `cover` fills by cropping the surplus axis, and
+     a desktop window is usually a little taller than 16:9, so it eats the left
+     and right edges evenly. The CM's punchline is burned into the RIGHT edge
+     of the frame 「やっぱり、俺がいないと回らないな。」 — anchoring right means
+     the crop is taken entirely off the LEFT, where there is nothing to lose,
+     and the payoff always survives. Do not "recentre" this. */
+  object-position: right center;
   /* The mock had `grayscale(1) contrast(1.12)`. Dropped 2026-07-31 at the
      user's call: it was written against grey stock footage and drained all the
      colour out of the real CM. */
@@ -116,9 +121,18 @@
 .lp-hero-video {
   transition: opacity 500ms ease;
 }
-/* Scanline texture, kept from the mock but moved OFF the film — it now sits
-   over the section background only, so it can never sit on top of the
-   burned-in text. */
+/* Darkens the film enough for white type to stay legible over it. Desktop
+   only — on mobile the headline sits below the video, not on it, so this is
+   switched off there and the film is shown at full brightness. */
+.lp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(5, 5, 5, 0.94), rgba(5, 5, 5, 0.5) 46%, rgba(5, 5, 5, 0.12)),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.1), rgba(5, 5, 5, 0.78));
+}
 .lp-hero::after {
   content: '';
   position: absolute;
@@ -132,16 +146,34 @@
   width: min(1000px, 100%);
   margin: 0 auto;
 }
+/* ---------------------------------------------------------------------------
+   JAPANESE TYPOGRAPHY — do not paste Latin display settings back in here.
+
+   The manager's mock used `line-height: .98` and `letter-spacing: -.035em`
+   on every heading. Those are correct for tight Latin display type and wrong
+   for Japanese. Japanese glyphs are full-width squares that already sit edge
+   to edge in their em box: negative tracking makes them physically collide,
+   and a line-height under 1 overlaps consecutive lines, clipping the tops of
+   characters like 談 and 御. That is what read as "the text is weird".
+
+   Rule of thumb applied throughout this file: Japanese headings get
+   line-height ≥ 1.25 and letter-spacing no tighter than -0.01em. Latin-only
+   runs (the eyebrows, the giant LINE watermark) keep their tight tracking,
+   because for them it is right.
+   --------------------------------------------------------------------------- */
 .lp-hero-copy h1 {
   margin: 0;
   max-width: 100%;
   font-size: clamp(38px, 5.6vw, 76px);
-  line-height: 0.98;
-  letter-spacing: -0.035em;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   font-weight: 900;
   white-space: normal;
   word-break: normal;
-  overflow-wrap: anywhere;
+  /* `balance` rather than `anywhere`: a short Japanese headline must not be
+     left with a single trailing character orphaned on its own line. Standing
+     rule on this project. */
+  text-wrap: balance;
 }
 .lp-hero-copy p {
   max-width: 760px;
@@ -194,11 +226,11 @@
 :where(.lp-section, .lp-cta) h2 {
   margin: 0;
   font-size: clamp(32px, 4.8vw, 60px);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
   font-weight: 900;
   word-break: normal;
-  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 :where(.lp-section, .lp-cta) h2 .lp-line {
   display: block;
@@ -254,11 +286,10 @@
 .lp-flow-label strong {
   display: block;
   font-size: clamp(29px, 3.2vw, 40px);
-  line-height: 1;
-  letter-spacing: -0.045em;
+  line-height: 1.25;
+  letter-spacing: 0;
   font-weight: 900;
   word-break: normal;
-  overflow-wrap: anywhere;
 }
 .lp-flow-track {
   display: grid;
@@ -321,11 +352,11 @@
   background: transparent;
   color: var(--lp-ink);
   font-size: clamp(26px, 3.8vw, 46px);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
   font-weight: 900;
   word-break: normal;
-  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 /* --------------------------------------------------------------- what */
@@ -341,7 +372,7 @@
    560px override. */
 .lp-what h2 {
   font-size: clamp(32px, 4.2vw, 56px);
-  line-height: 1.08;
+  line-height: 1.35;
 }
 .lp-steps {
   display: grid;
@@ -363,7 +394,7 @@
 .lp-step strong {
   display: block;
   font-size: clamp(20px, 2.3vw, 28px);
-  line-height: 1.22;
+  line-height: 1.4;
   font-weight: 900;
 }
 .lp-step p {
@@ -449,6 +480,46 @@
     grid-template-columns: 1fr;
   }
 }
+/* ---------------------------------------------------------------------------
+   MOBILE HERO — the film stops being a background and becomes a block.
+
+   A phone is roughly 9:19.5. The film is 16:9. Filling a portrait screen with
+   `cover` means cropping away about 70% of the frame width — you get a narrow
+   vertical strip, the composition is gone, and the burned-in punchline down
+   the right edge goes with it. There is no crop of a landscape film that reads
+   correctly on a portrait screen.
+
+   So below 900px: show the whole frame at its own aspect ratio, and put the
+   headline underneath it instead of on top. Nothing is cropped and the text is
+   always readable. Desktop keeps the full-bleed overlay the manager mocked.
+
+   This changes back only if a separate VERTICAL (9:16) export of the CM exists,
+   with the caption repositioned for that frame.
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .lp-hero {
+    justify-content: center;
+    gap: clamp(22px, 5vw, 34px);
+  }
+  .lp-hero-media {
+    position: relative;
+    inset: auto;
+    z-index: 0;
+    width: 100%;
+    aspect-ratio: 1916 / 1080;
+  }
+  .lp-hero-video,
+  .lp-hero-poster {
+    object-fit: contain;
+    object-position: center;
+  }
+  /* The darkening gradient exists to keep white type legible ON the film.
+     Here the type is below it, so the film is shown clean. */
+  .lp-hero::before {
+    display: none;
+  }
+}
+
 @media (max-width: 820px) {
   .lp-hero {
     min-height: 92dvh;
