@@ -3,6 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import gsap from 'gsap';
+import PlanCardFace, { CARD_SURFACE_CLASS } from './PlanCardFace';
+import { PLANS } from './planData';
 
 // Infinite draggable card reel for the /plans hero, modelled on
 // madewithgsap.com's hero reel (decoded from their public app2.js — see
@@ -42,9 +44,8 @@ import gsap from 'gsap';
 // ---------------------------------------------------------------------------
 // HOW MANY CARDS
 //
-// `REAL_CARD_COUNT` is the only one of these you should ever edit: set it to
-// however many real cards you have (one per service, plan, whatever). 3 is
-// fine. 1 is fine.
+// `REAL_CARD_COUNT` is one per entry in PLANS (planData.ts) — add or remove a
+// service there and nothing here needs touching. 3 is fine. 1 is fine.
 //
 // The desktop reel then repeats them to fill `MIN_REEL_CARDS` slots, because
 // the endless-loop illusion only holds while a card is recycled from one end
@@ -56,14 +57,14 @@ import gsap from 'gsap';
 // H can reach ~600px against a ~130px card, so the true minimum is about 6;
 // 12 leaves comfortable margin at any window size. Below that threshold the
 // wrap point falls inside the visible area and you would watch a card
-// teleport — invisible today only because every card is an identical blank
-// navy rectangle, and immediately obvious once they carry real content.
+// teleport — which now that the cards carry distinct content (a name, a price
+// and a photo each) would be plainly visible.
 //
 // Repeating is the normal way infinite carousels handle a short list: with 3
 // services the reel reads A B C A B C … as you spin it.
 //
 // Mobile repeats them too, for a different reason — see MOBILE_LOOP_COPIES.
-const REAL_CARD_COUNT = 3;
+const REAL_CARD_COUNT = PLANS.length;
 const MIN_REEL_CARDS = 12;
 const REEL_CARD_COUNT = REAL_CARD_COUNT * Math.max(1, Math.ceil(MIN_REEL_CARDS / REAL_CARD_COUNT));
 
@@ -101,6 +102,21 @@ const ACTIVE_SCALE = 1.4; // their real value
 const PEEK = 40; // their `u` — px of a neighbour left visible at the edge
 const SNAP_EASE = 'expo.inOut';
 const SNAP_DURATION = 0.4;
+
+// How far the pointer has to travel before the reel is FULLY flat, in px.
+//
+// Pressing eases `flat` 0→1 over SNAP_DURATION, which is a *time* ramp — and
+// expo.inOut is deliberately slow off the mark (still ~1.5% after 100ms). A
+// fast flick is over inside that window, so the whole drag used to be rendered
+// in the spotlight layout, where the reel moves ~4x the pointer (one card step
+// of `offset` sweeps a card the full height of the viewport). The result was a
+// violent lurch on any quick drag.
+//
+// Distance is the honest signal here: the reel should be 1:1 with the pointer
+// as soon as the pointer has actually moved. 48px is about a third of a card
+// step — enough that a deliberate slow drag still gets the eased "the deck
+// opens as you grab it" beat, short enough that a flick is flat by frame two.
+const FLAT_TRAVEL = 48;
 
 // --- Desktop autoplay ------------------------------------------------------
 // The desktop reel advances itself one card at a time: a card holds the
@@ -203,6 +219,9 @@ export default function PlanCardStack({
   );
   const backdropRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // The opened card's content, faded in/out on its own schedule — see the
+  // note where it is rendered.
+  const panelFaceRef = useRef<HTMLDivElement>(null);
   // The card currently being expanded, so it can be hidden for the duration —
   // see openCard.
   const sourceElRef = useRef<HTMLElement | null>(null);
@@ -264,21 +283,46 @@ export default function PlanCardStack({
       // Flat layout: plain evenly-spaced column.
       const flatY = center - cardH / 2 + pos;
 
-      // Spotlight layout.
+      // Spotlight layout — a CONTINUOUS function of `pos`.
+      //
+      // This used to pick between three discrete buckets by `Math.abs(pos)`
+      // (centred / neighbour / parked), which meant a card TELEPORTED the
+      // instant it crossed a bucket edge: jumping the height of the reel and
+      // popping scale 1 ↔ 1.4. At rest that never shows, because a settled
+      // reel only ever has cards at exact multiples of `step`. But any time
+      // the reel is moving while `flat` < 1 — a fast drag above all — cards
+      // stream across those edges several times a second and the whole reel
+      // strobes. Because the active card is enlarged from its centre, the
+      // scale half of that pop read as the card's left and right edges
+      // punching in and out: the "bouncing side to side" bug.
+      //
+      // Interpolating between the SAME three anchor states instead keeps the
+      // resting appearance pixel-identical (t is exactly 0 / 1 / 2 there) while
+      // making every intermediate position well defined, so nothing can jump
+      // however fast the reel is moving.
+      const t = Math.abs(pos) / step; // 0 = dead centre, 1 = neighbour slot, ≥2 = parked
+      const centredY = center - cardH / 2;
+      // Which edge a card heads for depends on the side it is on. At t≈0 the
+      // interpolation weight is ≈0, so the flip of this term as `pos` crosses
+      // zero contributes nothing — the function stays continuous through it.
+      const edgeY = pos < 0 ? -cardH + PEEK : H - PEEK;
+      const parkY = pos < 0 ? -cardH - center : H + center;
+
       let spotY: number;
       let spotScale = 1;
       let spotAlpha = 1;
-      if (Math.abs(pos) < step / 2) {
-        // The active card: dead centre, enlarged.
-        spotY = center - cardH / 2;
-        spotScale = ACTIVE_SCALE;
-      } else if (Math.abs(pos) < step * 1.5) {
-        // Immediate neighbours: shoved out to peek past the edge, clearing
-        // room for the enlarged active card.
-        spotY = pos < 0 ? -cardH + PEEK : H - PEEK;
+      if (t <= 1) {
+        // Active card → neighbour slot: slides out to peek past the edge and
+        // shrinks out of the spotlight as it goes.
+        spotY = centredY + (edgeY - centredY) * t;
+        spotScale = ACTIVE_SCALE + (1 - ACTIVE_SCALE) * t;
+      } else if (t <= 2) {
+        // Neighbour → parked: continues off-screen, fading as it leaves.
+        const k = t - 1;
+        spotY = edgeY + (parkY - edgeY) * k;
+        spotAlpha = 1 - k;
       } else {
-        // Everything else parks fully off-screen.
-        spotY = pos < 0 ? -cardH - center : H + center;
+        spotY = parkY;
         spotAlpha = 0;
       }
 
@@ -317,6 +361,12 @@ export default function PlanCardStack({
         nearest = i;
       }
     });
+    // Kill anything already running on the state object HERE, at call time,
+    // rather than trusting this tween's own `overwrite` to do it: overwrite
+    // resolves on first render, so a tween created earlier in the same frame
+    // would render first and overwrite *this* one instead. Settling is the
+    // authoritative end of a gesture and must always win.
+    gsap.killTweensOf(stateRef.current);
     gsap.to(stateRef.current, {
       offset: stateRef.current.offset + posOf(nearest, m),
       flat: 0,
@@ -422,9 +472,18 @@ export default function PlanCardStack({
       // prop goes away in the same commit that switches branches, so React
       // has detached every ref (called it with null) before this effect.
       // Reading refs here cleared an empty array and left the cards hidden.
+      //
+      // NAMED PROPERTIES, NEVER `clearProps: 'all'`. GSAP implements 'all' as
+      // `style.cssText = ""` (CSSPlugin.js:575) — it does not clear "everything
+      // GSAP set", it clears the element's whole inline style attribute,
+      // including anything React put there. React's virtual DOM still believes
+      // its style is applied, so it never restores it, and the card is left
+      // permanently stripped. These three are exactly what the desktop branch
+      // writes: `transform` (from x/y/scale) and `opacity` + `visibility` (from
+      // autoAlpha).
       const domCards = Array.from(viewport.querySelectorAll<HTMLElement>('[data-card]'));
       gsap.killTweensOf(domCards);
-      gsap.set(domCards, { clearProps: 'all' });
+      gsap.set(domCards, { clearProps: 'transform,opacity,visibility' });
 
       // Touch/trackpad already scroll this natively — but there is no
       // browser-native way to click-and-drag an `overflow-x:auto` element
@@ -443,6 +502,9 @@ export default function PlanCardStack({
       let targetScroll = 0;
       let raf = 0;
       let snapSuspended = false;
+      // Consecutive frames in which a commanded scroll write produced no
+      // movement — see the stall guard in `tick`.
+      let stalledFrames = 0;
 
       viewport.style.cursor = 'grab';
 
@@ -471,11 +533,21 @@ export default function PlanCardStack({
         base = centredScrollFor(middle);
       };
 
-      // Runs on every scroll event, NOT on a settle debounce. Shifting the
-      // moment the band is crossed is what makes it invisible; an earlier
-      // attempt waited 150ms after scrolling stopped, which meant the shift
-      // could land while a finger was still down and confused the browser's
-      // own tap-vs-scroll detection.
+      // Shifting the scroll position by a whole cycle is only invisible when
+      // the reel is NOT moving. Writing `scrollLeft` in the middle of a
+      // compositor fling does not cancel that fling — the browser keeps
+      // animating toward the absolute offset it was already heading for, so
+      // the reel immediately flies back out of the band and gets yanked again.
+      // Measured 2026-07-31 on one hard flick: SIX shifts in a single gesture,
+      // 1.9s of motion. That thrash was the "cards go crazy in a fast loop"
+      // report. So the shift now waits for the scroll to actually finish.
+      //
+      // `scrollend` is the right signal — it fires once the fling AND the snap
+      // animation have both settled, and never while a finger is still down.
+      // (A 150ms settle timer was tried long ago and rejected for exactly that
+      // reason: it could land mid-gesture.) Browsers without `scrollend` keep
+      // the old shift-on-scroll behaviour, which is imperfect but never
+      // strands them.
       const recentre = () => {
         if (!cycle) return;
         // Accumulated in whole cycles, and looped rather than a single ±cycle
@@ -497,6 +569,17 @@ export default function PlanCardStack({
         // visibly yank the reel a whole cycle backwards.
         if (dragging) startScrollLeft += delta;
         targetScroll += delta;
+      };
+
+      // Emergency valve for the `scrollend` path: if that event never arrives
+      // (unsupported browser, event swallowed), the reel would keep drifting
+      // toward the real end of the scroller and simply stop dead there. The
+      // runway either side of the middle copy is two cycles, so shifting once
+      // the drift passes 1.8 keeps a hard end unreachable. Mid-motion, and
+      // therefore visible — but only ever as the alternative to a dead end.
+      const recentreIfDrifting = () => {
+        if (!cycle) return;
+        if (Math.abs(viewport.scrollLeft - base) > cycle * 1.8) recentre();
       };
 
       measure();
@@ -561,19 +644,55 @@ export default function PlanCardStack({
       // Reads `viewport.scrollLeft` fresh every frame instead of integrating
       // its own position, which is what lets `recentre()` shift the scroll
       // underneath it without the motion breaking.
+      // Ends the loop: land on the target, hand scrolling back to the browser.
+      // Every exit path goes through here — leaving `scrollSnapType: none` on
+      // the element is not a cosmetic slip, it disables snapping for the rest
+      // of the page's life.
+      const finishTick = () => {
+        targetScroll = viewport.scrollLeft; // never leave a stale target behind
+        if (!dragging) {
+          restoreSnap();
+          recentre();
+        }
+      };
+
       const tick = () => {
         raf = 0;
         const current = viewport.scrollLeft;
         const diff = targetScroll - current;
-        if (Math.abs(diff) < 0.5) {
+        if (Math.abs(diff) < 1) {
           viewport.scrollLeft = targetScroll;
-          if (!dragging) {
-            restoreSnap();
-            recentre();
-          }
+          finishTick();
           return;
         }
-        viewport.scrollLeft = current + diff * (dragging ? MOBILE_DRAG_FOLLOW : MOBILE_SETTLE_FOLLOW);
+
+        // A proportional step ALONE cannot finish this loop. The browser
+        // rounds `scrollLeft` writes to whole pixels, so as soon as
+        // `diff * follow` falls below 0.5 the write becomes a no-op — with
+        // MOBILE_SETTLE_FOLLOW that happens while `diff` is still ~4px, i.e.
+        // well before any `|diff| < 0.5` exit test could ever fire. The loop
+        // then span forever: rAF at 60fps doing nothing, `scrollSnapType`
+        // stuck at 'none', and — worst of all — a live `targetScroll` that
+        // every frame pulled the reel back toward. A finger swipe was fighting
+        // a scroll write on every single frame and lost, which is exactly what
+        // "I can't drag the cards on mobile" was. Forcing a minimum 1px step
+        // guarantees the gap actually closes.
+        const step = diff * (dragging ? MOBILE_DRAG_FOLLOW : MOBILE_SETTLE_FOLLOW);
+        viewport.scrollLeft = current + (Math.abs(step) < 1 ? Math.sign(diff) : step);
+
+        // Belt and braces for the other way this loop can fail to converge:
+        // the target lies past a scroll bound, so the write is clamped and the
+        // position never reaches it no matter how big the step. Three dead
+        // frames is unambiguous — a real ease always moves at least a pixel.
+        if (Math.abs(viewport.scrollLeft - current) < 0.5) {
+          if (++stalledFrames >= 3) {
+            finishTick();
+            return;
+          }
+        } else {
+          stalledFrames = 0;
+        }
+
         raf = requestAnimationFrame(tick);
       };
 
@@ -590,6 +709,7 @@ export default function PlanCardStack({
         if (e.pointerType !== 'mouse' || e.button !== 0) return;
         dragging = true;
         travelled = 0;
+        stalledFrames = 0;
         startX = e.clientX;
         startScrollLeft = viewport.scrollLeft;
         // Start from where it actually is, so grabbing mid-glide picks the reel
@@ -614,6 +734,7 @@ export default function PlanCardStack({
       const endDrag = () => {
         if (!dragging) return;
         dragging = false;
+        stalledFrames = 0;
         viewport.style.cursor = 'grab';
         // Aim at the card nearest where the drag was heading, then let the same
         // loop glide there at the gentler settle rate. Snap is re-armed by
@@ -637,7 +758,19 @@ export default function PlanCardStack({
       window.addEventListener('pointerup', endDrag);
       window.addEventListener('pointercancel', endDrag);
       viewport.addEventListener('click', onClickCapture, true);
-      viewport.addEventListener('scroll', recentre, { passive: true });
+      // See `recentre` above: shift on settle where the browser can tell us
+      // when that is, otherwise fall back to the old shift-on-scroll.
+      // Feature-detected via the handler property rather than `'x' in el`:
+      // the `in` form narrows `viewport` itself and TS collapses it to `never`
+      // on the other branch, which breaks the fallback registration below.
+      const hasScrollEnd =
+        typeof (viewport as { onscrollend?: unknown }).onscrollend !== 'undefined';
+      if (hasScrollEnd) {
+        viewport.addEventListener('scrollend', recentre);
+        viewport.addEventListener('scroll', recentreIfDrifting, { passive: true });
+      } else {
+        viewport.addEventListener('scroll', recentre, { passive: true });
+      }
       window.addEventListener('resize', onResize);
 
       return () => {
@@ -648,6 +781,8 @@ export default function PlanCardStack({
         window.removeEventListener('pointerup', endDrag);
         window.removeEventListener('pointercancel', endDrag);
         viewport.removeEventListener('click', onClickCapture, true);
+        viewport.removeEventListener('scrollend', recentre);
+        viewport.removeEventListener('scroll', recentreIfDrifting);
         viewport.removeEventListener('scroll', recentre);
         window.removeEventListener('resize', onResize);
       };
@@ -688,6 +823,12 @@ export default function PlanCardStack({
     let downX = 0;
     let downY = 0;
     let downCard: HTMLDivElement | null = null;
+    // Total distance travelled this drag, used to flatten the reel by distance
+    // as well as by time — see FLAT_TRAVEL. `flatByDrag` records that distance
+    // has taken `flat` over from the press ease, so the ease is killed once
+    // rather than re-issued every frame.
+    let dragTravel = 0;
+    let flatByDrag = false;
 
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
@@ -698,6 +839,8 @@ export default function PlanCardStack({
       lastY = e.clientY;
       downX = e.clientX;
       downY = e.clientY;
+      dragTravel = 0;
+      flatByDrag = false;
       downCard = (e.target as HTMLElement | null)?.closest<HTMLDivElement>('[data-card]') ?? null;
       viewport.style.cursor = 'grabbing';
       e.preventDefault();
@@ -714,6 +857,29 @@ export default function PlanCardStack({
       // `flat` keeps easing underneath via its own tween; render() blends
       // whatever value it has reached, so the drag never cancels the ease.
       stateRef.current.offset -= dy;
+
+      // …but the ease is only ever allowed to be the SLOWER of the two ways
+      // the reel flattens. Once the pointer has actually travelled, the
+      // layout owes it a 1:1 response (see FLAT_TRAVEL), so distance takes
+      // over from the tween the moment it is ahead of it.
+      //
+      // The press ease is killed ONCE, and `flat` is then written directly for
+      // the rest of the drag. Re-issuing goFlat() per frame instead looks
+      // equivalent but is not: gsap applies `overwrite: true` when a tween
+      // FIRST RENDERS, not when it is created, so the tween born on the final
+      // move frame renders after settle()'s tween on the next tick and kills
+      // it — leaving `offset` stranded between two cards with the reel stuck
+      // flat, which reads as a reel that can no longer be moved at all.
+      dragTravel += Math.abs(dy);
+      const byDistance = Math.min(1, dragTravel / FLAT_TRAVEL);
+      if (byDistance > stateRef.current.flat) {
+        if (!flatByDrag) {
+          flatByDrag = true;
+          gsap.killTweensOf(stateRef.current);
+        }
+        stateRef.current.flat = byDistance;
+      }
+
       render();
     };
 
@@ -834,6 +1000,11 @@ export default function PlanCardStack({
       return;
     }
     gsap.to(backdrop, { autoAlpha: 0, duration: 0.35, ease: 'power2.in' });
+    // Content leaves first and faster than the box, so the panel is an empty
+    // grey card by the time it lands back on its slot in the reel.
+    if (panelFaceRef.current) {
+      gsap.to(panelFaceRef.current, { autoAlpha: 0, duration: 0.18, ease: 'power2.in' });
+    }
     gsap.to(panel, {
       top: o.top,
       left: o.left,
@@ -893,6 +1064,13 @@ export default function PlanCardStack({
       borderRadius: 12,
     });
     gsap.fromTo(backdrop, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: 'power2.out' });
+    if (panelFaceRef.current) {
+      gsap.fromTo(
+        panelFaceRef.current,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.3, delay: 0.3, ease: 'power2.out' },
+      );
+    }
     gsap.to(panel, {
       top: (vh - h) / 2,
       left: (vw - w) / 2,
@@ -1039,8 +1217,21 @@ export default function PlanCardStack({
               key={`m-${i}`}
               data-card={i % REAL_CARD_COUNT}
               onClick={(e) => openCard(i % REAL_CARD_COUNT, e.currentTarget)}
-              className="relative aspect-[16/9] w-[calc(100vw-60px)] max-w-[500px] shrink-0 snap-center rounded-xl bg-[#0b1340]"
-            />
+              // `snap-always` (scroll-snap-stop: always) is NOT cosmetic here.
+              // With snap-align alone, one hard flick sails across many snap
+              // points: measured 3.6 cards travelled, 2049px of coast, 1.9s of
+              // motion — and because that carries the reel out of the loop's
+              // ±1-cycle band mid-fling, `recentre` fired SIX times during the
+              // single gesture, each one a whole-cycle teleport (see the note
+              // on `recentre`). scroll-snap-stop pins every gesture to the
+              // NEXT card, which is both the carousel behaviour you expect and
+              // the thing that keeps the reel inside the band, so the loop
+              // never has to write scrollLeft mid-motion at all. Same flick
+              // after this: 1.0 card, 0 shifts.
+              className={`relative aspect-[16/9] w-[calc(100vw-60px)] max-w-[500px] shrink-0 snap-center snap-always overflow-hidden rounded-xl ${CARD_SURFACE_CLASS}`}
+            >
+              <PlanCardFace plan={PLANS[i % REAL_CARD_COUNT]} />
+            </div>
           ))
         : // Absolutely positioned; GSAP owns the transform. Opens via the
           // pointerdown/up tap detection in the effect above (so a drag
@@ -1068,9 +1259,11 @@ export default function PlanCardStack({
               ref={(el) => {
                 cardEls.current[i] = el;
               }}
-              className="absolute left-0 right-0 mx-auto aspect-[16/9] w-[70%] max-w-none rounded-xl bg-[#0b1340]"
+              className={`absolute left-0 right-0 mx-auto aspect-[16/9] w-[70%] max-w-none overflow-hidden rounded-xl ${CARD_SURFACE_CLASS}`}
               style={{ top: 0, willChange: 'transform, opacity' }}
-            />
+            >
+              <PlanCardFace plan={PLANS[i % REAL_CARD_COUNT]} />
+            </div>
           ))}
 
       {/* Portalled to <body>: the reel is overflow-hidden, and a fixed child
@@ -1099,9 +1292,20 @@ export default function PlanCardStack({
                 dismisses it. Escape still works as a keyboard equivalent. */}
             <div
               ref={panelRef}
-              className="fixed z-[121] overflow-hidden bg-[#0b1340] shadow-2xl"
+              className={`fixed z-[121] overflow-hidden shadow-2xl ${CARD_SURFACE_CLASS}`}
               style={{ position: 'fixed' }}
-            />
+            >
+              {/* Faded in a beat after the panel starts growing (see the open
+                  effect below). The panel begins life at the reel card's own
+                  size — a fifth of its final width — and the panel face is laid
+                  out for the big size, so for those first frames it is a
+                  clipped mess of oversized type. Holding it back until the box
+                  is most of the way open is the difference between "the card
+                  opened" and "something glitched, then settled". */}
+              <div ref={panelFaceRef} className="absolute inset-0">
+                <PlanCardFace plan={PLANS[expanded % REAL_CARD_COUNT]} variant="panel" />
+              </div>
+            </div>
           </div>,
           document.body,
         )}

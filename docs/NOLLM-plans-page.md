@@ -13,9 +13,15 @@ It is written so you can change things by hand, without asking an AI.
 |---|---|
 | `src/app/plans/page.tsx` | The page itself. Fonts + metadata (page title / description). Very short. |
 | `src/app/plans/_components/PlansHero.tsx` | The headline text, the pink CTA button, the background colour, the intro animation timings. |
-| `src/app/plans/_components/PlanCardStack.tsx` | **The carousel.** Card count, card size, card colour, drag, the click-to-expand overlay. |
+| `src/app/plans/_components/PlanCardStack.tsx` | **The carousel.** Card size, drag, the click-to-expand overlay. |
+| `src/app/plans/_components/planData.ts` | **The words and prices on the cards.** One block per service. This is the file to edit for copy changes. |
+| `src/app/plans/_components/PlanCardFace.tsx` | How a card is laid out and coloured — the grey, the type sizes, where the photo sits. |
 
 There is **nothing below the hero yet** — the pricing/tier section is not built.
+
+> ⚠️ **All the service names and prices are made up.** They were written
+> 2026-07-31 so the cards would have something to show, and nothing in them has
+> been through 役員確認. Treat every figure as a placeholder.
 
 ---
 
@@ -84,7 +90,7 @@ JavaScript will disagree and the carousel will misbehave.
 All of these are at the **very top of `PlanCardStack.tsx`** (around line 38):
 
 ```js
-const REAL_CARD_COUNT = 12;
+const REAL_CARD_COUNT = PLANS.length;  // = 3 today, from planData.ts
 const MIN_REEL_CARDS = 12;
 const CARD_GAP = 5;
 const ACTIVE_SCALE = 1.4;
@@ -144,11 +150,47 @@ without stopping — **not** off. If you really want it off, comment out the two
 to comment are the bare `queueAutoplay();` lines, not the one inside
 `advanceOne`). Dragging keeps working exactly as before.
 
+### ⭐ Changing what the cards SAY
+
+Open **`planData.ts`**. It is a list of blocks, one per card, and it looks like
+this:
+
+```js
+{
+  label: 'SERVICE A',            // the small grey capitals across the top
+  name: 'AIOps 診断',             // the big white Japanese name
+  summary: '業務を工程単位で…',    // one line, only shown when the card is opened
+  price: '380,000',              // digits only — the card draws the ¥ and the 〜
+  priceCaption: '初回一括（税別）', // small line above the price
+  specs: [                        // the three ruled rows in the opened card
+    { k: '期間',     v: '4 週間' },
+    { k: '対象業務', v: '5 業務まで' },
+    { k: '成果物',   v: '導入ロードマップ' },
+  ],
+  image: '/img/services/services-dx-photo.png',  // a file in /public
+},
+```
+
+Two rules, both about things not fitting:
+
+- **Keep `name` to about 7 Japanese characters.** The desktop card is only
+  ~220px wide and the text column is a little over half of that. An 8th
+  character wraps to a second line — which still fits, but reads tighter.
+- **Keep `specs` to exactly 3 rows.** A 4th overflows the opened card on a
+  phone, where the card is only about 1.25× as tall as it is wide.
+
+`summary` is deliberately hidden on phones — there is no room, and the specs
+and the price carry the real information.
+
 ### ⭐ Changing how many cards there are
 
-**Edit `REAL_CARD_COUNT` and nothing else.** Set it to how many real cards you
-have — one per service, plan, whatever. **3 is fine. 1 is fine.** It is safe at
-any number.
+**Add or delete a block in `planData.ts`.** The carousel counts the blocks
+itself (`REAL_CARD_COUNT = PLANS.length`), so there is no number to keep in
+sync. **3 is fine. 1 is fine.** It is safe at any number.
+
+(The old instruction "edit `REAL_CARD_COUNT`" is out of date — that line now
+reads the length of the list for you, so editing it by hand would just make the
+reel disagree with the content.)
 
 You do **not** need to touch `MIN_REEL_CARDS`, and you should leave it alone.
 Here is what it does, so the behaviour isn't a mystery:
@@ -156,9 +198,10 @@ Here is what it does, so the behaviour isn't a mystery:
 The desktop carousel loops forever by taking the card that scrolls off one end
 and teleporting it to the other end. That only looks seamless while the
 teleport happens **off-screen**. With very few cards, the teleport point lands
-*inside* the visible area — so once the cards have real, distinct content, you
-would watch service A visibly jump from the bottom to the top. (You cannot see
-this today only because every card is an identical blank navy rectangle.)
+*inside* the visible area — so you would watch SERVICE A visibly jump from the
+bottom to the top. (This was invisible while the cards were identical blank
+rectangles. Now that each one has its own name, price and photo, it would be
+obvious.)
 
 So if you have fewer cards than the reel needs, **the desktop reel repeats
 them** to fill the gap. With 3 services the reel reads A B C A B C … as you
@@ -248,14 +291,55 @@ instant). Below `0.05` it feels broken/laggy.
 
 ### Card colour
 
-Search `PlanCardStack.tsx` for `#0b1340`. It is the dark navy. It appears on:
+Grey, since 2026-07-31 (it used to be a flat navy `#0b1340`). It is **one
+place now** — `CARD_SURFACE_CLASS` at the top of `PlanCardFace.tsx`:
 
-- the desktop card
-- the mobile card
-- the expand panel (the big card that opens when you click)
+```js
+export const CARD_SURFACE_CLASS =
+  'bg-[linear-gradient(158deg,#4B5058_0%,#33383F_44%,#232629_100%)] ring-1 ring-inset ring-white/10';
+```
 
-Change **all** of them to keep it consistent. (`#0b1340` is also the headline
-text colour over in `PlansHero.tsx`.)
+The desktop card, the mobile card and the opened panel all use that one value,
+so changing it here changes all three at once. It is a **gradient** on purpose —
+a flat grey made the reel read as a stack of identical slabs.
+
+For a flat colour instead, replace the `bg-[...]` part with e.g. `bg-[#33383F]`.
+The `ring-*` part is the hairline edge, not a drop shadow — it is drawn *inside*
+the rounded corner, which a normal border cannot do here without changing the
+card's size.
+
+> ⚠️ **These have to stay CSS classes, not a `style={{ ... }}` object.** They
+> were written as an inline style first and the cards came out **transparent on
+> phones** — see 6.7. The underscores are how Tailwind writes a space inside
+> `bg-[...]`; they are not a typo.
+
+The text colours are the three constants just below it: `INK` (white-ish),
+`MUTED` (grey), `ACCENT` (the pink square beside the label — the same pink as
+the button, used once per card and nowhere else).
+
+### Text size on the cards — why it says `cqw` and not `px`
+
+In `PlanCardFace.tsx` the sizes look like this:
+
+```js
+fontSize: '6.8cqw',
+```
+
+**`cqw` means "percent of the card's own width".** So `6.8cqw` is 6.8% of
+however wide that card happens to be. The same card is ~150px wide in a small
+desktop window, ~220px on a big monitor, up to 500px on a phone, and the middle
+card is additionally blown up 1.4× — a fixed pixel size that looks right on one
+of those overflows or vanishes on the others. Proportions look right on all of
+them.
+
+**To make all the card text bigger, multiply every `cqw` number in `ReelFace`
+by the same amount** (e.g. all ×1.1). Changing just one will make that line
+overflow its column — the numbers were chosen to fill the space almost exactly.
+The budget is written out in the comment at the top of the file; the tightest
+line is the Japanese name.
+
+The opened panel uses `clamp(smallest, 3.1cqw, biggest)` instead, because that
+one has to work both as a wide desktop box and as a tall phone box.
 
 ### Rounded corners
 
@@ -476,6 +560,36 @@ address bar collapses.
 
 ---
 
+### 6.7 Never put a card's colour in a `style={{ ... }}` — and never use `clearProps: 'all'`
+
+These are the same bug from two ends. It shipped on 2026-07-31 and the symptom
+was: **the cards looked white and vanished into the page background — on phones
+and narrow windows only, desktop was fine.**
+
+The mobile branch has to wipe the transforms GSAP left on the cards when the
+window crosses 901px. It used to do that with:
+
+```js
+gsap.set(domCards, { clearProps: 'all' })   // ← WRONG
+```
+
+`'all'` does not mean "everything GSAP set". In GSAP's own source it is
+literally `style.cssText = ""` — it erases the element's **entire** inline
+style attribute, including anything React wrote there. The card's grey was an
+inline style, so it was deleted the instant that line ran; and because React
+still believed it had applied that style, it never put it back. The card was
+left with no background at all, showing the pale hero through it.
+
+Both halves are now fixed and both should stay fixed:
+
+1. The colour is **CSS classes** (`CARD_SURFACE_CLASS`), which `cssText` cannot
+   touch.
+2. That line names the three properties it actually needs to clear:
+   `clearProps: 'transform,opacity,visibility'`.
+
+**Symptom to recognise:** an element styled from React looks unstyled on one
+layout only, and it is an element GSAP also touches.
+
 ## 7. Known limitations (not bugs — just not done)
 
 - **Mobile drag smoothness.** Reworked: the drag now eases toward the cursor
@@ -490,8 +604,11 @@ address bar collapses.
   lands on the carousel can swipe it sideways but **cannot scroll the page up
   and down**. Changing `touch-pan-x` to `touch-auto` would let both work. Left
   as-is for now because it was not part of the requested change.
-- **The cards are empty navy rectangles.** No text, images or video yet. Real
-  content is a separate, undecided task.
+- **The card copy is invented.** Names, prices and spec rows are placeholders
+  written 2026-07-31 (three AIOps services: 診断 → 業務自動化 → データ活用).
+  Nothing has been through 役員確認. Edit `planData.ts` when the real numbers
+  exist.
+- **The card photos are borrowed** from `/public/img`, not shot for this page.
 - **Nothing exists below the hero.** No pricing table yet.
 
 ---
@@ -511,7 +628,9 @@ address bar collapses.
 | Desktop carousel slides without ever stopping | `AUTOPLAY_SHIFT` was set equal to or above `AUTOPLAY_PERIOD`, or `AUTOPLAY_PERIOD` was set to `0` to "turn it off" (section 4). |
 | You can see a card visibly jump/teleport from one end to the other while dragging on desktop | Not enough cards in the reel. Someone lowered `MIN_REEL_CARDS` (section 4). Put it back to 12. |
 | Horizontal carousel hits a dead end / stops scrolling | `MOBILE_LOOP_COPIES` was lowered, or made an even number. Put it back to 5. |
-| Same card appears more than once on desktop | That is intentional when `REAL_CARD_COUNT` is small — see section 4. Not a bug. |
+| Same card appears more than once on desktop | That is intentional when there are only a few services — see section 4. Not a bug. |
+| Card text runs off the edge of the card | A `cqw` number in `PlanCardFace.tsx` was raised on its own. They are sized to fill the column almost exactly — raise them together or not at all (section 4). |
+| A card name wrapped onto two lines | `name` in `planData.ts` is longer than ~7 Japanese characters. |
 | Japanese text shows as `æ´»ç"¨` garbage | File got saved in the wrong encoding. Run `node scripts/check-encoding.mjs`. |
 
 ---

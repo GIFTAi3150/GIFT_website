@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import gsap from 'gsap';
 import PlanCardStack from './PlanCardStack';
 
@@ -154,7 +155,19 @@ export default function PlansHero() {
           // halves (centred, on top of each other), then the CTA, then the
           // carousel last. Desktop falls back to auto-placement across the
           // three columns, with the CTA dropping to a second row.
-          className="plans-hero-reveal invisible grid min-h-0 flex-1 grid-cols-1 items-stretch gap-6 min-[901px]:grid-cols-[1fr_auto_1fr] min-[901px]:grid-rows-[1fr_auto] min-[901px]:gap-8"
+          //
+          // `content-center` is load-bearing on MOBILE. There the grid is a
+          // single column of four auto-sized rows inside a `flex-1` box, and
+          // grid's default `align-content: stretch` hands every one of those
+          // rows an equal share of the leftover screen height. Each row's
+          // content is then vertically centred inside its inflated row, so the
+          // two halves of a single sentence ended up ~100px apart — a gap
+          // nothing in the markup asked for. Centring the whole track list
+          // instead keeps the rows at their content height and parks the stack
+          // in the middle of the screen. Harmless on desktop: the explicit
+          // `1fr auto` rows already absorb all free space, so there is nothing
+          // for align-content to distribute there.
+          className="plans-hero-reveal invisible grid min-h-0 flex-1 grid-cols-1 content-center items-stretch gap-x-6 gap-y-3 min-[901px]:grid-cols-[1fr_auto_1fr] min-[901px]:grid-rows-[1fr_auto] min-[901px]:gap-8"
         >
           <div className="order-1 flex flex-col items-center justify-center text-center min-[901px]:order-none min-[901px]:items-start min-[901px]:text-left">
             <div
@@ -189,7 +202,11 @@ export default function PlansHero() {
               single-column fallback instead of the intended split layout. */}
           <PlanCardStack
             armed={cardStackArmed}
-            className="visible order-4 self-center min-[901px]:order-none"
+            // `mt-*` on mobile only: the grid's row gap is now tight (it sets
+            // the spacing BETWEEN the two headline lines, which are one
+            // sentence), so the breathing room before the CTA and the reel is
+            // added back per-element instead of inflating that shared gap.
+            className="visible order-4 mt-6 self-center min-[901px]:order-none min-[901px]:mt-0"
           />
 
           <div className="order-2 flex flex-col items-center justify-center text-center min-[901px]:order-none min-[901px]:items-end min-[901px]:text-right">
@@ -217,14 +234,46 @@ export default function PlansHero() {
               text·reel·text band above it. Bottom-right follows reading
               order instead: the sentence ends on the right, so the CTA is
               the next beat after it. */}
-          <div className="order-3 flex flex-col items-center text-center min-[901px]:order-none min-[901px]:col-start-3 min-[901px]:row-start-2 min-[901px]:items-end min-[901px]:text-right">
-            <a
+          <div className="order-3 mt-4 flex flex-col items-center text-center min-[901px]:order-none min-[901px]:col-start-3 min-[901px]:row-start-2 min-[901px]:mt-0 min-[901px]:items-end min-[901px]:text-right">
+            {/* Pill, one label, nothing else — the Poppins micro-label and the
+                arrow disc were both cut (2026-07-31, user's call).
+
+                HOVER: the label RELAYS rather than the background changing —
+                the visible copy rolls up out of its mask while an identical
+                copy rolls in from below. A colour wipe across the background
+                was tried first and rejected; this keeps the motion in the type
+                so the pill itself stays exactly as it looks at rest.
+
+                `next/link`, NOT a bare <a>. A bare anchor is a full document
+                reload, which re-renders the SSR `#page-cover` in layout.tsx —
+                a solid #F0F7FF panel at z-9999 that only lifts on
+                `window.load` + 100ms (or its 3s cap, then a 500ms fade).
+                /contact is dark navy, so on a throttled phone that read as a
+                blank page: measured 2026-07-31, the heading was in the DOM at
+                2.5s and the cover was still over it at 5.9s. A client-side
+                navigation never raises the cover at all. */}
+            <Link
               ref={ctaRef}
               href="/contact"
-              className="plans-hero-reveal invisible inline-flex items-center justify-center rounded-full bg-[#FF4D6D] px-8 py-4 text-sm font-semibold text-white opacity-0 transition-colors hover:bg-[#E63950]"
+              className="plans-hero-reveal group invisible inline-flex items-center justify-center rounded-full bg-[#FF4D6D] px-8 py-4 text-white opacity-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b1340] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f5f7ff]"
             >
-              料金について相談する
-            </a>
+              {/* Roll mask. `leading-[1.5]` on BOTH copies, not `leading-none`:
+                  a Japanese line box clipped to the glyph height shaves the
+                  tops of 料/談 inside `overflow-hidden`. The incoming copy is
+                  positioned `inset-0` so it inherits the mask's exact height
+                  and can never land a pixel off. */}
+              <span className="relative block overflow-hidden">
+                <span className="block text-[15px] font-bold leading-[1.5] transition-transform duration-[600ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-full">
+                  料金について相談する
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 block translate-y-full text-[15px] font-bold leading-[1.5] transition-transform duration-[600ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-y-0"
+                >
+                  料金について相談する
+                </span>
+              </span>
+            </Link>
           </div>
         </div>
       </div>
