@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import type { Plan } from './planData';
+import type { Plan } from '@/data/plans';
 
 // What is actually printed on a /plans reel card, in two sizes:
 //   'reel'  — the card in the carousel (as small as ~150px wide on desktop)

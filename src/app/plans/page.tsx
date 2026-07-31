@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
 import PlansHero from './_components/PlansHero';
+import PlanCard from './_components/PlanCard';
+import { PLANS } from '@/data/plans';
 
 export const metadata: Metadata = {
   title: '料金プラン',
@@ -37,12 +39,15 @@ export default function PlansPage() {
       <PlansFontsLink />
       <PlansHero />
 
-      {/*
-        Tier / pricing card section goes below the hero — separate, still
-        UNDECIDED task. Do not build a card grid here: the "roadmap spine"
-        concept in docs/plans-page-plan.md is a draft, not an approved
-        direction. This file covers the hero only, per the current task scope.
-      */}
+      <section className="bg-[#f5f7ff] px-4 pb-24 md:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="grid grid-cols-1 gap-6 min-[901px]:grid-cols-3">
+            {PLANS.map((plan) => (
+              <PlanCard key={plan.label} plan={plan} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </>

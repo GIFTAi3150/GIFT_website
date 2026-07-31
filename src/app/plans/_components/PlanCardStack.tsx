@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import gsap from 'gsap';
 import PlanCardFace, { CARD_SURFACE_CLASS } from './PlanCardFace';
-import { PLANS } from './planData';
+import { PLANS } from '@/data/plans';
 
 // Infinite draggable card reel for the /plans hero, modelled on
 // madewithgsap.com's hero reel (decoded from their public app2.js — see

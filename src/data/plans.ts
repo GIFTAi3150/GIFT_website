@@ -1,18 +1,21 @@
-// The service cards shown in the /plans hero reel.
+// The service plans shown on /plans. Drives both the /plans card grid and
+// the /contact deep-link pre-fill (see src/app/plans/_components/PlanCard.tsx
+// for the `/contact?plan=<slug>` link and src/app/contact/page.tsx for the
+// lookup that turns a slug back into a pre-filled message).
 //
 // ⚠️ EVERYTHING IN HERE IS PLACEHOLDER COPY (2026-07-31). The names, the prices
 // and the spec rows are invented so the reel has something to show — none of it
 // has been through 役員確認 (same standing constraint as the /company numbers,
 // see project_content_reorientation_aiops). Replace the strings when real
 // pricing lands; nothing about the layout depends on their values.
-//
-// THE CARD COUNT COMES FROM THIS ARRAY. Add or remove an entry and both the
-// desktop reel and the mobile carousel follow — `REAL_CARD_COUNT` in
-// PlanCardStack.tsx is just `PLANS.length`. Any number is safe, including 1;
-// the reel repeats a short list to keep its endless loop (see
-// docs/NOLLM-plans-page.md §4).
 
 export type Plan = {
+  /**
+   * Stable identifier used in the `/contact?plan=` deep link. Copy in the
+   * other fields may be reworded freely, but changing a slug breaks any link
+   * already in the wild.
+   */
+  slug: string;
   /** Mono label across the top of the card — the card's actual title. */
   label: string;
   /**
@@ -43,6 +46,7 @@ export type Plan = {
 // diagnose → automate → measure.
 export const PLANS: Plan[] = [
   {
+    slug: 'aiops-diagnosis',
     label: 'SERVICE A',
     name: 'AIOps 診断',
     summary: '業務を工程単位で棚卸しし、AI と自動化に置き換えられる範囲を洗い出します。',
@@ -56,6 +60,7 @@ export const PLANS: Plan[] = [
     image: '/img/services/services-dx-photo.png',
   },
   {
+    slug: 'workflow-automation',
     label: 'SERVICE B',
     name: '業務自動化',
     summary: '診断で描いたフローを実装し、AI エージェントの運用と改善までを引き受けます。',
@@ -69,6 +74,7 @@ export const PLANS: Plan[] = [
     image: '/img/8.jpg',
   },
   {
+    slug: 'data-utilization',
     label: 'SERVICE C',
     name: 'データ活用',
     summary: '自動化の稼働ログと業績データを一枚のダッシュボードに束ね、月次で読み解きます。',
