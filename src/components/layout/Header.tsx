@@ -82,6 +82,19 @@ export default function Header() {
   // Insert SERVICE dropdown at position 1 (after ABOUT)
   const serviceNavIndex = 1;
 
+  // Landing pages render no site chrome. An LP exists to move the visitor to
+  // one action (the LINE CTA); a nav bar offering ABOUT / SERVICE / CONTACT is
+  // a leak straight out of the funnel, and these pages are paid traffic.
+  //
+  // This lives here rather than in the root layout because that layout is a
+  // server component and cannot read the pathname. `(lp)` is only a route
+  // GROUP — it shares the single root layout, so it cannot opt out of <Header />
+  // structurally; it has to be turned off from inside.
+  //
+  // Placed AFTER every hook above on purpose. The hooks stay unconditional, so
+  // the rules of hooks hold; only the rendered output is conditional.
+  if (pathname.startsWith('/lp/')) return null;
+
   return (
     <>
     <header

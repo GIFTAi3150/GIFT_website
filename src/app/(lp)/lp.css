@@ -1,0 +1,503 @@
+/* ============================================================
+   AIOps LP stylesheet — faithful port of the shipping (A/B)
+   sections from the manager's review mock
+   (11_aiops_lp_mock_variants.html, 2026-07-31). Build plan:
+   docs/aiops-lp-plan.md.
+
+   This file is imported by src/app/(lp)/layout.tsx, which sits
+   INSIDE the site's global root layout — so every selector here
+   has to be incapable of matching anything outside the LP:
+     - every class is prefixed `lp-` (.hero -> .lp-hero, etc.)
+     - the mock's bare element selectors (h2, and h2 .line) are
+       rewritten as `:where(.lp-section, .lp-cta) h2` — :where()
+       carries ZERO specificity, so this scopes the match without
+       changing h2's cascade weight relative to the mock's other
+       rules (e.g. `.what h2`, which must still out-rank the base
+       h2 rule exactly like it does in the source mock).
+
+   font-weight: 950 does not exist — Inter/Noto Sans JP variable
+   weight tops out at 900, so it silently clamps. Mapped down
+   consistently: 950->900, 850->800, 750->700.
+
+   Numeric values (clamps, letter-spacing, gradient stops, alphas,
+   breakpoints) are kept exactly as the mock has them — this is a
+   port, not a reinterpretation.
+============================================================ */
+
+:root {
+  --lp-black: #050505;
+  --lp-ink: #111111;
+  --lp-white: #ffffff;
+  --lp-paper: #ffffff;
+  --lp-line: #06c755;
+  --lp-red: #ff2e2e;
+  --lp-blue: #165dff;
+  --lp-muted: rgba(255, 255, 255, 0.72);
+  --lp-paper-muted: #555555;
+  --lp-rule: rgba(17, 17, 17, 0.14);
+  --lp-sans:
+    'Inter', 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Yu Gothic UI', Meiryo,
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Stands in for the mock's `body { ... }` rule, which we can't port as-is —
+   <body> is owned by the shared root layout and every other page depends on
+   its site-wide font/color. Every ported rule below sets its own color,
+   EXCEPT .lp-hero-copy h1, which — same as in the mock — leans on the
+   ambient color instead of setting one itself. Without the font-family
+   here, the Inter/Noto Sans JP page-scoped fonts loaded by the (lp) layout
+   would download but never actually be applied to any element. */
+.lp-page {
+  font-family: var(--lp-sans);
+  color: var(--lp-white);
+  line-height: 1.55;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- hero */
+.lp-hero {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(76px, 10vw, 120px) clamp(18px, 6vw, 84px) clamp(34px, 7vw, 76px);
+  isolation: isolate;
+}
+.lp-hero-video,
+.lp-hero-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -3;
+  filter: grayscale(1) contrast(1.12);
+}
+/* Opacity itself is React-driven (starts at 0, flips to 1 on canplay) —
+   this only defines the curve, so it never fights the inline style. */
+.lp-hero-video {
+  transition: opacity 500ms ease;
+}
+.lp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(5, 5, 5, 0.94), rgba(5, 5, 5, 0.5) 46%, rgba(5, 5, 5, 0.12)),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.1), rgba(5, 5, 5, 0.78));
+}
+.lp-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.16;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 7px);
+}
+.lp-hero-copy {
+  width: min(1000px, 100%);
+}
+.lp-hero-copy h1 {
+  margin: 0;
+  max-width: 100%;
+  font-size: clamp(38px, 5.6vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-weight: 900;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+.lp-hero-copy p {
+  max-width: 760px;
+  margin: 24px 0 0;
+  color: var(--lp-muted);
+  font-size: clamp(17px, 2.1vw, 25px);
+  font-weight: 800;
+  text-wrap: pretty;
+}
+.lp-scroll {
+  position: absolute;
+  right: clamp(18px, 5vw, 64px);
+  bottom: 34px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  writing-mode: vertical-rl;
+}
+
+/* -------------------------------------------------------------- section */
+.lp-section {
+  background: var(--lp-paper);
+  color: var(--lp-ink);
+  padding: clamp(54px, 8vw, 96px) clamp(18px, 6vw, 84px);
+}
+.lp-section.lp-dark {
+  background: var(--lp-black);
+  color: var(--lp-white);
+}
+.lp-inner {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+.lp-inner :where(h1, h2, h3, strong, p, a, span, b),
+.lp-button {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.lp-eyebrow {
+  margin: 0 0 14px;
+  color: var(--lp-blue);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+:where(.lp-section, .lp-cta) h2 {
+  margin: 0;
+  font-size: clamp(32px, 4.8vw, 60px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 900;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+:where(.lp-section, .lp-cta) h2 .lp-line {
+  display: block;
+}
+:where(.lp-section, .lp-cta) h2 .lp-line + .lp-line {
+  margin-top: 0.02em;
+}
+.lp-lead {
+  max-width: 760px;
+  margin: 20px 0 0;
+  color: var(--lp-paper-muted);
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 800;
+}
+.lp-dark .lp-lead {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+/* ---------------------------------------------------------- motion-story */
+.lp-motion-story {
+  margin-top: clamp(34px, 5vw, 62px);
+  display: grid;
+  border-top: 1px solid rgba(17, 17, 17, 0.2);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.2);
+}
+.lp-flow-lane {
+  display: grid;
+  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+  gap: clamp(22px, 3vw, 40px);
+  align-items: stretch;
+  padding: clamp(28px, 4.4vw, 50px) 0;
+}
+.lp-flow-lane.lp-bad {
+  border-bottom: 1px solid rgba(17, 17, 17, 0.16);
+}
+.lp-flow-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 9px;
+  padding-top: 2px;
+}
+.lp-flow-label span {
+  color: var(--lp-red);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.lp-flow-lane.lp-good .lp-flow-label span {
+  color: var(--lp-line);
+}
+.lp-flow-label strong {
+  display: block;
+  font-size: clamp(29px, 3.2vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-weight: 900;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+.lp-flow-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid rgba(17, 17, 17, 0.18);
+}
+.lp-flow-node {
+  position: relative;
+  min-height: 112px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 22px 18px 16px;
+  border-right: 1px solid rgba(17, 17, 17, 0.14);
+  background: transparent;
+  color: var(--lp-ink);
+  text-align: left;
+  font-size: clamp(15px, 1.55vw, 18px);
+  line-height: 1.38;
+  font-weight: 900;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+.lp-flow-node:last-child {
+  border-right: 0;
+}
+.lp-flow-node::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 18px;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.28);
+  box-shadow: 0 0 0 4px var(--lp-paper);
+}
+/* Terminal-state node is the LAST node in each lane's data array — red on
+   bad, LINE green on good — plus every dot on the good lane. */
+.lp-flow-lane.lp-bad .lp-flow-node.lp-stop {
+  color: var(--lp-red);
+}
+.lp-flow-lane.lp-good .lp-flow-node.lp-go {
+  color: var(--lp-line);
+}
+.lp-flow-lane.lp-bad .lp-flow-node.lp-stop::before {
+  background: var(--lp-red);
+}
+.lp-flow-lane.lp-good .lp-flow-node::before {
+  background: var(--lp-line);
+}
+.lp-flow-lane.lp-good .lp-flow-node.lp-go::before {
+  background: var(--lp-line);
+}
+.lp-flow-punch {
+  max-width: 980px;
+  margin: clamp(30px, 5vw, 54px) 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--lp-ink);
+  font-size: clamp(26px, 3.8vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 900;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------- what */
+.lp-what {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.08fr);
+  gap: clamp(32px, 7vw, 96px);
+  align-items: start;
+}
+/* Higher specificity than the base `:where(...) h2` rule by design (class +
+   element vs. a zero-specificity :where()) — matches the mock, where
+   `.what h2` always beats the bare `h2` rule, including inside its own
+   560px override. */
+.lp-what h2 {
+  font-size: clamp(32px, 4.2vw, 56px);
+  line-height: 1.08;
+}
+.lp-steps {
+  display: grid;
+  gap: 14px;
+}
+.lp-step {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.lp-num {
+  color: var(--lp-line);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.lp-step strong {
+  display: block;
+  font-size: clamp(20px, 2.3vw, 28px);
+  line-height: 1.22;
+  font-weight: 900;
+}
+.lp-step p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------- button / cta */
+.lp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  padding: 0 24px;
+  border: 2px solid var(--lp-white);
+  font-size: 16px;
+  font-weight: 900;
+  /* Not in the mock's .button rule — it relied on a page-wide `a { color:
+     inherit; text-decoration: none }` reset we deliberately didn't port
+     (porting a bare `a` selector would leak site-wide). This is the only
+     anchor the LP renders, so the reset is scoped here instead. */
+  text-decoration: none;
+}
+.lp-cta {
+  position: relative;
+  overflow: hidden;
+  background: var(--lp-line);
+  color: var(--lp-white);
+  padding: clamp(58px, 9vw, 106px) clamp(18px, 6vw, 84px);
+}
+.lp-cta::after {
+  content: 'LINE';
+  position: absolute;
+  right: 0;
+  bottom: -40px;
+  color: rgba(255, 255, 255, 0.16);
+  font-size: clamp(84px, 17vw, 210px);
+  line-height: 0.8;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  pointer-events: none;
+}
+.lp-cta-inner {
+  position: relative;
+  z-index: 1;
+  width: min(980px, 100%);
+}
+.lp-cta h2 {
+  max-width: 780px;
+  color: var(--lp-white);
+}
+.lp-cta p {
+  max-width: 640px;
+  margin: 18px 0 0;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 800;
+}
+.lp-cta .lp-button {
+  margin-top: 28px;
+  min-width: min(100%, 340px);
+  border-color: var(--lp-white);
+  background: var(--lp-white);
+  color: var(--lp-line);
+}
+
+/* ------------------------------------------------------------ @media */
+@media (max-width: 920px) {
+  .lp-flow-lane {
+    grid-template-columns: 1fr;
+  }
+  .lp-flow-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lp-flow-node:nth-child(2) {
+    border-right: 0;
+  }
+  .lp-flow-node:nth-child(n + 3) {
+    border-top: 1px solid rgba(17, 17, 17, 0.14);
+  }
+  .lp-what {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 820px) {
+  .lp-hero {
+    min-height: 92dvh;
+  }
+  .lp-scroll {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .lp-hero {
+    padding-top: 96px;
+  }
+  :where(.lp-section, .lp-cta) h2 {
+    font-size: clamp(28px, 8.6vw, 38px);
+  }
+  .lp-hero-copy h1 {
+    font-size: clamp(38px, 11.6vw, 56px);
+  }
+  .lp-flow-label strong {
+    font-size: clamp(27px, 8vw, 36px);
+  }
+  .lp-flow-punch {
+    font-size: clamp(25px, 7.8vw, 36px);
+  }
+  .lp-flow-track {
+    grid-template-columns: 1fr;
+  }
+  .lp-flow-node,
+  .lp-flow-node:nth-child(2) {
+    min-height: auto;
+    border-right: 0;
+    border-top: 1px solid rgba(17, 17, 17, 0.14);
+  }
+  .lp-flow-node:first-child {
+    border-top: 0;
+  }
+  .lp-flow-node::before {
+    top: 22px;
+  }
+  .lp-flow-node {
+    padding-left: 42px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Concept tag — REVIEW ONLY.
+
+   Labels which of the two concepts you are scrolling, because both are stacked
+   on the single /lp page. Ported from the mock's `.variant-tag`.
+
+   Delete this rule and its markup when the concepts are split back onto their
+   own URLs for live ad traffic — a real LP does not tell the visitor it is one
+   of two options being tried out.
+   --------------------------------------------------------------------------- */
+.lp-concept-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px clamp(18px, 6vw, 84px);
+  background: var(--lp-black);
+  color: var(--lp-white);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+.lp-concept-tag strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.lp-concept-tag span {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+@media (max-width: 560px) {
+  .lp-concept-tag {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
