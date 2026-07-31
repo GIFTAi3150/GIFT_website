@@ -102,6 +102,7 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
     hero: {
       h1: 'また、辞めましたか。',
       sub: '採用して、教えて、辞められる。その繰り返し、いつまで続けますか。',
+      // Still a placeholder — the A-concept CM has not been shot/exported yet.
       video: '/video/recruitment-hero-video.mp4',
       poster: '/img/team/team-1.jpg',
     },
@@ -148,8 +149,25 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
     hero: {
       h1: 'ブロッカーですよね、あなた。',
       sub: '社員の手が止まるたびに、社長の名前が出る。それ、会社の知識が社長に集まりすぎています。',
-      video: '/video/how-we-work-vid.mp4',
-      poster: '/img/team/team-2.jpg',
+      // The manager's real CM (video1), re-encoded for the web 2026-07-31:
+      // 65MB → 4.2MB. The source was 1916×1080 @ 15Mbps with an AAC track —
+      // fine for Premiere, unusable as a muted autoplay hero, since a phone on
+      // 4G would never reach the first frame. Now 1280×722 H.264 CRF 28, audio
+      // stream REMOVED (the element is permanently muted), +faststart so
+      // playback can begin before the file finishes downloading.
+      // Original untouched at C:\Users\owner\Desktop\video img\video1\video1.mp4
+      //
+      // ⚠️ THIS FILM HAS BURNED-IN JAPANESE TEXT DOWN ITS RIGHT EDGE —
+      // 「やっぱり、俺がいないと回らないな。」 — and that line IS the punchline.
+      // It is why the hero shows the whole frame instead of cropping to fill
+      // the viewport (see .lp-hero-media in lp.css). Any future change back to
+      // `object-fit: cover` silently cuts the payoff off the right side, and
+      // removes it entirely on a phone.
+      //
+      // It sits on B rather than A because that punchline — "things don't run
+      // without me" — is the 社長待ち argument, not the hiring-loop one.
+      video: '/video/lp-video1.mp4',
+      poster: '/img/lp-video1-poster.jpg',
     },
     flow: {
       heading: ['社長で止まる仕事を、', 'AIで流れる仕事に変える。'],

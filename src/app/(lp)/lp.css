@@ -55,15 +55,48 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------------------------------------------------------------- hero */
+/* ---------------------------------------------------------------- hero
+
+   ⚠️ THE FILM IS NEVER CROPPED. READ THIS BEFORE CHANGING THE HERO.
+
+   The manager's mock had the video as a full-bleed `object-fit: cover`
+   background with the headline sitting on top of it. That works for abstract
+   b-roll. It does NOT work here: the real CM carries burned-in Japanese text
+   running vertically down its RIGHT EDGE, and that line is the punchline of
+   the whole film 「やっぱり、俺がいないと回らないな。」.
+
+   `cover` fills the viewport by cropping whichever axis is in surplus. The
+   video is 16:9; a desktop window is often taller than that and a phone is
+   dramatically taller, so `cover` eats the left and right edges — killing the
+   punchline first, and on a phone showing roughly the middle third of a frame
+   that was composed wide.
+
+   So the hero is now a column: the complete frame on top, the headline
+   underneath it. Do not "restore" the overlay hero, and do not put `cover`
+   back on .lp-hero-video, without a separately-cropped vertical export.
+   -------------------------------------------------------------------------- */
 .lp-hero {
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(26px, 4vw, 52px);
   padding: clamp(76px, 10vw, 120px) clamp(18px, 6vw, 84px) clamp(34px, 7vw, 76px);
+  background: var(--lp-black);
   isolation: isolate;
+}
+/* Sized to the film's own aspect so `contain` never letterboxes in practice,
+   while `max-height` keeps the frame plus the headline on one screen. The
+   video is 1916×1080, not a clean 1920 — use its real ratio. */
+.lp-hero-media {
+  position: relative;
+  width: min(100%, calc(62dvh * 1916 / 1080));
+  aspect-ratio: 1916 / 1080;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #000;
 }
 .lp-hero-video,
 .lp-hero-poster {
@@ -71,24 +104,21 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  z-index: -3;
-  filter: grayscale(1) contrast(1.12);
+  /* `contain`, NOT `cover` — see the block comment above. */
+  object-fit: contain;
+  /* The mock had `grayscale(1) contrast(1.12)`. Dropped 2026-07-31 at the
+     user's call: it was written against grey stock footage and drained all the
+     colour out of the real CM. */
+  filter: contrast(1.06) saturate(1.04);
 }
 /* Opacity itself is React-driven (starts at 0, flips to 1 on canplay) —
    this only defines the curve, so it never fights the inline style. */
 .lp-hero-video {
   transition: opacity 500ms ease;
 }
-.lp-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background:
-    linear-gradient(90deg, rgba(5, 5, 5, 0.94), rgba(5, 5, 5, 0.5) 46%, rgba(5, 5, 5, 0.12)),
-    linear-gradient(180deg, rgba(5, 5, 5, 0.1), rgba(5, 5, 5, 0.78));
-}
+/* Scanline texture, kept from the mock but moved OFF the film — it now sits
+   over the section background only, so it can never sit on top of the
+   burned-in text. */
 .lp-hero::after {
   content: '';
   position: absolute;
@@ -100,6 +130,7 @@
 }
 .lp-hero-copy {
   width: min(1000px, 100%);
+  margin: 0 auto;
 }
 .lp-hero-copy h1 {
   margin: 0;
