@@ -317,9 +317,27 @@ export default function DxV3Page() {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
+    // Cover-phase scroll lock (mobile only). Every cover is
+    // pointer-events:none, so without this the invisible page is fully
+    // scrollable — an impatient swipe on the dark screen moves the viewport,
+    // and on iOS the reveal-time scrollTo(0,0) is ignored while a touch
+    // gesture/momentum is live, so the page reveals wherever the swipe landed
+    // (the manifesto PNGs "jump onto" the first visible frame). The CSS
+    // html:has(.dx-v3[data-flash-guard]) rule handles the pre-hydration span
+    // of a cold load; this inline twin handles client-side navs where the
+    // dx-v3.css chunk can apply late. Released in revealAndRefresh /
+    // emergencyReveal, and in the cleanup below in case the user navigates
+    // away before either runs. Mobile-scoped for the same reason as the CSS
+    // rule: hiding a desktop scrollbar would reflow the page mid-reveal.
+    if (window.matchMedia('(max-width: 899px)').matches) {
+      document.body.style.overflow = 'hidden';
+    }
     document
       .querySelectorAll<HTMLElement>('.dx-v3 .m-obj')
       .forEach((el) => el.style.setProperty('opacity', '0', 'important'));
+    return () => {
+      document.body.style.removeProperty('overflow');
+    };
   }, []);
 
   // ----- All scroll-driven animations (single useEffect to share state) -----
@@ -352,6 +370,11 @@ export default function DxV3Page() {
       const root = document.querySelector<HTMLElement>('.dx-v3');
       if (!root) return;
       root.removeAttribute('data-flash-guard');
+      // The reveal must land on the hero. Release the cover-phase scroll lock
+      // and force the viewport to the top — before this, the page popped in at
+      // whatever position an impatient swipe reached while the cover was up.
+      document.body.style.removeProperty('overflow');
+      window.scrollTo(0, 0);
       root.querySelectorAll<HTMLElement>('[style]').forEach((el) => {
         const s = el.style;
         if (s.opacity !== '' && Number(s.opacity) < 1) s.removeProperty('opacity');
@@ -1621,6 +1644,10 @@ export default function DxV3Page() {
     // on the wrapper and the entire page hidden behind the cover.
     const revealAndRefresh = () => {
       if (!alive) return;
+      // Cover phase is over — drop the inline mobile scroll lock so the page
+      // is scrollable the moment it becomes visible. (The CSS :has lock
+      // releases via the data-flash-guard removal below.)
+      document.body.style.removeProperty('overflow');
       try {
         // Use Lenis's own reset when it's active so its internal target-scroll
         // state stays in sync. A bare window.scrollTo() bypasses Lenis — it sees
