@@ -79,22 +79,28 @@
    -------------------------------------------------------------------------- */
 .lp-hero {
   position: relative;
-  min-height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: clamp(76px, 10vw, 120px) clamp(18px, 6vw, 84px) clamp(34px, 7vw, 76px);
+  /* No side padding and no top padding: the film runs edge to edge and starts
+     at the very top of the document. There is no site header on an LP, so
+     nothing needs reserving. Only the copy below it is inset. */
+  padding: 0 0 clamp(34px, 7vw, 76px);
   background: var(--lp-black);
   isolation: isolate;
 }
-/* DESKTOP: the film is the background, filling the section, headline on top —
-   the manager's original mock. Below 900px this same element becomes a normal
-   in-flow block (see the media query at the bottom of this file). */
+/* THE FILM IS THE PAGE. It is full-bleed width at its own aspect ratio, which
+   is the largest a video can be shown without discarding part of the frame.
+   It is deliberately NOT stretched to the viewport height: the CM is 16:9 and
+   every screen it plays on is a different shape, so filling the height always
+   costs width — and this film carries its punchline burned into the right
+   edge, so lost width means a lost joke.
+   The only way to fill both axes is a separate VERTICAL (9:16) export with the
+   caption repositioned for that frame. Until that exists, this is the maximum. */
 .lp-hero-media {
-  position: absolute;
-  inset: 0;
-  z-index: -3;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1916 / 1080;
   background: #000;
 }
 .lp-hero-video,
@@ -103,14 +109,10 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* ⚠️ `right`, NOT `center`. `cover` fills by cropping the surplus axis, and
-     a desktop window is usually a little taller than 16:9, so it eats the left
-     and right edges evenly. The CM's punchline is burned into the RIGHT edge
-     of the frame 「やっぱり、俺がいないと回らないな。」 — anchoring right means
-     the crop is taken entirely off the LEFT, where there is nothing to lose,
-     and the payoff always survives. Do not "recentre" this. */
-  object-position: right center;
+  /* `contain` — the box already matches the film's ratio, so this crops
+     nothing; it is here as a guarantee that a future ratio change letterboxes
+     rather than silently cutting the frame. */
+  object-fit: contain;
   /* The mock had `grayscale(1) contrast(1.12)`. Dropped 2026-07-31 at the
      user's call: it was written against grey stock footage and drained all the
      colour out of the real CM. */
@@ -121,18 +123,10 @@
 .lp-hero-video {
   transition: opacity 500ms ease;
 }
-/* Darkens the film enough for white type to stay legible over it. Desktop
-   only — on mobile the headline sits below the video, not on it, so this is
-   switched off there and the film is shown at full brightness. */
-.lp-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background:
-    linear-gradient(90deg, rgba(5, 5, 5, 0.94), rgba(5, 5, 5, 0.5) 46%, rgba(5, 5, 5, 0.12)),
-    linear-gradient(180deg, rgba(5, 5, 5, 0.1), rgba(5, 5, 5, 0.78));
-}
+/* The mock's darkening gradient over the film is GONE, and must stay gone
+   while the headline sits below the video rather than on top of it. It existed
+   only to keep white type legible over moving footage; with nothing overlaid
+   it would just dim the film for no reason. */
 .lp-hero::after {
   content: '';
   position: absolute;
@@ -142,9 +136,12 @@
   pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 7px);
 }
+/* The section itself has no side padding (the film is edge to edge), so the
+   copy carries its own inset to line up with every section below it. */
 .lp-hero-copy {
   width: min(1000px, 100%);
   margin: 0 auto;
+  padding: clamp(30px, 5vw, 60px) clamp(18px, 6vw, 84px) 0;
 }
 /* ---------------------------------------------------------------------------
    JAPANESE TYPOGRAPHY — do not paste Latin display settings back in here.
@@ -496,42 +493,18 @@
    This changes back only if a separate VERTICAL (9:16) export of the CM exists,
    with the caption repositioned for that frame.
    --------------------------------------------------------------------------- */
-@media (max-width: 900px) {
-  .lp-hero {
-    justify-content: center;
-    gap: clamp(22px, 5vw, 34px);
-  }
-  .lp-hero-media {
-    position: relative;
-    inset: auto;
-    z-index: 0;
-    width: 100%;
-    aspect-ratio: 1916 / 1080;
-  }
-  .lp-hero-video,
-  .lp-hero-poster {
-    object-fit: contain;
-    object-position: center;
-  }
-  /* The darkening gradient exists to keep white type legible ON the film.
-     Here the type is below it, so the film is shown clean. */
-  .lp-hero::before {
-    display: none;
-  }
-}
-
+/* Nothing device-specific left for the hero: the film is full-bleed at its own
+   ratio on every screen, so desktop and phone already behave identically and
+   neither crops. */
 @media (max-width: 820px) {
-  .lp-hero {
-    min-height: 92dvh;
-  }
   .lp-scroll {
     display: none;
   }
 }
 @media (max-width: 560px) {
-  .lp-hero {
-    padding-top: 96px;
-  }
+  /* The mock's `.hero { padding-top: 96px }` is deliberately NOT here. It was
+     reserving room for the review deck's fixed nav bar. This page has no nav,
+     and that padding would push the film down off the top edge. */
   :where(.lp-section, .lp-cta) h2 {
     font-size: clamp(28px, 8.6vw, 38px);
   }
