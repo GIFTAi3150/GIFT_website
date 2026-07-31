@@ -356,49 +356,84 @@
   text-wrap: balance;
 }
 
-/* --------------------------------------------------------------- what */
+/* --------------------------------------------------------------- what
+
+   Reworked 2026-07-31. The mock had this as a two-column split — heading left,
+   the three steps crammed into the right column at 14px with a 14px number
+   beside each. At that scale the section read as a footnote, which is the
+   opposite of its job: it is the "can GIFT actually deliver this" proof
+   between the emotional hook and the ask.
+
+   Now: heading across the full measure, then three full-width ruled rows with
+   the step number set as display type. Same design language as the flow
+   section above it (hairline rules, LINE green as the single accent) — no
+   boxes, no cards, no shadows.
+   -------------------------------------------------------------------------- */
 .lp-what {
-  display: grid;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.08fr);
-  gap: clamp(32px, 7vw, 96px);
-  align-items: start;
+  display: block;
+}
+.lp-what-head {
+  max-width: 900px;
 }
 /* Higher specificity than the base `:where(...) h2` rule by design (class +
-   element vs. a zero-specificity :where()) — matches the mock, where
-   `.what h2` always beats the bare `h2` rule, including inside its own
+   element vs. a zero-specificity :where()), so it still wins inside the
    560px override. */
 .lp-what h2 {
   font-size: clamp(32px, 4.2vw, 56px);
   line-height: 1.35;
 }
 .lp-steps {
-  display: grid;
-  gap: 14px;
+  margin: clamp(42px, 6vw, 78px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 .lp-step {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 18px;
-  padding: 22px 0;
+  grid-template-columns: minmax(96px, 0.16fr) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 60px);
+  align-items: start;
+  padding: clamp(26px, 3.6vw, 44px) 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
+/* Display-scale number. These are Latin digits, so unlike the Japanese
+   headings they genuinely want tight tracking. */
 .lp-num {
   color: var(--lp-line);
-  font-size: 14px;
+  font-size: clamp(42px, 5.6vw, 86px);
+  line-height: 0.85;
+  letter-spacing: -0.045em;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
 }
 .lp-step strong {
   display: block;
-  font-size: clamp(20px, 2.3vw, 28px);
+  font-size: clamp(21px, 2.6vw, 34px);
   line-height: 1.4;
   font-weight: 900;
+  text-wrap: balance;
 }
 .lp-step p {
-  margin: 8px 0 0;
+  /* 64ch, so the body never runs the full width of a wide monitor — a
+     measure that long is unreadable regardless of how nice the type is. */
+  max-width: 64ch;
+  margin: 12px 0 0;
   color: rgba(255, 255, 255, 0.66);
-  font-size: 15px;
+  font-size: clamp(14px, 1.35vw, 16px);
+  line-height: 1.9;
   font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  /* Number moves above the title rather than beside it — at phone widths a
+     display-scale digit in its own column leaves the text almost no room. */
+  .lp-step {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .lp-num {
+    font-size: clamp(34px, 11vw, 52px);
+  }
 }
 
 /* ------------------------------------------------------- button / cta */
@@ -472,9 +507,6 @@
   }
   .lp-flow-node:nth-child(n + 3) {
     border-top: 1px solid rgba(17, 17, 17, 0.14);
-  }
-  .lp-what {
-    grid-template-columns: 1fr;
   }
 }
 /* ---------------------------------------------------------------------------
