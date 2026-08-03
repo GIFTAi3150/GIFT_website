@@ -17,6 +17,23 @@ GIFT Inc corporate website — rebuild from WordPress to Next.js + Tailwind + TS
 - Agents may run `git add` / `git commit` / `git push` when the user explicitly asks in the moment. (Changed 2026-07-01 — previously agents were barred from all git write commands; the user lifted that restriction.)
 - Most session-persistent project context (palette gotchas, design decisions, rejected directions) lives in the user-level memory at `C:\Users\owner\.claude\projects\C--Users-owner-Desktop-GIFT-website\memory\` — consult `MEMORY.md` there before proposing new directions.
 
+## Design vs. execution — STANDING RULE
+**The strong model designs. A cheaper model executes. Always, no exceptions.**
+(User instruction, 2026-08-03. Restated here because it was being skipped in practice.)
+
+- Opus does the design: the visual direction, the layout, the metaphor, the type
+  scale, the motion concept, the tradeoff calls. It writes the spec.
+- The spec goes in `docs/<feature>-<thing>.md` — complete enough that the
+  executor never has to invent a design decision. Markup, CSS and any GSAP go in
+  the spec as code, with the reasoning attached.
+- Sonnet (the `executor` subagent) applies it, runs `tsc`/`build`, and reports.
+  Its brief must stand alone — it cannot see the conversation.
+- Opus reviews what comes back. Never rubber-stamp it. If the executor says it
+  stopped rather than guessing, that is the system working.
+- Only exception: a genuinely one-step mechanical edit where writing the brief
+  costs more than the edit. That is not a licence to "just do it quickly" on
+  anything with a design decision inside it.
+
 ## Cost discipline
 - **Two-strike rule on direction iteration.** If the user rejects a creative/visual direction twice, stop iterating. Re-brief the problem before proposing a third variation. Past offenders to remember: DX hero warp tunnel, DX hero geometric shapes — these wasted multiple high-cost sessions before being killed. Check `MEMORY.md` rejected-direction notes before suggesting anything new.
 - **Read before edit.** Before modifying a file, read it. Before changing a function, grep for callers. The healthy edit-to-read ratio is roughly 1 edit per 4 reads; if you are editing more than you are reading, slow down.
