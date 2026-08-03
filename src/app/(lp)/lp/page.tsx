@@ -4,6 +4,7 @@ import LpHero from './_components/LpHero';
 import LpFlow from './_components/LpFlow';
 import LpSteps from './_components/LpSteps';
 import LpCta from './_components/LpCta';
+import LpMotion from './_components/LpMotion';
 
 // ONE page carrying BOTH concepts, stacked (user's call, 2026-07-31 — they did
 // not want them split across two URLs).
@@ -27,6 +28,10 @@ export const metadata: Metadata = {
 export default function LpPage() {
   return (
     <>
+      {/* Scroll motion for every section below the hero. Mounted once and
+          selector-driven, so the sections below stay server components — see
+          the doc comment in LpMotion.tsx. */}
+      <LpMotion />
       {LP_SLUGS.map((slug) => {
         const data = LP_VARIANTS[slug];
         return (

@@ -19,7 +19,13 @@ function LpFontsLink() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Noto+Sans+JP:wght@700;800;900&display=swap"
+        // wght@100..900 is a RANGE, which serves the VARIABLE font. The previous
+        // `700;800;900` was a list, which serves three static instances with no
+        // live axis — and the punch-line marquee animates font-weight, so it
+        // would have snapped between three values instead of gliding. Also
+        // fewer files: the LP uses 700, 800 and 900, so this is one variable
+        // face per family instead of three statics.
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap"
       />
     </>
   );

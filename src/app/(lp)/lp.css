@@ -297,100 +297,202 @@
   color: rgba(255, 255, 255, 0.68);
 }
 
-/* ---------------------------------------------------------- motion-story */
-.lp-motion-story {
-  margin-top: clamp(34px, 5vw, 62px);
+/* ------------------------------------------------------ timeline (flow)
+
+   Step-by-step timeline, ported from the Osmo reference the client supplied.
+   Rationale and the three designs this replaces: docs/aiops-lp-timeline-spec.md.
+
+   Normal document flow — NO pin, NO sticky. The only scroll coupling is a
+   scrubbed fill on the rail plus per-step active states, which is exactly what
+   the reference does and is far less fragile than anything that pins.
+
+   ⚠️ RENDERS COMPLETE AND STATIC WITHOUT JS. The rules in this first block are
+   the finished state: full opacity, resolved markers, no fills. Everything that
+   dims or animates lives under `.lp-tl-live`, added by LpMotion after its
+   reduced-motion bail. Do not fold those into the base rules or a visitor with
+   JS off gets a section dimmed to 22% forever.
+   -------------------------------------------------------------------------- */
+.lp-tl-list {
+  position: relative;
+  margin: clamp(34px, 5vw, 62px) 0 0;
+  /* Marker diameter, and therefore the rail's x-position. One variable so the
+     two can never drift apart. */
+  --lp-tl-dot: clamp(34px, 3.4vw, 46px);
+  /* One number for the step rhythm, so the pull-up below cancels exactly the
+     last step's trailing padding instead of guessing at it. */
+  --lp-tl-gap: clamp(38px, 6vw, 92px);
+  /* The last step's padding-bottom is STRUCTURAL — all four steps must keep an
+     identical value or the rail's colour boundary drifts off the phase break.
+     So rather than shortening it, pull the block below up over it. Safe: the
+     rail is absolutely positioned inside this element and resolves against its
+     padding box, which a margin cannot move. */
+  margin-bottom: calc(var(--lp-tl-gap) * -1);
+}
+/* The list proper. .lp-tl-list is only the positioning wrapper it shares with
+   the rail. */
+.lp-tl-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lp-tl-rail {
+  position: absolute;
+  /* 0, not half a marker down: the rail must be exactly as tall as the list, or
+     the phase boundary is no longer at 50% of it and the gift fill (pinned to
+     top: 50%) turns green below the 「with gift」 header instead of at it. The
+     overshoot above the first marker's centre is hidden by the marker itself,
+     which is opaque and sits at z-index 1 on this same centre line. */
+  top: 0;
+  bottom: 0;
+  left: calc(var(--lp-tl-dot) / 2 - 1px);
+  width: 2px;
+  background: rgba(17, 17, 17, 0.14);
+  /* The rail's final `--lp-tl-gap` is structural — the colour boundary is only
+     at 50% while the rail is exactly as tall as the list — but with 5a and 5c
+     that stub now hangs into the closing line's space and hard-stops there.
+     Fade it out rather than cutting it: a mask moves nothing, and it applies
+     to the two fills as a group so the green fill terminates with the track. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - var(--lp-tl-gap)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - var(--lp-tl-gap)),
+    transparent 100%
+  );
+}
+.lp-tl-fill {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  transform: scaleY(0);
+  transform-origin: center top;
+}
+.lp-tl-fill-now {
+  top: 0;
+  background: var(--lp-ink);
+}
+.lp-tl-fill-gift {
+  top: 50%;
+  background: var(--lp-line);
+}
+
+.lp-tl-step {
+  position: relative;
   display: grid;
-  border-top: 1px solid rgba(17, 17, 17, 0.2);
-  border-bottom: 1px solid rgba(17, 17, 17, 0.2);
+  grid-template-columns: var(--lp-tl-dot) minmax(0, 1fr);
+  gap: clamp(16px, 2.4vw, 36px);
+  align-items: start;
+  /* ⚠️ IDENTICAL on all four steps, including the last. The rail's colour turn
+     is two 50%-height bars, so the phase boundary is only at 50% while the
+     steps stay symmetric. Zeroing the last step's padding shifts the turn off
+     the phase break. */
+  padding-bottom: var(--lp-tl-gap);
 }
-.lp-flow-lane {
+.lp-tl-node {
+  position: relative;
+  z-index: 1;
+  width: var(--lp-tl-dot);
+  height: var(--lp-tl-dot);
+  border-radius: 999px;
   display: grid;
-  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
-  gap: clamp(22px, 3vw, 40px);
-  align-items: stretch;
-  padding: clamp(28px, 4.4vw, 50px) 0;
+  place-items: center;
+  background: var(--lp-paper);
+  color: var(--lp-white);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
 }
-.lp-flow-lane.lp-bad {
-  border-bottom: 1px solid rgba(17, 17, 17, 0.16);
+/* Resolved (and no-JS) marker styling. `.lp-tl-live` re-dims these. */
+.lp-tl-now .lp-tl-node {
+  background: var(--lp-ink);
 }
-.lp-flow-label {
+.lp-tl-gift .lp-tl-node {
+  background: var(--lp-line);
+}
+
+.lp-tl-phase {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 9px;
-  padding-top: 2px;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: clamp(10px, 1.4vw, 18px);
+  padding-bottom: clamp(10px, 1.4vw, 18px);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.14);
 }
-.lp-flow-label span {
-  color: var(--lp-red);
+.lp-tl-phase-eyebrow {
+  flex: 0 0 auto;
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.lp-flow-lane.lp-good .lp-flow-label span {
-  color: var(--lp-line);
-}
-.lp-flow-label strong {
-  display: block;
-  font-size: clamp(29px, 3.2vw, 40px);
-  line-height: 1.25;
-  letter-spacing: 0;
-  font-weight: 900;
-  word-break: normal;
-}
-.lp-flow-track {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border-top: 1px solid rgba(17, 17, 17, 0.18);
-}
-.lp-flow-node {
-  position: relative;
-  min-height: 112px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 22px 18px 16px;
-  border-right: 1px solid rgba(17, 17, 17, 0.14);
-  background: transparent;
+.lp-tl-now .lp-tl-phase-eyebrow {
   color: var(--lp-ink);
-  text-align: left;
-  font-size: clamp(15px, 1.55vw, 18px);
-  line-height: 1.38;
-  font-weight: 900;
-  word-break: normal;
-  overflow-wrap: anywhere;
 }
-.lp-flow-node:last-child {
-  border-right: 0;
-}
-.lp-flow-node::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 18px;
-  width: 11px;
-  height: 11px;
-  border-radius: 999px;
-  background: rgba(17, 17, 17, 0.28);
-  box-shadow: 0 0 0 4px var(--lp-paper);
-}
-/* Terminal-state node is the LAST node in each lane's data array — red on
-   bad, LINE green on good — plus every dot on the good lane. */
-.lp-flow-lane.lp-bad .lp-flow-node.lp-stop {
-  color: var(--lp-red);
-}
-.lp-flow-lane.lp-good .lp-flow-node.lp-go {
+.lp-tl-gift .lp-tl-phase-eyebrow {
   color: var(--lp-line);
 }
-.lp-flow-lane.lp-bad .lp-flow-node.lp-stop::before {
-  background: var(--lp-red);
+.lp-tl-phase-name {
+  color: rgba(17, 17, 17, 0.55);
+  font-size: clamp(14px, 1.5vw, 19px);
+  font-weight: 900;
+  word-break: normal;
 }
-.lp-flow-lane.lp-good .lp-flow-node::before {
-  background: var(--lp-line);
+/* The content. Big, because these four phrases ARE the section. */
+.lp-tl-text {
+  margin: 0;
+  color: var(--lp-ink);
+  font-size: clamp(28px, 4.8vw, 68px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  font-weight: 900;
+  word-break: normal;
+  text-wrap: balance;
 }
-.lp-flow-lane.lp-good .lp-flow-node.lp-go::before {
+.lp-tl-gift .lp-tl-text {
+  color: var(--lp-line);
+}
+
+/* --------------------------------------------------- .lp-tl-live (JS on) -- */
+/* The reference's signature: unseen steps sit at 0.22, seen ones fall back to
+   0.5, the current one is at full. That tiering is what makes it read as
+   considered rather than as a list that fades in. */
+.lp-tl-live .lp-tl-step {
+  opacity: 0.22;
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lp-tl-live .lp-tl-step.is-past {
+  opacity: 0.5;
+}
+/* AFTER .is-past on purpose — same specificity, so source order decides and the
+   active step wins while it is both past and active. */
+.lp-tl-live .lp-tl-step.is-active {
+  opacity: 1;
+}
+.lp-tl-live .lp-tl-node {
+  background: var(--lp-paper);
+  color: rgba(17, 17, 17, 0.4);
+  box-shadow: inset 0 0 0 2px rgba(17, 17, 17, 0.18);
+  transition:
+    background 0.4s ease,
+    color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+/* A hard ring, not a blur. The reference glows; a soft shadow here would drag
+   the section into the templated-SaaS look this project rejects. */
+.lp-tl-live .lp-tl-now.is-active .lp-tl-node {
+  background: var(--lp-ink);
+  color: var(--lp-white);
+  box-shadow: 0 0 0 6px rgba(17, 17, 17, 0.09);
+}
+.lp-tl-live .lp-tl-gift.is-active .lp-tl-node {
   background: var(--lp-line);
+  color: var(--lp-white);
+  box-shadow: 0 0 0 6px rgba(6, 199, 85, 0.16);
 }
 .lp-flow-punch {
   max-width: 980px;
@@ -405,6 +507,78 @@
   font-weight: 900;
   word-break: normal;
   text-wrap: balance;
+}
+
+/* ------------------------------------------------------- punch marquee
+
+   The closing line, as a weight-shift marquee: the sentence tracks across the
+   screen while its variable-font weight peaks at centre. Reference:
+   madewithgsap effect079. Spec: docs/aiops-lp-punch-marquee-spec.md.
+
+   ⚠️ Requires the VARIABLE font. src/app/(lp)/layout.tsx must request
+   `wght@100..900` (a range). A `700;800;900` list serves static instances and
+   the weight tween degrades to three hard steps.
+
+   ⚠️ RENDERS STATIC WITHOUT JS. Everything below `.lp-punch-live` is the
+   marquee; the base rules leave the line exactly as it was — a normal wrapping
+   paragraph. Reduced-motion users must not get horizontal travel, which is
+   precisely what that setting asks to suppress.
+   -------------------------------------------------------------------------- */
+.lp-punch {
+  position: relative;
+}
+.lp-punch-live {
+  /* svh — this is a SCROLL BUDGET, and in vh it lengthens when mobile chrome
+     collapses, which would leave the line still travelling after the pane has
+     unstuck. */
+  height: 260svh;
+  /* Overlap the timeline's tail so the closing line arrives one breath after
+     step 04 instead of a third of a screen later. NOT a smaller pane or a
+     bigger `padding-bottom` — both of those would move the line off its 37dvh
+     resting position, which is the marquee's composition. Scoped to
+     `.lp-punch-live` so the no-JS / reduced-motion fallback keeps the ordinary
+     paragraph spacing. dvh, matching the pane geometry this cancels. */
+  margin-top: -18dvh;
+}
+.lp-punch-live .lp-punch-pane {
+  position: sticky;
+  top: 0;
+  /* dvh — this one FILLS the viewport and must keep filling it as the chrome
+     collapses. */
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  /* The marquee's clipping edges. */
+  overflow: hidden;
+  /* Shifts the line up from dead centre so it arrives sooner after the timeline
+     instead of sitting half a screen below it. Padding, NOT a negative margin
+     or a shorter height: the pane's box must stay exactly 100dvh, because the
+     scrub maps `top top` -> `bottom bottom` against it and the sticky interval
+     is derived from the same box. Tailwind's preflight sets box-sizing:
+     border-box, so this shrinks the content area without changing that box. */
+  padding-bottom: 26dvh;
+}
+.lp-punch-live .lp-flow-punch {
+  max-width: none;
+  margin: 0;
+  /* One line, always — it is a marquee, not a paragraph. */
+  white-space: nowrap;
+  /* Overrides the base rule's `balance`, which is meaningless on one line and
+     would otherwise fight nowrap. */
+  text-wrap: nowrap;
+  font-size: clamp(40px, min(9vw, 13vh), 120px);
+  line-height: 1.2;
+  /* GSAP writes font-weight; this is only the pre-tween value so there is never
+     a frame at the base 900. */
+  font-weight: 200;
+  will-change: transform;
+}
+/* Weight is written per character by LpMotion, from each one's distance to the
+   centre of the screen. Unstyled otherwise — plain inline spans, so the static
+   fallback wraps like ordinary Japanese text. Do NOT give these
+   `display: inline-block`: it would break kinsoku in the wrapping fallback. */
+.lp-punch-char {
+  font-weight: inherit;
 }
 
 /* --------------------------------------------------------------- what
@@ -547,17 +721,39 @@
 
 /* ------------------------------------------------------------ @media */
 @media (max-width: 920px) {
-  .lp-flow-lane {
-    grid-template-columns: 1fr;
+  /* Phone: the rail and markers shrink but the structure is unchanged — a
+     vertical timeline is already the right shape for a narrow screen. */
+  .lp-tl-list {
+    --lp-tl-dot: 30px;
+    --lp-tl-gap: clamp(32px, 9vw, 54px);
   }
-  .lp-flow-track {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .lp-tl-text {
+    font-size: clamp(24px, 7.2vw, 40px);
   }
-  .lp-flow-node:nth-child(2) {
-    border-right: 0;
+  .lp-tl-step {
+    gap: 14px;
   }
-  .lp-flow-node:nth-child(n + 3) {
-    border-top: 1px solid rgba(17, 17, 17, 0.14);
+  /* Shorter travel and smaller type on a phone: the line still crosses, but a
+     260svh commitment for one sentence is too much of a small screen. */
+  .lp-punch-live {
+    height: 170svh;
+    /* Bigger pull on a phone: the pane there is near-centred
+       (`padding-bottom: 6dvh`), so the line starts ~47dvh down its own track
+       instead of ~37dvh, and the void to close is correspondingly larger. */
+    margin-top: -32dvh;
+  }
+  /* The base rule lifts the line 26dvh off centre so it arrives sooner after
+     the timeline. That is right for a desktop window and wrong for a tall
+     phone, where 26dvh is ~220px and leaves a large void under the line.
+     Near-centred instead. */
+  .lp-punch-live .lp-punch-pane {
+    padding-bottom: 6dvh;
+  }
+  /* Bigger, so one line has presence in a viewport-height pane instead of
+     reading as a gap. The vh term is a landscape guard — without it a short
+     wide phone would size purely off width and overflow vertically. */
+  .lp-punch-live .lp-flow-punch {
+    font-size: clamp(34px, min(13vw, 11vh), 72px);
   }
 }
 /* ---------------------------------------------------------------------------
@@ -594,29 +790,8 @@
   .lp-hero-copy h1 {
     font-size: clamp(38px, 11.6vw, 56px);
   }
-  .lp-flow-label strong {
-    font-size: clamp(27px, 8vw, 36px);
-  }
   .lp-flow-punch {
     font-size: clamp(25px, 7.8vw, 36px);
-  }
-  .lp-flow-track {
-    grid-template-columns: 1fr;
-  }
-  .lp-flow-node,
-  .lp-flow-node:nth-child(2) {
-    min-height: auto;
-    border-right: 0;
-    border-top: 1px solid rgba(17, 17, 17, 0.14);
-  }
-  .lp-flow-node:first-child {
-    border-top: 0;
-  }
-  .lp-flow-node::before {
-    top: 22px;
-  }
-  .lp-flow-node {
-    padding-left: 42px;
   }
 }
 
