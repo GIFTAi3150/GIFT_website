@@ -21,6 +21,17 @@
 
 export type LpStep = {
   title: string;
+  /**
+   * Authored line breaks for the card's display title. OPTIONAL — omit it and
+   * the title wraps on its own.
+   *
+   * The card title is set at 30px, where the browser's own Japanese line
+   * breaking will happily split 「エージェント」 mid-word. These arrays are the
+   * manager's copy, unchanged, with the break points chosen by hand. The
+   * concatenation MUST equal `title` exactly: `title` is what a screen reader
+   * would otherwise get, and it is also the React key.
+   */
+  titleLines?: readonly string[];
   body: string;
 };
 
@@ -142,14 +153,17 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
       steps: [
         {
           title: '任せる業務を1つ決める',
+          titleLines: ['任せる業務を', '1つ決める'],
           body: '問い合わせ、見積、議事録、資料探しなど、面談で候補を絞ります。',
         },
         {
           title: '会社の文脈をAIに教える',
+          titleLines: ['会社の文脈を', 'AIに教える'],
           body: '過去資料、対応履歴、社長の判断基準をAIが使える形にします。',
         },
         {
           title: '無料AIエージェントとして試す',
+          titleLines: ['無料AIエージェント', 'として試す'],
           body: 'まず1業務で動かし、御社で使えるかを確認します。',
         },
       ],
@@ -205,14 +219,17 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
       steps: [
         {
           title: '社長待ちの業務を特定する',
+          titleLines: ['社長待ちの業務を', '特定する'],
           body: 'どこで仕事が止まっているかを面談で洗い出します。',
         },
         {
           title: '判断基準をAIに渡す',
+          titleLines: ['判断基準を', 'AIに渡す'],
           body: '過去対応や社内ルールを、AIが参照できる形にします。',
         },
         {
           title: '確認待ちを減らす',
+          titleLines: ['確認待ちを', '減らす'],
           body: '見積、問い合わせ、資料探しなどから無料で試します。',
         },
       ],

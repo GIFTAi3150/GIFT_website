@@ -35,7 +35,7 @@ export default function LpPage() {
       {LP_SLUGS.map((slug) => {
         const data = LP_VARIANTS[slug];
         return (
-          <section key={slug} aria-label={data.conceptName}>
+          <section key={slug} aria-label={data.conceptName} data-lp-variant={slug}>
             {/* Which concept you are looking at. Only reason this exists is
                 that the two are stacked — it would be deleted on the split. */}
             <div className="lp-concept-tag">
