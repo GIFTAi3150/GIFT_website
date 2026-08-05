@@ -36,12 +36,12 @@ export default function LpPage() {
         const data = LP_VARIANTS[slug];
         return (
           <section key={slug} aria-label={data.conceptName} data-lp-variant={slug}>
-            {/* Which concept you are looking at. Only reason this exists is
-                that the two are stacked — it would be deleted on the split. */}
-            <div className="lp-concept-tag">
-              <strong>{data.conceptName}</strong>
-              <span>動画はサンプルです</span>
-            </div>
+            {/* No visible concept label. The `.lp-concept-tag` bar that named
+                「A案 / B案」 here, and carried the 「動画はサンプルです」 note,
+                was removed on the user's instruction (2026-08-05) — on a phone
+                it read as a stray black band between the two films. The concept
+                name survives on the section's aria-label and in
+                `data-lp-variant` for anyone inspecting the page. */}
             <LpHero hero={data.hero} />
             <LpFlow flow={data.flow} />
             <LpSteps what={data.what} />

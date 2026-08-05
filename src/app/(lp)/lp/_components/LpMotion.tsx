@@ -35,6 +35,15 @@ export default function LpMotion() {
     // are tracked here and removed in the effect's cleanup below.
     const onRefresh: Array<() => void> = [];
 
+    // Hero exit timelines. Built from an onComplete callback (see below), which
+    // is after gsap.context() has finished collecting, so ctx.revert() will not
+    // catch them. Tracked here and killed in the effect's cleanup instead.
+    const heroExits: gsap.core.Timeline[] = [];
+
+    // The CTA chat threads are driven by IntersectionObserver, not ScrollTrigger
+    // (see the block below for why), so ctx.revert() does not collect them.
+    const chatObservers: IntersectionObserver[] = [];
+
     const mm = gsap.matchMedia();
 
     const ctx = gsap.context(() => {
@@ -49,19 +58,108 @@ export default function LpMotion() {
         }) as ScrollTrigger.Vars;
 
       /* ------------------------------------------------------------ hero */
-      // Fires on load for the first hero (it is already in view, so
-      // ScrollTrigger resolves it immediately on refresh) and on scroll for the
-      // second concept's hero further down.
-      gsap.utils.toArray<HTMLElement>('.lp-hero-copy').forEach((copy) => {
-        const parts = copy.querySelectorAll('h1, p');
-        gsap.set(parts, { opacity: 0, y: 28 });
-        gsap.to(parts, {
-          opacity: 1,
-          y: 0,
-          duration: 0.95,
-          stagger: 0.13,
-          ease: 'power3.out',
-          scrollTrigger: enter(copy, 'top 95%'),
+      // Masked line reveal in, scrubbed masked exit out. The full argument for
+      // this over the letter-spacing spread that used to run here — including
+      // why a horizontal effect is structurally wrong for this frame — is in
+      // docs/aiops-lp-hero-motion-spec.md.
+      //
+      // The idea in one line: the copy gets out of the film's way. Lines retreat
+      // behind their own masks, the block drifts up, and the scrim goes with
+      // them, so scrolling hands the visitor the clean frame — burned-in
+      // punchline included — at full contrast.
+      gsap.utils.toArray<HTMLElement>('.lp-hero').forEach((hero) => {
+        const copy = hero.querySelector<HTMLElement>('.lp-hero-copy');
+        const scrim = hero.querySelector<HTMLElement>('.lp-hero-scrim');
+        if (!copy) return;
+
+        const parts = gsap.utils.toArray<HTMLElement>('h1, p', copy);
+        if (!parts.length) return;
+
+        let exit: gsap.core.Timeline | null = null;
+
+        // Built only once the intro has finished, and that ordering is
+        // load-bearing. A scrubbed tween records its start values the first time
+        // it renders, and ScrollTrigger renders it at progress 0 on every
+        // refresh — of which this file schedules several (rAF, window load,
+        // fonts.ready). Created up front it would either record the intro's
+        // hidden yPercent as "settled", or stomp the intro's own from-state at
+        // scroll 0. Created after, it records the real resting state.
+        //
+        // Known edge: scrolling within the intro's 0.9s means the exit is born
+        // already part-way through its range and snaps to it. Rare, small, and
+        // strictly better than the two failure modes above.
+        const buildExit = (lines: HTMLElement[]) => {
+          exit?.scrollTrigger?.kill();
+          exit?.kill();
+
+          exit = gsap.timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+              trigger: hero,
+              start: 'top top',
+              // A distance, NOT 'bottom top' or a percentage of the hero. On a
+              // phone this hero is ~220px tall against an 844px viewport, so any
+              // end expressed against the viewport resolves BEFORE the start and
+              // the whole exit would be complete at scroll 0. Taking the smaller
+              // of the two keeps the exit proportional on both.
+              end: () => '+=' + Math.round(Math.min(hero.offsetHeight, window.innerHeight) * 0.6),
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          exit
+            // from: 'end' — the BOTTOM line goes first, so the block peels
+            // upward rather than sliding off as a slab.
+            .to(
+              lines,
+              {
+                yPercent: -118,
+                duration: 0.55,
+                stagger: { each: 0.08, from: 'end' },
+              },
+              0,
+            )
+            // Counter-drift on the container. Small: the lines are already
+            // travelling, this only stops the block from feeling pinned.
+            .to(copy, { yPercent: -9, duration: 1 }, 0);
+
+          if (scrim) exit.to(scrim, { opacity: 0, duration: 0.8 }, 0);
+
+          heroExits.push(exit);
+        };
+
+        // One SplitText across BOTH the h1 and the p, not one each: `self.lines`
+        // then holds every line of the block in source order, which is what the
+        // single staggered intro and the single exit timeline need.
+        //
+        // mask: 'lines' wraps each line in a div with `overflow: clip`. That
+        // wrapper is the entire mechanism — it is what lets a line travel a full
+        // line-height without ever being visible outside its own box, and what
+        // keeps every pixel of this effect off the caption.
+        //
+        // Lines are LINES, not characters: Japanese line breaking is the
+        // browser's job and a character split takes it away. autoSplit re-splits
+        // on resize and on late webfonts, i.e. exactly when the rendered breaks
+        // change — so the animation is rebuilt inside onSplit and never holds a
+        // reference to a line element that a re-split has replaced.
+        SplitText.create(parts, {
+          type: 'lines',
+          linesClass: 'lp-hline',
+          mask: 'lines',
+          autoSplit: true,
+          onSplit: (self) => {
+            const lines = self.lines as HTMLElement[];
+            // Returned, so GSAP reverts and rebuilds it on the next re-split.
+            return gsap.from(lines, {
+              yPercent: 118,
+              duration: 0.9,
+              stagger: 0.09,
+              ease: 'power4.out',
+              scrollTrigger: enter(copy, 'top 95%'),
+              onComplete: () => buildExit(lines),
+            });
+          },
         });
       });
 
@@ -89,13 +187,35 @@ export default function LpMotion() {
       // spreads CHARACTERS (字間) instead — the only mapping that exists.
       // Derivation: docs/aiops-lp-line-spread-spec.md.
       //
+      // ⚠️ The HERO deliberately does not use this. It animates letter-spacing,
+      // i.e. line WIDTH, and the film's burned-in caption owns the right edge of
+      // that frame. The hero has its own motion above, which moves only
+      // vertically and only behind a clip edge. Do not add '.lp-hero-copy' back
+      // to this selector — see docs/aiops-lp-hero-motion-spec.md §1.
+      //
       // ⚠️ Left edge is anchored and the spread is capped to the room each
       // line actually has. That is what makes this safe without a clip
       // container: nothing can overflow the measure, and with `nowrap` on the
       // split lines nothing can re-wrap mid-animation.
-      gsap.utils
-        .toArray<HTMLElement>('.lp-hero-copy, .lp-tl .lp-inner')
-        .forEach((block) => {
+      // ⚠️ DESKTOP ONLY (≥900px), and this is a correctness gate, not taste.
+      // The spread deliberately makes a line WIDER than its measure and lets
+      // `.lp-tl { overflow-x: clip }` cut the excess at the window edge. That is
+      // fine while a line has slack and destructive when it does not: on a phone
+      // the heading already fills the measure, so at MAX = 0.34em a 9-character
+      // line at ~33px gains ~100px, and the centring shift throws ~50px off EACH
+      // edge — 「採用しても、また止まる。」 was rendering visibly cut on both sides.
+      // There is no cap that fixes this; capping the spread to the room a line
+      // actually has is what silently disabled v1 of the effect (see
+      // docs/aiops-lp-line-spread-spec.md), so it is gated by width instead.
+      //
+      // Consequence worth knowing: the generic heading reveal further down
+      // deliberately filters `.lp-tl` out (this block re-splits that markup), so
+      // below 900px the flow heading has no entrance animation at all. Static
+      // and correct beats animated and cropped.
+      mm.add('(min-width: 900px)', () => {
+        const splits: SplitText[] = [];
+
+        gsap.utils.toArray<HTMLElement>('.lp-tl .lp-inner').forEach((block) => {
           const targets = gsap.utils.toArray<HTMLElement>(
             ':scope > h1, :scope > p, :scope > .lp-eyebrow, :scope > h2',
             block,
@@ -120,21 +240,21 @@ export default function LpMotion() {
           // therefore NOT cached anywhere — paint() re-queries them, because a
           // cached reference would be stale the moment a re-split happened.
           targets.forEach((el) => {
-            SplitText.create(el, {
-              type: 'lines',
-              linesClass: 'lp-sline',
-              autoSplit: true,
-              onSplit: (self) => {
-                (self.lines as HTMLElement[]).forEach(measure);
-              },
-            });
+            splits.push(
+              SplitText.create(el, {
+                type: 'lines',
+                linesClass: 'lp-sline',
+                autoSplit: true,
+                onSplit: (self) => {
+                  (self.lines as HTMLElement[]).forEach(measure);
+                },
+              }),
+            );
           });
 
           const paint = () => {
             const vh = window.innerHeight;
-            const lines = Array.from(
-              block.querySelectorAll<HTMLElement>('.lp-sline'),
-            );
+            const lines = Array.from(block.querySelectorAll<HTMLElement>('.lp-sline'));
 
             // ⚠️ Read every rect FIRST, then write every style. letter-spacing
             // is a layout property, so interleaving would force one synchronous
@@ -180,6 +300,16 @@ export default function LpMotion() {
             onRefresh: paint,
           });
         });
+
+        // Explicit, like the CTA chat block below: this `mm` is created outside
+        // the surrounding gsap.context(), and a revert that only half-fires
+        // would leave `.lp-sline` wrappers carrying inline letter-spacing on a
+        // phone — the exact crop this gate exists to prevent. Returned from the
+        // mm.add callback, never from the forEach.
+        return () => {
+          splits.forEach((s) => s.revert());
+        };
+      });
 
       /* -------------------------------------------------------- headings */
       // Every h2 on the page is already split into .lp-line spans (display:block)
@@ -672,11 +802,7 @@ export default function LpMotion() {
             // scroll-padding-inline matches the strip's own padding-inline.
             const pitch = slots[1].offsetLeft - slots[0].offsetLeft;
             if (pitch > 0) {
-              const i = gsap.utils.clamp(
-                0,
-                slots.length - 1,
-                Math.round(wheel.scrollLeft / pitch),
-              );
+              const i = gsap.utils.clamp(0, slots.length - 1, Math.round(wheel.scrollLeft / pitch));
               wheel.scrollTo({ left: i * pitch, behavior: 'smooth' });
             }
             // Snap comes back only once that scroll has landed: restoring
@@ -711,18 +837,128 @@ export default function LpMotion() {
       // scrubbed character reveal below, and two ScrollTriggers writing opacity
       // on the same element fight each other — the fade-in would stamp over the
       // scrub and the line would flicker. Do not add it back here.
-      gsap.utils
-        .toArray<HTMLElement>('.lp-lead, .lp-cta-inner > p')
-        .forEach((el) => {
-          gsap.set(el, { opacity: 0, y: 16 });
-          gsap.to(el, {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            ease: 'power2.out',
-            scrollTrigger: enter(el, 'top 90%'),
-          });
+      gsap.utils.toArray<HTMLElement>('.lp-lead, .lp-cta-inner > p').forEach((el) => {
+        gsap.set(el, { opacity: 0, y: 16 });
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power2.out',
+          scrollTrigger: enter(el, 'top 90%'),
         });
+      });
+
+      /* --------------------------------------------------- cta chat thread */
+      // Plays the mock LINE talk as a conversation: GIFT's typing dots, then
+      // the message, a beat, the next one. The user asked for this as a Lottie;
+      // it is GSAP because the bubbles are real Japanese text inside a CSS
+      // phone that reflows at 920px — §20 of the doc has the full argument.
+      //
+      // ⚠️ TRIGGERED BY IntersectionObserver, DELIBERATELY NOT ScrollTrigger.
+      // The previous version used one and had to be gated to ≥921px, because
+      // this section sits below two `.lp-punch-live` tracks measured in 230svh
+      // against a -32dvh pull: svh and dvh differ by the mobile URL bar, so
+      // every cached trigger position down here goes stale the moment that bar
+      // collapses, the reveal never fired, and the section rendered blank. IO
+      // has no cached geometry, so it cannot fail that way — which is why this
+      // now runs at every width. Most of an ad-driven LP's traffic is mobile;
+      // the signature moment should not be desktop-only.
+      //
+      // ⚠️ The timeline carries NO scrollTrigger of its own. A timeline that
+      // kills its own trigger during a refresh takes the refresh down with it
+      // (rule 1 at the top of this file). Built paused, played by the observer.
+      //
+      // ⚠️ `is-armed` is what hides the bubbles, and it is added HERE, at
+      // runtime. Nothing is hidden in the stylesheet. If this effect never runs
+      // — script error, or the reduced-motion bail above — the full thread is
+      // simply visible. Do not "tidy" that into a plain CSS opacity: 0.
+      gsap.utils.toArray<HTMLElement>('.lp-cta-phone').forEach((phone) => {
+        const rows = gsap.utils.toArray<HTMLElement>('.lp-chat-row', phone);
+        if (!rows.length || typeof IntersectionObserver === 'undefined') return;
+
+        phone.classList.add('is-armed');
+
+        const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
+        let t = 0.2;
+
+        rows.forEach((row) => {
+          const bubble = row.querySelector<HTMLElement>('.lp-bubble');
+          const typing = row.querySelector<HTMLElement>('.lp-chat-typing');
+          const meta = row.querySelector<HTMLElement>('.lp-chat-meta');
+          if (!bubble) return;
+          const isOut = row.classList.contains('is-out');
+
+          if (typing) {
+            tl.fromTo(
+              typing,
+              { opacity: 0, scale: 0.9 },
+              { opacity: 1, scale: 1, duration: 0.22, transformOrigin: '0% 0%' },
+              t,
+            );
+            // How long GIFT "types" before the message lands.
+            t += 0.62;
+            tl.to(typing, { opacity: 0, duration: 0.14 }, t);
+          } else {
+            // Your own reply: no dots, you do not watch yourself type — just a
+            // beat, as if you picked a time.
+            t += 0.35;
+          }
+
+          // fromTo, never from: `.is-armed` sets the CSS opacity to 0, so a
+          // `from` tween would read 0 as the end value and animate nothing.
+          tl.fromTo(
+            bubble,
+            { opacity: 0, scale: 0.86, y: 8 },
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              duration: 0.42,
+              ease: 'back.out(1.7)',
+              // Bubbles grow out of their tail corner, like a real client.
+              transformOrigin: isOut ? '100% 0%' : '0% 0%',
+            },
+            t,
+          );
+
+          if (meta) tl.fromTo(meta, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.42);
+
+          // Pause before the next message.
+          t += 0.42;
+        });
+
+        // Replays on EVERY approach, not once — the thread is the section's
+        // demo, and a visitor scrolling back up to re-read the CTA should see it
+        // run again rather than find a finished conversation sitting there.
+        //
+        // Two thresholds, and the asymmetry is the point: it starts once 35% of
+        // the phone is on screen, but only rewinds when the phone is COMPLETELY
+        // gone (ratio 0). Resetting on the same 35% edge would blank the bubbles
+        // while the phone was still partly visible, and scrolling slowly across
+        // that boundary would flicker the thread on and off.
+        //
+        // `inView` latches the state so the callback firing repeatedly around a
+        // threshold cannot restart a run that is already playing.
+        let inView = false;
+        const io = new IntersectionObserver(
+          (entries) => {
+            const e = entries[entries.length - 1];
+            if (e.intersectionRatio >= 0.35) {
+              if (inView) return;
+              inView = true;
+              tl.restart();
+            } else if (!e.isIntersecting) {
+              inView = false;
+              // pause(0), not just pause: rewinds to an empty thread so the next
+              // approach plays from the first typing indicator again.
+              tl.pause(0);
+            }
+          },
+          { threshold: [0, 0.35] },
+        );
+        io.observe(phone);
+        chatObservers.push(io);
+      });
 
       /* -------------------------------------------------- punch marquee */
       // Weight-shift marquee: the closing line tracks across the screen while
@@ -870,6 +1106,14 @@ export default function LpMotion() {
       cancelAnimationFrame(raf);
       window.removeEventListener('load', refresh);
       onRefresh.forEach((fn) => ScrollTrigger.removeEventListener('refresh', fn));
+      heroExits.forEach((tl) => {
+        tl.scrollTrigger?.kill();
+        tl.kill();
+      });
+      chatObservers.forEach((io) => io.disconnect());
+      document
+        .querySelectorAll('.lp-cta-phone.is-armed')
+        .forEach((el) => el.classList.remove('is-armed'));
       ctx.revert();
       mm.revert();
     };

@@ -33,6 +33,22 @@ export type LpStep = {
    */
   titleLines?: readonly string[];
   body: string;
+  /**
+   * Authored line breaks for the card's body copy. OPTIONAL — omit it and the
+   * paragraph wraps on its own.
+   *
+   * Required for any step whose card is live, because the body is set on an arc
+   * and `.lp-wline` is `white-space: nowrap`: each token is given its angle from
+   * its position along its line, so a browser rewrap would leave every token
+   * holding an angle for a segmentation that no longer exists. Same invariant as
+   * `titleLines` — the concatenation MUST equal `body` exactly, since `body` is
+   * what a screen reader would otherwise get.
+   *
+   * ⚠️ Keep every line at or under ~14em (≈14 full-width characters). That is
+   * what lets `nowrap` be safe at the 243px mobile card. See
+   * docs/aiops-lp-what-card-body-arc.md §2.
+   */
+  bodyLines?: readonly string[];
 };
 
 export type LpLane = {
@@ -155,16 +171,19 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
           title: '任せる業務を1つ決める',
           titleLines: ['任せる業務を', '1つ決める'],
           body: '問い合わせ、見積、議事録、資料探しなど、面談で候補を絞ります。',
+          bodyLines: ['問い合わせ、見積、', '議事録、資料探しなど、', '面談で候補を絞ります。'],
         },
         {
           title: '会社の文脈をAIに教える',
           titleLines: ['会社の文脈を', 'AIに教える'],
           body: '過去資料、対応履歴、社長の判断基準をAIが使える形にします。',
+          bodyLines: ['過去資料、対応履歴、', '社長の判断基準を', 'AIが使える形にします。'],
         },
         {
           title: '無料AIエージェントとして試す',
           titleLines: ['無料AIエージェント', 'として試す'],
           body: 'まず1業務で動かし、御社で使えるかを確認します。',
+          bodyLines: ['まず1業務で動かし、', '御社で使えるかを確認します。'],
         },
       ],
     },
@@ -221,16 +240,19 @@ export const LP_VARIANTS: Record<string, LpVariant> = {
           title: '社長待ちの業務を特定する',
           titleLines: ['社長待ちの業務を', '特定する'],
           body: 'どこで仕事が止まっているかを面談で洗い出します。',
+          bodyLines: ['どこで仕事が止まっているかを', '面談で洗い出します。'],
         },
         {
           title: '判断基準をAIに渡す',
           titleLines: ['判断基準を', 'AIに渡す'],
           body: '過去対応や社内ルールを、AIが参照できる形にします。',
+          bodyLines: ['過去対応や社内ルールを、', 'AIが参照できる形にします。'],
         },
         {
           title: '確認待ちを減らす',
           titleLines: ['確認待ちを', '減らす'],
           body: '見積、問い合わせ、資料探しなどから無料で試します。',
+          bodyLines: ['見積、問い合わせ、', '資料探しなどから', '無料で試します。'],
         },
       ],
     },

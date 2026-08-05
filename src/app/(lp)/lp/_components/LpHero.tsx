@@ -8,10 +8,12 @@ type LpHeroProps = {
   hero: LpVariant['hero'];
 };
 
-// Full-bleed 100dvh video hero — dvh, not vh/svh (standing rule on this
-// project: svh under-fills once mobile browser chrome collapses). The dvh
-// height itself lives in .lp-hero (lp.css); this component only handles the
-// poster/video crossfade and the reduced-motion gate.
+// Full-bleed video hero. The <section> is exactly the film's own box — the film
+// runs edge to edge at its native ratio and is NEVER cropped (see the block
+// comment on .lp-hero in lp.css), and the headline sits ON the film rather than
+// in a black band under it. The height comes from .lp-hero-media's aspect-ratio;
+// this component only handles the poster/video crossfade and the reduced-motion
+// gate.
 export default function LpHero({ hero }: LpHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
@@ -85,6 +87,12 @@ export default function LpHero({ hero }: LpHeroProps) {
 
   return (
     <section className="lp-hero" aria-label="AIエージェントLP ファーストビュー">
+      {/* Legibility scrim for the overlaid copy. A real element rather than a
+          pseudo-element because LpMotion fades it out on scroll — the copy is
+          what it exists for, so it leaves when the copy leaves and hands the
+          frame back clean. Geometry and the reason it stops before the right
+          edge: .lp-hero-scrim in lp.css. */}
+      <div className="lp-hero-scrim" aria-hidden="true" />
       {/* The film gets its own box at its own aspect ratio, rather than being
           stretched behind the whole hero. The CM has burned-in text at the
           right edge — cropping it to fill the viewport cuts the punchline off.
@@ -116,9 +124,12 @@ export default function LpHero({ hero }: LpHeroProps) {
           <source src={hero.video} type="video/mp4" />
         </video>
 
-        {/* Sound toggle. Sits ON the film, bottom-right, so it is obviously
-            attached to this video and not to the page. Labelled in Japanese
-            rather than being a bare speaker glyph — a lone icon reads as
+        {/* Sound toggle. Sits ON the film, BOTTOM-left. Left because the CM's
+            burned-in caption runs down the right edge; bottom because a control
+            parked at the top of a film reads as a watermark and gets missed
+            (tried top-left 2026-08-05, rejected same day). The headline shares
+            that corner and yields to it — see .lp-sound in lp.css.
+            Labelled in Japanese rather than a bare speaker glyph — a lone icon reads as
             decoration and gets ignored, and the whole point is that people
             notice they can turn the sound on. */}
         <button

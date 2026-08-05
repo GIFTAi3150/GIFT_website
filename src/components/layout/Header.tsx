@@ -82,18 +82,23 @@ export default function Header() {
   // Insert SERVICE dropdown at position 1 (after ABOUT)
   const serviceNavIndex = 1;
 
-  // Landing pages render no site chrome. An LP exists to move the visitor to
-  // one action (the LINE CTA); a nav bar offering ABOUT / SERVICE / CONTACT is
-  // a leak straight out of the funnel, and these pages are paid traffic.
+  // ⚠️ THE LP USED TO BE EXCLUDED HERE. It is not any more — the user asked for
+  // the nav on /lp explicitly (2026-08-05). Do not re-add the early return
+  // without asking; the reasoning that put it here originally is recorded below
+  // so it is not lost, not because it still governs.
   //
-  // This lives here rather than in the root layout because that layout is a
-  // server component and cannot read the pathname. `(lp)` is only a route
-  // GROUP — it shares the single root layout, so it cannot opt out of <Header />
-  // structurally; it has to be turned off from inside.
+  //   "Landing pages render no site chrome. An LP exists to move the visitor to
+  //    one action (the LINE CTA); a nav bar offering ABOUT / SERVICE / CONTACT
+  //    is a leak straight out of the funnel, and these pages are paid traffic."
   //
-  // Placed AFTER every hook above on purpose. The hooks stay unconditional, so
-  // the rules of hooks hold; only the rendered output is conditional.
-  if (pathname.startsWith('/lp/')) return null;
+  // That guard also had a bug worth remembering if it ever comes back: it read
+  // `pathname.startsWith('/lp/')`, written when the LP was `lp/[variant]`, so it
+  // silently stopped matching once the page collapsed to the single `/lp` route.
+  // Any future version must test `pathname === '/lp'` as well as the prefix.
+  //
+  // Because this <header> is `fixed`, the LP hero reserves its 80px (the `h-20`
+  // bar below) as top padding — see the `padding-top` note on `.lp-hero` in
+  // src/app/(lp)/lp.css. If that height ever changes, change it there too.
 
   return (
     <>
