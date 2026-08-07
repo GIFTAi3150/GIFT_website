@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AuroraLines from './AuroraLines';
+import { VH_FROZEN_CHANGE } from '@/components/util/ViewportFreeze';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -96,7 +97,14 @@ export default function AIOps() {
     // Giant AI OPS rises from bottom
     tl.to(aiopsWrap, { opacity: 1, y: 0, duration: 1.0 }, 5.6);
 
+    // ViewportFreeze が測り直したら scrub 範囲を計算し直す。px の書き換えは
+    // resize イベントを発火しないので、これが無いと回転後にトリガー位置が
+    // 古いまま残る。
+    const onFrozenChange = () => ScrollTrigger.refresh();
+    window.addEventListener(VH_FROZEN_CHANGE, onFrozenChange);
+
     return () => {
+      window.removeEventListener(VH_FROZEN_CHANGE, onFrozenChange);
       tl.scrollTrigger?.kill();
       tl.kill();
     };
@@ -108,8 +116,10 @@ export default function AIOps() {
 
   return (
     <section className="relative w-full" style={{ background: '#050c1a' }}>
-      {/* Full scroll-height outer — GSAP scrubs across this */}
-      <div ref={outerRef} style={{ height: '580vh' }}>
+      {/* Full scroll-height outer — GSAP scrubs across this.
+          高さは vh ではなく ViewportFreeze が固定した px（580vh 相当）。
+          理由: docs/hp-webview-vh-freeze-spec.md */}
+      <div ref={outerRef} style={{ height: 'calc(var(--vh-frozen) * 5.8)' }}>
         <div
           ref={stickyRef}
           style={{

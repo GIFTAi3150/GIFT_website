@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { VH_FROZEN_CHANGE } from '@/components/util/ViewportFreeze';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -157,7 +158,14 @@ export default function WheelScroll() {
     tl.to(circle, { rotation: -270, ease: 'none', duration: 1 }, 0);
     pills.forEach(p => { if (p) tl.to(p, { rotation: 270, ease: 'none', duration: 1 }, 0); });
 
+    // ViewportFreeze が測り直したら scrub 範囲を計算し直す。px の書き換えは
+    // resize イベントを発火しないので、これが無いと回転後にトリガー位置が
+    // 古いまま残る。
+    const onFrozenChange = () => ScrollTrigger.refresh();
+    window.addEventListener(VH_FROZEN_CHANGE, onFrozenChange);
+
     return () => {
+      window.removeEventListener(VH_FROZEN_CHANGE, onFrozenChange);
       tl.scrollTrigger?.kill();
       tl.kill();
     };
@@ -165,8 +173,10 @@ export default function WheelScroll() {
 
   return (
     <section className="relative w-full border-t border-[#BFDBFE] bg-white">
-      {/* Tall outer wrapper — always present so GSAP trigger fires on all viewports */}
-      <div ref={outerRef} style={{ height: '400vh' }}>
+      {/* Tall outer wrapper — always present so GSAP trigger fires on all viewports.
+          高さは vh ではなく ViewportFreeze が固定した px（400vh 相当）。
+          理由: docs/hp-webview-vh-freeze-spec.md */}
+      <div ref={outerRef} style={{ height: 'calc(var(--vh-frozen) * 4)' }}>
         <div
           style={{
             position: 'sticky',

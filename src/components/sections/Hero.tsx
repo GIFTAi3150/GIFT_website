@@ -14,7 +14,11 @@ export default function Hero() {
       ref={sectionRef}
       className="relative flex w-full items-center justify-start overflow-hidden"
       style={{
-        minHeight: '100vh',
+        // viewport 単位ではなく ViewportFreeze が固定した px を使う。
+        // Instagram のアプリ内ブラウザは WebView を物理リサイズするので、
+        // vh のままだとツールバー開閉のたびにこの節が伸縮し、下の全セクションを
+        // 押し下げ／引き上げてしまう。詳細: docs/hp-webview-vh-freeze-spec.md
+        minHeight: 'var(--vh-frozen)',
         backgroundColor: '#0b1020',
         isolation: 'isolate',
       }}
