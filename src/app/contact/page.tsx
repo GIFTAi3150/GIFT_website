@@ -11,6 +11,13 @@ import { PLANS } from '@/data/plans';
 const inquiryTypes = [
   { value: 'callcenter', label: 'コールセンター事業について' },
   { value: 'dx', label: 'AIOps事業について' },
+  // Sits directly under AIOps because ナレッジハーネス is an AIOps product, not a
+  // separate line of business. /plans links here with `?inquiry=plans&plan=...`
+  // — if this value is ever renamed, CTA.href in
+  // src/app/plans/_components/khContent.ts must change with it, or the select
+  // silently falls back to "選択してください" (see the guard on line ~30, which
+  // only accepts a value present in this array).
+  { value: 'plans', label: '料金プランについて' },
   { value: 'finance', label: '財務コンサル事業について' },
   { value: 'recruit', label: '採用について' },
   { value: 'other', label: 'その他' },

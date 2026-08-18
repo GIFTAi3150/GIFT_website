@@ -13,6 +13,7 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: Metadata
   { path: '/services/callcenter', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/services/aiops', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/services/finance-consulting', priority: 0.9, changeFrequency: 'monthly' },
+  { path: '/plans', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/achievements', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/recruit', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/member', priority: 0.7, changeFrequency: 'monthly' },

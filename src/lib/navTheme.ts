@@ -220,6 +220,27 @@ const CONTACT_THEME: NavTheme = {
   textFaint: 'rgba(255, 255, 255, 0.35)',
 };
 
+// /plans (Knowledge Harness) — dark navy matching the page's own bands and the
+// homepage's WhoWeAre section. Mirrors CONTACT_THEME: both are #0b1020 + #2563EB.
+// Was DX_CONSULTING_THEME (light lavender + pink) until 2026-08-18, left over from
+// the original /plans build — the chrome kept rendering pink over a dark page.
+const PLANS_THEME: NavTheme = {
+  bg: '#0b1020',
+  bgAlpha: 'rgba(11, 16, 32, 0.92)',
+  bgFull: '#0b1020',
+  accent: '#2563EB',
+  accentDeep: '#1D4ED8',
+  border: 'rgba(255, 255, 255, 0.12)',
+  bgAlt: '#131c3c',
+  ink: '#FFFFFF',
+  muted: 'rgba(255, 255, 255, 0.60)',
+  logoShield: '#2563EB',
+  logoInner: '#0b1020',
+  text: 'rgba(255, 255, 255, 0.87)',
+  textMuted: 'rgba(255, 255, 255, 0.55)',
+  textFaint: 'rgba(255, 255, 255, 0.35)',
+};
+
 // /company page palette — matches the homepage AI light-mode theme.
 const COMPANY_THEME: NavTheme = {
   bg: '#F0F7FF',
@@ -265,7 +286,7 @@ const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/news(\/|$)/, NEWS_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/aiops(\/|$)/, DX_CONSULTING_THEME],
-  [/^\/plans(\/|$)/, DX_CONSULTING_THEME],
+  [/^\/plans(\/|$)/, PLANS_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
   [/^\/member(\/|$)/, MEMBER_THEME],
   [/^\/recruit(\/|$)/, RECRUIT_THEME],

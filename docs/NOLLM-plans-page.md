@@ -1,37 +1,194 @@
 # NOLLM — /plans page manual (edit it yourself, no AI needed)
 
-This is a plain-English manual for the **/plans page hero and its card grid**.
-It is written so you can change things by hand, without asking an AI.
+This is a plain-Japanese manual for the **/plans page**, which is now a
+**single-product page for ナレッジハーネス (Knowledge Harness)**. It is written
+so you can change things by hand, without asking an AI.
 
 **Everything below is a real value copied from the real code**, not an example.
 
-> **The carousel was removed 2026-07-31** on manager feedback: visitors must
-> see the plan cards immediately on landing, with zero interaction — no
-> dragging, no clicking to expand. The old carousel files
-> (`PlanCardStack.tsx`, `PlanCardFace.tsx`) are still on disk, untouched and
-> unimported, in case it is ever wanted back — they represented a lot of
-> work. This manual now describes the plain static grid that replaced it.
+> **2026-08-18: this page stopped being a 3-card service grid.** It used to
+> show three invented placeholder services (AIOps診断／業務自動化／データ活用).
+> The manager supplied the first real, priced product — ナレッジハーネス — and
+> /plans now sells that one product on one plan. The old cards
+> (`PlanCard.tsx`, `PlanCardFace.tsx`, `PlanCardStack.tsx`) are still on disk,
+> untouched and unimported, in case a multi-card layout is ever wanted again —
+> they represented a lot of work. This manual describes the new product page.
+>
+> **このページにアニメーションは一切ありません。** マネージャーの指示
+> （2026-08-18）で「凝ったデザインやアニメーションは不要、シンプルなものが
+> 良い」と決まったため、GSAP のスクロール演出やフェードインは全て削除されて
+> います。動きを足したくなっても、まずこの指示を思い出してください。
+>
+> **2026-08-18（同日追記）: フォント・配色をサイト共通のもの（house style）に
+> 統一しました。** ページ専用のフォント読み込み（CDN 経由の Gen Interface JP /
+> JetBrains Mono）は削除済みで、`src/app/layout.tsx` がグローバルに読み込む
+> Noto Sans JP・Forum・Poppins をそのまま使っています。
 
 ---
 
-## 1. The files
+## 1. まず知っておくこと — 文章はすべて1つのファイルにある
+
+このページに表示される**日本語・英語の文章は、すべて**
+`src/app/plans/_components/khContent.ts` の中にあります。文章を直す時は
+基本的にこのファイルだけを開けば足ります。
+
+`khContent.ts` の中は、ページの区画ごとに分かれています。
+
+| 定数名 | 何を表示しているか |
+|---|---|
+| `HERO` | 一番上のヒーロー部分。製品名（英語・日本語）、見出し2行、本文、補助金の注記 |
+| `FEATURES` | 「できること」セクション。導入後の変化の一文＋6個の機能カード |
+| `PRICING` | 「料金」セクション（ページで唯一の黒い箱）。月額、内訳3行、合計、補助金パネル、税別注記 |
+| `GLOSSARY` | 「Claude Team Standard とは」の説明ボックス |
+| `SUPPORT` | 「サポート・伴走」の5項目 |
+| `CTA` | 一番下のピンクのボタンとそのリード文、リンク先 |
+
+どの定数がページのどこに出るかは、`src/app/plans/_components/` の中の
+同名のコンポーネント（`KhFeatures.tsx` が `FEATURES` を読む、など）を見れば
+一対一で対応しています。
+
+---
+
+## 2. ファイルの一覧
 
 | File | What it holds |
 |---|---|
-| `src/app/plans/page.tsx` | The page itself. Fonts + metadata (page title / description), plus the card grid section below the hero. |
-| `src/app/plans/_components/PlansHero.tsx` | The headline text, the background colour, the intro animation timings. (The pink button used to live here too — since 2026-07-31 it is on each card instead.) |
-| `src/app/plans/_components/PlanCard.tsx` | **The card.** One static card, everything visible at once — no interaction — including its own pink CTA button. |
-| `src/data/plans.ts` | **The words and prices on the cards.** One block per service. This is the file to edit for copy changes. Lives in the shared `src/data/` folder (next to `company.json`, `members.json` …) because the contact page reads it too — see section 3. |
-| `src/app/plans/_components/PlanCardFace.tsx` | Retired carousel card layout. Kept on disk, no longer imported by the page — only `CARD_SURFACE_CLASS` (the card's grey background) is still reused, by `PlanCard.tsx`. |
-| `src/app/plans/_components/PlanCardStack.tsx` | Retired carousel (drag, autoplay, click-to-expand). Kept on disk, no longer imported by the page. Do not delete either retired file — they stay revivable. |
+| `src/app/plans/page.tsx` | ページ全体の組み立て。メタデータ（タイトル・description）と、どのセクションを上から順に並べるか。フォントの読み込みはここでは行いません（サイト共通の設定を使います）。 |
+| `src/app/plans/_components/khContent.ts` | **文章と数字はすべてここ。** 上の表を参照。 |
+| `src/app/plans/_components/PlansHero.tsx` | 一番上のヒーロー。見た目のレイアウトのみ、文章は `HERO`（khContent.ts）から読む。アニメーションなし。 |
+| `src/app/plans/_components/KhSectionHead.tsx` | 「Features」「Pricing」「Support」の見出し部分（横罫線＋大きな英語＋黒いチップの日本語ラベル）を共通化した部品。3つのセクションで使い回している。サイトのトップページと同じ見出しの形です。 |
+| `src/app/plans/_components/KhFeatures.tsx` | 「できること」セクションのレイアウト。文章は `FEATURES`。 |
+| `src/app/plans/_components/KhPricing.tsx` | 「料金」セクション（黒い箱）のレイアウト。文章・数字は `PRICING`。 |
+| `src/app/plans/_components/KhGlossary.tsx` | 「Claude Team Standard とは」ボックスのレイアウト。文章は `GLOSSARY`。 |
+| `src/app/plans/_components/KhSupport.tsx` | 「サポート・伴走」セクションのレイアウト。文章は `SUPPORT`。 |
+| `src/app/plans/_components/KhCta.tsx` | 一番下のピンクのボタン。文章・リンク先は `CTA`。 |
+| `src/data/plans.ts` | `/contact` ページの「お問い合わせ内容」欄を自動入力するための元データ。詳しくは4章。 |
+| `src/app/plans/_components/PlanCard.tsx` | **退役済み。触らない。** 昔の3枚カードのうちの1枚のデザイン。ディスク上には残しているが、どこからも読み込まれていない。 |
+| `src/app/plans/_components/PlanCardFace.tsx` | **退役済み。触らない。** さらに古いカルーセル版のカード面。 |
+| `src/app/plans/_components/PlanCardStack.tsx` | **退役済み。触らない。** カルーセル本体（ドラッグ操作など）。 |
 
-> ⚠️ **All the service names and prices are made up.** They were written
-> 2026-07-31 so the cards would have something to show, and nothing in them has
-> been through 役員確認. Treat every figure as a placeholder.
+> ⚠️ `PlanCard.tsx` / `PlanCardFace.tsx` / `PlanCardStack.tsx` の3ファイルは
+> **編集しないでください。** どこからも呼び出されておらず、このページの表示に
+> 一切影響しません。将来また複数カードのレイアウトに戻す可能性があるので
+> 削除せず残してあるだけです。
 
 ---
 
-## 2. How to see your change
+## 3. 料金の数字を直すとき — 一番注意すること
+
+`khContent.ts` の `PRICING` の中の金額は、**すべて「万円」の生の数字**です
+（`'216'` のように、単位もカンマも付けません）。単位の「万円」はコンポーネント
+（`KhPricing.tsx` の `Yen` という部品）側で自動的に付け足しています。
+
+```ts
+export const PRICING = {
+  monthlyFigure: '9',        // 月額9万円 の「9」
+  rows: [
+    { item: '月額利用料（24ヶ月分）', detail: null, amount: '216' },
+    { item: '初期導入費', detail: '導入研修・オンボーディング初期設定込み', amount: '38' },
+    { item: 'Claude Team Standard 5名分（24ヶ月分）', detail: 'Claude Code含む・標準セット', amount: '45' },
+  ],
+  totalAmount: '299',        // 216 + 38 + 45
+  subsidy: {
+    figure: '149.5',         // 299 ÷ 2
+  },
+};
+```
+
+### ⚠️ 計算チェックは自動化されていません
+
+このページのどこにも「合計を自動計算する」仕組みはありません。3行の金額を
+足したものを、あなたが手で `totalAmount` に書いています。同様に、
+`subsidy.figure`（実質負担額）も `totalAmount` を2で割った値を、あなたが
+手で書いています。
+
+**内訳のどれか1つでも数字を変えたら、次の2つを必ず手で直してください：**
+
+1. `totalAmount` = 3行の `amount` の合計
+2. `subsidy.figure` = `totalAmount` ÷ 2
+
+今の値で確認すると：`216 + 38 + 45 = 299`、`299 ÷ 2 = 149.5`。合っています。
+ここがズレていても画面には何もエラーが出ません — 見積書の数字が単純に
+間違って表示されるだけなので、金額を変えたら必ず自分で電卓を当ててください。
+
+### 税別／税込みの注記
+
+`PRICING.taxNote` に入っています（`※表示価格はすべて税別です。`）。もし
+実際は税込みなら、この1行だけを書き換えればページ全体に反映されます。
+
+---
+
+## 4. `HERO.note` の日付
+
+`khContent.ts` の `HERO.note` には「（2026年8月10日時点の内容）」という
+日付が入っています。これは製品内容・料金の基準日です。**料金や機能の内容を
+改訂したら、この日付も一緒に更新してください。** 日付だけ古いままだと、
+いつの情報かわからなくなります。
+
+```ts
+export const HERO = {
+  note: '国の「デジタル化・AI導入補助金2026」の対象ツールとなることを前提に設計しています。（2026年8月10日時点の内容）',
+};
+```
+
+---
+
+## 5. `src/data/plans.ts` — `/contact` の自動入力の元データ
+
+`/plans` のページ本体の見た目はもう `src/data/plans.ts` を見ていません
+（3章までの `khContent.ts` がすべてです）。ただし `src/data/plans.ts` の
+`PLANS` という配列は、`/contact` ページが URL の `?plan=knowledge-harness`
+を見て「お問い合わせ内容」欄を自動で書き込むために、今も使われています。
+
+```ts
+export const PLANS: Plan[] = [
+  {
+    slug: 'knowledge-harness',   // ⚠️ リンクのID。書き換えない
+    label: 'KNOWLEDGE HARNESS',
+    name: 'ナレッジハーネス',
+    summary: '社内に散らばる情報・ノウハウ・過去のやり取りを集めて構造化し、人もAIも使える形で保管する社内知識ツールです。',
+    // ...
+  },
+];
+```
+
+`/plans` の一番下のボタン（`KhCta.tsx` の `CTA.href`）は
+`/contact?inquiry=dx&plan=knowledge-harness` にリンクしています。ここの
+`plan=knowledge-harness` と、`plans.ts` の `slug: 'knowledge-harness'` が
+一致していないと、自動入力が働きません（`/contact` 側は一致しない場合、
+メッセージ欄を空欄のまま何も表示しないだけで、エラーにはなりません）。
+
+`/contact` に渡って自動で入るメッセージの中身：
+
+```
+「ナレッジハーネス」（KNOWLEDGE HARNESS）に興味があります。
+
+■ サービス内容
+社内に散らばる情報・ノウハウ・過去のやり取りを集めて構造化し、人もAIも使える形で保管する社内知識ツールです。
+
+詳細なご説明とお見積もりをお願いいたします。
+```
+
+`name` と `summary` を書き換えると、この自動入力メッセージも連動して変わり
+ます。`slug` だけは書き換えないでください — 変えると、もし
+`/contact?plan=knowledge-harness` というリンクが既にどこかで使われていた
+場合、そのリンクが動かなくなります。
+
+> ⚠️ `src/data/plans.ts` の中の `Plan` 型には、`price` や `specs` など、今の
+> ページ本体では使っていないフィールドも残っています。これは退役済みの
+> `PlanCard.tsx` などが今も同じ型を使っているためで、消さないでください。
+
+---
+
+## 6. `PlanCard.tsx` / `PlanCardFace.tsx` / `PlanCardStack.tsx` は編集しない
+
+3章で触れた通り、この3ファイルは**現在のページのどこからも呼び出されて
+いません。** 編集しても画面には何も反映されません。将来また複数カードの
+見せ方に戻す可能性を考えて、あえて削除せず残してあります。
+
+---
+
+## 7. 見るときのやり方
 
 Open PowerShell in `C:\Users\owner\Desktop\GIFT_website` and run:
 
@@ -48,6 +205,11 @@ Then open **http://127.0.0.1:3000/plans** in the browser.
 A normal reload can keep the old JavaScript and make you think your change did
 nothing.
 
+このページには GSAP アニメーションが一切無いので、画面に反映されない時は
+まず「保存し忘れ」か「ハードリロードし忘れ」を疑ってください（昔のヒーロー
+演出のような、フォント読み込み待ちで起きる不具合はこのページでは起こり
+ません — 演出そのものが存在しないためです）。
+
 When you are finished, press `Ctrl + C` in that PowerShell window to stop the
 server and free the port.
 
@@ -62,275 +224,47 @@ prints red errors, read the file + line number it names and undo your last edit.
 
 ---
 
-## 3. Cards — what you can change
+## 8. このページに絶対にやってはいけないこと
 
-### ⭐ Changing what the cards SAY
-
-Open **`src/data/plans.ts`**. It is a list of blocks, one per card, and it
-looks like this:
-
-```js
-{
-  slug: 'aiops-diagnosis',       // ⚠️ the link ID — see the warning below
-  label: 'SERVICE A',            // the small grey capitals across the top
-  name: 'AIOps 診断',             // the big white Japanese name
-  summary: '業務を工程単位で…',    // one line of body copy, ALWAYS shown
-  price: '380,000',              // digits only — the card draws the ¥ and the 〜
-  priceCaption: '初回一括（税別）', // small line above the price
-  specs: [                        // the three ruled rows on the card
-    { k: '期間',     v: '4 週間' },
-    { k: '対象業務', v: '5 業務まで' },
-    { k: '成果物',   v: '導入ロードマップ' },
-  ],
-  image: '/img/services/services-dx-photo.png',  // a file in /public
-},
-```
-
-The old "keep `name` to about 7 Japanese characters" guidance is **gone**. It
-existed because the carousel's card was only ~220px wide on desktop; the grid
-card is a fixed ~380px, with far more room, so a longer name is fine.
-
-> ⚠️ **`slug` is not display text — do not translate it or tidy it up.** It is
-> the ID that travels in the card button's link (`/contact?plan=aiops-diagnosis`)
-> and it is how the contact page knows which service to write into the message.
-> You can reword `label`, `name`, `summary`, the prices and the specs as freely
-> as you like; changing a **slug** breaks any link to that plan that is already
-> out in the world (in an email, a chat message, an ad). If you add a new
-> service, give it a new lowercase-with-hyphens slug that no other block uses.
-
-The one rule that still applies:
-
-- **Keep `specs` to exactly 3 rows.** The card is laid out with those three
-  hairline-ruled rows in mind; a 4th would still technically fit but was never
-  designed for.
-
-`summary` is now **always visible** — it used to be hidden on phones and only
-shown when a carousel card was opened. There is no hidden/open state any
-more, so it always prints under the name.
-
-### ⭐ Changing how many cards there are
-
-**Add or delete a block in `src/data/plans.ts`.** The grid draws one card per block
-(`PLANS.map(...)` in `page.tsx`), so there is no count to keep in sync
-anywhere. Any number works — the grid just gets more or fewer cards.
-
-### ⭐ Changing the number of columns
-
-In **`page.tsx`**, find the grid section below `<PlansHero />` and look for:
-
-```jsx
-<div className="grid grid-cols-1 gap-6 min-[901px]:grid-cols-3">
-```
-
-- `grid-cols-1` — always one column on narrow windows (phones), cards
-  stacked vertically.
-- `min-[901px]:grid-cols-3` — three columns from 901px and up. Change the `3`
-  to `2` or `4` for a different desktop column count. `gap-6` is the space
-  between cards, in both directions.
-
-### ⭐ Card colour
-
-Grey, since 2026-07-31 (it used to be a flat navy `#0b1340`). It is set in
-**`CARD_SURFACE_CLASS`**, still defined at the top of `PlanCardFace.tsx` and
-imported from there by `PlanCard.tsx` (the retired file is kept around
-specifically so this one shared value doesn't have to be copied):
-
-```js
-export const CARD_SURFACE_CLASS =
-  'bg-[linear-gradient(158deg,#4B5058_0%,#33383F_44%,#232629_100%)] ring-1 ring-inset ring-white/10';
-```
-
-It is a **gradient** on purpose — a flat grey made a row of cards read as a
-stack of identical slabs.
-
-For a flat colour instead, replace the `bg-[...]` part with e.g. `bg-[#33383F]`.
-The `ring-*` part is the hairline edge, not a drop shadow — it is drawn *inside*
-the rounded corner, which a normal border cannot do here without changing the
-card's size.
-
-> ⚠️ **This has to stay a CSS class, not a `style={{ ... }}` object.** It was
-> written as an inline style once and the cards came out **transparent on
-> phones** (see the old carousel's post-mortem, still written up in
-> `PlanCardFace.tsx`'s comments, for why). The underscores are how Tailwind
-> writes a space inside `bg-[...]`; they are not a typo.
-
-The text colours are three constants near the top of `PlanCard.tsx`: `INK`
-(white-ish), `MUTED` (grey), `ACCENT` (the pink square beside the label — the
-same pink as the button, used once per card and nowhere else).
-
-### Text sizes on the card
-
-`PlanCard.tsx` uses plain pixel sizes (`fontSize: '22px'`, `'13px'`, etc.), not
-the carousel's `cqw` proportional units. The carousel needed `cqw` because the
-same card had to look right across a 3× range of widths (a small reel card up
-to a 1.4×-scaled spotlight card). A grid card has one stable width per
-breakpoint, so plain px is correct here and much easier to hand-edit — just
-change the number.
-
-### Rounded corners
-
-`rounded-xl` on the card (in `PlanCard.tsx`, on the outer `<article>`).
-Options: `rounded-lg` (less round), `rounded-2xl`, `rounded-3xl` (more round),
-`rounded-none` (sharp).
-
-### Photo band shape
-
-`aspect-[16/10]` on the photo `<div>` near the top of `PlanCard.tsx`. Change to
-`aspect-video` (16:9), `aspect-[4/3]`, etc.
+- **アニメーションを足さない。** GSAP のインポート、`useEffect`、
+  `useRef`、`'use client'` はこのページのどのファイルにも存在しません
+  （2026-08-18、マネージャーの明確な指示）。足すとページの設計方針そのもの
+  を壊します。
+- **`<a href="...">` を生で書かない。** 内部リンクは必ず `next/link` の
+  `<Link>` を使ってください（`KhCta.tsx` を参照）。生の `<a>` はページ全体を
+  再読み込みしてしまい、`layout.tsx` の白いカバーが `/contact`（濃い紺色の
+  ページ）の上に一瞬かぶって「真っ白なページに見える」不具合の原因になり
+  ます（このプロジェクトで何度も起きた既知の不具合）。
+- **料金の合計・実質負担額を手計算せずに変更しない。** 3章参照。
 
 ---
 
-### ⭐ The card button, and what it fills in on the contact form
+## 9. Known limitations (not bugs — just not done)
 
-Every card has its own pink button at the bottom, reading
-「このプランを相談する」. Search for that text in **`PlanCard.tsx`** to change
-the wording, and for `bg-[#FF4D6D]` to change the pink.
-
-Clicking it goes to the contact page **and fills two things in for the
-visitor**, so they don't have to describe what they were looking at:
-
-1. The 「お問い合わせ種別」 dropdown is set to 「AIOps事業について」.
-2. The message box is pre-written with the service's name and its description,
-   like this:
-
-```
-「AIOps 診断」（SERVICE A）に興味があります。
-
-■ サービス内容
-業務を工程単位で棚卸しし、AI と自動化に置き換えられる範囲を洗い出します。
-
-詳細なご説明とお見積もりをお願いいたします。
-```
-
-The visitor can edit or delete any of it before sending — it is an ordinary
-message box, just not an empty one.
-
-**Where each piece comes from:** the name and the description are read live out
-of `src/data/plans.ts`, so if you reword a service there, the pre-written
-message follows automatically. The sentences *around* them (「…に興味があります。」
-and 「詳細なご説明とお見積もりをお願いいたします。」) are in
-**`src/app/contact/page.tsx`** — search for `に興味があります` to reword them.
-
-**The price is deliberately NOT included.** The figures are still placeholders
-that have not been through 役員確認, and a price quoted inside a message the
-customer appears to have written themselves reads like a commitment. Ask if you
-want it added once the real numbers exist.
+- **補助金の対象になるかは未確定です。** `HERO.note` と `PRICING.subsidy`
+  の文言はどちらも「対象ツールとなることを前提に設計」「補助金の交付を
+  受けた場合」という条件付きです。確定した情報ではありません。
+- **税別／税込みの基準が製品資料に明記されていません。** 現状は旧ページの
+  慣習を引き継いで「税別」表示にしています（3章参照）。
+- **契約は1年（自動更新）だが、金額は24ヶ月分で提示しています。** 12ヶ月で
+  更新しない場合にどうなるかは、この資料には書かれていません。
 
 ---
 
-## 4. Headline — `PlansHero.tsx`
-
-### The words
-
-Near the top (around line 14):
-
-```js
-const TITLE_L = ['変える', '方法は、'];
-const TITLE_R = ['ひとつ', 'じゃない。'];
-```
-
-`TITLE_L` is the first half of the sentence, `TITLE_R` the second. They render
-as one continuous, centred line: 「変える方法は、ひとつじゃない。」. Each
-string in an array is one chunk that animates in separately.
-
-### The size
-
-One size now, at every window width:
-
-```js
-text-[clamp(32px,5.5vw,64px)]
-```
-
-`clamp(minimum, scales-with-window, maximum)`. There is no longer a separate,
-smaller desktop cap — that used to exist only to leave room for the carousel
-that sat beside the headline. Since the carousel is gone, the headline is free
-to run as large as any other page's hero heading.
-
-The headline will only ever line-break **between** `TITLE_L` and `TITLE_R` —
-never inside one of them (each half is `flex-nowrap`, so its own words stay
-glued together; only the space between the two halves is allowed to wrap).
-
-### Other colours (all in `PlansHero.tsx`)
-
-| Thing | Value | Search for |
-|---|---|---|
-| Page background | `#f5f7ff` (very pale blue) | `bg-[#f5f7ff]` |
-| Headline text | `#0b1340` | `text-[#0b1340]` |
-
-(The pink button is no longer in this file — it moved onto each card. See
-section 3.)
-
-> The `#f5f7ff` background must stay the same in `PlansHero.tsx` AND in the
-> grid `<section>` in `page.tsx` — they sit back to back with no colour seam
-> between them. If you change one, change the other.
-
-### The small mono label
-
-**Removed on 2026-07-30** at the user's request — there used to be a
-`Plans / 料金プラン（準備中）` line in small mono type above the headline. If you
-ever want it back, it was a `<p>` with
-`font-mono text-xs uppercase tracking-[0.2em] text-[#6b7aa8]`, placed as the
-first child inside the `max-w-6xl` wrapper, before the headline.
-
-### Animation timings
-
-Inside the big `useEffect`. Numbers are **seconds** unless the code says
-`setTimeout` (those are **milliseconds**).
-
-| What | Value | Where |
-|---|---|---|
-| Headline starts rising + fading in | `delay: 0.35` | the `gsap.fromTo` call on the word spans |
-| Gap between each word | `stagger: 0.07` | same call |
-| Emergency "show everything" | `3000` ms | `safety` |
-
-The last one is a safety net: if the font never loads, the hero is forced
-visible instead of staying blank forever. Don't delete it.
-
-The hero used to also arm a carousel's drag interactivity on its own timer
-(`armTimer`, 1700ms). That is gone along with the carousel — nothing in the
-hero waits on anything below it any more.
-
----
-
-## 5. dvh, not vh or svh
-
-This still applies anywhere a full-screen cover or hero is built on this site
-(the standing rule, not specific to this page): use `dvh`, never `vh` or
-`svh`. `svh` leaves a gap on phones when the browser address bar collapses.
-
-The /plans hero itself is **no longer full-screen** — it is a compact band
-(`px-4 py-20 md:px-6 lg:px-8 lg:py-24`, no min-height) sized to its own
-content, specifically so the card grid below it is visible without scrolling
-on a normal screen. There is nothing `dvh`-sized on this page any more, but if
-you ever add a full-bleed section back, use `dvh`.
-
----
-
-## 6. Known limitations (not bugs — just not done)
-
-- **The card copy is invented.** Names, prices and spec rows are placeholders
-  written 2026-07-31 (three AIOps services: 診断 → 業務自動化 → データ活用).
-  Nothing has been through 役員確認. Edit `src/data/plans.ts` when the real numbers
-  exist.
-- **The card photos are borrowed** from `/public/img`, not shot for this page.
-
----
-
-## 7. Troubleshooting
+## 10. Troubleshooting
 
 | Symptom | Most likely cause |
 |---|---|
 | Change did nothing | You didn't hard-reload — `Ctrl + Shift + R` |
 | Whole page blank and nothing in the code looks wrong | Zombie dev server. Close all PowerShell windows running `npm run dev`, reopen one, run it again. This is a known recurring problem on this machine. |
-| A card name wrapped awkwardly | `name` in `src/data/plans.ts` — try shortening it, or widen the card via the grid column count (section 3). |
-| Card text runs off the edge of the card | A pixel size in `PlanCard.tsx` was raised too far — the card's own width is fixed, so unlike the old carousel there's no proportional scaling to fall back on. |
+| 見出しの最後に1文字だけ浮いて見える | 短い日本語の見出しには `textWrap: 'balance'` が付いています。文章を書き換えたら、その見出しに `textWrap: 'balance'` が残っているか確認してください（複数行の本文には付けないのがルールです）。 |
+| 料金の数字が合わない | 3章参照。`totalAmount` と `subsidy.figure` は手計算・手入力です。 |
 | Japanese text shows as `æ´»ç"¨` garbage | File got saved in the wrong encoding. Run `node scripts/check-encoding.mjs`. |
-| Cards read as a stack of grey slabs with no card-to-card separation | Check `gap-6` in the grid's `className` in `page.tsx` hasn't been removed. |
-| A whole card looks unstyled / transparent | `CARD_SURFACE_CLASS` was changed to an inline `style={{ ... }}` — it must stay a CSS class (section 3). |
+| `/contact` の自動入力が効かない | `KhCta.tsx` の `CTA.href` の `plan=...` と、`src/data/plans.ts` の `slug` が一致しているか確認してください（5章）。 |
 
 ---
 
-## 8. Git
+## 11. Git
 
 This page lives on the branch **`features/plans-page`** and is **not merged
 and not deployed**. Nobody outside can see it.
@@ -352,10 +286,14 @@ To see the live site branch instead, that is `dev`, which auto-deploys.
 
 ---
 
-## 9. Related docs
+## 12. Related docs
 
-- `docs/plans-page-hero-animation.md` — the original carousel reference site
-  (madewithgsap.com) decoded: exact values and what was deliberately not
-  copied. Only relevant now if the carousel is ever revived.
-- `docs/plans-page-plan.md` — earlier planning notes. **Draft only**, the
-  "roadmap spine" idea in it was never approved.
+- `docs/plans-knowledge-harness.md` — the full design spec for this rebuild
+  (2026-08-18): every component's source code, the reasoning behind each
+  decision, and the constraints an editor or AI must not violate.
+- `docs/plans-page-hero-animation.md` — the old carousel reference site
+  (madewithgsap.com) decoded. Only relevant if the retired
+  `PlanCardStack.tsx` carousel is ever revived — has nothing to do with the
+  current page.
+- `docs/plans-page-plan.md` — earlier planning notes for the old 3-card grid.
+  **Superseded**, kept for history only.

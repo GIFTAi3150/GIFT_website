@@ -13,6 +13,7 @@ const footerNav = [
 
 const footerServices = [
   { href: '/services/aiops', label: 'AIOps事業' },
+  { href: '/plans', label: '料金プラン' },
 ];
 
 export default function Footer() {

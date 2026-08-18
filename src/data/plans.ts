@@ -1,13 +1,18 @@
-// The service plans shown on /plans. Drives both the /plans card grid and
-// the /contact deep-link pre-fill (see src/app/plans/_components/PlanCard.tsx
-// for the `/contact?plan=<slug>` link and src/app/contact/page.tsx for the
-// lookup that turns a slug back into a pre-filled message).
+// The plan shown on /plans, and the source of the /contact deep-link pre-fill
+// (see src/app/plans/_components/KhCta.tsx for the `/contact?plan=<slug>` link
+// and src/app/contact/page.tsx for the lookup that turns a slug back into a
+// pre-filled message).
 //
-// ⚠️ EVERYTHING IN HERE IS PLACEHOLDER COPY (2026-07-31). The names, the prices
-// and the spec rows are invented so the reel has something to show — none of it
-// has been through 役員確認 (same standing constraint as the /company numbers,
-// see project_content_reorientation_aiops). Replace the strings when real
-// pricing lands; nothing about the layout depends on their values.
+// ⚠️ 2026-08-18: these are REAL, manager-supplied figures — not the invented
+// placeholders this file used to carry. Editing them is a commercial change.
+// The three old AIOps placeholder services (aiops-diagnosis / workflow-automation
+// / data-utilization) were removed when /plans became the Knowledge Harness
+// product page; a stale `?plan=` link to one of those slugs no longer matches and
+// /contact simply leaves the message box empty, which is the intended fallback.
+//
+// Only `slug`, `label`, `name` and `summary` are read by anything live today —
+// /contact's pre-fill. The remaining fields exist because the retired
+// PlanCard*.tsx components still type-check against this shape.
 
 export type Plan = {
   /**
@@ -21,9 +26,10 @@ export type Plan = {
   /**
    * Short Japanese service name.
    *
-   * KEEP IT TO ~7 CHARACTERS. The reel card is only ~220px wide on desktop and
-   * the text column is a little under half of that, so an 8th character wraps
-   * to a second line. Two lines still fit, but the card reads tighter.
+   * The old "~7 characters" limit only applied to the retired carousel's
+   * ~220px-wide reel card (PlanCardStack.tsx / PlanCardFace.tsx) — nothing
+   * live renders it in that reel any more, so it no longer constrains this
+   * field. Do not shorten the product's real name to satisfy a dead component.
    */
   name: string;
   /** One line of body copy. Opened panel only, and desktop only — there is no
@@ -40,51 +46,20 @@ export type Plan = {
   image: string;
 };
 
-// All three are AIOps services (manager, 2026-07-31) — the site is reoriented
-// on the AIOps 軸, so nothing here should read as a standalone call-centre or
-// consulting offer. They are sequenced the way an engagement actually runs:
-// diagnose → automate → measure.
 export const PLANS: Plan[] = [
   {
-    slug: 'aiops-diagnosis',
-    label: 'SERVICE A',
-    name: 'AIOps 診断',
-    summary: '業務を工程単位で棚卸しし、AI と自動化に置き換えられる範囲を洗い出します。',
-    price: '380,000',
-    priceCaption: '初回一括（税別）',
-    specs: [
-      { k: '期間', v: '4 週間' },
-      { k: '対象業務', v: '5 業務まで' },
-      { k: '成果物', v: '導入ロードマップ' },
-    ],
-    image: '/img/services/services-dx-photo.png',
-  },
-  {
-    slug: 'workflow-automation',
-    label: 'SERVICE B',
-    name: '業務自動化',
-    summary: '診断で描いたフローを実装し、AI エージェントの運用と改善までを引き受けます。',
-    price: '248,000',
+    slug: 'knowledge-harness',
+    label: 'KNOWLEDGE HARNESS',
+    name: 'ナレッジハーネス',
+    summary:
+      '社内に散らばる情報・ノウハウ・過去のやり取りを集めて構造化し、人もAIも使える形で保管する社内知識ツールです。',
+    price: '90,000',
     priceCaption: '月額（税別）',
     specs: [
-      { k: '稼働開始', v: '最短 2 週間' },
-      { k: '自動化フロー', v: '10 本まで' },
-      { k: '運用監視', v: '平日 9:00 – 18:00' },
+      { k: '契約期間', v: '1年（以降自動更新）' },
+      { k: '初期導入費', v: '38万円' },
+      { k: 'Claude Team Standard', v: '5名分・24ヶ月' },
     ],
     image: '/img/8.jpg',
-  },
-  {
-    slug: 'data-utilization',
-    label: 'SERVICE C',
-    name: 'データ活用',
-    summary: '自動化の稼働ログと業績データを一枚のダッシュボードに束ね、月次で読み解きます。',
-    price: '120,000',
-    priceCaption: '月額（税別）',
-    specs: [
-      { k: 'レポート', v: '月次 + 随時' },
-      { k: 'データ連携', v: '5 ソースまで' },
-      { k: '初期費用', v: '¥0' },
-    ],
-    image: '/img/services/financial-cons_50.png',
   },
 ];

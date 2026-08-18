@@ -1,54 +1,59 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
 import PlansHero from './_components/PlansHero';
-import PlanCard from './_components/PlanCard';
-import { PLANS } from '@/data/plans';
+import KhFeatures from './_components/KhFeatures';
+import KhPricing from './_components/KhPricing';
+import KhGlossary from './_components/KhGlossary';
+import KhSupport from './_components/KhSupport';
+import KhCta from './_components/KhCta';
+
+const OG_TITLE = 'ナレッジハーネス｜社内の知識を「全社の記憶基盤」に';
+const OG_DESCRIPTION =
+  '社内に散らばる情報・ノウハウを構造化して蓄積し、Claude Codeから安全に引き出せる社内知識ツール。月額9万円の単一プラン。';
 
 export const metadata: Metadata = {
-  title: '料金プラン',
+  title: 'ナレッジハーネス｜料金プラン',
   description:
-    'AIOpsロードマップに合わせた料金プランを準備中です。株式会社GIFTのAIOps事業について、まずはお気軽にご相談ください。',
+    '社内の知識を「全社の記憶基盤」に。ナレッジハーネスは社内に散らばる情報・ノウハウを構造化して蓄積し、Claude Codeから安全に引き出せる社内知識ツールです。月額9万円の単一プラン。',
   alternates: { canonical: '/plans' },
+  // This page gets shared as a bare link (Instagram bio / DM / LINE), where the
+  // preview card IS the pitch. Without a page-level openGraph block Next falls
+  // back to the site-wide one in layout.tsx, so every share of this URL would
+  // read「株式会社GIFT | Gift an opportunity」and the generic company blurb —
+  // nothing about the product or the price.
+  //
+  // `title` here is the raw string, NOT the `%s | 株式会社GIFT` template: the
+  // template applies to <title> only, and doubling the suffix into an OG card
+  // truncates the useful half on a narrow phone.
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    siteName: '株式会社GIFT',
+    url: 'https://www.gift-inc.org/plans',
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
+  },
 };
-
-// Page-scoped fonts — same set as /services/aiops (Gen Interface JP + Inter
-// italic accents + JetBrains Mono), so /plans reads as part of the same
-// AIOps design system rather than introducing a new one. See
-// src/app/services/aiops/page.tsx `DxFontsLink` for the original.
-function PlansFontsLink() {
-  return (
-    <>
-      <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/gen-interface-jp@latest/cdn/all.css"
-      />
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      />
-    </>
-  );
-}
 
 export default function PlansPage() {
   return (
     <>
-      <PlansFontsLink />
-      <PlansHero />
-
-      <section className="bg-[#f5f7ff] px-4 pb-24 md:px-6 lg:px-8">
-        <div className="mx-auto w-full max-w-6xl">
-          <div className="grid grid-cols-1 gap-6 min-[901px]:grid-cols-3">
-            {PLANS.map((plan) => (
-              <PlanCard key={plan.label} plan={plan} />
-            ))}
-          </div>
-        </div>
-      </section>
-
+      {/* Dark base behind every section. Each section paints its own band on top;
+          this only guarantees no light seam shows through between them, and covers
+          the overscroll area on iOS. */}
+      <main className="bg-[#0b1020]">
+        <PlansHero />
+        <KhFeatures />
+        <KhPricing />
+        <KhGlossary />
+        <KhSupport />
+        <KhCta />
+      </main>
       <Footer />
     </>
   );

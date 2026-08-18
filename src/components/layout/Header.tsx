@@ -14,6 +14,7 @@ const navItems = [
 
 const serviceItems = [
   { href: '/services/aiops', label: 'AIOps事業', labelEn: 'AIOps' },
+  { href: '/plans', label: '料金プラン', labelEn: 'Plans' },
 ];
 
 export default function Header() {
