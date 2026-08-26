@@ -45,6 +45,27 @@
   pointer-events: none;
 }
 
+/* While the guard cover is up the page underneath is invisible but — because
+   every cover is pointer-events:none — still fully scrollable. On a slow
+   mobile connection the dark cover can sit for seconds (JS bundle + font
+   wait), and an impatient swipe silently scrolls the hidden page. On iOS the
+   scrollTo(0,0) at reveal time is ignored while a touch gesture/momentum is
+   still live, so the page then reveals wherever the swipe landed — the
+   manifesto PNGs "jump onto" the first visible frame instead of the hero.
+   Locking the root scroller while the guard is up closes the whole class:
+   overflow:hidden both blocks the swipe AND clamps any restored scroll
+   offset back to 0. Keyed on the guard attribute so every reveal path
+   (revealAndRefresh, emergencyReveal) releases it automatically. Mobile
+   width only: on desktop, hiding the scrollbar would widen the viewport and
+   reflow the page mid-reveal. Matches the 899px isMobile breakpoint in
+   DxV3Page.tsx, which also applies this lock inline (covers client-side
+   navs where this stylesheet can apply late). */
+@media (max-width: 899px) {
+  html:has(.dx-v3[data-flash-guard]) {
+    overflow: hidden;
+  }
+}
+
 .dx-v3 {
   --paper: #f5f7ff;
   --paper-2: #e6eeff;

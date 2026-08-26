@@ -1088,6 +1088,14 @@ body.page-ready .fade-up-word {
   --nube-cloud: 176 224 233;
   --nube-ink:   34 109 122;
   --ease-out-soft: cubic-bezier(.22, 1, .36, 1);
+
+  /* スクロール量の予算に使う viewport 高さ。ViewportFreeze がマウント時に
+     実測 px へ差し替え、以後は viewport の「幅」が変わったときだけ測り直す。
+     Instagram のアプリ内ブラウザは WebView を物理リサイズするため vh が
+     ツールバー開閉のたびに再解決され、トップページでは Case セクションが
+     648px 瞬間移動していた。ここが 100vh のままでも表示は今日と同一
+     （JS 無効時のフォールバック）。詳細: docs/hp-webview-vh-freeze-spec.md */
+  --vh-frozen: 100vh;
 }
 
 html {
