@@ -6,10 +6,18 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import PixelRobot from '@/components/ui/PixelRobot';
 import company from '@/data/company.json';
+import { PLANS } from '@/data/plans';
 
 const inquiryTypes = [
   { value: 'callcenter', label: 'コールセンター事業について' },
   { value: 'dx', label: 'AIOps事業について' },
+  // Sits directly under AIOps because ナレッジハーネス is an AIOps product, not a
+  // separate line of business. /plans links here with `?inquiry=plans&plan=...`
+  // — if this value is ever renamed, CTA.href in
+  // src/app/plans/_components/khContent.ts must change with it, or the select
+  // silently falls back to "選択してください" (see the guard on line ~30, which
+  // only accepts a value present in this array).
+  { value: 'plans', label: '料金プランについて' },
   { value: 'finance', label: '財務コンサル事業について' },
   { value: 'recruit', label: '採用について' },
   { value: 'other', label: 'その他' },
@@ -20,10 +28,30 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [inquiryType, setInquiryType] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const v = new URLSearchParams(window.location.search).get('inquiry');
+    const params = new URLSearchParams(window.location.search);
+
+    const v = params.get('inquiry');
     if (v && inquiryTypes.some((t) => t.value === v)) setInquiryType(v);
+
+    // The URL only ever carries a `plan` slug, which is matched against the
+    // known PLANS list — every character of the message below comes from
+    // that local, trusted data, not from the URL itself, so there is nothing
+    // to sanitise. An unrecognised slug just leaves the field empty for the
+    // visitor to fill in themselves.
+    const slug = params.get('plan');
+    if (slug) {
+      const matched = PLANS.find((p) => p.slug === slug);
+      if (matched) {
+        setMessage(
+          `「${matched.name}」（${matched.label}）に興味があります。\n\n` +
+            `■ サービス内容\n${matched.summary}\n\n` +
+            `詳細なご説明とお見積もりをお願いいたします。`,
+        );
+      }
+    }
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -200,6 +228,8 @@ export default function ContactPage() {
                           rows={7}
                           className="contact-input resize-none"
                           placeholder="ご相談内容をご記入ください。"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
                         />
                       </Field>
 

@@ -17,6 +17,9 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: Metadata
   { path: '', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/company', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/services/aiops', priority: 0.9, changeFrequency: 'monthly' },
+  // Added back 2026-08-26 when /plans shipped. It qualifies under the rule
+  // above: it is linked from both the Header and the Footer service menus.
+  { path: '/plans', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.7, changeFrequency: 'yearly' },
   { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
 ];
