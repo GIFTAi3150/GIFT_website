@@ -33,16 +33,6 @@ export default function PlansHero() {
           >
             {HERO.body}
           </p>
-
-          {/* 補助金 note. Deliberately quiet: the copy says the product is designed ON
-              THE ASSUMPTION of being an eligible tool (対象ツールとなることを前提に), which
-              is not the same as being confirmed eligible. A footnote, never a badge. */}
-          <p
-            className="mt-10 w-full border-t border-white/15 pt-6 font-sans text-[14px] font-light leading-[1.9] text-white/50"
-            style={{ textWrap: 'pretty' }}
-          >
-            {HERO.note}
-          </p>
         </div>
       </div>
     </section>

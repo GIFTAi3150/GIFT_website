@@ -1,6 +1,7 @@
-// Every string shown on /plans. Supplied by the manager 2026-08-18; the product
-// content is dated 2026年8月10日 and the page prints that date, so if this copy
-// is ever revised the date in HERO.note must move with it.
+// Every string shown on /plans. Supplied by the manager 2026-08-18; the source
+// product content is dated 2026年8月10日, but the page no longer prints that date
+// — the hero's 補助金 footnote ("...対象ツールとなることを前提に設計しています") was
+// removed 2026-08-26 at the user's request, and the date lived inside it.
 //
 // ⚠️ PRICES ARE REAL, unlike the placeholder figures this page used to carry.
 // Treat edits here as a commercial change, not a copy tweak.
@@ -22,7 +23,6 @@ export const HERO = {
     tail: 'に',
   },
   body: '社内に散らばる情報・ノウハウ・過去のやり取りを集めて構造化し、人もAIも使える形で保管する社内知識ツールです。',
-  note: '国の「デジタル化・AI導入補助金2026」の対象ツールとなることを前提に設計しています。（2026年8月10日時点の内容）',
 } as const;
 
 export const FEATURES = {
