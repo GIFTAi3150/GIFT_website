@@ -1,11 +1,27 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import Reveal from '@/components/ui/Reveal';
 import { HERO } from './aiTrainingContent';
 
 export default function AtHero() {
   return (
-    <section className="relative bg-[linear-gradient(180deg,#0C0E1A_0%,#111827_100%)] py-24 md:py-32 lg:py-36">
-      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0C0E1A_0%,#111827_100%)] py-24 md:py-32 lg:py-36">
+      {/* Decorative background — a thread of light drifting bottom-left to top-right.
+          Purely atmospheric, so alt="" + aria-hidden; the gradient overlay on top
+          keeps the centered white text at AA contrast against the brighter streak. */}
+      <Image
+        src="/img/heroes/ai-training-hero.png"
+        alt=""
+        aria-hidden
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover opacity-45"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,14,26,0.88)_0%,rgba(17,24,39,0.72)_45%,rgba(17,24,39,0.9)_100%)]" />
+
+      <div className="relative mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        <Reveal className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#60a5fa]">
             {HERO.nameEn}
           </p>
@@ -30,29 +46,28 @@ export default function AtHero() {
           >
             {HERO.body}
           </p>
-        </div>
+        </Reveal>
 
         <div className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-5 min-[680px]:grid-cols-3 md:gap-6">
-          {HERO.points.map((point) => (
-            <article
-              key={point.title}
-              className="flex h-full flex-col border border-white/15 bg-white/[0.03] p-6"
-            >
-              <h2 className="font-sans text-[18px] font-bold leading-snug text-white">{point.title}</h2>
-              <p
-                className="mt-3 font-sans text-[15px] font-light text-white/70"
-                style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-              >
-                {point.body}
-              </p>
-            </article>
+          {HERO.points.map((point, i) => (
+            <Reveal key={point.title} delay={i * 80}>
+              <article className="group flex h-full flex-col border border-white/15 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#3b82f6]/70 hover:bg-white/[0.06] hover:shadow-[0_12px_28px_rgba(0,0,0,0.35)]">
+                <h2 className="font-sans text-[18px] font-bold leading-snug text-white">{point.title}</h2>
+                <p
+                  className="mt-3 font-sans text-[15px] font-light text-white/70"
+                  style={{ lineHeight: 1.9, textWrap: 'pretty' }}
+                >
+                  {point.body}
+                </p>
+              </article>
+            </Reveal>
           ))}
         </div>
 
-        <div className="mt-14 flex justify-center">
+        <Reveal delay={HERO.points.length * 80} className="mt-14 flex justify-center">
           <Link
             href={HERO.cta.href}
-            className="group inline-flex w-full max-w-[420px] items-center justify-between gap-6 bg-[#2563EB] px-7 py-4 text-white transition-colors duration-300 hover:bg-[#1D4ED8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111827] min-[480px]:w-auto"
+            className="group inline-flex w-full max-w-[420px] items-center justify-between gap-6 bg-[#2563EB] px-7 py-4 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1D4ED8] hover:shadow-[0_10px_24px_rgba(37,99,235,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111827] min-[480px]:w-auto"
           >
             <span className="font-sans text-[17px] font-bold tracking-tight">{HERO.cta.label}</span>
             <svg
@@ -69,7 +84,7 @@ export default function AtHero() {
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

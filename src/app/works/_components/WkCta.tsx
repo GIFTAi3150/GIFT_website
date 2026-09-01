@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import Reveal from '@/components/ui/Reveal';
 import { CTA } from './worksContent';
 
 export default function WkCta() {
   return (
-    <section className="bg-[#0C0E1A] py-16 md:py-24">
-      <div className="mx-auto flex max-w-container flex-col items-center gap-5 px-4 py-6 md:px-6 lg:px-8">
+    <section className="bg-[#0C0E1A] py-20 md:py-28 lg:py-32">
+      <Reveal className="mx-auto flex max-w-container flex-col items-center gap-5 px-4 py-6 md:px-6 lg:px-8">
         <p
           className="text-center font-sans text-[24px] font-bold text-white"
           style={{ lineHeight: 1.5, textWrap: 'balance' }}
@@ -14,7 +15,7 @@ export default function WkCta() {
 
         <Link
           href={CTA.href}
-          className="group inline-flex w-full max-w-[360px] items-center justify-center gap-2.5 bg-[#2563EB] px-10 py-4 text-white transition-colors duration-300 hover:bg-[#1D4ED8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0C0E1A] min-[420px]:w-auto"
+          className="group inline-flex w-full max-w-[360px] items-center justify-center gap-2.5 bg-[#2563EB] px-10 py-4 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1D4ED8] hover:shadow-[0_10px_24px_rgba(37,99,235,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0C0E1A] min-[420px]:w-auto"
         >
           <span className="font-sans text-[15px] font-bold">{CTA.label}</span>
           <svg
@@ -34,7 +35,7 @@ export default function WkCta() {
             />
           </svg>
         </Link>
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -1509,6 +1509,20 @@ body.page-ready .nav-reveal {
   .works-mascot::after { animation: none; }
 }
 
+/* ── /services/ai-training FAQ — answer fade on <details> open ────────────
+   No JS: the browser re-triggers the animation every time the <p> goes from
+   display:none to visible, so this plays on every open, not just the first. */
+@keyframes at-faq-answer-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.at-faq-answer {
+  animation: at-faq-answer-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .at-faq-answer { animation: none; }
+}
+
 /* ── Story Timeline — biscom.jp/10th story section animation ──────────────
    Exact replication of biscom's .story-blcs CSS:
    Year number + month start translated 40px down + invisible (same instant-reset
