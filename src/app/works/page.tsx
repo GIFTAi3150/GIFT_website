@@ -5,6 +5,9 @@ import WkLogoWall from './_components/WkLogoWall';
 import WkPickup from './_components/WkPickup';
 import WkCta from './_components/WkCta';
 
+// 【要確認】「掲載のご承諾をいただいた」は承諾企業確定が前提（worksContent.ts HERO.body と同じ
+// 未確認クレーム）。ここは metadata なのでページ内の「※仮」注記なしでリンクプレビューに露出する
+// ため、公開前に承諾済み企業リストの確定を要確認。
 const OG_TITLE = '取引実績｜株式会社GIFT';
 const OG_DESCRIPTION =
   '業種も規模も異なるお客様の現場を支援してきました。掲載のご承諾をいただいた企業様をご紹介します。';
