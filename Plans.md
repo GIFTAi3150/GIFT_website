@@ -154,4 +154,5 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
     AI研修ヒーローに要点3つ(角ドット横並び、モバイル縦落ち)を追加、CTA hover は既存パターン通り
     Reveal 内側の Link に配置。hero PNG 2枚を git rm。tsc/encoding clean、dev サーバーで
     /services/ai-training・/works とも 200 + 新クラス確認済み。commit 1b5462c
-- [ ] **T-HR2**: 独立レビュー + PR <!-- cc:TODO -->
+- [x] **T-HR2**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): APPROVE(critical/major 0)。minor の未使用フィールドはコメントで意図明示
