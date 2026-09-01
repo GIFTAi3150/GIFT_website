@@ -73,10 +73,12 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
     支給率、実質負担額、対象企業条件、最少催行人数、期間・回数、オンライン/対面)を
     依頼者がそのまま埋められる表形式で列挙。aiTrainingContent.ts の該当キーと対応付ける
   - DoD: プレースホルダ箇所とドキュメントの項目が 1:1 対応
-- [ ] **T-AT3**: 独立レビュー + PR <!-- cc:TODO -->
+- [x] **T-AT3**: 独立レビュー + PR <!-- cc:完了 -->
   - 依存: T-AT1, T-AT2
   - DoD: harness-review(codex-closeout)で critical/major 0 → PR を dev へ。
     マージ後プレビュー URL を依頼者承認用に共有
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: 未マーク定量クレーム)→ 1a96177 で修正、
+    1:1 対応回復・tsc/encoding clean を確認済み。PR で dev へ
 - [ ] **T-AT4**: 本公開配線(承認後・別PR) <!-- cc:TODO -->
   - 対象: `Header.tsx` serviceItems / `Footer.tsx` footerServices / `sitemap.ts` STATIC_ROUTES
   - 依存: 依頼者のコンテンツ承認 + 確定ファクト反映
