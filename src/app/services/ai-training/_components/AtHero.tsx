@@ -27,9 +27,18 @@ export default function AtHero() {
             className="font-sans font-extrabold text-white"
             style={{ fontSize: 'clamp(40px, 5.5vw, 72px)', lineHeight: 1.25, textWrap: 'balance' }}
           >
+            {HERO.nameJa}
+          </h1>
+
+          {/* Catch line stays white — an accent-blue treatment here did not
+              stand out against the indigo gradient. */}
+          <p
+            className="font-sans font-bold text-white/[0.92]"
+            style={{ fontSize: 'clamp(20px, 2vw, 27px)', lineHeight: 1.5 }}
+          >
             {HERO.headline.line1}
             「{HERO.headline.bracketed}」{HERO.headline.tail}
-          </h1>
+          </p>
 
           <p
             className="max-w-2xl font-sans font-light"

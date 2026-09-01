@@ -6,11 +6,11 @@
 // matching row in docs/ai-training-facts-to-confirm.md — keep the two in sync if
 // either changes. Do not treat any 万円 figure here as a real quote.
 
-// NOTE: hero 刷新(T-HR1)後、nameJa と points[].body はヒーローでは未表示(title のみ使用)。
+// NOTE: points[].body はヒーローでは未表示(title のみ使用)。
 // 依頼者確定コピーの候補として保持している — 削除しないこと。
 export const HERO = {
   nameEn: 'AI TRAINING',
-  nameJa: '生成AI研修',
+  nameJa: '生成AIリスキリング研修', // 【要確認】正式なサービス名表記(リスキリング有無)は依頼者確認
   headline: {
     line1: '「使ってみた」から',
     bracketed: '使いこなす',
