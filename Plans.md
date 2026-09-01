@@ -113,3 +113,22 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
   - DoD: harness-review(codex-closeout) critical/major 0 → PR を dev へ → プレビュー URL 共有
 - [ ] **T-WK4**: 実素材反映 + 本公開配線(承認後・別PR) <!-- cc:TODO -->
   - 依存: 実ロゴ・実社名回収 + 依頼者承認。Header/Footer/sitemap 配線
+
+## Plan: 新規2ページのデザイン磨き込み (design-polish)
+
+ブランチ: `features/design-polish`(origin/dev 起点、worktree: `GIFT_website-polish`)
+方向: 動き(Reveal+CSSホバー) / ビジュアル素材(生成済みヒーロー背景) / タイポ・余白精度。
+素材配置済み: `public/img/heroes/ai-training-hero.png`(左下→右上の光の糸) /
+`public/img/heroes/works-hero.png`(下1/3の等高線)。main へは出さない(dev 熟成)。
+
+### Tasks
+
+- [x] **T-DP1**: AI研修ページ磨き込み <!-- cc:完了 -->
+  - Hero: 背景画像 + 暗色オーバーレイ(コントラスト確保)、next/image fill
+  - Reveal でセクション出現、カードのスタッガ、ホバー(lift+ボーダーアクセント)、FAQ開閉演出
+  - タイポ・余白リズム統一。DoD: tsc/encoding clean、reduced-motion 尊重
+- [x] **T-DP2**: 実績ページ磨き込み <!-- cc:完了 -->
+  - Hero: works-hero.png + オーバーレイ。ロゴウォールのスタッガ出現、タイルホバー
+  - PickUp カードホバー、タイポ・余白パス。DoD 同上
+- [ ] **T-DP3**: 独立レビュー + PR <!-- cc:TODO -->
+  - DoD: harness-review critical/major 0 → PR を dev へ → プレビューで動き確認

@@ -13,7 +13,7 @@ export default function WkSectionHead({ word, chip }: { word: string; chip: stri
       </p>
       <h2
         className="font-sans font-extrabold text-[#0C0E1A]"
-        style={{ fontSize: 'clamp(24px, 3vw, 28px)', lineHeight: 1.4, textWrap: 'balance' }}
+        style={{ fontSize: 'clamp(26px, 3.4vw, 32px)', lineHeight: 1.35, textWrap: 'balance' }}
       >
         {chip}
       </h2>

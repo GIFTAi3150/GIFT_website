@@ -1,3 +1,4 @@
+import Reveal from '@/components/ui/Reveal';
 import AtSectionHead from './AtSectionHead';
 import { STEPS } from './aiTrainingContent';
 
@@ -5,11 +6,18 @@ export default function AtSteps() {
   return (
     <section className="relative bg-ai-surface-2 py-20 md:py-28 lg:py-32">
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <AtSectionHead word={STEPS.eyebrow} chip={STEPS.title} />
+        <Reveal>
+          <AtSectionHead word={STEPS.eyebrow} chip={STEPS.title} />
+        </Reveal>
 
         <ol className="mx-auto mt-14 max-w-3xl">
           {STEPS.items.map((step, i) => (
-            <li key={step.title} className="flex gap-6 border-t border-ai-border py-7 first:border-t-0">
+            <Reveal
+              key={step.title}
+              as="li"
+              delay={i * 70}
+              className="flex gap-6 border-t border-ai-border py-7 transition-colors duration-300 first:border-t-0 hover:border-ai-accent"
+            >
               <span className="font-display text-[28px] font-bold leading-none text-ai-accent">
                 {String(i + 1).padStart(2, '0')}
               </span>
@@ -22,7 +30,7 @@ export default function AtSteps() {
                   {step.body}
                 </p>
               </div>
-            </li>
+            </Reveal>
           ))}
         </ol>
       </div>
