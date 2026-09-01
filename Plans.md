@@ -130,5 +130,6 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
 - [x] **T-DP2**: 実績ページ磨き込み <!-- cc:完了 -->
   - Hero: works-hero.png + オーバーレイ。ロゴウォールのスタッガ出現、タイルホバー
   - PickUp カードホバー、タイポ・余白パス。DoD 同上
-- [ ] **T-DP3**: 独立レビュー + PR <!-- cc:TODO -->
+- [x] **T-DP3**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: Reveal inline style が hover を無効化)→ 0ba3e95 で内側ラッパー方式に修正し解消
   - DoD: harness-review critical/major 0 → PR を dev へ → プレビューで動き確認
