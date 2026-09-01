@@ -108,7 +108,8 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
   - 対象: `docs/works-facts-to-confirm.md`(掲載企業リスト、各社ロゴデータ、正式社名、業種表記、
     取組内容文言、掲載順ルール、PickUp 2 社の選定)
   - 結果(2026-09-01): worksContent.ts の該当キーと 1:1 対応する表を作成(7項目)
-- [ ] **T-WK3**: 独立レビュー + PR <!-- cc:TODO -->
+- [x] **T-WK3**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: 掲載承諾クレーム未マーク)→ 6dedcb1 で修正し解消
   - DoD: harness-review(codex-closeout) critical/major 0 → PR を dev へ → プレビュー URL 共有
 - [ ] **T-WK4**: 実素材反映 + 本公開配線(承認後・別PR) <!-- cc:TODO -->
   - 依存: 実ロゴ・実社名回収 + 依頼者承認。Header/Footer/sitemap 配線
