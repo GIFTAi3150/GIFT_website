@@ -83,3 +83,33 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
   - 対象: `Header.tsx` serviceItems / `Footer.tsx` footerServices / `sitemap.ts` STATIC_ROUTES
   - 依存: 依頼者のコンテンツ承認 + 確定ファクト反映
   - DoD: ナビから到達可能になった時点で sitemap 登録(sitemap 規約「nav 到達可能のみ」遵守)
+
+## Plan: 実績掲載ページ新規追加 (/works)
+
+ブランチ: `features/works-page`(origin/dev 起点、worktree: `GIFT_website-works`)
+決定済み: B案(ロゴウォール型)採用。ネイビーヒーロー + ライト本体 + ネイビーCTA帯のハイブリッド。
+モック(依頼者承認済みの見た目): scratchpad works-mock/BLight.dc.html
+旧 /achievements は再利用しない(301 永久キャッシュ + 概念が別)。ソフトローンチ(ナビ・sitemap 配線は別 PR)。
+
+### Tasks
+
+- [x] **T-WK1**: ページ実装 <!-- cc:完了 -->
+  - 対象: `src/app/works/page.tsx` + `_components/worksContent.ts` + セクション:
+    Hero(ネイビー #0C0E1A 地・白見出し・青キッカー WORKS) / LogoWall(白地・grid 4列・
+    ロゴタイル=白カード+薄ボーダー、実ロゴ未回収のためプレースホルダタイル 8 枠) /
+    PickUp(代表事例 2 カード: ロゴ+社名+業種+取組内容) / CTA(ネイビー帯・/contact 1 本)
+  - 規約: /plans + ai-training と同じ(サーバコンポーネント、Tailwind のみ、as const コピー集約、
+    metadata は OG 付き raw title、Footer ページ側レンダリング、next/link、100vh 不使用)
+  - DoD: tsc clean / check:encoding clean / Header・Footer・sitemap 不変
+  - 結果(2026-09-01): 7ファイル新規実装(page.tsx + worksContent.ts + WkHero/WkLogoWall/WkPickup/WkCta/WkSectionHead)。
+    `logoSrc?: string` を LogoTile/PickUpCase 型に用意し未指定時はプレースホルダへフォールバック。
+    dev サーバーで `/works` 200・4セクション表示・お問い合わせ導線確認済み。tsc clean・check:encoding clean
+- [x] **T-WK2**: 要確認ファクト一覧 <!-- cc:完了 -->
+  - 対象: `docs/works-facts-to-confirm.md`(掲載企業リスト、各社ロゴデータ、正式社名、業種表記、
+    取組内容文言、掲載順ルール、PickUp 2 社の選定)
+  - 結果(2026-09-01): worksContent.ts の該当キーと 1:1 対応する表を作成(7項目)
+- [x] **T-WK3**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: 掲載承諾クレーム未マーク)→ 6dedcb1 で修正し解消
+  - DoD: harness-review(codex-closeout) critical/major 0 → PR を dev へ → プレビュー URL 共有
+- [ ] **T-WK4**: 実素材反映 + 本公開配線(承認後・別PR) <!-- cc:TODO -->
+  - 依存: 実ロゴ・実社名回収 + 依頼者承認。Header/Footer/sitemap 配線
