@@ -27,7 +27,11 @@ export default function AtHero() {
             className="font-sans font-extrabold text-white"
             style={{ fontSize: 'clamp(40px, 5.5vw, 72px)', lineHeight: 1.25, textWrap: 'balance' }}
           >
-            {HERO.nameJa}
+            {HERO.nameJaParts.map((part) => (
+              <span key={part} className="inline-block">
+                {part}
+              </span>
+            ))}
           </h1>
 
           {/* Catch line stays white — an accent-blue treatment here did not
