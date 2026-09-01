@@ -133,3 +133,25 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
 - [x] **T-DP3**: 独立レビュー + PR <!-- cc:完了 -->
   - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: Reveal inline style が hover を無効化)→ 0ba3e95 で内側ラッパー方式に修正し解消
   - DoD: harness-review critical/major 0 → PR を dev へ → プレビューで動き確認
+
+## Plan: ヒーロー刷新 (トップページ配色レシピへ統一)
+
+ブランチ: `features/hero-refresh`(origin/dev 起点、worktree: `GIFT_website-hero`)
+承認済みモック: https://claude.ai/code/artifact/9ebe917f-4b67-4bcd-94d0-e92bd43a5412
+対象: AtHero(/services/ai-training) + WkHero(/works)。ヒーローより下は変更しない。
+
+### Tasks
+
+- [x] **T-HR1**: 両ヒーロー刷新 <!-- cc:完了 -->
+  - 背景: 生成PNG(public/img/heroes/)を廃止し、CSS レイヤーへ置換
+    (radial glow ×2 + linear-gradient(180deg,#3d44c2 0%,#232a8f 48%,#0b1020 100%) +
+    SVG feTurbulence グレイン。トップページ HeroGradientStatic と同一値)
+  - タイトル: clamp(40px, 5.5vw, 72px)、キッカー #C7D4FF、リード white/78
+  - CTA: 白ボタン(#0b1020 文字)+ hover 反転(トップページ準拠)。hover は Reveal 内側ラッパーに置く
+  - 不要になった hero PNG 2枚と next/image 実装を削除
+  - DoD: tsc/encoding clean、ヒーロー以下のセクションに差分なし
+  - 結果(2026-09-01): AtHero/WkHero を CSS グラデ+グレイン(.page-hero-grain, globals.css)へ置換。
+    AI研修ヒーローに要点3つ(角ドット横並び、モバイル縦落ち)を追加、CTA hover は既存パターン通り
+    Reveal 内側の Link に配置。hero PNG 2枚を git rm。tsc/encoding clean、dev サーバーで
+    /services/ai-training・/works とも 200 + 新クラス確認済み。commit 3517a5b
+- [ ] **T-HR2**: 独立レビュー + PR <!-- cc:TODO -->

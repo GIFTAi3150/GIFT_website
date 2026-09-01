@@ -1,75 +1,59 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import Reveal from '@/components/ui/Reveal';
 import { HERO } from './aiTrainingContent';
 
+// Background recipe matches the top-page hero (HeroGradientStatic): two radial
+// glows over a deep indigo→ink linear gradient, plus the shared grain overlay
+// (.page-hero-grain, defined in globals.css) — no photographic asset needed.
+const HERO_BACKGROUND = [
+  'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(124,122,224,0.34) 0%, transparent 70%)',
+  'radial-gradient(ellipse 50% 40% at 84% 12%, rgba(104,104,182,0.30) 0%, transparent 70%)',
+  'linear-gradient(180deg, #3d44c2 0%, #232a8f 48%, #0b1020 100%)',
+].join(', ');
+
 export default function AtHero() {
   return (
-    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0C0E1A_0%,#111827_100%)] py-24 md:py-32 lg:py-36">
-      {/* Decorative background — a thread of light drifting bottom-left to top-right.
-          Purely atmospheric, so alt="" + aria-hidden; the gradient overlay on top
-          keeps the centered white text at AA contrast against the brighter streak. */}
-      <Image
-        src="/img/heroes/ai-training-hero.png"
-        alt=""
-        aria-hidden
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover opacity-45"
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,14,26,0.88)_0%,rgba(17,24,39,0.72)_45%,rgba(17,24,39,0.9)_100%)]" />
-
-      <div className="relative mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <Reveal className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <p className="mb-4 font-display text-small font-bold uppercase tracking-widest text-[#60a5fa]">
+    <section
+      className="page-hero-grain relative overflow-hidden py-24 md:py-32 lg:py-36"
+      style={{ backgroundImage: HERO_BACKGROUND }}
+    >
+      <div className="relative z-[1] mx-auto max-w-container px-4 md:px-6 lg:px-8">
+        <Reveal className="flex max-w-3xl flex-col items-start gap-6 text-left">
+          <p className="font-display text-small font-bold uppercase tracking-[0.24em] text-[#C7D4FF]">
             {HERO.nameEn}
-          </p>
-
-          <p className="mb-6 font-sans text-[15px] font-light tracking-[0.08em] text-white/60">
-            {HERO.nameJa}
           </p>
 
           <h1
             className="font-sans font-extrabold text-white"
-            style={{ fontSize: 'clamp(30px, 4.6vw, 50px)', lineHeight: 1.3, letterSpacing: '-0.005em', textWrap: 'balance' }}
+            style={{ fontSize: 'clamp(40px, 5.5vw, 72px)', lineHeight: 1.25, textWrap: 'balance' }}
           >
             {HERO.headline.line1}
             「{HERO.headline.bracketed}」{HERO.headline.tail}
           </h1>
 
-          <div className="mt-8 h-0.5 w-12 bg-[#3b82f6]" />
-
           <p
-            className="mt-8 w-full font-sans font-light text-white"
-            style={{ fontSize: 'clamp(18px, 2vw, 22px)', lineHeight: 1.95, textWrap: 'pretty' }}
+            className="max-w-2xl font-sans font-light"
+            style={{ fontSize: '16px', lineHeight: 2, color: 'rgba(255,255,255,0.78)', textWrap: 'pretty' }}
           >
             {HERO.body}
           </p>
+
+          <div className="mt-1 flex flex-col gap-3 min-[560px]:flex-row min-[560px]:flex-wrap min-[560px]:items-center min-[560px]:gap-x-7 min-[560px]:gap-y-2">
+            {HERO.points.map((point) => (
+              <div key={point.title} className="flex items-center gap-2 text-[14px] font-normal text-white/85">
+                <span className="h-[5px] w-[5px] shrink-0 bg-[#C7D4FF]" />
+                {point.title}
+              </div>
+            ))}
+          </div>
         </Reveal>
 
-        <div className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-5 min-[680px]:grid-cols-3 md:gap-6">
-          {HERO.points.map((point, i) => (
-            <Reveal key={point.title} delay={i * 80}>
-              <article className="group flex h-full flex-col border border-white/15 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#3b82f6]/70 hover:bg-white/[0.06] hover:shadow-[0_12px_28px_rgba(0,0,0,0.35)]">
-                <h2 className="font-sans text-[18px] font-bold leading-snug text-white">{point.title}</h2>
-                <p
-                  className="mt-3 font-sans text-[15px] font-light text-white/70"
-                  style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-                >
-                  {point.body}
-                </p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal delay={HERO.points.length * 80} className="mt-14 flex justify-center">
+        <Reveal delay={120} className="mt-10">
           <Link
             href={HERO.cta.href}
-            className="group inline-flex w-full max-w-[420px] items-center justify-between gap-6 bg-[#2563EB] px-7 py-4 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1D4ED8] hover:shadow-[0_10px_24px_rgba(37,99,235,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111827] min-[480px]:w-auto"
+            className="group inline-flex w-full max-w-[420px] items-center justify-between gap-6 border border-white bg-white px-7 py-4 text-[#0b1020] transition-all duration-300 hover:bg-transparent hover:text-white min-[480px]:w-auto"
           >
-            <span className="font-sans text-[17px] font-bold tracking-tight">{HERO.cta.label}</span>
+            <span className="font-sans text-[15px] font-bold tracking-tight">{HERO.cta.label}</span>
             <svg
               width="16"
               height="16"
