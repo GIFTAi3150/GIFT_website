@@ -22,39 +22,44 @@ export default function AtPricing() {
 
         <div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-5 min-[760px]:grid-cols-2 md:gap-6">
           {/* Regular price — plain, muted card. Not struck through: this is simply
-              the baseline the subsidy card sits next to. */}
-          <Reveal className="flex flex-col border border-ai-border bg-ai-bg p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-ai-muted/60 md:p-8">
-            <span className="font-sans text-[15px] font-light text-ai-muted">{PRICING.regular.label}</span>
-            <div className="mt-4">
-              <Yen figure={PRICING.regular.figure} className="text-[clamp(36px,5vw,48px)] leading-none text-ai-ink" />
+              the baseline the subsidy card sits next to.
+              Hover classes live on the inner div, not on Reveal itself: Reveal sets
+              transform/transitionProperty inline on its own element, and an inline
+              style always beats a class (even a :hover one) on the same element —
+              so a hover:-translate-y transform there would be silently dead. */}
+          <Reveal>
+            <div className="flex flex-col border border-ai-border bg-ai-bg p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-ai-muted/60 md:p-8">
+              <span className="font-sans text-[15px] font-light text-ai-muted">{PRICING.regular.label}</span>
+              <div className="mt-4">
+                <Yen figure={PRICING.regular.figure} className="text-[clamp(36px,5vw,48px)] leading-none text-ai-ink" />
+              </div>
+              <span className="mt-4 font-sans text-[14px] font-light text-ai-muted">{PRICING.regular.note}</span>
             </div>
-            <span className="mt-4 font-sans text-[14px] font-light text-ai-muted">{PRICING.regular.note}</span>
           </Reveal>
 
           {/* Subsidised figure — the reversal. Bright accent border/bg and the
               condition line directly above the figure, never demoted to a footnote. */}
-          <Reveal
-            delay={80}
-            className="flex flex-col border-2 border-ai-accent bg-ai-surface-2 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(37,99,235,0.16)] md:p-8"
-          >
-            <span className="font-sans text-[13px] font-bold uppercase tracking-wide text-ai-accent">
-              {PRICING.subsidized.condition}
-            </span>
-            <span className="mt-3 font-sans text-[15px] font-light text-ai-muted">
-              {PRICING.subsidized.label}
-            </span>
-            <div className="mt-4 flex flex-wrap items-end gap-x-4 gap-y-2">
-              <Yen
-                figure={PRICING.subsidized.figure}
-                className="text-[clamp(36px,5vw,48px)] leading-none text-ai-accent"
-              />
-              <span className="bg-ai-accent px-2 py-0.5 font-sans text-[13px] font-bold tracking-tight text-white">
-                {PRICING.subsidized.aside}
+          <Reveal delay={80}>
+            <div className="flex flex-col border-2 border-ai-accent bg-ai-surface-2 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(37,99,235,0.16)] md:p-8">
+              <span className="font-sans text-[13px] font-bold uppercase tracking-wide text-ai-accent">
+                {PRICING.subsidized.condition}
               </span>
+              <span className="mt-3 font-sans text-[15px] font-light text-ai-muted">
+                {PRICING.subsidized.label}
+              </span>
+              <div className="mt-4 flex flex-wrap items-end gap-x-4 gap-y-2">
+                <Yen
+                  figure={PRICING.subsidized.figure}
+                  className="text-[clamp(36px,5vw,48px)] leading-none text-ai-accent"
+                />
+                <span className="bg-ai-accent px-2 py-0.5 font-sans text-[13px] font-bold tracking-tight text-white">
+                  {PRICING.subsidized.aside}
+                </span>
+              </div>
+              <p className="mt-4 font-sans text-[14px] font-light text-ai-muted" style={{ lineHeight: 1.8 }}>
+                {PRICING.subsidized.body}
+              </p>
             </div>
-            <p className="mt-4 font-sans text-[14px] font-light text-ai-muted" style={{ lineHeight: 1.8 }}>
-              {PRICING.subsidized.body}
-            </p>
           </Reveal>
         </div>
 

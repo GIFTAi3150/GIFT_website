@@ -11,24 +11,31 @@ export default function AtSteps() {
         </Reveal>
 
         <ol className="mx-auto mt-14 max-w-3xl">
+          {/* Hover/transition classes sit on the inner div, not on Reveal(as="li"):
+              Reveal sets transitionProperty:'opacity, transform' inline on its own
+              element, which silently drops a class-based transition-colors there.
+              Also: "first:border-t-0" can't move to the inner div as-is — it would
+              always match (the div is always its own parent's first child), so the
+              first row's border is decided explicitly from `i` instead. */}
           {STEPS.items.map((step, i) => (
-            <Reveal
-              key={step.title}
-              as="li"
-              delay={i * 70}
-              className="flex gap-6 border-t border-ai-border py-7 transition-colors duration-300 first:border-t-0 hover:border-ai-accent"
-            >
-              <span className="font-display text-[28px] font-bold leading-none text-ai-accent">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <div>
-                <h3 className="font-sans text-[19px] font-bold leading-snug text-ai-ink">{step.title}</h3>
-                <p
-                  className="mt-3 font-sans text-[16px] font-light text-ai-muted"
-                  style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-                >
-                  {step.body}
-                </p>
+            <Reveal key={step.title} as="li" delay={i * 70}>
+              <div
+                className={`flex gap-6 py-7 transition-colors duration-300 hover:border-ai-accent ${
+                  i === 0 ? '' : 'border-t border-ai-border'
+                }`}
+              >
+                <span className="font-display text-[28px] font-bold leading-none text-ai-accent">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <h3 className="font-sans text-[19px] font-bold leading-snug text-ai-ink">{step.title}</h3>
+                  <p
+                    className="mt-3 font-sans text-[16px] font-light text-ai-muted"
+                    style={{ lineHeight: 1.9, textWrap: 'pretty' }}
+                  >
+                    {step.body}
+                  </p>
+                </div>
               </div>
             </Reveal>
           ))}
