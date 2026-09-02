@@ -34,7 +34,9 @@ export default function WkLogoWall() {
           ))}
         </div>
 
-        <p className="mt-6 font-sans text-[12px] font-light text-[#5B6B8A]">{LOGO_WALL.note}</p>
+        {LOGO_WALL.note ? (
+          <p className="mt-6 font-sans text-[12px] font-light text-[#5B6B8A]">{LOGO_WALL.note}</p>
+        ) : null}
       </div>
     </section>
   );
