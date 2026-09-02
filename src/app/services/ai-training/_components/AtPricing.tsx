@@ -93,10 +93,10 @@ export default function AtPricing() {
               (navy read too dark); white figure carries the section. */}
           <Reveal delay={80} className="h-full">
             <div className="flex h-full flex-col bg-ai-accent p-7 shadow-[0_10px_30px_rgba(37,99,235,0.30)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(37,99,235,0.40)] md:p-9">
-              <span className="font-sans text-[13px] font-bold uppercase tracking-wide text-white/85">
+              <span className="font-sans text-[13px] font-bold uppercase tracking-wide text-white/95">
                 {PRICING.subsidized.condition}
               </span>
-              <span className="mt-3 font-sans text-[15px] font-light text-white/80">
+              <span className="mt-3 font-sans text-[15px] font-light text-white/95">
                 {PRICING.subsidized.label}
               </span>
               <div className="mt-5 flex flex-wrap items-end gap-x-4 gap-y-2 text-white">
@@ -106,7 +106,7 @@ export default function AtPricing() {
                 </span>
               </div>
               <p
-                className="mt-auto pt-6 font-sans text-[14px] font-light text-white/85"
+                className="mt-auto pt-6 font-sans text-[14px] font-light text-white/95"
                 style={{ lineHeight: 1.9, textWrap: 'pretty' }}
               >
                 {PRICING.subsidized.body}

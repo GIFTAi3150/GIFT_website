@@ -54,13 +54,13 @@ export default function AtPains() {
           <AtSectionHead word={PAINS.eyebrow} chip={PAINS.title} />
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 items-stretch gap-5 min-[680px]:grid-cols-3 md:gap-6">
+        <div className="mt-14 grid grid-cols-1 items-stretch gap-5 min-[760px]:grid-cols-3 md:gap-6">
           {PAINS.items.map((item, i) => (
             <Reveal key={item.titleParts.join('')} delay={i * 80}>
               <article className="flex h-full flex-col border border-ai-border bg-ai-surface p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-ai-accent hover:shadow-[0_12px_24px_rgba(37,99,235,0.12)] md:p-8">
                 <PainIcon name={item.icon} />
                 <h3
-                  className="mt-5 font-sans text-[19px] font-bold text-ai-ink min-[680px]:min-h-[54px]"
+                  className="mt-5 font-sans text-[19px] font-bold text-ai-ink min-[760px]:min-h-[54px]"
                   style={{ lineHeight: 1.4 }}
                 >
                   {item.titleParts.map((part) => (

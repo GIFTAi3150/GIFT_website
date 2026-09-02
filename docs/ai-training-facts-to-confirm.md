@@ -7,8 +7,8 @@
 
 | # | 項目 | 現在の仮値 | aiTrainingContent.ts のキー | 確認先メモ |
 |---|------|-----------|------------------------------|-----------|
-| 1 | 通常価格 | 30万円（1社・全4回コースの目安） | `PRICING.regular.figure` / `PRICING.regular.note` | 価格体系（1社一括か人数課金か）、税別/税込、想定人数を確認のうえ確定 |
-| 2 | 助成金名 | 人材開発支援助成金（仮置き） | `PRICING.subsidized.body` / `HERO.points[2].body` / page.tsx metadata.description(「助成金の活用を前提に設計」) | 実際に活用を想定している助成金メニュー名を確定。確定時は上記3箇所すべてを更新 |
+| 1 | 通常価格 | **確定（2026-09-02）: 税込40万円・1名あたり計10時間** | `PRICING.regular.figure` / `PRICING.regular.note` | — |
+| 2 | 助成金名 | **確定（2026-09-02）: 人材開発支援助成金**（バナーで大きく表示） | `PRICING.banner.title` / `PRICING.banner.sub` / `PRICING.subsidized.body` | コース正式名称の表記のみ行3参照 |
 | 3 | 助成率・上限 | **確定（2026-09-02）: 最大75%支給** | `PRICING.subsidized.aside` | コース正式名称（事業展開等リスキリング支援コース想定）の表記のみ要確認 |
 | 4 | 実質負担額 | **確定（2026-09-02）: 税込10万円**（通常 税込40万円） | `PRICING.regular.figure` / `PRICING.subsidized.figure` | — |
 | 5 | 対象企業の条件 | 未記載（FAQで助成金の審査がある旨のみ言及） | `FAQ.items[2].answer`（助成金Q&A）/ `HERO.points[2].body` / page.tsx metadata.description | 中小企業要件・雇用保険適用事業所要件など対象条件を確認し、必要ならFAQに追加。確定時は上記3箇所を要見直し |
