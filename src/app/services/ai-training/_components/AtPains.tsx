@@ -28,10 +28,10 @@ const PAIN_ICONS: Record<string, React.ReactNode> = {
 
 function PainIcon({ name }: { name: string }) {
   return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-[#EFF5FF]">
+    <span className="flex shrink-0 items-center">
       <svg
-        width="22"
-        height="22"
+        width="26"
+        height="26"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#2563EB"
@@ -60,7 +60,7 @@ export default function AtPains() {
               <article className="flex h-full flex-col border border-ai-border bg-ai-surface p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-ai-accent hover:shadow-[0_12px_24px_rgba(37,99,235,0.12)] md:p-8">
                 <PainIcon name={item.icon} />
                 <h3
-                  className="mt-5 font-sans text-[19px] font-bold text-ai-ink"
+                  className="mt-5 font-sans text-[19px] font-bold text-ai-ink min-[680px]:min-h-[54px]"
                   style={{ lineHeight: 1.4 }}
                 >
                   {item.titleParts.map((part) => (
