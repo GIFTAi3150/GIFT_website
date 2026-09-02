@@ -7,17 +7,16 @@
 
 | # | 項目 | 現在の仮値 | aiTrainingContent.ts のキー | 確認先メモ |
 |---|------|-----------|------------------------------|-----------|
-| 1 | 通常価格 | 30万円（1社・全4回コースの目安） | `PRICING.regular.figure` / `PRICING.regular.note` | 価格体系（1社一括か人数課金か）、税別/税込、想定人数を確認のうえ確定 |
-| 2 | 助成金名 | 人材開発支援助成金（仮置き） | `PRICING.subsidized.body` / `HERO.points[2].body` / page.tsx metadata.description(「助成金の活用を前提に設計」) | 実際に活用を想定している助成金メニュー名を確定。確定時は上記3箇所すべてを更新 |
-| 3 | 助成率・上限 | 未記載（下記④の仮値のみ反映） | `PRICING.subsidized.figure` | 助成率（例: 45%等）と上限額を確認し、実質負担額を再計算 |
-| 4 | 実質負担額 | 10万円（実質3分の1程度） | `PRICING.subsidized.figure` / `PRICING.subsidized.aside` | ③の助成率・上限確定後に再計算 |
+| 1 | 通常価格 | **確定（2026-09-02）: 税込40万円・1名あたり計10時間** | `PRICING.regular.figure` / `PRICING.regular.note` | — |
+| 2 | 助成金名 | **確定（2026-09-02）: 人材開発支援助成金**（バナーで大きく表示） | `PRICING.banner.title` / `PRICING.banner.sub` / `PRICING.subsidized.body` | コース正式名称の表記のみ行3参照 |
+| 3 | 助成率・上限 | **確定（2026-09-02）: 最大75%支給** | `PRICING.subsidized.aside` | コース正式名称（事業展開等リスキリング支援コース想定）の表記のみ要確認 |
+| 4 | 実質負担額 | **確定（2026-09-02）: 税込10万円**（通常 税込40万円） | `PRICING.regular.figure` / `PRICING.subsidized.figure` | — |
 | 5 | 対象企業の条件 | 未記載（FAQで助成金の審査がある旨のみ言及） | `FAQ.items[2].answer`（助成金Q&A）/ `HERO.points[2].body` / page.tsx metadata.description | 中小企業要件・雇用保険適用事業所要件など対象条件を確認し、必要ならFAQに追加。確定時は上記3箇所を要見直し |
 | 6 | 最少催行人数 | 目安3名〜（1名からも相談可、という表現） | `FAQ.items[1].answer` | 実際の最少催行人数を確認 |
-| 7 | 期間・回数 | 全4回・1〜2ヶ月程度の目安 | `PRICING.regular.note` / `FAQ.items[3].answer` | 標準の回数・期間を確定 |
+| 7 | 期間・回数 | **確定（2026-09-02）: 1名あたり計10時間**（回数の割り方は柔軟） | `PRICING.regular.note` / `FAQ.items[3].answer` | — |
 | 8 | オンライン/対面 | 両対応（仮） | `FAQ.items[4].answer` | 実施形式の対応範囲を確認 |
-| 9 | 講師 | 「実務経験のある講師」という抽象表現のみ、プロフィール等は未記載 | `REASONS.items[1].body`（少人数制の項） | 講師体制（人数・プロフィール開示要否・肩書表記）を確認し、必要ならページに講師紹介を追加 |
+| 9 | 講師 | ページ上の講師記載は削除済み（2026-09-02 REASONS 差し替えで「実務経験のある講師」文言が消滅） | — | 講師紹介を載せる場合のみ再検討 |
 | 10 | アフターフォロー期間 | 研修終了後30日間 | `REASONS.items[2].body` | 実際のフォロー期間を確認 |
-| 11 | 少人数制の定員 | 最大6名 | `REASONS.items[1].body` | 実際の1回あたり定員上限を確認 |
 
 ## 反映手順
 

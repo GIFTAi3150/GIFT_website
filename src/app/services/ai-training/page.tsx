@@ -8,12 +8,12 @@ import AtPricing from './_components/AtPricing';
 import AtFaq from './_components/AtFaq';
 import AtCta from './_components/AtCta';
 
-const OG_TITLE = 'AI研修サービス｜業務で使える生成AI研修';
+const OG_TITLE = '法人向けAI研修｜業務で使える生成AI研修';
 const OG_DESCRIPTION =
   '「使ってみた」から「使いこなす」へ。自社の業務データを使った実践型の生成AI研修です。助成金の活用を前提に設計しています。';
 
 export const metadata: Metadata = {
-  title: 'AI研修サービス',
+  title: '法人向けAI研修',
   description:
     '業務で使える生成AI研修。自社の業務資料を使った実践型カリキュラムで、少人数制・助成金の活用を前提に設計しています。未経験の方でも安心してご参加いただけます。',
   alternates: { canonical: '/services/ai-training' },
