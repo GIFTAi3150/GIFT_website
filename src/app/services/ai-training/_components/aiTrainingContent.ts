@@ -105,7 +105,6 @@ export const STEPS = {
 export const PRICING = {
   eyebrow: 'PRICING',
   title: '料金',
-  lead: '通常価格と、助成金活用後の実質負担額を並べてご確認いただけます。',
   banner: {
     eyebrow: 'SUBSIDY ELIGIBLE',
     title: '人材開発支援助成金 対象',

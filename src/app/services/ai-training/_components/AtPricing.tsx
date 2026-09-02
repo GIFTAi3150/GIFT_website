@@ -25,7 +25,7 @@ export default function AtPricing() {
     <section className="relative bg-white py-20 md:py-28 lg:py-32">
       <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
         <Reveal>
-          <AtSectionHead word={PRICING.eyebrow} chip={PRICING.title} lead={PRICING.lead} />
+          <AtSectionHead word={PRICING.eyebrow} chip={PRICING.title} />
         </Reveal>
 
         {/* Subsidy eligibility banner — the single loudest claim in the section,
