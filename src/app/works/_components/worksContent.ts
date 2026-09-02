@@ -10,7 +10,8 @@
 export const HERO = {
   nameEn: 'WORKS',
   headline: '取引実績',
-  body: '業種も規模も異なるお客様とともに、現場に根ざした改善を積み重ねてきました。',
+  // 読点の位置でのみ改行を許可する(句の途中で折れるのを防ぐ)
+  bodyParts: ['業種も規模も異なるお客様とともに、', '現場に根ざした改善を積み重ねてきました。'],
 } as const;
 
 // A single logo-wall tile. `logoSrc` is left optional on purpose: once real
@@ -27,7 +28,8 @@ export type LogoTile = {
 export const LOGO_WALL: { note?: string; tiles: LogoTile[] } = {
   // 掲載順ルール: 五十音順(読み仮名ベース)。実企業を先頭に、プレースホルダは末尾。
   tiles: [
-    // 確定済み(2026-09-02): 正式社名・読み(セールスインデックス/レイズ)とも依頼者確認済み
+    // 五十音順: グランコミュニケーションズ(く)→ セールスインデックス(せ)→ レイズ(れ)。表記は依頼者確認済み
+    { companyName: '株式会社グランコミュニケーションズ', logoSrc: '/img/works/gran-communications.png' },
     { companyName: '株式会社Sales Index', logoSrc: '/img/works/sales-index.png' },
     { companyName: '株式会社RAYS', logoSrc: '/img/works/rays.png' },
     // 以下は仮(実ロゴ回収後に差し替え・五十音順に挿入)

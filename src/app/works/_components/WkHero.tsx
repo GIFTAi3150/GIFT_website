@@ -33,7 +33,11 @@ export default function WkHero() {
             className="max-w-xl font-sans font-light"
             style={{ fontSize: '16px', lineHeight: 2, color: 'rgba(255,255,255,0.78)', textWrap: 'pretty' }}
           >
-            {HERO.body}
+            {HERO.bodyParts.map((part) => (
+              <span key={part} className="inline-block">
+                {part}
+              </span>
+            ))}
           </p>
         </Reveal>
       </div>
