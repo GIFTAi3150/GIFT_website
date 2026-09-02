@@ -70,24 +70,24 @@ export default function AtPricing() {
             </div>
           </Reveal>
 
-          {/* Subsidised figure — the hero number. Navy card ties the page's
-              hero/CTA sandwich and makes the white figure carry the section. */}
+          {/* Subsidised figure — the hero number on a bright accent-blue card
+              (navy read too dark); white figure carries the section. */}
           <Reveal delay={80} className="h-full">
-            <div className="flex h-full flex-col bg-ai-ink p-7 shadow-[0_10px_30px_rgba(12,14,26,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(37,99,235,0.28)] md:p-9">
-              <span className="font-sans text-[13px] font-bold uppercase tracking-wide text-[#A5C0FF]">
+            <div className="flex h-full flex-col bg-ai-accent p-7 shadow-[0_10px_30px_rgba(37,99,235,0.30)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(37,99,235,0.40)] md:p-9">
+              <span className="font-sans text-[13px] font-bold uppercase tracking-wide text-white/85">
                 {PRICING.subsidized.condition}
               </span>
-              <span className="mt-3 font-sans text-[15px] font-light text-white/70">
+              <span className="mt-3 font-sans text-[15px] font-light text-white/80">
                 {PRICING.subsidized.label}
               </span>
               <div className="mt-5 flex flex-wrap items-end gap-x-4 gap-y-2 text-white">
                 <Yen figure={PRICING.subsidized.figure} unitClassName="text-white" />
-                <span className="mb-1.5 bg-ai-accent px-2.5 py-1 font-sans text-[13px] font-bold tracking-tight text-white">
+                <span className="mb-1.5 bg-white px-2.5 py-1 font-sans text-[13px] font-bold tracking-tight text-ai-accent">
                   {PRICING.subsidized.aside}
                 </span>
               </div>
               <p
-                className="mt-auto pt-6 font-sans text-[14px] font-light text-white/70"
+                className="mt-auto pt-6 font-sans text-[14px] font-light text-white/85"
                 style={{ lineHeight: 1.9, textWrap: 'pretty' }}
               >
                 {PRICING.subsidized.body}
