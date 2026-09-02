@@ -178,6 +178,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 // first paint.
                 if (location.pathname.indexOf('/services/aiops') === 0) {
                   cover.style.background = 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)';
+                } else if (location.pathname.indexOf('/company') === 0) {
+                  // /company: navy WebGL terrain hero — the light default would
+                  // flash before the dark scene paints.
+                  cover.style.background = '#0b1020';
                 }
                 var hidden = false;
                 var hide = function () {
