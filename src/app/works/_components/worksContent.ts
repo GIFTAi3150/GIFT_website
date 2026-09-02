@@ -24,15 +24,12 @@ export type LogoTile = {
 
 // 【要確認】掲載企業リストは未確定。8社ぶんの仮社名のみ。実ロゴ・正式社名・
 // 掲載順ルールは docs/works-facts-to-confirm.md を参照して確定させる。
-export const LOGO_WALL: { note: string; tiles: LogoTile[] } = {
-  note: '※ 一部のロゴ・社名は仮です。実ロゴ回収後、順次差し替えます。',
+export const LOGO_WALL: { note?: string; tiles: LogoTile[] } = {
   // 掲載順ルール: 五十音順(読み仮名ベース)。実企業を先頭に、プレースホルダは末尾。
   tiles: [
-    // 【要確認】正式社名表記(「株式会社」の有無・前後)と読み仮名は依頼者確認。
-    // 読み: セールスインデックス(サ行)
-    { companyName: 'Sales Index', logoSrc: '/img/works/sales-index.png' },
-    // 読み: レイズ(ラ行)
-    { companyName: 'RAYS', logoSrc: '/img/works/rays.png' },
+    // 確定済み(2026-09-02): 正式社名・読み(セールスインデックス/レイズ)とも依頼者確認済み
+    { companyName: '株式会社Sales Index', logoSrc: '/img/works/sales-index.png' },
+    { companyName: '株式会社RAYS', logoSrc: '/img/works/rays.png' },
     // 以下は仮(実ロゴ回収後に差し替え・五十音順に挿入)
     { companyName: '株式会社サンプルA' },
     { companyName: '株式会社サンプルB' },
@@ -44,25 +41,21 @@ export const LOGO_WALL: { note: string; tiles: LogoTile[] } = {
 };
 
 export type PickUpCase = {
-  companyName: string;
   industry: string;
   body: string;
-  logoSrc?: string;
 };
 
-// 【要確認】PickUp 2社は仮選定（サンプルA・B）。選定基準（規模・業種バランス・
-// 掲載承諾の強さ等）と実際の取組内容は docs/works-facts-to-confirm.md で確定させる。
+// 導入事例は会社名を出さず「業種 + 内容」で紹介する方針(2026-09-02 依頼者決定)。
+// 【要確認】事例の業種・内容は仮。実事例の文言は docs/works-facts-to-confirm.md で確定させる。
 export const PICK_UP: { eyebrow: string; title: string; cases: PickUpCase[] } = {
   eyebrow: 'PICK UP',
-  title: '代表的な取り組み',
+  title: '導入事例',
   cases: [
     {
-      companyName: '株式会社サンプルA ［仮社名］',
       industry: '通信 ［仮・業種］',
       body: 'コールセンター業務の立ち上げから運用設計までを一貫して支援。応対品質の標準化に取り組みました。［仮テキスト］',
     },
     {
-      companyName: '株式会社サンプルB ［仮社名］',
       industry: '小売 ［仮・業種］',
       body: '店舗オペレーションのDX化を支援。日次報告をLINEベースのワークフローへ移行しました。［仮テキスト］',
     },
