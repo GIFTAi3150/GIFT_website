@@ -12,14 +12,16 @@ export default function WkLogoWall() {
             // transform inline on its own element, and inline style always wins
             // over a class-based hover:-translate-y on that same element.
             <Reveal key={tile.companyName} delay={(i % 4) * 70}>
-              <div className="flex h-[120px] flex-col items-center justify-center gap-2 border border-[#E2E8F2] bg-white shadow-[0_1px_3px_rgba(12,14,26,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#2563EB] hover:shadow-[0_10px_20px_rgba(37,99,235,0.12)]">
+              <div className="flex h-[150px] flex-col items-center justify-center gap-2.5 border border-[#E2E8F2] bg-white shadow-[0_1px_3px_rgba(12,14,26,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#2563EB] hover:shadow-[0_10px_20px_rgba(37,99,235,0.12)]">
                 {tile.logoSrc ? (
+                  // Fixed 150x64 frame + object-contain so every company's logo
+                  // reads at the same visual size regardless of aspect ratio.
                   <Image
                     src={tile.logoSrc}
                     alt={tile.companyName}
-                    width={96}
-                    height={40}
-                    className="h-10 w-auto object-contain"
+                    width={150}
+                    height={64}
+                    className="h-16 w-[150px] object-contain"
                   />
                 ) : (
                   <span className="font-display text-[16px] font-bold tracking-[0.08em] text-[#5B6B8A]">
@@ -27,7 +29,7 @@ export default function WkLogoWall() {
                   </span>
                 )}
                 <span className="font-sans text-[12px] font-normal text-[#4A5877]">
-                  {tile.companyName}
+                  {tile.companyName} 様
                 </span>
               </div>
             </Reveal>
