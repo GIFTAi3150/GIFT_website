@@ -10,7 +10,8 @@
 export const HERO = {
   nameEn: 'WORKS',
   headline: '取引実績',
-  body: '業種も規模も異なるお客様とともに、現場に根ざした改善を積み重ねてきました。',
+  // 読点の位置でのみ改行を許可する(句の途中で折れるのを防ぐ)
+  bodyParts: ['業種も規模も異なるお客様とともに、', '現場に根ざした改善を積み重ねてきました。'],
 } as const;
 
 // A single logo-wall tile. `logoSrc` is left optional on purpose: once real
