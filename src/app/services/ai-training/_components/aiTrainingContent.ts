@@ -1,18 +1,17 @@
 // Every string shown on /services/ai-training. Soft-launch draft — this page is
 // not yet wired into Header/Footer nav or sitemap.ts (see Plans.md T-AT4).
 //
-// ⚠️ PLACEHOLDER FIGURES: every number and institution name below is a stand-in,
-// marked with a `// 【要確認】` comment on the line it lives on. Each one has a
-// matching row in docs/ai-training-facts-to-confirm.md — keep the two in sync if
-// either changes. Do not treat any 万円 figure here as a real quote.
+// 価格・助成率・時間数は 2026-09-02 に依頼者確定済み(税込40万/最大75%支給/実質10万/1名10時間)。
+// まだ仮の項目は `// 【要確認】` コメント付きで、docs/ai-training-facts-to-confirm.md の行と
+// 1:1 対応している — どちらかを変えたら必ず同期すること。
 
 // NOTE: points[].body はヒーローでは未表示(title のみ使用)。
 // 依頼者確定コピーの候補として保持している — 削除しないこと。
 export const HERO = {
   nameEn: 'AI TRAINING',
-  // 【要確認】正式なサービス名表記(リスキリング有無)は依頼者確認。
-  // 配列の要素間でのみ改行を許可する(「研修」の途中で折れるのを防ぐ)。
-  nameJaParts: ['生成AI', 'リスキリング研修'],
+  // サービス名確定(2026-09-02): 法人向けAI研修。「リスキリング」の訴求は料金セクションへ移動。
+  // 配列の要素間でのみ改行を許可する(語の途中で折れるのを防ぐ)。
+  nameJaParts: ['法人向け', 'AI研修'],
   headline: {
     line1: '「使ってみた」から',
     bracketed: '使いこなす',
@@ -109,21 +108,21 @@ export const PRICING = {
   lead: '通常価格と、助成金活用後の実質負担額を並べてご確認いただけます。',
   regular: {
     label: '通常価格',
-    // 【要確認】価格体系（1社一括か人数課金か）・税別/税込・想定人数を確認のうえ確定。
-    figure: '30',
-    note: '1社あたり・全4回コースの目安',
+    // 確定(2026-09-02): 税込40万円・1名あたり計10時間
+    figure: '40',
+    note: '1名あたり・計10時間（税込）',
   },
   subsidized: {
     label: '助成金活用後の実質負担',
     condition: '助成金の交付を受けた場合',
-    // 【要確認】助成金名・助成率・上限額が未確定のため、実質負担額も仮値。
+    // 確定(2026-09-02): 75%相当が支給され実質10万円(税込)
     figure: '10',
-    aside: '実質3分の1程度',
-    // 【要確認】活用を想定している助成金メニュー名（人材開発支援助成金を仮置き）。
-    body: '人材開発支援助成金など、公的助成金の活用を前提に設計しています。',
+    aside: '最大75%支給',
+    // 【要確認】助成金コースの正式名称(「事業展開等リスキリング支援コース」を想定)は表記確認
+    body: '人材開発支援助成金のリスキリング支援コースが利用でき、受講費用の最大75%が支給されます。',
   },
   diagnosisNote: '対象となるかどうかは、ご相談時に無料で診断いたします。',
-  taxNote: '※表示価格はすべて税別です。',
+  taxNote: '※表示価格はすべて税込です。',
 } as const;
 
 export const FAQ = {
@@ -147,8 +146,8 @@ export const FAQ = {
     },
     {
       question: '期間はどれくらいですか？',
-      // 【要確認】標準の回数・期間は仮値。
-      answer: '標準は全4回、1〜2ヶ月程度を想定しています。企業ごとのスケジュールにあわせて調整可能です。',
+      // 確定(2026-09-02): 1名あたり計10時間。回数の割り方は柔軟。
+      answer: '1名あたり計10時間のカリキュラムです。回数やスケジュールは、企業ごとのご都合にあわせて調整可能です。',
     },
     {
       question: 'オンラインでも受講できますか？',
