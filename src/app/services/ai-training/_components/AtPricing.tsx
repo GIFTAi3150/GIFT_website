@@ -28,10 +28,29 @@ export default function AtPricing() {
           <AtSectionHead word={PRICING.eyebrow} chip={PRICING.title} lead={PRICING.lead} />
         </Reveal>
 
+        {/* Subsidy eligibility banner — the single loudest claim in the section,
+            ahead of the price cards themselves. */}
+        <Reveal delay={40} className="mx-auto mt-12 max-w-5xl">
+          <div className="border-2 border-ai-accent bg-[#EFF5FF] px-6 py-6 text-center md:py-7">
+            <p className="font-display text-[12px] font-bold uppercase tracking-[0.22em] text-ai-accent">
+              {PRICING.banner.eyebrow}
+            </p>
+            <p
+              className="mt-2 font-sans font-extrabold text-ai-ink"
+              style={{ fontSize: 'clamp(24px, 3vw, 34px)', lineHeight: 1.35, textWrap: 'balance' }}
+            >
+              {PRICING.banner.title}
+            </p>
+            <p className="mt-1.5 font-sans text-[15px] font-normal text-ai-accent">
+              {PRICING.banner.sub}
+            </p>
+          </div>
+        </Reveal>
+
         {/* 1fr | arrow | 1fr — the two cards share one skeleton (condition /
             label / figure / note) and stretch to equal height; the arrow tells
             the 通常 → 実質 story at a glance. */}
-        <div className="mx-auto mt-14 grid max-w-5xl grid-cols-1 items-stretch gap-4 min-[820px]:grid-cols-[1fr_auto_1fr] min-[820px]:gap-5">
+        <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 items-stretch gap-4 min-[820px]:grid-cols-[1fr_auto_1fr] min-[820px]:gap-5">
           {/* Regular price — quiet baseline card. Hover classes live on the inner
               div, not on Reveal (its inline transform beats hover classes). */}
           <Reveal className="h-full">
