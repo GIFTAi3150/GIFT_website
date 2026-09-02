@@ -25,16 +25,21 @@ export type LogoTile = {
 // 【要確認】掲載企業リストは未確定。8社ぶんの仮社名のみ。実ロゴ・正式社名・
 // 掲載順ルールは docs/works-facts-to-confirm.md を参照して確定させる。
 export const LOGO_WALL: { note: string; tiles: LogoTile[] } = {
-  note: '※ ロゴ・社名はすべて仮。掲載承諾済み企業の実ロゴに差し替え予定です（順不同・グリッドは追加可能）。',
+  note: '※ 一部のロゴ・社名は仮です。実ロゴ回収後、順次差し替えます。',
+  // 掲載順ルール: 五十音順(読み仮名ベース)。実企業を先頭に、プレースホルダは末尾。
   tiles: [
+    // 【要確認】正式社名表記(「株式会社」の有無・前後)と読み仮名は依頼者確認。
+    // 読み: セールスインデックス(サ行)
+    { companyName: 'Sales Index', logoSrc: '/img/works/sales-index.png' },
+    // 読み: レイズ(ラ行)
+    { companyName: 'RAYS', logoSrc: '/img/works/rays.png' },
+    // 以下は仮(実ロゴ回収後に差し替え・五十音順に挿入)
     { companyName: '株式会社サンプルA' },
     { companyName: '株式会社サンプルB' },
     { companyName: '株式会社サンプルC' },
     { companyName: '株式会社サンプルD' },
     { companyName: '株式会社サンプルE' },
     { companyName: '株式会社サンプルF' },
-    { companyName: '株式会社サンプルG' },
-    { companyName: '株式会社サンプルH' },
   ],
 };
 
