@@ -13,6 +13,7 @@ const footerNav = [
 
 const footerServices = [
   { href: '/services/aiops', label: 'AIOps事業' },
+  { href: '/services/ai-training', label: '法人向けAI研修' },
   { href: '/plans', label: '料金プラン' },
 ];
 
