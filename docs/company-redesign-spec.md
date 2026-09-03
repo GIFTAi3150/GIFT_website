@@ -2154,6 +2154,59 @@ and the `<AuroraLines … />` element with
 `<StrataBg className="pointer-events-none absolute inset-0" layers={14} intensity={1} />`.
 `AuroraLines.tsx` stays (the homepage uses it).
 
+## 19. Hero wordmark — GIFT INC. seen through water (2026-09-03, requested)
+
+User: "add an animation to the gift inc. title … using the navier stokes equation … the title
+gets distorted like water, then if the cursor is not touching it it just reassembles … smooth …
+feel like water". Context: the working tree (uncommitted) already replaced the terrain hero with
+the "liquid" direction — `CompanyLiquidBackdrop` (page-wide 21st.dev liquid-gradient port) +
+`CompanyLiquidHero` (wordmark + JP title + cue). This section is the wordmark only.
+
+**File.** `_components/LiquidWordmark.tsx`, rewritten. The WIP CPU diffusion field is gone. Raw
+WebGL2, no three.js, same DOM contract (`.co-hero__wordmark` root, hidden text span, canvas,
+`data-liquid-active`), CSS untouched.
+
+**Simulation.** Stam stable fluids in half-float render targets: velocity RG16F ×2, pressure
+R16F ×2, divergence, curl — 256 texels wide, height follows the canvas aspect (formats are
+probed with a real framebuffer; RGBA16F fallback). Per frame: pointer splats → curl → vorticity
+confinement (`CURL` 8) → divergence → 24 Jacobi pressure iterations → gradient subtract →
+semi-Lagrangian advection with dissipation → **explicit viscosity** (`VISCOSITY` 0.22 laplacian
+mix). Only velocity is simulated — no dye. Splat force = pointer UV delta × 3000, normalised to
+60 fps (`frameScale`), y divided by the aspect so a push is isotropic on screen, capped at 180
+texels/s, laid down as ≤5 sub-splats 1.5σ apart along the pointer segment so a fast stroke is
+one stroke. Entry = a soft radial push (`ENTRY_PUSH` 40).
+
+**Display.** The wordmark is a 2D-canvas raster of the same face/size/letter-spacing/shadow at
+dpr ≤ 2 (baseline = half-leading + `fontBoundingBoxAscent`, i.e. what CSS does with a 0.82
+line-height). Each pixel samples it at `uv − v·texel·DISPLACE` (0.12 s), with a 5-tap smoothing
+of `v` and a clamp at `MAX_DISPLACE` 0.06 UV — the canvas pad is 0.65 em, so nothing clips.
+Sheen: the gradient of |v| is the surface slope, lit from the top-right; the far side mixes toward
+`#60a5fa`, the near side toward white. Premultiplied throughout. No chromatic split (that is the
+homepage's), and **no alpha thinning** — v1 had a 30 % "ink thins in the current" term and it
+tore strokes into fragments.
+
+**Reassembly.** Zero field = the untouched texture, by construction. Dissipation `k` 0.9 while
+hovered, 2.2 after leave (eased over ~0.2 s); with the viscosity this rests in ~1 s. The loop
+stops 3.2 s after leave, clears the targets and draws once. Once `document.fonts.ready` has
+rastered the real face the canvas IS the wordmark (DOM span = fallback only) — registration was
+verified with a difference-blend probe at dpr 1 and 2: black letters, AA hairlines only.
+
+**Gates / failure.** Fine pointer + no reduced-motion only; needs `EXT_color_buffer_float` or
+`_half_float` and a complete FBO; any shader/link/alloc error or a context loss → DOM text, no
+restoration (project rule). Off-screen / hidden tab → stop + clear.
+
+**Iteration record (one strike used on tuning, none on direction).** v1 — `CURL` 24, force
+6000, radius 0.008, thinning 0.3 — shredded the letters like torn paper. What made it read as
+water: the viscosity pass, `CURL` 8, larger softer splats, smaller displacement, and deleting the
+thinning. Do not re-add thinning or raise `CURL` past ~10.
+
+**Gotchas.** ESSL 3.00 fragment samplers default to `lowp` → `precision highp sampler2D;` or the
+velocity field silently clamps to ±2. SwiftShader runs this page at 4 rAF/s (the backdrop is the
+cost) and exaggerates every stroke; probe with headless Chromium on the real GPU
+(`--use-gl=angle --use-angle=d3d11 --enable-gpu --ignore-gpu-blocklist`, 47 rAF/s).
+
+**Tuning knobs** = the constants at the top of the file.
+
 ## 18. Information — the globe's field becomes the section (2026-09-02, requested)
 
 Manager: make the Information background "the same bg as our globe … for the whole bg and put

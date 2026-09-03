@@ -3,12 +3,12 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Footer from '@/components/layout/Footer';
 import company from '@/data/company.json';
-import TerrainHero from './_components/TerrainHero';
+import CompanyLiquidBackdrop from './_components/CompanyLiquidBackdrop';
+import CompanyLiquidHero from './_components/CompanyLiquidHero';
 import CompanyScroll from './_components/CompanyScroll';
 import './company.css';
 
 const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
-const WhyLiquidBg = dynamic(() => import('./_components/WhyLiquidBg'), { ssr: false });
 
 export const metadata: Metadata = {
   title: '会社概要',
@@ -83,10 +83,11 @@ export default function CompanyPage() {
   return (
     <>
       <main className="company-page" data-flash-guard="">
+        <CompanyLiquidBackdrop />
 
-        {/* ── 1. Scene: hero + mission over one sticky WebGL terrain ─────── */}
+        {/* ── 1. Scene: hero + mission over the continuous page liquid field ── */}
         <div className="co-scene">
-          <TerrainHero />
+          <CompanyLiquidHero />
           <div className="co-scene__spacer" aria-hidden />
 
           <section id="mission" className="co-mission co-body-dark">
@@ -143,9 +144,8 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* ── 3. Why AIOps — the thesis builds itself on a sticky stage, over liquid spheres (OGL) ── */}
+        {/* ── 3. Why AIOps — the thesis builds itself on a sticky stage ── */}
         <section id="why" className="co-why co-body-dark">
-          <WhyLiquidBg />
           <div className="co-container co-why__grid relative z-10">
             {/* Stage first in DOM so it can stick at the top on phones. Decorative:
                 the three foundations are quoted from paragraph 3 of the copy. */}
@@ -282,7 +282,7 @@ export default function CompanyPage() {
 
         {/* ── 6. CTA — the page's one giant word ─────────────────────────── */}
         <section id="contact-cta" className="co-cta">
-          <p className="co-cta__meta co-mono">Sapporo, Japan — Est. 2018</p>
+          
           <div className="co-container">
             <Link href="/contact" className="co-cta__word" aria-label="お問い合わせ">
               CONTACT

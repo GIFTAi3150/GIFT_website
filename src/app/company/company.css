@@ -1,4 +1,4 @@
-/* /company — "Terrain" redesign (2026-09-02). Palette = homepage. Spec: docs/company-redesign-spec.md */
+/* /company — continuous liquid-field redesign. Palette = homepage. Spec: docs/company-redesign-spec.md */
 
 .company-page {
   --c-navy: #0b1020;
@@ -17,8 +17,49 @@
   --c-line-dark: rgba(255, 255, 255, 0.12);
   --c-line-light: rgba(17, 27, 33, 0.14);
   --header-h: 80px; /* Header is h-20 fixed */
+  position: relative;
+  isolation: isolate;
   background: var(--c-navy);
   color: var(--c-ink);
+}
+
+/* One fixed WebGL field follows the complete page. Sections sit above it and
+   use alpha backgrounds; the field itself fades out part-way through Contact. */
+.company-page > :not(.co-page-liquid) {
+  position: relative;
+  z-index: 1;
+}
+.co-page-liquid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--c-navy);
+  will-change: opacity;
+}
+.co-page-liquid canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.co-page-liquid__shade,
+.co-page-liquid__dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.co-page-liquid__shade {
+  background:
+    linear-gradient(90deg, rgba(5, 12, 26, 0.18) 0%, rgba(5, 12, 26, 0.03) 58%, rgba(5, 12, 26, 0.12) 100%),
+    linear-gradient(0deg, rgba(5, 12, 26, 0.46) 0%, rgba(5, 12, 26, 0.04) 48%, rgba(5, 12, 26, 0.10) 100%);
+}
+.co-page-liquid__dim {
+  background: rgba(5, 12, 26, 0.82);
+  will-change: opacity;
 }
 
 /* ── Flash guard: first paint is the navy scene; hide children until GSAP has
@@ -92,8 +133,8 @@
 .cta-btn--on-navy:hover,
 .cta-btn--on-navy:focus-visible { border-color: #2563eb; color: #ffffff; }
 
-/* ── 1. Scene: hero + mission share one sticky WebGL layer ───────────── */
-.co-scene { position: relative; background: var(--c-navy); }
+/* ── 1. Scene: hero + mission over the page-level WebGL layer ───────── */
+.co-scene { position: relative; background: transparent; }
 .co-scene__stick {
   position: sticky;
   top: 0;
@@ -110,6 +151,7 @@
   height: 100%;
   display: block;
 }
+
 /* static fallback (no WebGL / context lost / reduced motion): navy + periwinkle
    breath + the letters as DOM text. Hidden unless [data-active]. */
 .co-hero__fallback {
@@ -137,12 +179,58 @@
 
 .co-hero__ui { position: absolute; inset: 0; pointer-events: none; }
 .co-hero__ui > * { pointer-events: auto; }
-.co-hero__eyebrow {
+.co-hero__wordmark {
+  --wordmark-canvas-pad: 8px;
   position: absolute;
-  left: var(--hero-pad, 16px);
-  top: calc(var(--header-h) + 22px);
-  margin: 0;
-  color: rgba(255, 255, 255, 0.55);
+  left: 0;
+  right: 0;
+  top: clamp(270px, 39dvh, 400px);
+  width: max-content;
+  margin-inline: auto;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: clamp(130px, min(15vw, 23dvh), 220px);
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  color: rgba(255, 255, 255, 0.94);
+  text-shadow: 0 2px 32px rgba(5, 12, 26, 0.22);
+  text-transform: uppercase;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.co-hero__wordmark-text {
+  position: relative;
+  z-index: 0;
+  display: block;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 180ms ease-out;
+}
+.co-hero__wordmark-text > span { display: inline; }
+.co-hero__wordmark-liquid {
+  position: absolute;
+  z-index: 1;
+  inset: calc(-1 * var(--wordmark-canvas-pad));
+  width: calc(100% + var(--wordmark-canvas-pad) + var(--wordmark-canvas-pad));
+  height: calc(100% + var(--wordmark-canvas-pad) + var(--wordmark-canvas-pad));
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease-out;
+}
+.co-hero__wordmark[data-liquid-active] .co-hero__wordmark-text { opacity: 0; }
+.co-hero__wordmark[data-liquid-active] .co-hero__wordmark-liquid { opacity: 1; }
+@media (max-width: 767px) {
+  .co-hero__wordmark {
+    left: var(--hero-pad, 16px);
+    right: auto;
+    top: clamp(230px, 38dvh, 330px);
+    margin-inline: 0;
+    font-size: clamp(94px, 29vw, 122px);
+  }
+  .co-hero__wordmark-text { white-space: normal; }
+  .co-hero__wordmark-text > span { display: block; }
 }
 .co-hero__title {
   position: absolute;
@@ -170,16 +258,6 @@
   text-transform: uppercase;
   color: var(--c-blue-light);
 }
-.co-hero__meta {
-  position: absolute;
-  right: var(--hero-pad, 16px);
-  bottom: clamp(30px, 6dvh, 64px);
-  margin: 0;
-  color: rgba(255, 255, 255, 0.45);
-  text-align: right;
-}
-@media (max-width: 767px) { .co-hero__meta { display: none; } }
-
 .co-hero__cue {
   position: absolute;
   left: 50%;
@@ -201,6 +279,7 @@
   100% { transform: translateY(100%); }
 }
 @media (prefers-reduced-motion: reduce) { .co-hero__cue span { animation: none; } }
+@media (max-width: 767px) { .co-hero__cue { display: none; } }
 
 /* Mission — flows over the calmed map. Legibility floor via gradient. */
 .co-mission {
@@ -270,7 +349,7 @@
 .co-mission__sign strong { display: block; font-weight: 500; font-size: 18px; color: #ffffff; }
 
 /* ── 2. Vision — sticky statement on paper ───────────────────────────── */
-.co-vision { position: relative; background: var(--c-paper); color: var(--c-ink); }
+.co-vision { position: relative; background: rgba(248, 246, 242, 0.84); color: var(--c-ink); }
 .co-vision__spacer { height: calc(var(--vh-frozen) * 2.1); }
 .co-vision__stick {
   position: sticky;
@@ -347,31 +426,13 @@
    and stack on the ground; then a blue AI block drops onto the stack, which
    compresses on impact, springs back and lights up. One scrubbed GSAP timeline
    in CompanyScroll; the four paragraphs are plain, readable type. Behind it all,
-   four liquid spheres — an OGL raymarch (WhyLiquidBg.tsx) on a viewport-sized
-   sticky canvas; the gradient below is its pixel-identical static fallback. */
+   The same restrained page liquid remains underneath a dark legibility veil. */
 .co-why {
   position: relative;
   overflow: clip;   /* NOT hidden: hidden makes this the scroll container and kills sticky children */
-  background: linear-gradient(180deg, var(--c-navy) 0%, var(--c-abyss) 100%);
+  background: linear-gradient(180deg, rgba(11, 16, 32, 0.78) 0%, rgba(5, 12, 26, 0.88) 100%);
   padding: clamp(96px, 14vh, 160px) 0;
 }
-/* Liquid bg: an absolute wrapper the height of the section holds a sticky,
-   viewport-sized stage (constant cost however tall the section is); the canvas
-   fades in once its first frame exists, and back out on context loss. Runs on
-   every viewport — the phone composition is re-proportioned inside the
-   component (fit()), not shrunk, and drawn at a lower render scale. */
-.co-why__bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.co-why__bg-stick { position: sticky; top: 0; height: 100dvh; }   /* fill — dvh, never svh */
-.co-why__bg-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.9s ease;
-}
-.co-why__bg-canvas[data-ready] { opacity: 1; }
 .co-why__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; }
 @media (min-width: 1024px) {
   .co-why__grid { grid-template-columns: 6fr 5fr; gap: 72px; align-items: start; }
@@ -485,7 +546,7 @@
    sideways in counter-motion. The 4th state is 選ばない姿勢: the two anti-values
    are hollow (outlined) type — never inked, never chosen. Everything is driven
    by ONE number, --vs (0..3), written by CompanyScroll; the transforms live here. */
-.co-values { position: relative; background: var(--c-light); color: var(--c-ink); }
+.co-values { position: relative; background: rgba(240, 247, 255, 0.84); color: var(--c-ink); }
 .co-values__spacer { height: calc(var(--vh-frozen) * 3.8); }   /* 4 states: 3 holds + 3 pushes + tail */
 .co-values__stick { position: sticky; top: 0; height: 100dvh; overflow: clip; }
 .co-values__inner {
@@ -518,7 +579,8 @@
 .co-values__kanji {
   position: absolute;
   z-index: 0;
-  right: -4%;
+  /* Keep the complete glyph inside the clipped sticky viewport. */
+  right: clamp(16px, 3vw, 32px);
   top: 50%;
   width: clamp(170px, 36vw, 560px);
   height: clamp(170px, 36vw, 560px);
@@ -543,8 +605,26 @@
   will-change: transform;
 }
 @media (max-width: 767px) {
-  .co-values__kanji { right: -12%; top: 44%; width: 46vw; height: 46vw; }
-  .co-values__kanji span { font-size: 46vw; }
+  /* Phones have no room for the right-hand offset: the glyph reads as a stray
+     mark in the corner rather than a watermark behind the value. Centre it. */
+  .co-values__kanji {
+    right: auto;
+    left: 50%;
+    top: 44%;
+    width: min(46vw, 29vh);
+    height: min(46vw, 29vh);
+    transform: translate(-50%, -46%);
+  }
+  .co-values__kanji span { font-size: min(46vw, 29vh); }
+  .co-values__machine {
+    justify-content: flex-end;
+    padding-bottom: 12px;
+  }
+}
+@media (max-width: 767px) and (max-height: 600px) {
+  .co-values__kanji { top: 47%; width: min(24vw, 18vh); height: min(24vw, 18vh); }
+  .co-values__kanji span { font-size: min(24vw, 18vh); }
+  .co-values__machine { padding-bottom: 0; }
 }
 .co-values__mask { overflow: hidden; }
 .co-values__stack { display: grid; margin: 0; padding: 0; list-style: none; }
@@ -579,33 +659,45 @@
   color: var(--c-ink);
 }
 .co-values__hollow {
-  display: block;
-  font-family: var(--font-noto-jp), sans-serif;
-  font-weight: 800;
-  font-size: clamp(22px, min(3.2vw, 5vh), 44px);
-  line-height: 1.45;
-  letter-spacing: -0.01em;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--c-ink);
+  display: flex;
+  align-items: baseline;
+  gap: 0.55em;
+  font-family: var(--font-shippori), var(--font-noto-jp), sans-serif;
+  font-weight: 400;
+  font-size: clamp(21px, min(3vw, 4.5vh), 40px);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--c-ink);
+}
+.co-values__hollow::before {
+  content: '';
+  box-sizing: border-box;
+  flex: 0 0 0.9em;
+  width: 0.9em;
+  height: 0.9em;
+  border: 1px solid rgba(220, 38, 38, 0.48);
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent 44%, #dc2626 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, #dc2626 44% 56%, transparent 56%),
+    rgba(220, 38, 38, 0.08);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.05);
+  transform: translateY(0.05em);
+}
+.co-values__hollow + .co-values__hollow {
+  margin-top: 0.18em;
 }
 
 /* ── 5. Information (会社概要 + Access) ─────────────────────────────────
-   The globe's own field (#04101c) is now the WHOLE section instead of a dark
-   box cut into paper. Not a flat fill: a periwinkle bloom sits behind the globe
-   column, a fainter blue one opposite it, and the vertical ramp lands exactly
-   on --c-navy at the bottom so the CTA below joins with no seam. The globe
-   panel itself is transparent, so the field runs straight through it and only
-   the hairline marks the frame. */
+   Translucent local blooms preserve the globe composition while the shared
+   liquid field continues beneath the section. */
 .co-info {
   position: relative;
   padding: clamp(96px, 14vh, 160px) 0;
   background:
-    radial-gradient(ellipse 72% 50% at 78% 20%, rgba(54, 59, 158, 0.26) 0%, transparent 72%),
-    radial-gradient(ellipse 80% 34% at 6% 60%, rgba(37, 99, 235, 0.10) 0%, transparent 70%),
-    linear-gradient(180deg, #04101c 0%, #050f1e 42%, var(--c-navy) 86%, var(--c-navy) 100%);
-  /* Both blooms are sized to fade out well above the bottom edge and the ramp
-     holds --c-navy over the last 14 %: the CTA below is flat --c-navy, so any
-     tint surviving to the boundary draws a visible horizontal seam there. */
+    radial-gradient(ellipse 72% 50% at 78% 20%, rgba(54, 59, 158, 0.18) 0%, transparent 72%),
+    radial-gradient(ellipse 80% 34% at 6% 60%, rgba(37, 99, 235, 0.07) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(4, 16, 28, 0.84) 0%, rgba(5, 15, 30, 0.88) 42%, rgba(11, 16, 32, 0.92) 100%);
 }
 .co-info__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; }
 @media (min-width: 1024px) { .co-info__grid { grid-template-columns: 6fr 5fr; gap: 80px; } }
@@ -673,7 +765,7 @@
 .co-cta {
   position: relative;
   overflow: hidden;
-  background: var(--c-navy);
+  background: rgba(11, 16, 32, 0.86);
   padding: clamp(96px, 16vh, 180px) 0 clamp(80px, 12vh, 140px);
   text-align: center;
 }
