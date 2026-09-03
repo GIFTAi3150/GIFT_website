@@ -47,6 +47,10 @@ next-env.d.ts
 /vat-bake/*.bin
 .claude
 
+# Harness task file & local scratch — local-only, not published
+Plans.md
+/scratchpad/
+
 # Root-level scratch files — screenshots, reference assets, dev logs
 /*.png
 /*.jpg
