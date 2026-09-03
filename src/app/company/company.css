@@ -739,6 +739,46 @@
 }
 @media (min-width: 640px) { .co-globe { aspect-ratio: 4 / 3; } }
 @media (min-width: 1024px) { .co-globe { aspect-ratio: 5 / 5.4; } }
+/* Static locator behind the globe: what the panel shows while WebGL is being
+   probed, and permanently if it is unavailable. Same mono-label grammar as the
+   rest of the page, so the frame reads as intentional rather than empty. */
+.co-globe__static {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+}
+.co-globe__pin {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-blue, #2563eb);
+  box-shadow:
+    0 0 0 6px rgba(37, 99, 235, 0.18),
+    0 0 0 15px rgba(37, 99, 235, 0.08),
+    0 0 26px rgba(37, 99, 235, 0.5);
+}
+.co-globe__city {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;   /* letter-spacing trails the last glyph; re-centre it */
+  color: rgba(255, 255, 255, 0.9);
+}
+.co-globe__coords {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.42);
+  font-variant-numeric: tabular-nums;
+}
 .co-info__addr {
   margin: 20px 0 0;
   font-family: var(--font-noto-jp), sans-serif;
