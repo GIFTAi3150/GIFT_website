@@ -1,9 +1,8 @@
 // Every string shown on /services/ai-training. Soft-launch draft — this page is
 // not yet wired into Header/Footer nav or sitemap.ts (see Plans.md T-AT4).
 //
-// 価格・助成率・時間数は 2026-09-02 に依頼者確定済み(税込40万/最大75%支給/実質10万/1名10時間)。
-// まだ仮の項目は `// 【要確認】` コメント付きで、docs/ai-training-facts-to-confirm.md の行と
-// 1:1 対応している — どちらかを変えたら必ず同期すること。
+// 掲載ファクトは 2026-09-03 時点ですべて依頼者確定済み(経緯は docs/ai-training-facts-to-confirm.md)。
+// 新たに未確定の数値・固有名詞を足す場合は `// 【要確認】` コメント + 同 doc への行追加をセットで行うこと。
 
 // NOTE: points[].body はヒーローでは未表示(title のみ使用)。
 // 依頼者確定コピーの候補として保持している — 削除しないこと。
@@ -78,8 +77,8 @@ export const REASONS = {
     },
     {
       title: '導入後も伴走するアフターフォロー',
-      // 【要確認】アフターフォロー期間（30日）は仮値。
-      body: '研修終了後30日間は、実務で困った際にチャットで質問できる期間を設けています。',
+      // 確定(2026-09-03): 非定量表現を採用(具体期間は運用が固まったら数字を入れる)
+      body: '研修終了後も、実務で出てきた疑問にチャットで対応する期間を設けています。',
     },
   ],
 } as const;
