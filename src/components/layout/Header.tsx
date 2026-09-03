@@ -14,6 +14,7 @@ const navItems = [
 
 const serviceItems = [
   { href: '/services/aiops', label: 'AIOps事業', labelEn: 'AIOps' },
+  { href: '/services/ai-training', label: '法人向けAI研修', labelEn: 'AI Training' },
   { href: '/plans', label: '料金プラン', labelEn: 'Plans' },
 ];
 

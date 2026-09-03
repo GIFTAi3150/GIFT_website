@@ -44,3 +44,115 @@ Source of truth for in-flight tasks. Statuses: `cc:TODO` / `cc:WIP` / `cc:完了
 ## Archive
 
 <!-- Older completed tasks can be split out to Plans.archive.md when this file grows -->
+
+## Plan: AI研修サービスページ新規追加 (/services/ai-training)
+
+ブランチ: `features/ai-training`(origin/dev 起点、worktree: `GIFT_website-ai-training`)
+方針: `/plans` ページ規約を踏襲(サーバコンポーネント + `_components/` 分割 + コピーを
+`aiTrainingContent.ts` に `as const` 集約 + Tailwind のみ、GSAP/WebGL 不使用)。
+ソフトローンチ(ナビ・sitemap 配線は依頼者承認後の別 PR)。
+価格・助成金等はプレースホルダ + 要確認ファクト一覧を添付。
+
+### Tasks
+
+- [x] **T-AT1**: ページ実装 <!-- cc:完了 -->
+  - 対象: `src/app/services/ai-training/page.tsx`(metadata は /plans の OG 付きパターン、
+    title は raw 文字列で layout の `%s | 株式会社GIFT` テンプレートに乗せる)、
+    `_components/aiTrainingContent.ts`(全コピー集約)、
+    `_components/` セクション 7 本: Hero(キャッチ+要点3+CTA1) / Pains(お悩み3+方向づけ1文) /
+    Reasons(理由3、数字は文中に織り込む) / Steps(3-4) / Pricing(通常価格と助成金後実質負担を
+    1 枚、「対象かは相談時に無料診断」1 行) / Faq(4-5 問、新規アコーディオン。既存に部品なし、
+    `<details>` ベースで新造) / Cta(導線 /contact 1 本)
+  - 依存: なし。KhSectionHead 相当は自前で持つ(plans/_components からの越境 import はしない)
+  - DoD: `/services/ai-training` が dev サーバーで 200、全 7 セクション表示、CTA が /contact へ、
+    Header/Footer/sitemap は**触らない**(ソフトローンチ)
+  - テスト: `npx tsc --noEmit` clean、`npm run check:encoding` clean
+  - 注意: 日本語見出し line-height≥1.25 / 全画面 vh 不使用(Instagram WebView 問題を持ち込まない)
+- [x] **T-AT2**: 要確認ファクト一覧 <!-- cc:完了 -->
+  - 対象: `docs/ai-training-facts-to-confirm.md`。プレースホルダにした事実(通常価格、助成金名と
+    支給率、実質負担額、対象企業条件、最少催行人数、期間・回数、オンライン/対面)を
+    依頼者がそのまま埋められる表形式で列挙。aiTrainingContent.ts の該当キーと対応付ける
+  - DoD: プレースホルダ箇所とドキュメントの項目が 1:1 対応
+- [x] **T-AT3**: 独立レビュー + PR <!-- cc:完了 -->
+  - 依存: T-AT1, T-AT2
+  - DoD: harness-review(codex-closeout)で critical/major 0 → PR を dev へ。
+    マージ後プレビュー URL を依頼者承認用に共有
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: 未マーク定量クレーム)→ 1a96177 で修正、
+    1:1 対応回復・tsc/encoding clean を確認済み。PR で dev へ
+- [ ] **T-AT4**: 本公開配線(承認後・別PR) <!-- cc:TODO -->
+  - 対象: `Header.tsx` serviceItems / `Footer.tsx` footerServices / `sitemap.ts` STATIC_ROUTES
+  - 依存: 依頼者のコンテンツ承認 + 確定ファクト反映
+  - DoD: ナビから到達可能になった時点で sitemap 登録(sitemap 規約「nav 到達可能のみ」遵守)
+
+## Plan: 実績掲載ページ新規追加 (/works)
+
+ブランチ: `features/works-page`(origin/dev 起点、worktree: `GIFT_website-works`)
+決定済み: B案(ロゴウォール型)採用。ネイビーヒーロー + ライト本体 + ネイビーCTA帯のハイブリッド。
+モック(依頼者承認済みの見た目): scratchpad works-mock/BLight.dc.html
+旧 /achievements は再利用しない(301 永久キャッシュ + 概念が別)。ソフトローンチ(ナビ・sitemap 配線は別 PR)。
+
+### Tasks
+
+- [x] **T-WK1**: ページ実装 <!-- cc:完了 -->
+  - 対象: `src/app/works/page.tsx` + `_components/worksContent.ts` + セクション:
+    Hero(ネイビー #0C0E1A 地・白見出し・青キッカー WORKS) / LogoWall(白地・grid 4列・
+    ロゴタイル=白カード+薄ボーダー、実ロゴ未回収のためプレースホルダタイル 8 枠) /
+    PickUp(代表事例 2 カード: ロゴ+社名+業種+取組内容) / CTA(ネイビー帯・/contact 1 本)
+  - 規約: /plans + ai-training と同じ(サーバコンポーネント、Tailwind のみ、as const コピー集約、
+    metadata は OG 付き raw title、Footer ページ側レンダリング、next/link、100vh 不使用)
+  - DoD: tsc clean / check:encoding clean / Header・Footer・sitemap 不変
+  - 結果(2026-09-01): 7ファイル新規実装(page.tsx + worksContent.ts + WkHero/WkLogoWall/WkPickup/WkCta/WkSectionHead)。
+    `logoSrc?: string` を LogoTile/PickUpCase 型に用意し未指定時はプレースホルダへフォールバック。
+    dev サーバーで `/works` 200・4セクション表示・お問い合わせ導線確認済み。tsc clean・check:encoding clean
+- [x] **T-WK2**: 要確認ファクト一覧 <!-- cc:完了 -->
+  - 対象: `docs/works-facts-to-confirm.md`(掲載企業リスト、各社ロゴデータ、正式社名、業種表記、
+    取組内容文言、掲載順ルール、PickUp 2 社の選定)
+  - 結果(2026-09-01): worksContent.ts の該当キーと 1:1 対応する表を作成(7項目)
+- [x] **T-WK3**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: 掲載承諾クレーム未マーク)→ 6dedcb1 で修正し解消
+  - DoD: harness-review(codex-closeout) critical/major 0 → PR を dev へ → プレビュー URL 共有
+- [ ] **T-WK4**: 実素材反映 + 本公開配線(承認後・別PR) <!-- cc:TODO -->
+  - 依存: 実ロゴ・実社名回収 + 依頼者承認。Header/Footer/sitemap 配線
+
+## Plan: 新規2ページのデザイン磨き込み (design-polish)
+
+ブランチ: `features/design-polish`(origin/dev 起点、worktree: `GIFT_website-polish`)
+方向: 動き(Reveal+CSSホバー) / ビジュアル素材(生成済みヒーロー背景) / タイポ・余白精度。
+素材配置済み: `public/img/heroes/ai-training-hero.png`(左下→右上の光の糸) /
+`public/img/heroes/works-hero.png`(下1/3の等高線)。main へは出さない(dev 熟成)。
+
+### Tasks
+
+- [x] **T-DP1**: AI研修ページ磨き込み <!-- cc:完了 -->
+  - Hero: 背景画像 + 暗色オーバーレイ(コントラスト確保)、next/image fill
+  - Reveal でセクション出現、カードのスタッガ、ホバー(lift+ボーダーアクセント)、FAQ開閉演出
+  - タイポ・余白リズム統一。DoD: tsc/encoding clean、reduced-motion 尊重
+- [x] **T-DP2**: 実績ページ磨き込み <!-- cc:完了 -->
+  - Hero: works-hero.png + オーバーレイ。ロゴウォールのスタッガ出現、タイルホバー
+  - PickUp カードホバー、タイポ・余白パス。DoD 同上
+- [x] **T-DP3**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): 初回 REQUEST_CHANGES(major 1: Reveal inline style が hover を無効化)→ 0ba3e95 で内側ラッパー方式に修正し解消
+  - DoD: harness-review critical/major 0 → PR を dev へ → プレビューで動き確認
+
+## Plan: ヒーロー刷新 (トップページ配色レシピへ統一)
+
+ブランチ: `features/hero-refresh`(origin/dev 起点、worktree: `GIFT_website-hero`)
+承認済みモック: https://claude.ai/code/artifact/9ebe917f-4b67-4bcd-94d0-e92bd43a5412
+対象: AtHero(/services/ai-training) + WkHero(/works)。ヒーローより下は変更しない。
+
+### Tasks
+
+- [x] **T-HR1**: 両ヒーロー刷新 <!-- cc:完了 -->
+  - 背景: 生成PNG(public/img/heroes/)を廃止し、CSS レイヤーへ置換
+    (radial glow ×2 + linear-gradient(180deg,#3d44c2 0%,#232a8f 48%,#0b1020 100%) +
+    SVG feTurbulence グレイン。トップページ HeroGradientStatic と同一値)
+  - タイトル: clamp(40px, 5.5vw, 72px)、キッカー #C7D4FF、リード white/78
+  - CTA: 白ボタン(#0b1020 文字)+ hover 反転(トップページ準拠)。hover は Reveal 内側ラッパーに置く
+  - 不要になった hero PNG 2枚と next/image 実装を削除
+  - DoD: tsc/encoding clean、ヒーロー以下のセクションに差分なし
+  - 結果(2026-09-01): AtHero/WkHero を CSS グラデ+グレイン(.page-hero-grain, globals.css)へ置換。
+    AI研修ヒーローに要点3つ(角ドット横並び、モバイル縦落ち)を追加、CTA hover は既存パターン通り
+    Reveal 内側の Link に配置。hero PNG 2枚を git rm。tsc/encoding clean、dev サーバーで
+    /services/ai-training・/works とも 200 + 新クラス確認済み。commit 1b5462c
+- [x] **T-HR2**: 独立レビュー + PR <!-- cc:完了 -->
+  - 結果(2026-09-01): APPROVE(critical/major 0)。minor の未使用フィールドはコメントで意図明示
