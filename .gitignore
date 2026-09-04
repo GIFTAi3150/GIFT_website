@@ -45,7 +45,10 @@ next-env.d.ts
 # artifacts (input to the Phase 2 compressor); only the compressed VAT in
 # /public ships. See vat-bake/README.md.
 /vat-bake/*.bin
-.claude
+.claude/*
+!.claude/settings.json
+!.claude/agents/
+.claude/state/
 
 # Harness task file & local scratch — local-only, not published
 Plans.md

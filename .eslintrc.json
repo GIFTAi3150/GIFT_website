@@ -1,0 +1,19 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "react-hooks/exhaustive-deps": "warn",
+    "@next/next/no-html-link-for-pages": "off",
+    "@next/next/no-img-element": "off",
+    "react/no-unescaped-entities": "off"
+  },
+  "ignorePatterns": [
+    ".next/",
+    "node_modules/",
+    "public/",
+    "out/",
+    "scripts/",
+    "*.config.js",
+    "*.config.mjs"
+  ]
+}

@@ -293,6 +293,7 @@ export default function ScrollMarquee() {
           {repSerif.map((t, i) => (
             <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 36 }}>
               <span>{t}</span>
+              {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
               <span style={styles.serifSep}>///</span>
               <Diamond />
             </span>

@@ -109,6 +109,10 @@ export default function AccessGlobe() {
   // releasing contexts from a previous route, that returns null and
   // cobe throws. The probe waits until WebGL is actually available.
   const webglStatus = useWebGLAvailable();
+  // cobe can still throw after a 'ready' probe (a context lost between the
+  // probe and construction). Without this the panel kept its frame and
+  // showed nothing, which reads as a broken image.
+  const [globeFailed, setGlobeFailed] = useState(false);
 
   useEffect(() => {
     if (webglStatus !== 'ready') return;
@@ -139,21 +143,28 @@ export default function AccessGlobe() {
 
     const dpr = Math.min(window.devicePixelRatio ?? 1, 2);
 
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: dpr,
-      width: width * dpr,
-      height: height * dpr,
-      phi,
-      theta,
-      dark: 1,
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [0.3, 0.3, 0.3],
-      markerColor: MARKER_COLOR,
-      glowColor: [1, 1, 1],
-      markers: [{ location: SAPPORO, size: 0.1, id: 'sapporo' }],
-    });
+    let globe: ReturnType<typeof createGlobe>;
+    try {
+      globe = createGlobe(canvas, {
+        devicePixelRatio: dpr,
+        width: width * dpr,
+        height: height * dpr,
+        phi,
+        theta,
+        dark: 1,
+        diffuse: 1.2,
+        mapSamples: 16000,
+        mapBrightness: 6,
+        baseColor: [0.3, 0.3, 0.3],
+        markerColor: MARKER_COLOR,
+        glowColor: [1, 1, 1],
+        markers: [{ location: SAPPORO, size: 0.1, id: 'sapporo' }],
+      });
+    } catch (error) {
+      console.warn('[AccessGlobe] static fallback:', error);
+      setGlobeFailed(true);
+      return;
+    }
 
     let rafId = 0;
     let visible = false;
@@ -295,14 +306,28 @@ export default function AccessGlobe() {
   };
 
   const visible = hovering || pinned;
+  // No GL (probing, unavailable, or cobe threw): the frame must still read as
+  // a deliberate locator rather than an empty box. Shown during 'probing' too,
+  // so the panel is never blank — the globe simply replaces it once running.
+  const showStatic = webglStatus !== 'ready' || globeFailed;
 
   return (
     <div ref={containerRef} className="relative h-full w-full">
       <canvas
         ref={canvasRef}
         className="h-full w-full"
-        style={{ touchAction: 'pan-y', display: 'block' }}
+        style={{ touchAction: 'pan-y', display: showStatic ? 'none' : 'block' }}
       />
+
+      {showStatic && (
+        <div className="co-globe__static" aria-hidden>
+          <span className="co-globe__pin" />
+          <span className="co-globe__city">SAPPORO</span>
+          <span className="co-globe__coords">
+            {SAPPORO[0].toFixed(4)}° N / {SAPPORO[1].toFixed(4)}° E
+          </span>
+        </div>
+      )}
 
       {/* Info card overlay — slides in from the top-right ONLY when
           the pointer is within HOVER_RADIUS_PX of the green marker,
