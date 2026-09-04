@@ -4,18 +4,19 @@ import AtHero from './_components/AtHero';
 import AtPains from './_components/AtPains';
 import AtReasons from './_components/AtReasons';
 import AtSteps from './_components/AtSteps';
+import AtCourses from './_components/AtCourses';
 import AtPricing from './_components/AtPricing';
 import AtFaq from './_components/AtFaq';
 import AtCta from './_components/AtCta';
 
 const OG_TITLE = '法人向けAI研修｜業務で使える生成AI研修';
 const OG_DESCRIPTION =
-  '「使ってみた」から「使いこなす」へ。自社の業務データを使った実践型の生成AI研修です。助成金の活用を前提に設計しています。';
+  '「使ってみた」から「使いこなす」へ。業務で使える実践型の生成AI研修です。人材開発支援助成金の対象です。';
 
 export const metadata: Metadata = {
   title: '法人向けAI研修',
   description:
-    '業務で使える生成AI研修。自社の業務資料を使った実践型カリキュラムで、少人数制・助成金の活用を前提に設計しています。未経験の方でも安心してご参加いただけます。',
+    '業務で使える実践型の生成AI研修。1名から受講でき、未経験の方でも安心してご参加いただけます。人材開発支援助成金の対象です。',
   alternates: { canonical: '/services/ai-training' },
   // Soft launch: this URL is not yet reachable from Header/Footer nav, so it will
   // mostly be shared as a bare link. Same reasoning as /plans — give it its own
@@ -45,6 +46,7 @@ export default function AiTrainingPage() {
         <AtPains />
         <AtReasons />
         <AtSteps />
+      <AtCourses />
         <AtPricing />
         <AtFaq />
         <AtCta />

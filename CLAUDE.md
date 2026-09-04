@@ -7,18 +7,20 @@ GIFT Inc corporate website — rebuild from WordPress to Next.js + Tailwind + TS
 - Tailwind CSS
 - Vercel deploys
 
-## Branching
-- `main` → intended eventual production once the real domain (gift-inc.org) cuts over from the old WordPress site — not live yet
-- `dev` → **this is the branch that actually matters right now.** Vercel auto-deploys it to `https://gift-website-git-dev-itgiftai-4573s-projects.vercel.app/`, which is the URL the user checks as "the website" day to day. Merging a PR into `dev` is enough to see a change live — don't assume a further `dev → main` merge is needed for the user to verify something. (Confirmed 2026-07-01.)
-- `features/devN` → working branches
+## Branching (updated 2026-09-01)
+- `main` → **production.** Vercel's Production Branch; merging into `main` updates www.gift-inc.org immediately.
+- `dev` → integration branch. Vercel deploys it as a preview; this is where day-to-day work lands via PRs.
+- `features/*`, `fix/*`, `chore/*` → working branches, cut from `dev`, merged back by PR.
+- Release = a `dev` → `main` PR. `main` has branch protection (PR required, no force push).
 
 ## Working norms
 - Dev environment is **PowerShell + Windows Node** on `C:\`. Do not switch to WSL — the boundary is too slow for this tree.
-- Agents may run `git add` / `git commit` / `git push` when the user explicitly asks in the moment. (Changed 2026-07-01 — previously agents were barred from all git write commands; the user lifted that restriction.)
-- Most session-persistent project context (palette gotchas, design decisions, rejected directions) lives in the user-level memory at `C:\Users\owner\.claude\projects\C--Users-owner-Desktop-GIFT-website\memory\` — consult `MEMORY.md` there before proposing new directions.
+- Agents may run `git add` / `git commit` / `git push` when the user explicitly asks in the moment.
+- This is a **public repository**: never commit internal server details, credentials, meeting notes, or third-party site snapshots. Operational internals live in private storage outside the repo (see `docs/HANDOVER.md`).
+- Do not touch domain/DNS or legacy-host redirect settings without reading `docs/HANDOVER.md` §2 first.
 
 ## Cost discipline
-- **Two-strike rule on direction iteration.** If the user rejects a creative/visual direction twice, stop iterating. Re-brief the problem before proposing a third variation. Past offenders to remember: DX hero warp tunnel, DX hero geometric shapes — these wasted multiple high-cost sessions before being killed. Check `MEMORY.md` rejected-direction notes before suggesting anything new.
+- **Two-strike rule on direction iteration.** If the user rejects a creative/visual direction twice, stop iterating. Re-brief the problem before proposing a third variation.
 - **Read before edit.** Before modifying a file, read it. Before changing a function, grep for callers. The healthy edit-to-read ratio is roughly 1 edit per 4 reads; if you are editing more than you are reading, slow down.
 - **Prefer dedicated tools over Bash for routine operations.** Use Read (not `cat`/`head`/`tail`), Grep (not shell `grep`), Glob (not `ls`/`find`), and direct text output (not `echo`). Bash is for shell-only operations.
 - **Reach for subagents on exploratory questions** so the main thread does not absorb broad search results that won't be touched again.
@@ -31,6 +33,6 @@ GIFT Inc corporate website — rebuild from WordPress to Next.js + Tailwind + TS
 - **User can ask for prose** by saying "explain", "walk me through", or "in detail" — switch back to normal English.
 
 ## Harness
-- Plans / tasks: `Plans.md`
+- Plans / tasks: `Plans.md` (local-only, gitignored — not published)
 - Harness config: `harness.toml` + `.claude-plugin/`
 - Run `harness doctor` to health-check the setup.

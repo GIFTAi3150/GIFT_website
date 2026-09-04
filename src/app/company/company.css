@@ -1,0 +1,860 @@
+/* /company — continuous liquid-field redesign. Palette = homepage. Spec: docs/company-redesign-spec.md */
+
+.company-page {
+  --c-navy: #0b1020;
+  --c-navy-2: #111827;
+  --c-navy-3: #1a2440;
+  --c-abyss: #050c1a;
+  --c-peri: #363b9e;
+  --c-peri-bright: #3d47c0;
+  --c-peri-light: #7c7ae0;
+  --c-blue: #2563eb;
+  --c-blue-mid: #3b82f6;
+  --c-blue-light: #60a5fa;
+  --c-paper: #f8f6f2;
+  --c-light: #f0f7ff;
+  --c-ink: #111b21;
+  --c-line-dark: rgba(255, 255, 255, 0.12);
+  --c-line-light: rgba(17, 27, 33, 0.14);
+  --header-h: 80px; /* Header is h-20 fixed */
+  position: relative;
+  isolation: isolate;
+  background: var(--c-navy);
+  color: var(--c-ink);
+}
+
+/* One fixed WebGL field follows the complete page. Sections sit above it and
+   use alpha backgrounds; the field itself fades out part-way through Contact. */
+.company-page > :not(.co-page-liquid) {
+  position: relative;
+  z-index: 1;
+}
+.co-page-liquid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--c-navy);
+  will-change: opacity;
+}
+.co-page-liquid canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.co-page-liquid__shade,
+.co-page-liquid__dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.co-page-liquid__shade {
+  background:
+    linear-gradient(90deg, rgba(5, 12, 26, 0.18) 0%, rgba(5, 12, 26, 0.03) 58%, rgba(5, 12, 26, 0.12) 100%),
+    linear-gradient(0deg, rgba(5, 12, 26, 0.46) 0%, rgba(5, 12, 26, 0.04) 48%, rgba(5, 12, 26, 0.10) 100%);
+}
+.co-page-liquid__dim {
+  background: rgba(5, 12, 26, 0.82);
+  will-change: opacity;
+}
+
+/* ── Flash guard: first paint is the navy scene; hide children until GSAP has
+      applied every initial state (released in a rAF at the end of CompanyScroll). */
+.company-page[data-flash-guard] > * { visibility: hidden; }
+.company-page[data-flash-guard]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: #0b1020;
+  visibility: visible;
+  pointer-events: none;
+}
+
+/* ── Shared editorial pieces ─────────────────────────────────────────── */
+.co-container {
+  margin-inline: auto;
+  max-width: 72rem;
+  padding-inline: 16px;
+}
+@media (min-width: 768px)  { .co-container { padding-inline: 24px; } }
+@media (min-width: 1024px) { .co-container { padding-inline: 32px; } }
+
+.co-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.co-label__rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+}
+.co-label__text {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.co-label--dark  { color: var(--c-blue-light); }
+.co-label--light { color: var(--c-blue); }
+
+.co-h2 {
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.co-h2 .co-h2__char { display: inline-block; } /* SplitText chars get this via gsap.set */
+
+.co-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* body copy on dark sections — overrides the global <p> colour */
+.co-body-dark p { color: rgba(255, 255, 255, 0.78); }
+.co-body-light p { color: var(--c-ink); }
+
+/* Dark-bg outline button (the global .cta-btn--company is blue-on-light). */
+.cta-btn--on-navy { border-color: #ffffff; color: #ffffff; }
+.cta-btn--on-navy::before { background-color: #2563eb; }
+.cta-btn--on-navy:hover,
+.cta-btn--on-navy:focus-visible { border-color: #2563eb; color: #ffffff; }
+
+/* ── 1. Scene: hero + mission over the page-level WebGL layer ───────── */
+.co-scene { position: relative; background: transparent; }
+.co-scene__stick {
+  position: sticky;
+  top: 0;
+  height: 100dvh;           /* fill — dvh, never svh */
+  overflow: hidden;
+  z-index: 0;
+}
+.co-scene__spacer { height: calc(var(--vh-frozen) * 0.6); } /* budget — frozen px */
+
+.co-hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* static fallback (no WebGL / context lost / reduced motion): navy + periwinkle
+   breath + the letters as DOM text. Hidden unless [data-active]. */
+.co-hero__fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  background:
+    radial-gradient(ellipse 55% 45% at 22% 38%, rgba(124, 122, 224, 0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 82% 18%, rgba(61, 71, 192, 0.22) 0%, transparent 70%),
+    linear-gradient(180deg, #0b1020 0%, #0a0f24 60%, #050c1a 100%);
+}
+.co-hero__fallback[data-active] { display: block; }
+.co-hero__fb-words {
+  position: absolute;
+  left: var(--hero-pad, 16px);
+  top: 19%;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: var(--hero-fs, 120px);
+  line-height: 0.86;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: -0.02em;
+}
+.co-hero__fb-words span { display: block; }
+
+.co-hero__ui { position: absolute; inset: 0; pointer-events: none; }
+.co-hero__ui > * { pointer-events: auto; }
+.co-hero__wordmark {
+  --wordmark-canvas-pad: 8px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: clamp(270px, 39dvh, 400px);
+  width: max-content;
+  margin-inline: auto;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: clamp(130px, min(15vw, 23dvh), 220px);
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  color: rgba(255, 255, 255, 0.94);
+  text-shadow: 0 2px 32px rgba(5, 12, 26, 0.22);
+  text-transform: uppercase;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.co-hero__wordmark-text {
+  position: relative;
+  z-index: 0;
+  display: block;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 180ms ease-out;
+}
+.co-hero__wordmark-text > span { display: inline; }
+.co-hero__wordmark-liquid {
+  position: absolute;
+  z-index: 1;
+  inset: calc(-1 * var(--wordmark-canvas-pad));
+  width: calc(100% + var(--wordmark-canvas-pad) + var(--wordmark-canvas-pad));
+  height: calc(100% + var(--wordmark-canvas-pad) + var(--wordmark-canvas-pad));
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease-out;
+}
+.co-hero__wordmark[data-liquid-active] .co-hero__wordmark-text { opacity: 0; }
+.co-hero__wordmark[data-liquid-active] .co-hero__wordmark-liquid { opacity: 1; }
+@media (max-width: 767px) {
+  .co-hero__wordmark {
+    left: var(--hero-pad, 16px);
+    right: auto;
+    top: clamp(230px, 38dvh, 330px);
+    margin-inline: 0;
+    font-size: clamp(94px, 29vw, 122px);
+  }
+  .co-hero__wordmark-text { white-space: normal; }
+  .co-hero__wordmark-text > span { display: block; }
+}
+.co-hero__title {
+  position: absolute;
+  left: var(--hero-pad, 16px);
+  bottom: clamp(56px, 11dvh, 112px);
+  margin: 0;
+  max-width: min(16.5em, 100% - 32px); /* 15 JP chars on one line; 22ch forced 「贈る。」onto its own line */
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 500;
+  font-size: clamp(18px, 2vw, 26px);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-wrap: balance;
+}
+.co-hero__sub {
+  position: absolute;
+  left: var(--hero-pad, 16px);
+  bottom: clamp(30px, 6dvh, 64px);
+  margin: 0;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-blue-light);
+}
+.co-hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(20px, 4dvh, 40px);
+  transform: translateX(-50%);
+  width: 1px;
+  height: min(88px, 9dvh);
+  overflow: hidden;
+}
+.co-hero__cue span {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  animation: coCueLoop 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes coCueLoop {
+  0%   { transform: translateY(-100%); }
+  50%  { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+@media (prefers-reduced-motion: reduce) { .co-hero__cue span { animation: none; } }
+@media (max-width: 767px) { .co-hero__cue { display: none; } }
+
+/* Mission — flows over the calmed map. Legibility floor via gradient. */
+.co-mission {
+  position: relative;
+  z-index: 1;
+  padding: clamp(96px, 14vh, 160px) 0 clamp(120px, 18vh, 200px);
+  background: linear-gradient(180deg, rgba(11, 16, 32, 0) 0%, rgba(11, 16, 32, 0.45) 18%, rgba(11, 16, 32, 0.72) 100%);
+}
+.co-mission__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+}
+@media (min-width: 1024px) {
+  .co-mission__grid { grid-template-columns: 5fr 6fr; gap: 64px; }
+}
+.co-mission__head { position: relative; }
+@media (min-width: 1024px) {
+  .co-mission__head { position: sticky; top: calc(var(--header-h) + 40px); align-self: start; }
+}
+.co-mission__en {
+  margin: 18px 0 0;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: clamp(15px, 1.4vw, 19px);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.55);
+}
+.co-mission__en em { font-style: normal; color: var(--c-blue-light); }
+.co-mission__body { position: relative; padding-left: 28px; }
+@media (min-width: 1024px) { .co-mission__body { padding-left: 40px; } }
+.co-mission__body p {
+  margin: 0 0 1.6em;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 2.05;
+  color: rgba(255, 255, 255, 0.86);
+  word-break: keep-all;        /* phrase boxes (U+200B) decide the breaks */
+  overflow-wrap: anywhere;
+}
+.co-mission__body p:last-of-type { margin-bottom: 0; }
+.co-rail {
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  bottom: 0.55em;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.co-rail__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--c-blue-light);
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+.co-mission__sign {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--c-line-dark);
+  font-family: var(--font-noto-jp), sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.7);
+}
+.co-mission__sign strong { display: block; font-weight: 500; font-size: 18px; color: #ffffff; }
+
+/* ── 2. Vision — sticky statement on paper ───────────────────────────── */
+.co-vision { position: relative; background: rgba(248, 246, 242, 0.84); color: var(--c-ink); }
+.co-vision__spacer { height: calc(var(--vh-frozen) * 2.1); }
+.co-vision__stick {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.co-vision__grain {
+  position: absolute;
+  inset: 0;
+  background-size: 256px 256px;
+  background-repeat: repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.25;
+  pointer-events: none;
+}
+.co-vision__marquee {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 900;
+  font-size: clamp(140px, 24vw, 320px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: rgba(17, 27, 33, 0.045);
+  pointer-events: none;
+  will-change: transform;
+}
+.co-vision__inner { position: relative; width: 100%; }
+.co-vision__line {
+  display: block;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 800;
+  font-size: clamp(24px, min(6.2vw, 9.5vh), 78px);  /* vh-bounded: see giant-text-crop memory; 24px min so 13 chars fit 390px */
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+  clip-path: inset(0 100% 0 0);   /* wiped in by scroll */
+  text-wrap: balance;
+  word-break: normal;             /* kinsoku applies (global h2 keep-all + anywhere orphaned a 、) */
+  overflow-wrap: normal;
+}
+.co-vision__line--accent { color: var(--c-blue); }
+.co-vision__rule {
+  margin-top: clamp(24px, 4vh, 44px);
+  width: 72px;
+  height: 1px;
+  background: var(--c-blue);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.co-vision__en {
+  margin: 20px 0 0;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(17, 27, 33, 0.55);
+  opacity: 0;
+}
+
+/* ── 3. Why AIOps — the thesis builds itself (DESKTOP ≥1024px) ────────────
+   Paragraph 3 says AI works only once the company's 中身 is in order:
+   業務の流れ / 判断基準の言語化 / 顧客との対話ルール. A sticky STAGE beside the
+   text holds a ground line labelled 現場. As
+   the argument is read, the three foundations slide in from alternating sides
+   and stack on the ground; then a blue AI block drops onto the stack, which
+   compresses on impact, springs back and lights up. One scrubbed GSAP timeline
+   in CompanyScroll; the four paragraphs are plain, readable type. Behind it all,
+   The same restrained page liquid remains underneath a dark legibility veil. */
+.co-why {
+  position: relative;
+  overflow: clip;   /* NOT hidden: hidden makes this the scroll container and kills sticky children */
+  background: linear-gradient(180deg, rgba(11, 16, 32, 0.78) 0%, rgba(5, 12, 26, 0.88) 100%);
+  padding: clamp(96px, 14vh, 160px) 0;
+}
+.co-why__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; }
+@media (min-width: 1024px) {
+  .co-why__grid { grid-template-columns: 6fr 5fr; gap: 72px; align-items: start; }
+  /* Scroll budget (frozen px, see --vh-frozen): the four paragraphs are spread down
+     1.5 viewports so each foundation lands as its paragraph is read and the AI
+     drop coincides with the conclusion, instead of the whole build fitting in one
+     screen and vanishing in two wheel notches. */
+  .co-why__argument {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: calc(var(--vh-frozen) * 1.5);
+    justify-content: space-between;
+  }
+  .co-why__rest { margin-bottom: 0; }
+  .co-why__stage {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: calc(var(--header-h) + 32px);
+    height: min(72vh, 640px);
+  }
+}
+/* NB: no `position` here — the desktop block above sets `position: sticky`; a base
+   `relative` after that media query would win and silently unstick the stage
+   (CSS source order, see the dx-v3 memory). */
+.co-why__stage {
+  overflow: clip;                 /* off-stage blocks stay hidden until they slide in */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+/* Phones/tablets: NO stage (manager's call, 2026-09-02). It used to ride as an
+   opaque band pinned at the top of the screen, but the stack never fit inside it
+   — four blocks plus the 現場 line overflow 42dvh, so the AI block was clipped —
+   and it ate the top third of every phone screen. Below 1024px the section is the
+   argument as plain type. Same breakpoint as the liquid bg, and CompanyScroll
+   skips the build timeline there. Desktop is untouched. */
+@media (max-width: 1023px) { .co-why__stage { display: none; } }
+.co-why__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transform-origin: 50% 100%;     /* compresses onto the ground on impact */
+  will-change: transform;
+}
+.co-why__block {
+  display: grid;
+  place-items: center;
+  height: clamp(50px, 8vh, 84px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.045);
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 800;
+  font-size: clamp(16px, 1.7vw, 26px);
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.92);
+  will-change: transform;
+}
+.co-why__block--ai {
+  background: var(--c-blue);
+  border-color: var(--c-blue);
+  color: #ffffff;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 2.4vw, 34px);
+  letter-spacing: 0.04em;
+}
+.co-why__ground {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+}
+.co-why__ground .co-mono { letter-spacing: 0.1em; }
+.co-why__argument { display: flex; flex-direction: column; }
+.co-why__head { margin-bottom: clamp(40px, 6vh, 64px); }
+.co-why__st { margin: 0; }
+.co-why__lead {
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 500;
+  font-size: clamp(20px, 2.1vw, 30px);
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  color: #ffffff;
+  margin-bottom: 0.55em;
+}
+.co-why__rest {
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 2.0;
+  color: rgba(255, 255, 255, 0.76);
+  max-width: 34em;
+  margin-bottom: 2.4em;
+}
+.co-why__lead--final {
+  font-weight: 800;
+  font-size: clamp(24px, 2.8vw, 40px);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.co-why__link { margin-top: 8px; }
+
+/* ── 4. Values — the kinetic push machine ─────────────────────────────────
+   One pinned viewport. Each value (tag + title + body) is one item of a masked
+   stack; the scroll pushes the current item up and out while the next rises in,
+   with holds between (translate only — no opacity, no lines, no numbers). Behind
+   the text a giant OUTLINED kanji for the active value (学 / 共 / 熱) slides
+   sideways in counter-motion. The 4th state is 選ばない姿勢: the two anti-values
+   are hollow (outlined) type — never inked, never chosen. Everything is driven
+   by ONE number, --vs (0..3), written by CompanyScroll; the transforms live here. */
+.co-values { position: relative; background: rgba(240, 247, 255, 0.84); color: var(--c-ink); }
+.co-values__spacer { height: calc(var(--vh-frozen) * 3.8); }   /* 4 states: 3 holds + 3 pushes + tail */
+.co-values__stick { position: sticky; top: 0; height: 100dvh; overflow: clip; }
+.co-values__inner {
+  --vs: 0;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(var(--header-h) + 32px);
+  padding-bottom: 40px;
+}
+.co-values__head { position: relative; z-index: 2; flex: none; }
+.co-values__lead {
+  margin: 12px 0 0;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(17, 27, 33, 0.55);
+}
+.co-values__machine {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 6vh;
+}
+.co-values__kanji {
+  position: absolute;
+  z-index: 0;
+  /* Keep the complete glyph inside the clipped sticky viewport. */
+  right: clamp(16px, 3vw, 32px);
+  top: 50%;
+  width: clamp(170px, 36vw, 560px);
+  height: clamp(170px, 36vw, 560px);
+  transform: translateY(-46%);
+  pointer-events: none;
+}
+.co-values__kanji span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 800;
+  font-size: clamp(170px, 36vw, 560px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(17, 27, 33, 0.16);
+  /* counter-motion: the text pushes UP, the glyph pushes DOWN, one full viewport
+     per state so exactly one kanji is ever on screen (a sideways exit left ghosts
+     lingering behind the next title). */
+  transform: translateY(calc((var(--vs) - var(--i)) * 110dvh));
+  will-change: transform;
+}
+@media (max-width: 767px) {
+  /* Phones have no room for the right-hand offset: the glyph reads as a stray
+     mark in the corner rather than a watermark behind the value. Centre it. */
+  .co-values__kanji {
+    right: auto;
+    left: 50%;
+    top: 44%;
+    width: min(46vw, 29vh);
+    height: min(46vw, 29vh);
+    transform: translate(-50%, -46%);
+  }
+  .co-values__kanji span { font-size: min(46vw, 29vh); }
+  .co-values__machine {
+    justify-content: flex-end;
+    padding-bottom: 12px;
+  }
+}
+@media (max-width: 767px) and (max-height: 600px) {
+  .co-values__kanji { top: 47%; width: min(24vw, 18vh); height: min(24vw, 18vh); }
+  .co-values__kanji span { font-size: min(24vw, 18vh); }
+  .co-values__machine { padding-bottom: 0; }
+}
+.co-values__mask { overflow: hidden; }
+.co-values__stack { display: grid; margin: 0; padding: 0; list-style: none; }
+.co-values__item {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2vh, 22px);
+  transform: translateY(calc((var(--i) - var(--vs)) * 100%));
+  will-change: transform;
+}
+.co-values__tag { color: var(--c-blue); font-size: 12px; letter-spacing: 0.08em; }
+.co-values__title {
+  margin: 0;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 800;
+  font-size: clamp(34px, min(6vw, 9vh), 84px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+  text-wrap: balance;
+  word-break: keep-all;
+  padding-bottom: 0.06em; /* keeps the mask off the glyph bottoms */
+}
+.co-values__body {
+  margin: 0;
+  max-width: 34em;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.9;
+  color: var(--c-ink);
+}
+.co-values__hollow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55em;
+  font-family: var(--font-shippori), var(--font-noto-jp), sans-serif;
+  font-weight: 400;
+  font-size: clamp(21px, min(3vw, 4.5vh), 40px);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--c-ink);
+}
+.co-values__hollow::before {
+  content: '';
+  box-sizing: border-box;
+  flex: 0 0 0.9em;
+  width: 0.9em;
+  height: 0.9em;
+  border: 1px solid rgba(220, 38, 38, 0.48);
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent 44%, #dc2626 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, #dc2626 44% 56%, transparent 56%),
+    rgba(220, 38, 38, 0.08);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.05);
+  transform: translateY(0.05em);
+}
+.co-values__hollow + .co-values__hollow {
+  margin-top: 0.18em;
+}
+
+/* ── 5. Information (会社概要 + Access) ─────────────────────────────────
+   Translucent local blooms preserve the globe composition while the shared
+   liquid field continues beneath the section. */
+.co-info {
+  position: relative;
+  padding: clamp(96px, 14vh, 160px) 0;
+  background:
+    radial-gradient(ellipse 72% 50% at 78% 20%, rgba(54, 59, 158, 0.18) 0%, transparent 72%),
+    radial-gradient(ellipse 80% 34% at 6% 60%, rgba(37, 99, 235, 0.07) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(4, 16, 28, 0.84) 0%, rgba(5, 15, 30, 0.88) 42%, rgba(11, 16, 32, 0.92) 100%);
+}
+.co-info__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; }
+@media (min-width: 1024px) { .co-info__grid { grid-template-columns: 6fr 5fr; gap: 80px; } }
+.co-info__rows { margin-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.34); }
+.co-info__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--c-line-dark);
+}
+@media (min-width: 640px) { .co-info__row { grid-template-columns: 160px minmax(0, 1fr); padding: 20px 0; } }
+.co-info__row dt {
+  color: var(--c-blue-light);
+  padding-top: 0.35em;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+.co-info__row dd {
+  margin: 0;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+}
+@media (min-width: 1024px) {
+  .co-info__access { position: sticky; top: calc(var(--header-h) + 40px); align-self: start; }
+}
+.co-globe {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;   /* the section IS the globe's field now */
+}
+@media (min-width: 640px) { .co-globe { aspect-ratio: 4 / 3; } }
+@media (min-width: 1024px) { .co-globe { aspect-ratio: 5 / 5.4; } }
+/* Static locator behind the globe: what the panel shows while WebGL is being
+   probed, and permanently if it is unavailable. Same mono-label grammar as the
+   rest of the page, so the frame reads as intentional rather than empty. */
+.co-globe__static {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+}
+.co-globe__pin {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-blue, #2563eb);
+  box-shadow:
+    0 0 0 6px rgba(37, 99, 235, 0.18),
+    0 0 0 15px rgba(37, 99, 235, 0.08),
+    0 0 26px rgba(37, 99, 235, 0.5);
+}
+.co-globe__city {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;   /* letter-spacing trails the last glyph; re-centre it */
+  color: rgba(255, 255, 255, 0.9);
+}
+.co-globe__coords {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.42);
+  font-variant-numeric: tabular-nums;
+}
+.co-info__addr {
+  margin: 20px 0 0;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.9;
+  color: rgba(255, 255, 255, 0.82);
+}
+.co-info__addr strong { display: block; font-weight: 500; font-size: 17px; color: #ffffff; }
+
+/* The Maps button is the light-page blue-on-paper variant; on this field the
+   ring/label lift to blue-light, and the expanding circle carries white type
+   instead of the near-black it used on paper. */
+.co-info .animated-button--company {
+  color: var(--c-blue-light);
+  box-shadow: 0 0 0 2px var(--c-blue-light);
+}
+.co-info .animated-button--company svg { fill: var(--c-blue-light); }
+.co-info .animated-button--company:hover { color: #ffffff; }
+.co-info .animated-button--company:hover svg { fill: #ffffff; }
+.co-info .animated-button--company:active { box-shadow: 0 0 0 4px var(--c-blue-light); }
+
+/* ── 6. CTA — giant word ─────────────────────────────────────────────── */
+.co-cta {
+  position: relative;
+  overflow: hidden;
+  background: rgba(11, 16, 32, 0.86);
+  padding: clamp(96px, 16vh, 180px) 0 clamp(80px, 12vh, 140px);
+  text-align: center;
+}
+.co-cta__meta {
+  position: absolute;
+  left: 16px;
+  top: 28px;
+  color: rgba(255, 255, 255, 0.35);
+}
+@media (min-width: 768px)  { .co-cta__meta { left: 24px; } }
+@media (min-width: 1024px) { .co-cta__meta { left: max(32px, calc((100vw - 72rem) / 2 + 32px)); } }
+.co-cta__word {
+  display: block;
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: clamp(64px, min(17vw, 22vh), 280px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: var(--c-peri);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(90px) scale(0.96);
+  transition: color 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+.co-cta__word:hover,
+.co-cta__word:focus-visible { color: var(--c-blue-light); outline: none; }
+.co-cta__lead {
+  margin: 28px auto 0;
+  font-family: var(--font-noto-jp), sans-serif;
+  font-weight: 300;
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1.9;
+  color: rgba(255, 255, 255, 0.7);
+  text-wrap: balance;
+}
+.co-cta__btn { margin-top: 32px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .co-vision__line { clip-path: none; }
+  .co-vision__rule { transform: none; }
+  .co-vision__en, .co-cta__word { opacity: 1; transform: none; }
+  .co-rail__fill { transform: scaleY(1); }
+  /* Values: unpin and list the four states in flow */
+  .co-values__spacer { height: auto; }
+  .co-values__stick { position: static; height: auto; overflow: visible; }
+  .co-values__inner { height: auto; padding-top: clamp(96px, 14vh, 160px); padding-bottom: clamp(96px, 14vh, 160px); }
+  .co-values__machine { padding-bottom: 0; margin-top: 48px; }
+  .co-values__kanji { display: none; }
+  .co-values__mask { overflow: visible; }
+  .co-values__stack { display: block; }
+  .co-values__item { transform: none; margin-bottom: 56px; }
+}
