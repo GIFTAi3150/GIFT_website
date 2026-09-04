@@ -7,6 +7,10 @@ on:
   # Allow manual run from the Actions tab — use this to verify after setup
   workflow_dispatch:
 
+# Notion への書き込みは secrets 経由。GITHUB_TOKEN はリポ読み取りだけで足りる
+permissions:
+  contents: read
+
 jobs:
   create-draft:
     runs-on: ubuntu-latest

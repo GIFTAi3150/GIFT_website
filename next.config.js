@@ -1,3 +1,12 @@
+// Applied to every route. No CSP for now — GSAP/three.js rely on inline
+// styles/scripts, so a strict policy would need nonce plumbing first.
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -13,6 +22,7 @@ const nextConfig = {
     // headers in dev avoids that whole class of error.
     if (process.env.NODE_ENV !== 'production') {
       return [
+        { source: '/:path*', headers: securityHeaders },
         {
           source: '/videos/:path*',
           headers: [
@@ -23,6 +33,7 @@ const nextConfig = {
       ];
     }
     return [
+      { source: '/:path*', headers: securityHeaders },
       {
         source: '/videos/:path*',
         headers: [

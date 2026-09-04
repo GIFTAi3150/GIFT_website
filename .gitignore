@@ -22,8 +22,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# env files — this is a public repo; never commit any .env variant
+.env*
 
 # vercel
 .vercel
@@ -49,6 +49,10 @@ next-env.d.ts
 !.claude/settings.json
 !.claude/agents/
 .claude/state/
+
+# Harness task file & local scratch — local-only, not published
+Plans.md
+/scratchpad/
 
 # Root-level scratch files — screenshots, reference assets, dev logs
 /*.png
