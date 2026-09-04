@@ -39,7 +39,7 @@ export const HERO = {
 } as const;
 
 export const PAINS = {
-  eyebrow: 'PAINS',
+  eyebrow: 'CONCERNS',
   title: 'よくあるお悩み',
   // titleParts: 配列の要素間でのみ改行を許可(語の途中の泣き別れ防止)
   items: [
