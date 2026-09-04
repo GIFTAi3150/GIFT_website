@@ -117,7 +117,8 @@ export default function AtPricing() {
 
         <Reveal delay={160} className="mx-auto mt-10 max-w-5xl">
           <p className="font-sans text-[15px] font-light text-ai-ink">{PRICING.diagnosisNote}</p>
-          <p className="mt-3 font-sans text-[13px] font-light text-ai-muted">{PRICING.taxNote}</p>
+          <p className="mt-3 font-sans text-[13px] font-light text-ai-muted">{PRICING.reviewNote}</p>
+          <p className="mt-1.5 font-sans text-[13px] font-light text-ai-muted">{PRICING.taxNote}</p>
         </Reveal>
       </div>
     </section>
