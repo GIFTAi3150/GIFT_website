@@ -170,18 +170,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function () {
                 var cover = document.getElementById('page-cover');
                 if (!cover) return;
-                // Dark load background on /services/aiops — its hero is a dark
-                // liquid field, so the default light cover would flash before
-                // it paints. Recolour BEFORE the cover is shown/faded; every
-                // other route keeps the light default. Runs in the same
+                // Dark load background on the navy-hero routes. /services/aiops,
+                // /company and /services/ai-training all paint a dark WebGL field
+                // as their hero, so the light default would flash before it lands.
+                // They share one navy (#0b1020) so the cover-to-hero handoff is
+                // seamless on all three. Recolour BEFORE the cover is shown/faded;
+                // every other route keeps the light default. Runs in the same
                 // parser-blocking pass as the cover div, so it applies before
                 // first paint.
-                if (location.pathname.indexOf('/services/aiops') === 0) {
-                  cover.style.background = 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)';
-                } else if (location.pathname.indexOf('/company') === 0) {
-                  // /company: navy WebGL terrain hero — the light default would
-                  // flash before the dark scene paints.
-                  cover.style.background = '#0b1020';
+                var darkRoutes = ['/services/aiops', '/company', '/services/ai-training'];
+                for (var i = 0; i < darkRoutes.length; i++) {
+                  if (location.pathname.indexOf(darkRoutes[i]) === 0) {
+                    cover.style.background = '#0b1020';
+                    break;
+                  }
                 }
                 var hidden = false;
                 var hide = function () {
