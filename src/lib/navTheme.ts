@@ -262,6 +262,25 @@ const COMPANY_THEME: NavTheme = {
 // AI light-mode theme for the homepage — clean white + electric violet.
 // Scoped to `/` only so service pages keep their own palettes.
 const HOME_THEME: NavTheme = {
+// /services/ai-training — one navy sheet over the plasma background. The
+// header shares the page's navy exactly so the hero reads as full-bleed.
+const AI_TRAINING_THEME: NavTheme = {
+  bg: '#0B1020',
+  bgAlpha: 'rgba(11, 16, 32, 0.9)',
+  bgFull: '#0B1020',
+  accent: '#6D9BFF',
+  accentDeep: '#2563EB',
+  border: 'rgba(243, 241, 235, 0.16)',
+  bgAlt: '#141B33',
+  ink: '#F3F1EB',
+  muted: 'rgba(243, 241, 235, 0.6)',
+  logoShield: '#2563EB',
+  logoInner: '#0B1020',
+  text: 'rgba(243, 241, 235, 0.9)',
+  textMuted: 'rgba(243, 241, 235, 0.6)',
+  textFaint: 'rgba(243, 241, 235, 0.35)',
+};
+
   bg: '#F0F7FF',
   bgAlpha: 'rgba(248, 249, 255, 0.95)',
   bgFull: '#F0F7FF',
@@ -289,6 +308,7 @@ const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/plans(\/|$)/, PLANS_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
   [/^\/member(\/|$)/, MEMBER_THEME],
+  [/^\/services\/ai-training(\/|$)/, AI_TRAINING_THEME],
   [/^\/recruit(\/|$)/, RECRUIT_THEME],
   [/^\/achievements(\/|$)/, ACHIEVEMENTS_THEME],
 ];

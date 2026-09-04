@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
+import AtPlasma from './_components/AtPlasma';
 import AtHero from './_components/AtHero';
-import AtPains from './_components/AtPains';
+import AtStatement from './_components/AtStatement';
+import AtConcerns from './_components/AtConcerns';
 import AtReasons from './_components/AtReasons';
-import AtSteps from './_components/AtSteps';
+import AtFlow from './_components/AtFlow';
 import AtCourses from './_components/AtCourses';
 import AtPricing from './_components/AtPricing';
 import AtFaq from './_components/AtFaq';
 import AtCta from './_components/AtCta';
+import AtScroll from './_components/AtScroll';
+import './ai-training.css';
 
 const OG_TITLE = '法人向けAI研修｜業務で使える生成AI研修';
 const OG_DESCRIPTION =
@@ -18,9 +22,6 @@ export const metadata: Metadata = {
   description:
     '業務で使える実践型の生成AI研修。1名から受講でき、未経験の方でも安心してご参加いただけます。人材開発支援助成金の対象です。',
   alternates: { canonical: '/services/ai-training' },
-  // Soft launch: this URL is not yet reachable from Header/Footer nav, so it will
-  // mostly be shared as a bare link. Same reasoning as /plans — give it its own
-  // openGraph/twitter block rather than falling back to the site-wide one.
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
@@ -36,22 +37,35 @@ export const metadata: Metadata = {
   },
 };
 
+// Redesign v8 "Plasma" (2026-09-04) — docs/ai-training-redesign-spec.md.
+// Every string comes from _components/aiTrainingContent.ts.
 export default function AiTrainingPage() {
   return (
     <>
-      {/* Dark base behind the hero/CTA bands; the intervening sections paint their
-          own light backgrounds, so this only closes the gap on iOS overscroll. */}
-      <main className="bg-[#0C0E1A]">
+      <main className="at-page" data-flash-guard="">
+        {/* The plasma: one fixed OGL canvas + navy veil behind the page (z 0). */}
+        <AtPlasma />
+
         <AtHero />
-        <AtPains />
+        <AtStatement />
+        <AtConcerns />
         <AtReasons />
-        <AtSteps />
-      <AtCourses />
+        <AtFlow />
+        <AtCourses />
         <AtPricing />
         <AtFaq />
         <AtCta />
+
+        {/* Orchestrator LAST: its effect must run after every section above. */}
+        <AtScroll />
       </main>
-      <Footer />
+      {/* The plasma canvas is fixed inside <main>, and <main> is positioned —
+          positioned content paints above a static sibling whatever the DOM
+          order, so an unwrapped footer sits UNDER the canvas. The wrapper
+          gives the footer its own positioned layer. */}
+      <div className="at-footer">
+        <Footer />
+      </div>
     </>
   );
 }
