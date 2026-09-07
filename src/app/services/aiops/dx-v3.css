@@ -149,9 +149,15 @@
 /* ============================================================
    HERO — single 100vh frame, neural-net canvas backdrop
 ============================================================ */
+/* Viewport units on this page: every height that adds to the document
+   (hero, runways, sticky frames, min-height sections, flow spacing) is a
+   px-frozen var(--vh-frozen) / var(--svh-frozen) rather than live vh —
+   Instagram's in-app browser physically resizes the WebView on each toolbar
+   toggle, re-resolving vh and teleporting the page (ViewportFreeze.tsx).
+   On Safari/Chrome the frozen px equals the vh it replaced. */
 .dx-v3 .hero {
   position: relative;
-  height: 100vh;
+  height: var(--vh-frozen);
   background: var(--paper);
 }
 
@@ -178,7 +184,7 @@
 
 .dx-v3 .hero-stage {
   position: relative;
-  height: 100vh;
+  height: var(--vh-frozen);
   overflow: hidden;
   background: transparent;
 }
@@ -884,7 +890,7 @@
 /* Tablet/mobile only adjusts scene height — positions auto-scale via vw. */
 @media (max-width: 991px) {
   .dx-v3 .manifesto-scene {
-    height: clamp(500px, 72vh, 720px);
+    height: clamp(500px, calc(var(--vh-frozen) * 0.72), 720px);
   }
 }
 
@@ -1309,13 +1315,13 @@
   position: relative;
   /* Total scroll distance for one full revolution. ~250vh gives a
      comfortable 62vh of scroll per tile in focus. */
-  height: 280vh;
+  height: calc(var(--vh-frozen) * 2.8);
   margin: 64px -32px 0;
 }
 .dx-v3 .caps-orbit-frame {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--vh-frozen);
   width: 100%;
   overflow: hidden;
   display: grid;
@@ -1345,18 +1351,18 @@
 .dx-v3 .orbit-tile {
   grid-area: 1 / 1;
   width: clamp(320px, 80vw, 560px);
-  height: clamp(440px, 72vh, 640px);
+  height: clamp(440px, calc(var(--vh-frozen) * 0.72), 640px);
   position: relative;
   will-change: transform, opacity, filter;
 }
 @media (min-width: 900px) {
   .dx-v3 .orbit-tile {
     width: clamp(380px, 46vw, 720px);
-    height: clamp(480px, 74vh, 720px);
+    height: clamp(480px, calc(var(--vh-frozen) * 0.74), 720px);
   }
   .dx-v3 .orbit-tile.has-video {
     width: clamp(420px, 52vw, 820px);
-    height: clamp(520px, 78vh, 760px);
+    height: clamp(520px, calc(var(--vh-frozen) * 0.78), 760px);
   }
 }
 .dx-v3 .cap-card {
@@ -1601,7 +1607,7 @@
   }
   .dx-v3 .caps-orbit-stack {
     margin-top: 0;
-    height: 240vh;
+    height: calc(var(--vh-frozen) * 2.4);
   }
   .dx-v3 .caps-orbit-frame {
     /* Sticky pins below the fixed Header (h-20 = 80px) instead of
@@ -1612,7 +1618,7 @@
        the frame believed it had ~88px more room than the user
        actually sees while the URL bar is showing. */
     top: 80px;
-    height: calc(100svh - 80px);
+    height: calc(var(--svh-frozen) - 80px);
     /* GSAP front-tile transform is y = cos(0) * --orbit-ry. Dropping
        ry from 90 → 8 pulls the focused card right up against the lead
        copy instead of leaving a ~90px dead band above it. */
@@ -1629,7 +1635,7 @@
      transforms (x/y/scale) so auto-height doesn't break the animation. */
   .dx-v3 .orbit-tile {
     height: auto;
-    min-height: min(420px, 56svh);
+    min-height: min(420px, calc(var(--svh-frozen) * 0.56));
   }
   .dx-v3 .cap-card {
     height: auto;
@@ -1675,12 +1681,12 @@
   position: relative;
   /* Total scroll runway. ~50vh per question gives enough dwell to
      read without exhausting the user's scroll hand. */
-  height: 160vh;
+  height: calc(var(--vh-frozen) * 1.6);
 }
 .dx-v3 .pains-pin-frame {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--vh-frozen);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1689,12 +1695,12 @@
      soon as the section enters — vertical-centering left ~50vh of
      empty space above the heading because the invisible Q.02-Q.04
      items still take layout space. */
-  padding-top: clamp(64px, 12vh, 140px);
+  padding-top: clamp(64px, calc(var(--vh-frozen) * 0.12), 140px);
 }
 .dx-v3 .pains-pin-content {
   display: flex;
   flex-direction: column;
-  gap: clamp(28px, 5vh, 56px);
+  gap: clamp(28px, calc(var(--vh-frozen) * 0.05), 56px);
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
@@ -1713,18 +1719,18 @@
      with multi-line wrapping questions pushes Q.04 below the visible area
      on iOS Safari (where 100vh = expanded viewport, not current visible h). */
   .dx-v3 .pains-pin-frame {
-    padding-top: clamp(32px, 5vh, 64px);
+    padding-top: clamp(32px, calc(var(--vh-frozen) * 0.05), 64px);
   }
   .dx-v3 .pain {
     will-change: transform, opacity;
   }
   /* Tighten the gap between the heading and the questions list. */
   .dx-v3 .pains-pin-content {
-    gap: clamp(14px, 2.5vh, 28px);
+    gap: clamp(14px, calc(var(--vh-frozen) * 0.025), 28px);
   }
   /* Tighten the gap between individual questions. */
   .dx-v3 .pains-pin-frame .pains-list {
-    gap: clamp(12px, 2.5vh, 28px);
+    gap: clamp(12px, calc(var(--vh-frozen) * 0.025), 28px);
   }
   .dx-v3 .pains-pin-content .sec-head h2 {
     font-size: clamp(22px, 7.5vw, 38px);
@@ -1763,7 +1769,7 @@
 .dx-v3 .pains-pin-frame .pains-list {
   display: flex;
   flex-direction: column;
-  gap: clamp(20px, 4vh, 48px);
+  gap: clamp(20px, calc(var(--vh-frozen) * 0.04), 48px);
   width: 100%;
   padding: 0;
   margin: 0;
@@ -1916,7 +1922,7 @@
    short-but-wide screens (e.g. 1440×900 laptops, 1920×1080 with chrome). */
 @media (min-width: 900px) {
   .dx-v3 .pains-pin-frame {
-    padding-top: clamp(40px, 8vh, 96px);
+    padding-top: clamp(40px, calc(var(--vh-frozen) * 0.08), 96px);
   }
   .dx-v3 .pains-pin-content .sec-head h2 {
     font-size: clamp(24px, min(3.5vw, 5vh), 52px);
@@ -2261,7 +2267,7 @@
 }
 .dx-v3 .steps-stack {
   position: relative;
-  height: 320vh; /* scroll runway for the sweep */
+  height: calc(var(--vh-frozen) * 3.2); /* scroll runway for the sweep */
 }
 .dx-v3 .steps-frame {
   position: sticky;
@@ -2599,12 +2605,12 @@
 .dx-v3 .cases-slider-stack {
   position: relative;
   /* ~75vh dwell per case feels right for reading without dragging. */
-  height: 230vh;
+  height: calc(var(--vh-frozen) * 2.3);
 }
 .dx-v3 .cases-slider-pin {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--vh-frozen);
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -2614,7 +2620,7 @@
 .dx-v3 .cases-slider-track {
   position: relative;
   width: min(94vw, 1180px);
-  height: min(78vh, 640px);
+  height: min(calc(var(--vh-frozen) * 0.78), 640px);
 }
 .dx-v3 .case-card {
   position: absolute;
@@ -2647,10 +2653,10 @@
      the image overlap the text. Give the track enough room to fit
      everything, and bump the scroll runway proportionally so the
      scrub-slider still feels paced. */
-  .dx-v3 .cases-slider-stack { height: 300vh; }
+  .dx-v3 .cases-slider-stack { height: calc(var(--vh-frozen) * 3); }
   .dx-v3 .cases-slider-track {
     width: 92vw;
-    height: clamp(740px, 95vh, 880px);
+    height: clamp(740px, calc(var(--vh-frozen) * 0.95), 880px);
   }
   .dx-v3 .case-card .case-block .left {
     padding: 28px 22px;
@@ -2674,7 +2680,7 @@
    drop the track min in lockstep. */
 @media (max-width: 480px) {
   .dx-v3 .cases-slider-track {
-    height: clamp(580px, 95vh, 740px);
+    height: clamp(580px, calc(var(--vh-frozen) * 0.95), 740px);
   }
   .dx-v3 .case-card .case-block .left {
     padding: 20px 18px;
@@ -2908,7 +2914,7 @@
   flex-direction: column;
   gap: 32px;
   margin-bottom: 96px;
-  padding-bottom: 8vh;
+  padding-bottom: calc(var(--vh-frozen) * 0.08);
 }
 .dx-v3 .rpa-card {
   --veil: 0;
@@ -3367,7 +3373,7 @@
 .dx-v3 .final {
   position: sticky;
   top: 0;
-  min-height: 100vh;
+  min-height: var(--vh-frozen);
 }
 /* Hero + Manifesto + Stats opted out of the sticky-stack — they
    scroll normally so the hero → manifesto transition is a regular

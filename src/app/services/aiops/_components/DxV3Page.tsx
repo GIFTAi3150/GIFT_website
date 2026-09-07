@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
+import { VH_FROZEN_CHANGE } from '@/components/util/ViewportFreeze';
 
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
@@ -714,6 +715,11 @@ export default function DxV3Page() {
       }, 200);
     };
     window.addEventListener('resize', onPillarsResize);
+    // ViewportFreeze re-measured --vh-frozen (rotation / a real resize): every
+    // px budget in dx-v3.css just changed. GSAP's own resize gate ignores
+    // resizes on touch, so nothing else would re-measure the triggers.
+    const onVhFrozenChange = () => ScrollTrigger.refresh();
+    window.addEventListener(VH_FROZEN_CHANGE, onVhFrozenChange);
 
     // ---- Section meta (.num + .meta) — quiet fade for the labels above
     // and beside each section headline. The h2 itself gets the char
@@ -1910,6 +1916,7 @@ export default function DxV3Page() {
       window.__dxV3Phase = undefined;
       pixelatedMM.revert();
       window.removeEventListener('resize', onPillarsResize);
+      window.removeEventListener(VH_FROZEN_CHANGE, onVhFrozenChange);
       window.clearTimeout(pillarsResizeTimer);
       pillarsCtx?.revert();
       triggers.forEach((t) => t.kill());

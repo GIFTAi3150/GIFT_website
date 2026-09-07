@@ -1096,6 +1096,9 @@ body.page-ready .fade-up-word {
      648px 瞬間移動していた。ここが 100vh のままでも表示は今日と同一
      （JS 無効時のフォールバック）。詳細: docs/hp-webview-vh-freeze-spec.md */
   --vh-frozen: 100vh;
+  /* 同じ仕組みの svh 版。初回表示で下端まで見せたい全画面要素（ヒーロー等）
+     のフィル高さに使う。ViewportFreeze が同じタイミングで px に差し替える。 */
+  --svh-frozen: 100svh;
 }
 
 html {

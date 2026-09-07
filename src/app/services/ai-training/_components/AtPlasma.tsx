@@ -236,12 +236,27 @@ export default function AtPlasma() {
       }
       const mesh = new Mesh(gl, { geometry, program });
 
-      // ── sizing: a fraction of the viewport, stretched by CSS
+      // ── sizing: a fraction of the container, stretched by CSS.
+      // The container (.at-plasma) is fixed at 100lvh, so its box does not
+      // move when a phone's address bar collapses. The buffer is sized from
+      // it, not from window.innerHeight, and a resize is only honoured when
+      // the width changes or the height moves by more than 25% (rotation, a
+      // real window resize) — the gate ViewportFreeze uses. Without it every
+      // address-bar toggle re-allocated the buffer (one blank frame) and
+      // changed iResolution, which re-frames the raymarch (the height is its
+      // focal length): the whole plasma zoomed and popped on every
+      // scroll-direction change on mobile.
+      const box: HTMLElement = canvas.parentElement ?? canvas;
       let cssW = 1;
       let cssH = 1;
+      let lastW = window.innerWidth;
+      let lastH = window.innerHeight;
+      let settleTimer = 0;
       const setSize = () => {
-        cssW = Math.max(1, window.innerWidth);
-        cssH = Math.max(1, window.innerHeight);
+        cssW = Math.max(1, box.clientWidth || window.innerWidth);
+        cssH = Math.max(1, box.clientHeight || window.innerHeight);
+        lastW = window.innerWidth;
+        lastH = window.innerHeight;
         rend.setSize(Math.max(1, Math.floor(cssW * renderScale)), Math.max(1, Math.floor(cssH * renderScale)));
         canvas.style.width = '100%';
         canvas.style.height = '100%';
@@ -251,12 +266,19 @@ export default function AtPlasma() {
       };
       let resizePending = false;
       const onResize = () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        // width unchanged & a small height change = the browser's toolbar
+        if (w === lastW && Math.abs(h - lastH) <= h * 0.25) return;
         if (resizePending) return;
         resizePending = true;
         requestAnimationFrame(() => {
           resizePending = false;
           setSize();
         });
+        // iOS can report a stale innerHeight right after a rotation
+        window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(setSize, 350);
       };
       window.addEventListener('resize', onResize);
       setSize();
@@ -296,6 +318,7 @@ export default function AtPlasma() {
 
       cleanupGl = () => {
         cancelAnimationFrame(raf);
+        window.clearTimeout(settleTimer);
         window.removeEventListener('resize', onResize);
         document.removeEventListener('visibilitychange', onVis);
         program.remove();
