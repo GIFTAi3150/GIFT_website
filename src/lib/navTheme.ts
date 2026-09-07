@@ -95,21 +95,24 @@ const CALLCENTER_THEME: NavTheme = {
   textFaint: 'rgba(14, 10, 36, 0.40)',
 };
 
+// /services/aiops — same chrome as DEFAULT_THEME. The page used to carry its
+// own violet/coral chrome (#635bff shield, #FF4D6D accent) on a violet-white
+// bar; aligned to the site blue 2026-09-04 so it reads as the same website.
 const DX_CONSULTING_THEME: NavTheme = {
-  bg: '#f5f7ff',
-  bgAlpha: 'rgba(245, 247, 255, 0.95)',
-  bgFull: '#f5f7ff',
-  accent: '#FF4D6D',
-  accentDeep: '#E63950',
-  border: '#c9d3f5',
-  bgAlt: '#e6eeff',
-  ink: '#0b1340',
-  muted: '#6b7aa8',
-  logoShield: '#635bff',
-  logoInner: '#f5f7ff',
-  text: '#0b1340',
-  textMuted: '#6b7aa8',
-  textFaint: 'rgba(11, 19, 64, 0.40)',
+  bg: '#F0F7FF',
+  bgAlpha: 'rgba(248, 249, 255, 0.95)',
+  bgFull: '#F0F7FF',
+  accent: '#2563EB',
+  accentDeep: '#1D4ED8',
+  border: '#BFDBFE',
+  bgAlt: '#EFF6FF',
+  ink: '#0C0E1A',
+  muted: '#5B6B8A',
+  logoShield: '#2563EB',
+  logoInner: '#ffffff',
+  text: '#0C0E1A',
+  textMuted: '#5B6B8A',
+  textFaint: 'rgba(12, 14, 26, 0.38)',
 };
 
 const FINANCE_THEME: NavTheme = {
@@ -259,6 +262,25 @@ const COMPANY_THEME: NavTheme = {
   textFaint: 'rgba(12, 14, 26, 0.38)',
 };
 
+// /services/ai-training — one navy sheet over the plasma background. The
+// header shares the page's navy exactly so the hero reads as full-bleed.
+const AI_TRAINING_THEME: NavTheme = {
+  bg: '#0B1020',
+  bgAlpha: 'rgba(11, 16, 32, 0.9)',
+  bgFull: '#0B1020',
+  accent: '#6D9BFF',
+  accentDeep: '#2563EB',
+  border: 'rgba(243, 241, 235, 0.16)',
+  bgAlt: '#141B33',
+  ink: '#F3F1EB',
+  muted: 'rgba(243, 241, 235, 0.6)',
+  logoShield: '#2563EB',
+  logoInner: '#0B1020',
+  text: 'rgba(243, 241, 235, 0.9)',
+  textMuted: 'rgba(243, 241, 235, 0.6)',
+  textFaint: 'rgba(243, 241, 235, 0.35)',
+};
+
 // AI light-mode theme for the homepage — clean white + electric violet.
 // Scoped to `/` only so service pages keep their own palettes.
 const HOME_THEME: NavTheme = {
@@ -286,6 +308,7 @@ const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/news(\/|$)/, NEWS_THEME],
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/aiops(\/|$)/, DX_CONSULTING_THEME],
+  [/^\/services\/ai-training(\/|$)/, AI_TRAINING_THEME],
   [/^\/plans(\/|$)/, PLANS_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
   [/^\/member(\/|$)/, MEMBER_THEME],

@@ -152,8 +152,8 @@ export type LiquidPreset = {
 };
 
 export const LIQUID_PRESETS: LiquidPreset[] = [
-  // 0 — HERO: near-black navy base / brand blurple / bright lavender — high contrast to pop against bg
-  { spinRotation: 0, spinSpeed: 2, colour1: '#060b24', colour2: '#635bff', colour3: '#c4beff', contrast: 5.5, lighting: 0.42, spinAmount: 0.25, pixelFilter: 1e4, grainStrength: 0.2, useGrain: false, effectDepth: 10 },
+  // 0 — HERO: near-black navy base / brand royal indigo / bright periwinkle — high contrast to pop against bg
+  { spinRotation: 0, spinSpeed: 2, colour1: '#0B1020', colour2: '#4F6AF0', colour3: '#BFCCFA', contrast: 5.5, lighting: 0.42, spinAmount: 0.25, pixelFilter: 1e4, grainStrength: 0.2, useGrain: false, effectDepth: 10 },
   // 1 — terracotta
   { spinRotation: 3, spinSpeed: 10, colour1: '#CF907B', colour2: '#DDB1A3', colour3: '#CF907B', contrast: 1.5, lighting: 0, spinAmount: 0.85, pixelFilter: 1e4, grainStrength: 0.2, useGrain: false, effectDepth: 4 },
   // 2 — periwinkle blue

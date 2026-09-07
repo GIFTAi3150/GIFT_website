@@ -1,73 +1,85 @@
-import Reveal from '@/components/ui/Reveal';
-import AtSectionHead from './AtSectionHead';
 import { COURSES } from './aiTrainingContent';
+import AtHead from './AtHead';
 
-/* Course lineup — added per 社労士 review (2026-09-03). The offering is three
-   predefined trainings (name / outline / module hours) straight from the
-   research pamphlets, never per-company customization, to stay inside subsidy
-   requirements. Stacked full-width rows (not a 3-col grid) per user feedback:
-   easier to read, and each course gets room for its module list. */
+// The three course names share one sentence and differ in one word:
+// 「AIを、自分専属の」+「営業 / 記録 / 数字」+「コーチにする」. Derive the slot
+// from the confirmed copy; if the copy ever stops fitting the pattern, fall
+// back to typesetting each full name inside its panel.
+function deriveSlot() {
+  const heads = new Set<string>();
+  const tails = new Set<string>();
+  const slots: string[] = [];
+  for (const item of COURSES.items) {
+    const [head, rest] = item.nameParts;
+    const m = /^(.+?)(コーチにする)$/.exec(rest);
+    if (!m) return null;
+    heads.add(head);
+    tails.add(m[2]);
+    slots.push(m[1]);
+  }
+  if (heads.size !== 1 || tails.size !== 1) return null;
+  return { head: [...heads][0], tail: [...tails][0], slots };
+}
+
+/**
+ * Courses — the slot sentence. A pinned stage holds one sentence; scrolling
+ * rolls the one word that changes (営業 → 記録 → 数字) while the matching
+ * course panel slides in beneath (AtScroll).
+ */
 export default function AtCourses() {
-  return (
-    <section className="relative bg-ai-bg py-20 md:py-28 lg:py-32">
-      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <Reveal>
-          <AtSectionHead word={COURSES.eyebrow} chip={COURSES.title} lead={COURSES.note} />
-        </Reveal>
+  const slot = deriveSlot();
 
-        <div className="mt-14 flex flex-col gap-6">
-          {COURSES.items.map((course, i) => (
-            <Reveal key={course.nameParts.join('')} delay={i * 80}>
-              <article className="grid grid-cols-1 gap-7 border border-ai-border bg-ai-surface p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-ai-accent hover:shadow-[0_12px_24px_rgba(37,99,235,0.12)] min-[820px]:grid-cols-[1fr_1fr] min-[820px]:gap-10 md:p-9">
-                {/* Left: name + outline */}
-                <div className="flex flex-col">
-                  <span className="font-display text-[13px] font-bold tracking-[0.14em] text-ai-accent">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <h3
-                    className="mt-3 font-sans font-bold text-ai-ink"
-                    style={{ fontSize: 'clamp(20px, 2.2vw, 26px)', lineHeight: 1.4 }}
-                  >
-                    {course.nameParts.map((part) => (
-                      <span key={part} className="inline-block">
-                        {part}
+  return (
+    <section id="courses" className="at-courses at-section--navy">
+      <div className="at-courses__stick">
+        <div className="at-container at-courses__inner">
+          <AtHead label={COURSES.eyebrow} title={COURSES.title} lead={COURSES.note} />
+
+          {slot ? (
+            <p className="at-courses__sentence" aria-hidden>
+              <span className="at-courses__line">{slot.head}</span>
+              <span className="at-courses__line">
+                <span className="at-courses__br">「</span>
+                <span className="at-slot" data-slot>
+                  <span className="at-slot__roll" data-slot-roll>
+                    {slot.slots.map((w) => (
+                      <span key={w} className="at-slot__w">
+                        {w}
                       </span>
                     ))}
-                  </h3>
-                  <p
-                    className="mt-4 font-sans text-[15px] font-light text-ai-muted"
-                    style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-                  >
-                    {course.description}
-                  </p>
-                </div>
-
-                {/* Right: module list */}
-                <div className="flex flex-col justify-center border-t border-ai-border pt-6 min-[820px]:border-l min-[820px]:border-t-0 min-[820px]:pl-10 min-[820px]:pt-0">
-                  <span className="font-display text-[12px] font-bold uppercase tracking-[0.18em] text-ai-muted">
-                    Curriculum
                   </span>
-                  <ul className="mt-4 flex flex-col gap-3.5">
-                    {course.modules.map((mod, j) => (
-                      <li key={mod.title} className="flex items-center justify-between gap-4">
-                        <span className="flex items-center gap-3 font-sans text-[15px] font-normal text-ai-ink">
-                          <span className="font-display text-[12px] font-bold text-ai-accent">
-                            {j + 1}
-                          </span>
-                          {mod.title}
-                        </span>
-                        <span className="shrink-0 border border-ai-border bg-white px-2.5 py-1 font-sans text-[12px] font-bold text-ai-muted">
-                          {mod.hours}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                </span>
+                <span className="at-courses__br">」</span>
+                {slot.tail}
+              </span>
+            </p>
+          ) : null}
+
+          <div className="at-courses__panels" data-panels>
+            {COURSES.items.map((course, i) => (
+              <article key={course.nameParts.join('')} className="at-course" data-course={i}>
+                <h3 className={slot ? 'sr-only' : 'at-course__name'}>
+                  {course.nameParts.map((part) => (
+                    <span key={part} className="at-course__name-part">
+                      {part}
+                    </span>
+                  ))}
+                </h3>
+                <p className="at-course__desc">{course.description}</p>
+                <ul className="at-course__modules">
+                  {course.modules.map((mod) => (
+                    <li key={mod.title} className="at-course__module">
+                      <span className="at-course__mt">{mod.title}</span>
+                      <span className="at-course__mh at-mono">{mod.hours}</span>
+                    </li>
+                  ))}
+                </ul>
               </article>
-            </Reveal>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
+      <div className="at-courses__spacer" aria-hidden />
     </section>
   );
 }

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 // the same typeface used by ai-ops-manager.com. Covers Latin + Japanese in
 // a single family so no fallback stack is needed. "Gen Interface JP Display"
 // variant is used for large headings (tighter letter-spacing).
-// Inter italic (Google Fonts) is loaded for the purple accent words ONLY:
+// Inter italic (Google Fonts) is loaded for the italic accent words ONLY:
 // Gen Interface JP ships no italic face, so `font-style: italic` on it
 // synthesizes a faux oblique whose shear clips on mobile. Inter IS Gen
 // Interface JP's Latin skeleton and HAS a real italic, so the accents render

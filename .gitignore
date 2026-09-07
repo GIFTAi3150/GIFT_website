@@ -79,3 +79,9 @@ public/videos/preview*.png
 public/videos/uv_test*.png
 public/videos/anim_*.png
 public/videos/f0*.png
+
+# Harness runtime state can also appear next to the files an agent worked on
+**/.harness-mem/state/continuity.json
+**/.harness-mem/state/whisper-budget.json
+**/.harness-mem/state/*.tmp*
+**/.harness-mem/state/*.lock

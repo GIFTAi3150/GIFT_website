@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import dynamic from 'next/dynamic';
+import { VH_FROZEN_CHANGE } from '@/components/util/ViewportFreeze';
 
 // Lottie touches the DOM; load client-only to avoid SSR mismatch.
 const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
@@ -17,11 +18,6 @@ const CapLottie = dynamic(() => import('./CapLottie'), { ssr: false });
 // `precision highp float` to mediump; three.js renders on WebGL2 (guaranteed
 // highp), which is how loudsrl runs the identical shader on the same GPUs.
 import LiquidHeroBackground from './LiquidHeroBackground';
-// "Color Bends" (reactbits) shader backdrop for the "How we work" section.
-// Ported into the repo's context-loss-safe raw-WebGL scaffold (NOT the
-// upstream THREE.WebGLRenderer + forceContextLoss version — that trips the
-// guilty-GPU bug on this already-WebGL page). See ColorBends.tsx.
-import ColorBends from './ColorBends';
 
 // Split a string into per-character `.ch` spans so GSAP can stagger them,
 // with each word's chars grouped in a `.wd` wrapper (white-space:nowrap in
@@ -464,7 +460,7 @@ export default function DxV3Page() {
     // ---- Intro: words light up sequentially ----
     const introWords = [...document.querySelectorAll<HTMLElement>('.dx-v3 #introText .word')];
     introWords.forEach((w) => {
-      w.style.color = 'rgba(11,19,64,0.18)';
+      w.style.color = 'rgba(11,16,32,0.18)';
     });
     triggers.push(
       ScrollTrigger.create({
@@ -480,7 +476,7 @@ export default function DxV3Page() {
             if (i < lit) {
               w.style.color = w.classList.contains('accent') ? 'var(--blue)' : 'var(--ink)';
             } else {
-              w.style.color = 'rgba(11,19,64,0.18)';
+              w.style.color = 'rgba(11,16,32,0.18)';
             }
           });
         },
@@ -620,6 +616,110 @@ export default function DxV3Page() {
       );
     });
 
+
+    // ---- Stats pillars — pinned "extrusion" set-piece ----
+    // The three pillars (学習 / 実装 / 定着) build themselves as you scroll,
+    // column by column: the landing bar draws, a halo blooms behind it, the
+    // kanji stands up out of the bar (rises from behind the bar line while
+    // tilting upright), then the labels follow. .stats-frame is sticky inside
+    // the section; the section's height is the scroll budget (frame + 1.4
+    // frames, px-frozen so the mobile address bar can't retime it). Default
+    // CSS is the finished state — every start value comes from fromTo, so a
+    // dead animation pipeline degrades to readable, unanimated pillars.
+    const pillarsSection = document.querySelector<HTMLElement>('.dx-v3 .stats');
+    let pillarsCtx: gsap.Context | null = null;
+    let pillarsTl: gsap.core.Timeline | null = null;
+    let pillarsWidth = 0;
+    const buildPillars = () => {
+      if (!pillarsSection) return;
+      const frame = pillarsSection.querySelector<HTMLElement>('.stats-frame');
+      if (!frame) return;
+      pillarsCtx?.revert();
+      pillarsTl = null;
+      pillarsWidth = window.innerWidth;
+      frame.style.height = '';
+      const frameH = frame.offsetHeight; // 100dvh from CSS
+      frame.style.height = `${frameH}px`;
+      pillarsSection.style.height = `${Math.round(frameH * 2.4)}px`;
+
+      pillarsCtx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: pillarsSection,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: isMobile ? 0.25 : 0.6,
+            invalidateOnRefresh: true,
+          },
+        });
+        pillarsTl = tl;
+        if (tl.scrollTrigger) triggers.push(tl.scrollTrigger);
+        frame.querySelectorAll<HTMLElement>('.stat').forEach((stat, i) => {
+          const o = 0.16 * i;
+          const floor = stat.querySelector<HTMLElement>('.floor');
+          const halo = stat.querySelector<HTMLElement>('.halo');
+          const num = stat.querySelector<HTMLElement>('.num');
+          const labels = stat.querySelectorAll<HTMLElement>('.lab, .ja');
+          if (floor) {
+            tl.fromTo(floor, { scaleX: 0 }, { scaleX: 1, ease: 'power3.out', duration: 0.12 }, 0.06 + o);
+          }
+          if (halo) {
+            gsap.set(halo, { xPercent: -50, yPercent: -50 });
+            tl.fromTo(
+              halo,
+              { scale: 0.4, autoAlpha: 0 },
+              { scale: 1, autoAlpha: 1, ease: 'power2.out', duration: 0.26 },
+              0.1 + o
+            );
+          }
+          if (num) {
+            gsap.set(num, { transformOrigin: '50% 100%', transformPerspective: 900 });
+            tl.fromTo(
+              num,
+              { yPercent: 108, rotateX: 32 },
+              { yPercent: 0, rotateX: 0, ease: 'power3.out', duration: 0.28 },
+              0.14 + o
+            );
+          }
+          if (labels.length) {
+            tl.fromTo(
+              labels,
+              { autoAlpha: 0, y: 14 },
+              { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.12, stagger: 0.02 },
+              0.34 + o
+            );
+          }
+        });
+        // ScrollTrigger maps the scroll range onto the timeline's duration, so
+        // pad it to exactly 1 — the last ~20% of the pin is a still frame with
+        // the finished pillars before the frame releases.
+        tl.to({}, { duration: 0.001 }, 1);
+      }, pillarsSection);
+    };
+    if (pillarsSection) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        pillarsSection.setAttribute('data-static', '');
+      } else {
+        buildPillars();
+      }
+    }
+    // Rebuild on a real width change only — mobile address-bar resizes are
+    // height-only and must not retime the pin mid-scroll.
+    let pillarsResizeTimer = 0;
+    const onPillarsResize = () => {
+      if (!pillarsTl || window.innerWidth === pillarsWidth) return;
+      window.clearTimeout(pillarsResizeTimer);
+      pillarsResizeTimer = window.setTimeout(() => {
+        buildPillars();
+        ScrollTrigger.refresh();
+      }, 200);
+    };
+    window.addEventListener('resize', onPillarsResize);
+    // ViewportFreeze re-measured --vh-frozen (rotation / a real resize): every
+    // px budget in dx-v3.css just changed. GSAP's own resize gate ignores
+    // resizes on touch, so nothing else would re-measure the triggers.
+    const onVhFrozenChange = () => ScrollTrigger.refresh();
+    window.addEventListener(VH_FROZEN_CHANGE, onVhFrozenChange);
 
     // ---- Section meta (.num + .meta) — quiet fade for the labels above
     // and beside each section headline. The h2 itself gets the char
@@ -796,89 +896,64 @@ export default function DxV3Page() {
       if (t.scrollTrigger) triggers.push(t.scrollTrigger);
     });
 
-    // ---- Features: scroll-scrubbed cascading slider ----
-    const cascadePinStack = document.querySelector<HTMLElement>(
-      '.dx-v3 .cascade-pin-stack'
-    );
-    if (cascadePinStack) {
-      const slides = Array.from(
-        cascadePinStack.querySelectorAll<HTMLElement>('[data-cascading-slide]')
-      );
-      const currentLabel = cascadePinStack.querySelector<HTMLElement>('.cascade-current');
-      const totalLabel = cascadePinStack.querySelector<HTMLElement>('.cascade-total');
-      if (totalLabel) totalLabel.textContent = String(slides.length).padStart(2, '0');
-
-      let slideW = slides[0]?.offsetWidth || 400;
-      const layoutCascade = (cursor: number) => {
-        if (!slides.length) return;
-        const peek = Math.min(70, Math.max(36, slideW * 0.13));
-        const gap = 12;
-        const innerStep = peek + 6;
-
-        slides.forEach((slide, i) => {
-          const distance = i - cursor;
-          const absDist = Math.abs(distance);
-          const t = Math.min(1, absDist);
-          const beyond = absDist - t;
-
-          let x: number;
-          let clipL: number;
-          let clipR: number;
-          if (distance >= 0) {
-            x = (slideW + gap) * t + beyond * innerStep;
-            clipL = 0;
-            clipR = (slideW - peek) * t;
-          } else {
-            x = -((slideW + gap) * t + beyond * innerStep);
-            clipL = (slideW - peek) * t;
-            clipR = 0;
-          }
-          const zIndex = 50 - Math.floor(absDist);
-
-          // Horizontal cascade offset is fed through a CSS variable (not gsap's
-          // transform) so CSS keeps ownership of the full transform string and
-          // its translateY(-50%) re-resolves live against the card's current
-          // (auto) height. Using gsap's `x`/`yPercent` here baked a stale px
-          // translate on mobile and pushed cards off-center vertically.
-          gsap.set(slide, {
-            '--cascade-x': x,
-            '--clip-l': clipL,
-            '--clip-r': clipR,
-            zIndex,
-          } as gsap.TweenVars);
-
-          const isActive = absDist < 0.5;
-          slide.classList.toggle('is-active', isActive);
-          slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    // ---- Features: "How we work" — scroll accordion ----
+    // Six process rows in a pinned frame. Scroll moves a fractional cursor
+    // down the list; each row's --open (0→1) is 1 − its distance to the
+    // cursor, so the active row unfolds (body height, title scale, icon draw,
+    // underline) while its neighbours fold, and the handoff between rows
+    // blends instead of snapping. Sizes stay CSS-owned — height is
+    // calc(--body-h × --open) with --body-h measured here — so nothing
+    // GSAP-owned can go stale on a resize or a font swap (see the
+    // project's cascade-misalign lesson).
+    const stepsStack = document.querySelector<HTMLElement>('.dx-v3 .steps-stack');
+    if (stepsStack) {
+      const rows = Array.from(stepsStack.querySelectorAll<HTMLElement>('.step'));
+      const measure = () => {
+        rows.forEach((row) => {
+          const inner = row.querySelector<HTMLElement>('.step-body-inner');
+          if (inner) row.style.setProperty('--body-h', inner.offsetHeight + 'px');
         });
-
-        if (currentLabel) {
-          const rounded = Math.min(slides.length, Math.round(cursor) + 1);
-          currentLabel.textContent = String(rounded).padStart(2, '0');
-        }
       };
-
-      layoutCascade(0);
-
-      const cascadeTrigger = ScrollTrigger.create({
-        trigger: cascadePinStack,
-        start: 'top top',
-        end: 'bottom bottom',
-        // Desktop scrolls through Lenis (already smoothed), so a little scrub
-        // reads as buttery. On touch Lenis is skipped and native scroll drives
-        // the trigger directly, so the same 0.4s of scrub lags visibly behind
-        // the finger — the cards feel sluggish. Tighten it on mobile.
-        scrub: isMobile ? 0.12 : 0.4,
-        invalidateOnRefresh: true,
-        onRefresh: () => {
-          slideW = slides[0]?.offsetWidth || 400;
-        },
-        onUpdate: (self) => {
-          const cursor = self.progress * (slides.length - 1);
-          layoutCascade(cursor);
-        },
-      });
-      triggers.push(cascadeTrigger);
+      const layout = (cursor: number) => {
+        rows.forEach((row, i) => {
+          const open = Math.max(0, 1 - Math.abs(i - cursor));
+          row.style.setProperty('--open', open.toFixed(4));
+          row.classList.toggle('is-open', open > 0.5);
+        });
+      };
+      measure();
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        // Static: every step open, no pin.
+        rows.forEach((row) => {
+          row.style.setProperty('--open', '1');
+          row.classList.add('is-open');
+        });
+        stepsStack.setAttribute('data-static', '');
+      } else {
+        layout(0);
+        // A proxy tween (not a bare ScrollTrigger) so `scrub` actually
+        // smooths the cursor — scrub only eases a linked animation.
+        const proxy = { p: 0 };
+        const sweep = gsap.to(proxy, {
+          p: 1,
+          ease: 'none',
+          onUpdate: () => {
+            // 6% dwell at both ends so the first / last step sits fully open
+            // before and after the sweep.
+            const p = gsap.utils.clamp(0, 1, (proxy.p - 0.06) / 0.88);
+            layout(p * (rows.length - 1));
+          },
+          scrollTrigger: {
+            trigger: stepsStack,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: isMobile ? 0.15 : 0.5,
+            invalidateOnRefresh: true,
+            onRefresh: measure,
+          },
+        });
+        if (sweep.scrollTrigger) triggers.push(sweep.scrollTrigger);
+      }
     }
 
     // ---- Pains: rectangle entrance (neu-ad.jp style) ----
@@ -1073,21 +1148,48 @@ export default function DxV3Page() {
       triggers.push(casesTrigger);
     }
 
-    gsap.utils
-      .toArray<HTMLElement>('.dx-v3 .rpa-trio .item, .dx-v3 .rpa-card')
-      .forEach((el) => {
-        const t = gsap.fromTo(
-          el,
-          { y: 60, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 60%', scrub: true },
-          }
-        );
-        if (t.scrollTrigger) triggers.push(t.scrollTrigger);
-      });
+    // ---- Agents in action: stacking case files ----
+    // Cards are position:sticky with stepped top offsets (CSS nth-child), so
+    // each new card slides up over the previous like a file dropped on a
+    // pile. As a card is covered it recedes — a touch of scale-down and a
+    // navy veil (--veil) — scrubbed to the covering card's approach. The
+    // stack itself is pure CSS, so a dead pipeline still shows every card.
+    const rpaCards = gsap.utils.toArray<HTMLElement>('.dx-v3 .rpa-card');
+    rpaCards.forEach((card, i) => {
+      const next = rpaCards[i + 1];
+      if (!next) return;
+      const t = gsap.to(card, {
+        scale: 0.955,
+        '--veil': 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: next,
+          start: 'top bottom',
+          end: 'top ' + (96 + (i + 1) * 18) + 'px', // = the next card's sticky top
+          scrub: 0.3,
+          invalidateOnRefresh: true,
+        },
+      } as gsap.TweenVars);
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+    });
+    // The three conditions wipe in left→right under the pile — a coda in the
+    // same language, not another fade. Non-scrub so the reveal escape hatch
+    // can complete it.
+    const rpaItems = gsap.utils.toArray<HTMLElement>('.dx-v3 .rpa-trio .item');
+    if (rpaItems.length) {
+      const t = gsap.fromTo(
+        rpaItems,
+        { clipPath: 'inset(0 100% 0 0)' },
+        {
+          clipPath: 'inset(0 0% 0 0)',
+          duration: 0.8,
+          ease: 'power3.out',
+          stagger: 0.12,
+          scrollTrigger: { trigger: '.dx-v3 .rpa-trio', start: 'top 85%', once: true },
+        }
+      );
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger);
+    }
 
     // ---- AI section ----
     const aiHeadTween = gsap.fromTo(
@@ -1636,6 +1738,13 @@ export default function DxV3Page() {
           /* one bad trigger must not stop the rest from revealing */
         }
       });
+      // The pillars set-piece is scrub-driven but STARTS hidden — jump it to
+      // the finished frame so the three pillars are readable.
+      try {
+        pillarsTl?.progress(1);
+      } catch {
+        /* same rule: never let one animation strand the page */
+      }
     };
 
     // Scroll-reset + refresh are the only calls here that can throw. They are
@@ -1749,7 +1858,7 @@ export default function DxV3Page() {
         );
       }
     }
-    // Real italic for the purple accents (Inter — Gen Interface JP has no
+    // Real italic for the blue accents (Inter — Gen Interface JP has no
     // italic face, so italic on it synthesizes a faux oblique that clipped on
     // mobile). Wait for the real italic too so accents never flash the faux
     // oblique before Inter swaps in. Glyph hint covers every accent word.
@@ -1806,6 +1915,10 @@ export default function DxV3Page() {
       window.clearTimeout(setupWatchdog);
       window.__dxV3Phase = undefined;
       pixelatedMM.revert();
+      window.removeEventListener('resize', onPillarsResize);
+      window.removeEventListener(VH_FROZEN_CHANGE, onVhFrozenChange);
+      window.clearTimeout(pillarsResizeTimer);
+      pillarsCtx?.revert();
       triggers.forEach((t) => t.kill());
       if (lenisRaf) gsap.ticker.remove(lenisRaf);
       lenis?.destroy();
@@ -1836,7 +1949,7 @@ export default function DxV3Page() {
             // loading.tsx and the #page-cover recolor. revealAndRefresh fades
             // this out to reveal the liquid hero (the entrance), so it never
             // hard-cuts from cover to page.
-            background: 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)',
+            background: '#0B1020',
             pointerEvents: 'none',
           }}
         />
@@ -2011,30 +2124,52 @@ export default function DxV3Page() {
 
       </section>
 
-      {/* STATS — THREE PILLARS */}
+      {/* STATS — THREE PILLARS. Pinned set-piece: each pillar's bar draws,
+          a halo blooms and the kanji stands up out of the bar, column by
+          column, driven by scroll (buildPillars() above). */}
       <section className="stats">
-        <div className="wrap">
-          <div className="row">
-            <div className="stat">
-              <div className="num">
-                <em>学習</em>
+        <div className="stats-frame">
+          <div className="wrap">
+            <div className="row">
+              <div className="stat">
+                <div className="pillar-head">
+                  <span className="halo" aria-hidden="true" />
+                  <div className="num-mask">
+                    <div className="num">
+                      <em>学習</em>
+                    </div>
+                  </div>
+                  <span className="floor" aria-hidden="true" />
+                </div>
+                <div className="lab">Understand AI</div>
+                <div className="ja">AIを正しく理解する</div>
               </div>
-              <div className="lab">Understand AI</div>
-              <div className="ja">AIを正しく理解する</div>
-            </div>
-            <div className="stat">
-              <div className="num">
-                <em>実装</em>
+              <div className="stat">
+                <div className="pillar-head">
+                  <span className="halo" aria-hidden="true" />
+                  <div className="num-mask">
+                    <div className="num">
+                      <em>実装</em>
+                    </div>
+                  </div>
+                  <span className="floor" aria-hidden="true" />
+                </div>
+                <div className="lab">Drive Results</div>
+                <div className="ja">業務で成果を出す</div>
               </div>
-              <div className="lab">Drive Results</div>
-              <div className="ja">業務で成果を出す</div>
-            </div>
-            <div className="stat">
-              <div className="num">
-                <em>定着</em>
+              <div className="stat">
+                <div className="pillar-head">
+                  <span className="halo" aria-hidden="true" />
+                  <div className="num-mask">
+                    <div className="num">
+                      <em>定着</em>
+                    </div>
+                  </div>
+                  <span className="floor" aria-hidden="true" />
+                </div>
+                <div className="lab">Grow In-House</div>
+                <div className="ja">自社で育てられる状態へ</div>
               </div>
-              <div className="lab">Grow In-House</div>
-              <div className="ja">自社で育てられる状態へ</div>
             </div>
           </div>
         </div>
@@ -2185,53 +2320,32 @@ export default function DxV3Page() {
           </div>
         </div>
 
-        <div className="cascade-pin-stack">
-          <div className="cascade-pin-frame">
-            {/* Color Bends (reactbits) shader backdrop — this section's own
-                motion identity, replacing the rising deco-rects used elsewhere
-                on the page. Ported into the repo's context-loss-safe raw-WebGL
-                scaffold (see ColorBends.tsx). Sits behind the cards
-                (z-index:0; .cascade-slider is z-index:1). */}
-            <ColorBends
-              className="cascade-bends"
-              style={{ left: -32, right: -32, width: 'auto' }}
-            />
-            <div className="cascade-slider" data-cascading-slider-wrap>
-              <div className="cascade-viewport" data-cascading-viewport>
-                {FEATURES.map((f, i) => (
-                  <article
-                    key={f.id}
-                    className="cascade-slide"
-                    data-cascading-slide
-                    data-slide-index={i}
+        {/* Scroll accordion — six process rows; the active row unfolds as
+            scroll moves a cursor down the list (see "Features: How we work"
+            in the effect above). --open / --body-h are set per row by JS. */}
+        <div className="steps-stack">
+          <div className="steps-frame">
+            <ol className="steps">
+              {FEATURES.map((f) => (
+                <li key={f.id} className="step">
+                  <span className="step-id">{f.id}</span>
+                  <h3>{f.title}</h3>
+                  <div className="step-body">
+                    <p className="step-body-inner">{f.body}</p>
+                  </div>
+                  <svg
+                    className="step-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    aria-hidden
                   >
-                    <div className="cascade-card">
-                      <div className="cascade-id">{f.id}</div>
-                      <div className="cascade-media">
-                        <svg
-                          className="cascade-icon"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.4"
-                          aria-hidden
-                        >
-                          <path d={f.icon} strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                      <h3>{f.title}</h3>
-                      <p>{f.body}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              <div className="cascade-counter">
-                <span className="cascade-current">01</span>
-                <span className="cascade-sep">/</span>
-                <span className="cascade-total">06</span>
-              </div>
-            </div>
+                    <path d={f.icon} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>

@@ -17,7 +17,7 @@ export default function DxConsultingLoading() {
         position: 'fixed',
         inset: 0,
         zIndex: 9998,
-        background: 'linear-gradient(160deg, #0b0b0e 0%, #17181c 100%)',
+        background: '#0B1020',
       }}
       aria-label="Loading"
     />

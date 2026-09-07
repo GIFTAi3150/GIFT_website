@@ -4,12 +4,20 @@ import { useEffect } from 'react';
 
 /** `:root` に書き込む変数名。スクロール予算のみがこれを使う。 */
 const VH_VAR = '--vh-frozen';
+/**
+ * 同じく px 固定した `100svh`（ツールバー表示時 = 最小の viewport 高さ）。
+ * 「初回表示で下端まで見えていなければならない全画面要素」（ヒーローの CTA
+ * など）はこちらを使う。Safari / Chrome では svh 自体が安定しているが、
+ * WebView を物理リサイズする Instagram では svh も再解決されるので、
+ * そこでも px 固定が唯一の安定単位になる。
+ */
+const SVH_VAR = '--svh-frozen';
 
 /** 再測定したことを購読者（ScrollTrigger を持つ節）に知らせるイベント。 */
 export const VH_FROZEN_CHANGE = 'gift:vh-frozen-change';
 
 /**
- * いま `100vh` が解決する値を px で測る。
+ * いま `100vh`（または `100svh`）が解決する値を px で測る。
  *
  * `window.innerHeight` ではない点が重要。iOS Safari では `100vh` は *large*
  * viewport（ツールバー格納時の高さ）に解決されるので `innerHeight` より大きい。
@@ -18,10 +26,10 @@ export const VH_FROZEN_CHANGE = 'gift:vh-frozen-change';
  *
  * プローブは `position: fixed` なのでドキュメント高さには一切影響しない。
  */
-function measure100vh(): number {
+function measureViewport(height: '100vh' | '100svh'): number {
   const probe = document.createElement('div');
   probe.style.cssText =
-    'position:fixed;top:0;left:0;width:0;height:100vh;visibility:hidden;pointer-events:none;';
+    `position:fixed;top:0;left:0;width:0;height:${height};visibility:hidden;pointer-events:none;`;
   document.body.appendChild(probe);
   // getBoundingClientRect は小数を保持する。offsetHeight だと丸められ、
   // ×5.8 したときに最大 3px ずれる。
@@ -56,10 +64,13 @@ export default function ViewportFreeze() {
     let settleTimer: number | undefined;
 
     const apply = (announce: boolean) => {
-      const px = measure100vh();
+      const px = measureViewport('100vh');
       // 非表示タブ等で 0 が返ることがある。そのときは前の値を保持する。
       if (!px) return;
       root.style.setProperty(VH_VAR, `${px}px`);
+      // svh 未対応のエンジンでは宣言が無効 → 0 が返るので vh に倣う。
+      const spx = measureViewport('100svh') || px;
+      root.style.setProperty(SVH_VAR, `${spx}px`);
       lastWidth = window.innerWidth;
       lastHeight = window.innerHeight;
       if (announce) window.dispatchEvent(new Event(VH_FROZEN_CHANGE));
@@ -93,6 +104,7 @@ export default function ViewportFreeze() {
       window.removeEventListener('orientationchange', onResize);
       window.clearTimeout(settleTimer);
       root.style.removeProperty(VH_VAR);
+      root.style.removeProperty(SVH_VAR);
     };
   }, []);
 
