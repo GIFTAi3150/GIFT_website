@@ -1,0 +1,1375 @@
+/* /services/aiops — "Groundwork" (2026-09-07).
+   One navy sheet over a fixed liquid plate (AoField: the approved loudsrl
+   "Balatro" paint, navy / indigo / periwinkle). The hero scene reads over the
+   paint at full turbulence; the pin calms the paint itself while the statement
+   comes up out of it; under the sections a navy veil dims it to a slow pulse;
+   under the CTA the veil lifts and the paint moves again. Every section has
+   its own mechanism. Spec: docs/aiops-groundwork-redesign-spec.md
+
+   Viewport units: heights that fill the screen use var(--svh-frozen) (the
+   bars-visible viewport, px-frozen), scroll budgets use var(--vh-frozen).
+   Instagram's in-app browser physically resizes the WebView on every toolbar
+   toggle, so live vh/svh/dvh re-resolve and shift the page under the reader's
+   finger (see ViewportFreeze.tsx). Live vh stays only in font sizes and in
+   positions inside fixed-size frames. */
+
+.ao-page {
+  --ao-paper: #f3f1eb;
+  --ao-ink: #0b1020;
+  --ao-ink-2: #111827;
+  --ao-board: #0f1730;
+  --ao-blue: #2563eb;
+  --ao-blue-light: #6d9bff;
+  --ao-indigo: #4f6af0;
+  --ao-peri: #bfccfa;
+  --ao-muted: rgba(11, 16, 32, 0.62);
+  --ao-muted-navy: rgba(243, 241, 235, 0.68);
+  --ao-line: rgba(11, 16, 32, 0.14);
+  --ao-line-navy: rgba(243, 241, 235, 0.16);
+  --header-h: 80px; /* Header is h-20 fixed */
+  --ao-pad: clamp(16px, 4vw, 64px);
+  --font-body: var(--font-noto-jp), sans-serif;
+  --font-display: var(--font-poppins), sans-serif;
+  /* scroll budgets — multiples of --vh-frozen added to each pinned frame */
+  --ao-scene-budget: 1.7;
+  --ao-caps-budget: 1.6;
+  --ao-pains-budget: 2.2;
+  --ao-steps-budget: 2.6; /* six steps; each flip spans ~230 px of scroll (user: slower) */
+  --ao-agents-budget: 2;
+  position: relative;
+  isolation: isolate;
+  background: var(--ao-ink);
+  color: var(--ao-paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* One fixed plate behind the page. Every section is transparent to it
+   (the veil provides the ground); the Thinking sheet is opaque paper. */
+.ao-page > :not(.ao-field) {
+  position: relative;
+  z-index: 1;
+}
+.ao-field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* the LARGE viewport, not inset:0 — on phones inset:0 follows the address
+     bar, so the box (and the canvas in it) would change size on every scroll */
+  height: 100vh;
+  height: 100lvh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--ao-ink);
+}
+.ao-field canvas {
+  display: block;
+}
+.ao-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--ao-ink);
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
+}
+/* no WebGL / context lost: quiet navy with the two lights as a bloom */
+.ao-page[data-ao-fallback] .ao-field {
+  background:
+    radial-gradient(ellipse 46% 40% at 30% 42%, rgba(79, 106, 240, 0.42) 0%, transparent 70%),
+    radial-gradient(ellipse 36% 30% at 72% 68%, rgba(191, 204, 250, 0.22) 0%, transparent 70%),
+    var(--ao-ink);
+}
+
+/* the footer needs its own positioned layer or the fixed plate covers it */
+.ao-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Flash guard: first paint is navy; children stay hidden until AoScroll
+      has applied every initial state (released in a rAF at its end). */
+.ao-page[data-flash-guard] > * {
+  visibility: hidden;
+}
+.ao-page[data-flash-guard]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: var(--ao-ink);
+  visibility: visible;
+  pointer-events: none;
+}
+
+/* ── Shared pieces ───────────────────────────────────────────────────── */
+.ao-container {
+  margin-inline: auto;
+  max-width: 76rem;
+  padding-inline: 16px;
+}
+@media (min-width: 768px) {
+  .ao-container {
+    padding-inline: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  .ao-container {
+    padding-inline: 32px;
+  }
+}
+
+.ao-page p {
+  font-family: var(--font-body);
+}
+.ao-page ::selection {
+  background: var(--ao-blue);
+  color: #fff;
+}
+
+.ao-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* masked rise (hero intro) */
+.ao-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.08em 0.06em 0.16em;
+  margin: -0.08em -0.06em -0.16em;
+}
+.ao-mask__in {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* section head — the only repeated motion on the page */
+.ao-head {
+  max-width: 46rem;
+}
+.ao-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  color: var(--ao-blue-light);
+}
+.ao-label__rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+}
+.ao-label__text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.ao-h2 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.ao-h2__mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.ao-h2__line {
+  display: block;
+}
+.ao-h2__en {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(34px, 4.6vw, 62px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.18em;
+}
+.ao-h2:has(.ao-h2__en) .ao-h2__line:not(.ao-h2__en) {
+  font-size: clamp(19px, 2.1vw, 27px);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ao-muted-navy);
+}
+.ao-head__lead {
+  margin: 22px 0 0;
+  max-width: 40rem;
+  font-weight: 300;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.95;
+  color: var(--ao-muted-navy);
+  text-wrap: pretty;
+}
+
+/* the site outline button on navy */
+.cta-btn--ao {
+  border-color: var(--ao-paper);
+  color: var(--ao-paper);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.cta-btn--ao::before {
+  background-color: var(--ao-blue);
+}
+.cta-btn--ao:hover,
+.cta-btn--ao:focus-visible {
+  border-color: var(--ao-blue);
+  color: #ffffff;
+}
+
+/* pinned stages: the frame sticks while the stage's extra height is read */
+.ao-scene__frame,
+.ao-caps__frame,
+.ao-pains__frame,
+.ao-steps__frame,
+.ao-agents__frame {
+  position: sticky;
+  top: 0;
+  height: var(--svh-frozen, 100svh);
+  overflow: clip;
+}
+
+/* ── 1. The scene — AI / Ops. on the paint, then the statement ───────── */
+.ao-scene {
+  position: relative;
+  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-scene-budget));
+}
+.ao-scene__frame {
+  min-height: 560px;
+}
+.ao-scene__scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 58% 52% at 50% 56%, rgba(11, 16, 32, 0.62) 0%, transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+}
+.ao-hero {
+  position: absolute;
+  inset: 0;
+  padding-inline: var(--ao-pad);
+  transform-origin: 30% 50%;
+  will-change: transform, opacity, filter;
+}
+.ao-hero__kicker {
+  position: absolute;
+  left: var(--ao-pad);
+  top: calc(var(--header-h) + 28px);
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--ao-muted-navy);
+}
+.ao-hero__kicker .ao-mask__in {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.ao-hero__kicker-rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: var(--ao-blue-light);
+}
+.ao-hero__block {
+  position: absolute;
+  left: var(--ao-pad);
+  right: var(--ao-pad);
+  top: calc(50% + var(--header-h) * 0.5 - 4vh);
+  transform: translateY(-50%);
+}
+.ao-hero__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(64px, min(17vw, 28vh), 320px);
+  line-height: 0.86;
+  letter-spacing: -0.03em;
+  color: var(--ao-paper);
+  white-space: nowrap;
+  /* no text-shadow here: the intro masks clip it into a dark box */
+}
+.ao-hero__tline {
+  display: block;
+}
+.ao-hero__tmask {
+  padding: 0.06em 0.04em 0.12em;
+  margin: -0.06em -0.04em -0.12em;
+}
+.ao-hero__jp {
+  margin: clamp(18px, 2.4vw, 34px) 0 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(16px, 1.55vw, 24px);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--ao-paper);
+  text-wrap: balance;
+}
+.ao-hero__cta {
+  position: absolute;
+  left: var(--ao-pad);
+  bottom: clamp(56px, 12vh, 110px);
+}
+.ao-hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--ao-muted-navy);
+}
+.ao-hero__cue-line {
+  display: block;
+  width: 1px;
+  height: 44px;
+  background: var(--ao-line-navy);
+  overflow: hidden;
+}
+.ao-hero__cue-line > span {
+  display: block;
+  width: 100%;
+  height: 40%;
+  background: var(--ao-paper);
+  animation: ao-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes ao-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(260%);
+  }
+}
+
+/* the statement — every stanza shares one cell; AoScroll dollies them */
+.ao-statement {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--header-h) var(--ao-pad) 0;
+  pointer-events: none;
+}
+.ao-stanza {
+  grid-area: 1 / 1;
+  max-width: 24em;
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(21px, 3vw, 42px);
+  line-height: 1.62;
+  letter-spacing: 0.02em;
+  color: var(--ao-paper);
+  text-shadow: 0 2px 26px rgba(11, 16, 32, 0.6);
+  will-change: transform, opacity, filter;
+}
+.ao-stanza__line {
+  display: block;
+  text-wrap: balance;
+}
+.ao-stanza__accent {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--ao-peri);
+}
+
+/* ── 2. Capabilities — the dial ──────────────────────────────────────── */
+.ao-caps {
+  padding-top: clamp(96px, 14vh, 180px);
+}
+.ao-caps__stage {
+  position: relative;
+  margin-top: clamp(40px, 6vh, 72px);
+  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-caps-budget));
+}
+.ao-caps__frame {
+  display: grid;
+  grid-template-columns: minmax(0, 44%) minmax(0, 56%);
+  padding-top: var(--header-h);
+}
+.ao-dial {
+  --dial-r: clamp(240px, 40vh, 380px);
+  --dial-step: 40deg; /* keep in sync with DIAL_STEP in AoScroll.tsx */
+  --dial-a0: 0deg;
+  --dial-dir: 1;
+  --dial-a: 0deg;
+  --dial-hub-x: calc(var(--dial-r) * -0.3);
+  --dial-hub-y: 50%;
+  position: relative;
+  height: 100%;
+}
+.ao-dial__ring {
+  position: absolute;
+  left: var(--dial-hub-x);
+  top: var(--dial-hub-y);
+  width: calc(var(--dial-r) * 2);
+  height: calc(var(--dial-r) * 2);
+  border-radius: 50%;
+  border: 1px solid var(--ao-line-navy);
+  transform: translate(-50%, -50%);
+}
+.ao-dial__ring--inner {
+  width: calc(var(--dial-r) * 1.64);
+  height: calc(var(--dial-r) * 1.64);
+  border-color: rgba(243, 241, 235, 0.07);
+}
+.ao-dial__pointer {
+  position: absolute;
+  left: calc(var(--dial-hub-x) + var(--dial-r) - 46px);
+  top: var(--dial-hub-y);
+  width: 30px;
+  height: 1px;
+  background: var(--ao-blue-light);
+  transform: translateY(-0.5px);
+}
+.ao-dial__wheel {
+  position: absolute;
+  left: var(--dial-hub-x);
+  top: var(--dial-hub-y);
+  width: 0;
+  height: 0;
+}
+.ao-dial__spoke {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform: rotate(calc(var(--dial-a0) + var(--dial-dir) * (var(--dial-a) + var(--i) * var(--dial-step))));
+  /* off-angle spokes fade (AoScroll writes the opacity per frame) */
+  transition: opacity 0.2s linear;
+}
+.ao-dial__tick {
+  position: absolute;
+  left: calc(var(--dial-r) - 8px);
+  top: -0.5px;
+  width: 16px;
+  height: 1px;
+  background: rgba(243, 241, 235, 0.45);
+}
+.ao-dial__title {
+  position: absolute;
+  left: calc(var(--dial-r) + 22px);
+  top: 0;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(22px, 2.7vw, 38px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgba(243, 241, 235, 0.34);
+  transform-origin: 0 0;
+  transform: rotate(calc(-1 * (var(--dial-a0) + var(--dial-dir) * (var(--dial-a) + var(--i) * var(--dial-step)))))
+    translateY(-50%);
+  transition: color 0.4s ease;
+}
+.ao-dial__spoke.is-on .ao-dial__title {
+  color: var(--ao-paper);
+}
+.ao-dial__spoke.is-on .ao-dial__tick {
+  background: var(--ao-blue-light);
+}
+
+.ao-caps__panel {
+  position: relative;
+  height: 100%;
+  padding-inline: clamp(16px, 3vw, 40px) var(--ao-pad);
+}
+.ao-cap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: clamp(18px, 3vh, 32px);
+  padding-inline: inherit;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(22px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.45s;
+}
+.ao-cap.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.5s ease 0.1s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
+    visibility 0s linear 0.1s;
+}
+.ao-cap__lottie {
+  width: clamp(180px, 34vh, 360px);
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.cap-lottie {
+  display: block;
+}
+.cap-lottie {
+  transform: scale(1.45);
+  transform-origin: 50% 50%;
+}
+.cap-lottie--animation {
+  transform: scale(1.7);
+  transform-origin: 45% 48%;
+}
+.cap-lottie--datab-animation {
+  transform: scale(1.9);
+  transform-origin: 48% 45%;
+}
+.cap-lottie--robot-animation {
+  transform: scale(3);
+  transform-origin: 45% 44%;
+}
+.cap-lottie--saas-animation {
+  transform: translateY(8%) scale(1.7);
+  transform-origin: 50% 50%;
+}
+.ao-cap__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(30px, 3.7vw, 58px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ao-paper);
+}
+.ao-cap__body {
+  margin: 18px 0 0;
+  max-width: 30em;
+  font-weight: 300;
+  font-size: clamp(16px, 1.5vw, 22px);
+  line-height: 1.9;
+  color: var(--ao-muted-navy);
+  text-wrap: pretty;
+}
+.ao-cap__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ao-cap__tags li {
+  position: relative;
+  padding-left: 16px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(13px, 1.05vw, 16px);
+  letter-spacing: 0.08em;
+  color: var(--ao-blue-light);
+}
+.ao-cap__tags li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* ── 3. Signs — the pile ─────────────────────────────────────────────── */
+.ao-pains {
+  position: relative;
+  margin-top: clamp(40px, 8vh, 96px);
+}
+.ao-pains__stage {
+  position: relative;
+  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-pains-budget));
+}
+.ao-pains__frame {
+  display: grid;
+  align-items: center;
+  padding-top: var(--header-h);
+}
+.ao-pains__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+  width: 100%;
+}
+.ao-pile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ao-slab {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: clamp(16px, 2.2vh, 24px) clamp(18px, 2.4vw, 30px);
+  border: 1px solid var(--ao-line-navy);
+  background: rgba(11, 16, 32, 0.62);
+  will-change: transform;
+}
+.ao-slab__mark {
+  flex: none;
+  padding-top: 0.15em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  color: var(--ao-blue-light);
+}
+.ao-slab__q {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(15.5px, 1.4vw, 20px);
+  line-height: 1.6;
+  color: var(--ao-paper);
+  text-wrap: balance;
+}
+.ao-pains__answer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  opacity: 0;
+  visibility: hidden;
+}
+.ao-pains__en {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 4vw, 58px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ao-paper);
+}
+.ao-pains__en em {
+  font-style: normal;
+  color: var(--ao-blue-light);
+}
+.ao-pains__ja {
+  margin: 16px 0 0;
+  font-weight: 500;
+  font-size: clamp(15px, 1.35vw, 19px);
+  line-height: 1.7;
+  color: var(--ao-muted-navy);
+}
+
+/* ── 4. How we work — the flip board ─────────────────────────────────── */
+.ao-steps {
+  padding-top: clamp(96px, 14vh, 180px);
+}
+.ao-steps__stage {
+  position: relative;
+  margin-top: clamp(40px, 6vh, 72px);
+  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-steps-budget));
+}
+.ao-steps__frame {
+  display: grid;
+  align-items: center;
+  padding-top: var(--header-h);
+}
+/* a grid item with auto margins shrink-wraps to its content, and the board's
+   children are all absolutely positioned — so without this the board had no
+   width at all (only the index dashes showed) */
+.ao-steps__frame > .ao-container {
+  width: 100%;
+}
+.ao-flap {
+  --flip: 0;
+  --flap-pad: clamp(22px, 3.4vw, 52px);
+  position: relative;
+  height: min(62vh, 580px);
+  min-height: 380px;
+  perspective: 1500px;
+}
+.ao-flap__half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background: var(--ao-board);
+}
+.ao-flap__half--top {
+  top: 0;
+}
+.ao-flap__half--bottom {
+  top: 50%;
+}
+/* the leaf's shadow on the lower half as it turns */
+.ao-flap__half--bottom::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), transparent 55%);
+  opacity: calc(sin(var(--flip) * 3.14159) * 0.9);
+  pointer-events: none;
+}
+.ao-flap__slot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 200%;
+}
+.ao-flap__slot--upper {
+  top: 0;
+}
+.ao-flap__slot--lower {
+  top: -100%;
+}
+.ao-flap__face {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+.ao-flap__face.is-on {
+  visibility: visible;
+}
+.ao-flap__leaf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.ao-flap__leaf-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ao-board);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.ao-flap__leaf-face--back {
+  transform: rotateX(180deg);
+}
+/* the leaf takes shade as it turns away, and light as it comes round */
+.ao-flap__leaf-face--front::after,
+.ao-flap__leaf-face--back::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ao-flap__leaf-face--front::after {
+  background: rgba(0, 0, 0, calc(var(--flip) * 1.2));
+}
+.ao-flap__leaf-face--back::after {
+  background: rgba(243, 241, 235, calc((1 - var(--flip)) * 0.12));
+}
+.ao-flap__split {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--ao-ink);
+  z-index: 2;
+}
+.ao-flap__index {
+  position: absolute;
+  right: var(--flap-pad);
+  top: var(--flap-pad);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+.ao-flap__index span {
+  width: 22px;
+  height: 2px;
+  background: rgba(243, 241, 235, 0.18);
+  transition: background 0.3s ease;
+}
+.ao-flap__index span.is-on {
+  background: var(--ao-blue-light);
+}
+.ao-face {
+  position: absolute;
+  inset: 0;
+}
+.ao-face__n {
+  position: absolute;
+  left: var(--flap-pad);
+  top: var(--flap-pad);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: var(--ao-blue-light);
+}
+.ao-face__n .ao-mono {
+  margin-right: 6px;
+  color: var(--ao-muted-navy);
+}
+.ao-face__title {
+  position: absolute;
+  left: var(--flap-pad);
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(60px, 10.5vw, 160px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ao-paper);
+  white-space: nowrap;
+}
+.ao-face__body {
+  position: absolute;
+  left: var(--flap-pad);
+  right: var(--flap-pad);
+  bottom: var(--flap-pad);
+  margin: 0;
+  max-width: 36em;
+  font-weight: 300;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.9;
+  color: var(--ao-muted-navy);
+  text-wrap: pretty;
+}
+/* reduced motion: a plain list instead of the board */
+.ao-steps__list {
+  display: none;
+}
+
+/* ── 5. Agents — the fill ────────────────────────────────────────────── */
+.ao-agents {
+  padding-top: clamp(96px, 14vh, 180px);
+}
+.ao-agents__stage {
+  position: relative;
+  margin-top: clamp(40px, 6vh, 72px);
+  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-agents-budget));
+}
+.ao-agents__frame {
+  display: grid;
+  align-items: center;
+  padding-top: var(--header-h);
+}
+.ao-agents__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: center;
+  width: 100%;
+}
+.ao-fill {
+  display: flex;
+  flex-direction: column;
+}
+.ao-fill__word {
+  --f: 0;
+  position: relative;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(52px, 12.6vh, 128px);
+  line-height: 1.08;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ao-fill__hollow {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(243, 241, 235, 0.4);
+}
+.ao-fill__solid {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  background: linear-gradient(115deg, #4f6af0 0%, #bfccfa 36%, #6d9bff 60%, #4f6af0 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  clip-path: inset(calc((1 - var(--f)) * 100%) 0 0 0);
+  animation: ao-fill-drift 9s linear infinite;
+}
+@keyframes ao-fill-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.ao-dossiers {
+  position: relative;
+  min-height: 320px;
+}
+.ao-dossier {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding-top: 28px;
+  border-top: 1px solid var(--ao-line-navy);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(26px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.45s;
+}
+.ao-dossier.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.5s ease 0.08s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.08s,
+    visibility 0s linear 0.08s;
+}
+.ao-dossier__industry,
+.ao-dossier__role {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  color: var(--ao-paper);
+}
+.ao-dossier__industry {
+  font-weight: 500;
+  font-size: clamp(14px, 1.2vw, 17px);
+  letter-spacing: 0.06em;
+}
+.ao-dossier__role {
+  font-weight: 300;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.9;
+  color: var(--ao-muted-navy);
+  max-width: 34em;
+}
+.ao-dossier .ao-mono {
+  color: var(--ao-blue-light);
+}
+.ao-dossier__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ao-paper);
+}
+
+.ao-conditions {
+  padding-top: clamp(80px, 12vh, 150px);
+}
+.ao-conditions__head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 clamp(32px, 5vh, 56px);
+  font-weight: 500;
+  font-size: clamp(14px, 1.2vw, 17px);
+  letter-spacing: 0.1em;
+  color: var(--ao-paper);
+  white-space: nowrap;
+}
+.ao-conditions__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--ao-line-navy);
+  transform-origin: left center;
+}
+.ao-conditions__rule:last-child {
+  transform-origin: right center;
+}
+.ao-conditions__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ao-condition {
+  padding: 0 clamp(18px, 2.4vw, 36px);
+  border-left: 1px solid var(--ao-line-navy);
+}
+.ao-condition:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.ao-condition__title {
+  margin: 0 0 14px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(17px, 1.45vw, 21px);
+  line-height: 1.6;
+  color: var(--ao-paper);
+}
+.ao-condition__body {
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(14px, 1.1vw, 16px);
+  line-height: 1.9;
+  color: var(--ao-muted-navy);
+  text-wrap: pretty;
+}
+
+/* ── 6. Thinking — the drift ─────────────────────────────────────────── */
+.ao-sheet {
+  background: var(--ao-paper);
+  color: var(--ao-ink);
+}
+.ao-thinking {
+  margin-top: clamp(96px, 14vh, 180px);
+  padding: clamp(96px, 14vh, 170px) 0 clamp(96px, 13vh, 170px);
+  overflow: clip;
+}
+.ao-thinking__h {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(44px, 7.6vw, 124px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--ao-ink);
+  white-space: nowrap;
+}
+.ao-thinking__line {
+  display: block;
+  will-change: transform;
+}
+.ao-thinking__line--em {
+  color: var(--ao-blue);
+}
+.ao-thinking__grid {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  padding-top: clamp(44px, 7vh, 88px);
+}
+.ao-thinking__label {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--ao-ink);
+}
+.ao-thinking__label span {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ao-blue);
+}
+.ao-thinking__body {
+  max-width: 40em;
+}
+.ao-thinking__body p {
+  margin: 0 0 1.2em;
+  font-weight: 300;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 2;
+  color: var(--ao-muted);
+  text-wrap: pretty;
+}
+.ao-thinking__body p:last-child {
+  margin-bottom: 0;
+}
+.ao-thinking__body strong {
+  font-weight: 800;
+  color: var(--ao-ink);
+}
+
+/* ── 7. CTA — the bookend ────────────────────────────────────────────── */
+.ao-cta {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: calc(var(--svh-frozen, 100svh) * 0.9);
+  padding: clamp(96px, 14vh, 180px) 0;
+}
+.ao-cta__inner {
+  width: 100%;
+  will-change: transform;
+}
+.ao-cta__label-ja {
+  margin-left: 14px;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ao-muted-navy);
+}
+.ao-cta__h {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(56px, min(11vw, 20vh), 176px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--ao-paper);
+  text-shadow: 0 2px 28px rgba(11, 16, 32, 0.45);
+}
+.ao-cta__h em {
+  font-style: normal;
+  color: var(--ao-blue-light);
+}
+.ao-cta__ja {
+  margin: clamp(22px, 3.5vh, 36px) 0 clamp(28px, 4.5vh, 44px);
+  font-weight: 500;
+  font-size: clamp(16px, 1.5vw, 22px);
+  line-height: 1.7;
+  color: var(--ao-paper);
+  text-wrap: balance;
+}
+
+/* ── Phone ───────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .ao-hero__block {
+    top: calc(50% + var(--header-h) * 0.5 - 6vh);
+  }
+  .ao-hero__title {
+    font-size: clamp(64px, min(23vw, 24vh), 160px);
+  }
+  .ao-hero__cta {
+    bottom: clamp(88px, 14vh, 130px);
+  }
+  .ao-stanza {
+    font-size: clamp(20px, 5.6vw, 26px);
+    line-height: 1.7;
+  }
+
+  .ao-caps__frame {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .ao-dial {
+    --dial-r: clamp(150px, 42vw, 200px);
+    --dial-a0: 90deg;
+    --dial-dir: -1;
+    --dial-hub-x: 50%;
+    --dial-hub-y: calc(var(--dial-r) * -0.22);
+    height: calc(var(--dial-r) * 0.8 + 64px);
+  }
+  .ao-dial__pointer {
+    left: var(--dial-hub-x);
+    top: calc(var(--dial-hub-y) + var(--dial-r) - 46px);
+    width: 1px;
+    height: 30px;
+    transform: translateX(-0.5px);
+  }
+  .ao-dial__tick {
+    left: calc(var(--dial-r) - 8px);
+  }
+  .ao-dial__title {
+    left: var(--dial-r);
+    font-size: clamp(17px, 5vw, 22px);
+    transform: rotate(calc(-1 * (var(--dial-a0) + var(--dial-dir) * (var(--dial-a) + var(--i) * var(--dial-step)))))
+      translate(-50%, 12px);
+  }
+  .ao-caps__panel {
+    padding-inline: 16px;
+  }
+  /* under the dial the panel is centred, both axes (user, 2026-09-07) */
+  .ao-cap {
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    padding-top: 0;
+    padding-bottom: 6vh;
+    gap: 14px;
+  }
+  .ao-cap__body {
+    margin-inline: auto;
+  }
+  .ao-cap__tags {
+    justify-content: center;
+  }
+  .ao-cap__lottie {
+    width: clamp(120px, 26vh, 180px);
+  }
+  .ao-cap__title {
+    font-size: clamp(26px, 7vw, 34px);
+  }
+  .ao-cap__body {
+    font-size: 14.5px;
+    line-height: 1.85;
+  }
+  .ao-cap__tags li {
+    font-size: 12.5px;
+  }
+
+  .ao-pains__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    align-content: start;
+    padding-top: 8px;
+  }
+  .ao-slab {
+    gap: 12px;
+    padding: 14px 16px;
+  }
+  .ao-slab__q {
+    font-size: 15px;
+  }
+
+  .ao-flap {
+    height: min(66vh, 560px);
+  }
+  .ao-face__title {
+    font-size: clamp(52px, 17vw, 96px);
+    white-space: normal;
+  }
+  .ao-face__body {
+    font-size: 14.5px;
+    line-height: 1.8;
+  }
+
+  .ao-agents__grid {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 22px;
+    padding-top: 8px;
+  }
+  .ao-fill__word {
+    font-size: clamp(40px, 11.5vw, 58px);
+    line-height: 1.12;
+  }
+  .ao-dossiers {
+    min-height: 240px;
+  }
+  .ao-dossier {
+    padding-top: 18px;
+    gap: 12px;
+    align-content: start;
+  }
+  .ao-conditions__list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .ao-condition {
+    padding: 0;
+    border-left: 0;
+    border-top: 1px solid var(--ao-line-navy);
+    padding-top: 22px;
+  }
+  .ao-condition:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .ao-thinking__h {
+    font-size: clamp(38px, 10.5vw, 56px);
+  }
+  .ao-thinking__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .ao-thinking__body p {
+    line-height: 1.85;
+  }
+}
+
+/* ── Reduced motion: every final state, no pins ──────────────────────── */
+.ao-page[data-ao-static] .ao-scene,
+.ao-page[data-ao-static] .ao-caps__stage,
+.ao-page[data-ao-static] .ao-pains__stage,
+.ao-page[data-ao-static] .ao-steps__stage,
+.ao-page[data-ao-static] .ao-agents__stage {
+  height: auto;
+}
+.ao-page[data-ao-static] .ao-scene__frame,
+.ao-page[data-ao-static] .ao-caps__frame,
+.ao-page[data-ao-static] .ao-pains__frame,
+.ao-page[data-ao-static] .ao-steps__frame,
+.ao-page[data-ao-static] .ao-agents__frame {
+  position: static;
+  height: auto;
+  overflow: visible;
+}
+.ao-page[data-ao-static] .ao-hero {
+  position: relative;
+  min-height: var(--svh-frozen, 100svh);
+}
+.ao-page[data-ao-static] .ao-hero__cue,
+.ao-page[data-ao-static] .ao-scene__scrim,
+.ao-page[data-ao-static] .ao-dial,
+.ao-page[data-ao-static] .ao-flap {
+  display: none;
+}
+.ao-page[data-ao-static] .ao-statement {
+  position: static;
+  display: grid;
+  gap: 40px;
+  padding: 80px var(--ao-pad);
+}
+.ao-page[data-ao-static] .ao-stanza {
+  grid-area: auto;
+}
+.ao-page[data-ao-static] .ao-caps__frame {
+  display: block;
+}
+.ao-page[data-ao-static] .ao-caps__panel {
+  height: auto;
+  display: grid;
+  gap: 56px;
+  padding: 40px var(--ao-pad);
+}
+.ao-page[data-ao-static] .ao-cap,
+.ao-page[data-ao-static] .ao-dossier {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.ao-page[data-ao-static] .ao-dossiers {
+  display: grid;
+  gap: 40px;
+}
+.ao-page[data-ao-static] .ao-pains__answer {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  margin-top: 32px;
+}
+.ao-page[data-ao-static] .ao-steps__list {
+  display: grid;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ao-page[data-ao-static] .ao-fill__word {
+  --f: 1;
+}

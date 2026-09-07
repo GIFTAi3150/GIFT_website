@@ -95,24 +95,25 @@ const CALLCENTER_THEME: NavTheme = {
   textFaint: 'rgba(14, 10, 36, 0.40)',
 };
 
-// /services/aiops — same chrome as DEFAULT_THEME. The page used to carry its
-// own violet/coral chrome (#635bff shield, #FF4D6D accent) on a violet-white
-// bar; aligned to the site blue 2026-09-04 so it reads as the same website.
+// /services/aiops — "Groundwork" (2026-09-07): one navy sheet over the liquid
+// plate, so the header shares the page's navy exactly and the hero reads
+// full-bleed. Same values as AI_TRAINING_THEME. (Was the light default from
+// the 2026-09-04 palette pass, when the page body was still paper.)
 const DX_CONSULTING_THEME: NavTheme = {
-  bg: '#F0F7FF',
-  bgAlpha: 'rgba(248, 249, 255, 0.95)',
-  bgFull: '#F0F7FF',
-  accent: '#2563EB',
-  accentDeep: '#1D4ED8',
-  border: '#BFDBFE',
-  bgAlt: '#EFF6FF',
-  ink: '#0C0E1A',
-  muted: '#5B6B8A',
+  bg: '#0B1020',
+  bgAlpha: 'rgba(11, 16, 32, 0.9)',
+  bgFull: '#0B1020',
+  accent: '#6D9BFF',
+  accentDeep: '#2563EB',
+  border: 'rgba(243, 241, 235, 0.16)',
+  bgAlt: '#141B33',
+  ink: '#F3F1EB',
+  muted: 'rgba(243, 241, 235, 0.6)',
   logoShield: '#2563EB',
-  logoInner: '#ffffff',
-  text: '#0C0E1A',
-  textMuted: '#5B6B8A',
-  textFaint: 'rgba(12, 14, 26, 0.38)',
+  logoInner: '#0B1020',
+  text: 'rgba(243, 241, 235, 0.9)',
+  textMuted: 'rgba(243, 241, 235, 0.6)',
+  textFaint: 'rgba(243, 241, 235, 0.35)',
 };
 
 const FINANCE_THEME: NavTheme = {
