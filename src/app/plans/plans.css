@@ -1,0 +1,1015 @@
+/* /plans — Knowledge Harness, "the harnessing" (2026-09-07, rev 4).
+   One navy sheet over a fixed video plate (KhField, "the light" — the
+   manager's approved background loop from designpro-background-kit: a
+   glossy blue/violet ribbon turning through a black studio). The plate is
+   framed so the giant name keeps the left and the light keeps the right;
+   the hero pin gathers the light off the centre so the coda lands clean,
+   and below the hero it keeps turning as a ghost under a navy veil — the
+   loop never stops anywhere on the page. Every section has its own mechanism.
+   Spec: docs/knowledge-harness-redesign-spec.md
+
+   Viewport units: heights that fill the screen use var(--svh-frozen) (the
+   bars-visible viewport, px-frozen), scroll budgets and flow spacing use
+   var(--vh-frozen). Instagram's in-app browser physically resizes the
+   WebView on every toolbar toggle, so live vh/svh/dvh re-resolve and shift
+   the page under the reader's finger (see ViewportFreeze.tsx). Live vh stays
+   only in font sizes and in positions inside fixed-size frames. */
+
+.kh-page {
+  --kh-paper: #f3f1eb;
+  --kh-paper-2: #ebe8e0; /* the sheet */
+  --kh-paper-3: #e3e0d7; /* the back of the sheet */
+  --kh-ink: #0b1020;
+  --kh-ink-2: #111827;
+  --kh-blue: #2563eb;
+  --kh-blue-light: #6d9bff;
+  --kh-muted: rgba(11, 16, 32, 0.62);
+  --kh-muted-navy: rgba(243, 241, 235, 0.7);
+  --kh-line: rgba(11, 16, 32, 0.14);
+  --kh-line-navy: rgba(243, 241, 235, 0.16);
+  --header-h: 80px; /* Header is h-20 fixed */
+  --kh-pad: clamp(16px, 4vw, 64px);
+  --font-body: var(--font-noto-jp), sans-serif;
+  --font-display: var(--font-poppins), sans-serif;
+  position: relative;
+  isolation: isolate;
+  background: var(--kh-ink);
+  color: var(--kh-paper);
+}
+
+/* One fixed field behind the page. Navy sections are transparent to it;
+   the paper section (Pricing) is opaque. */
+.kh-page > :not(.kh-field) {
+  position: relative;
+  z-index: 1;
+}
+.kh-field {
+  /* the hero's pin, 0 → 1 (KhField). Every derived value below reads it.
+     The parallax is NOT a custom property — KhField writes it straight to
+     .kh-field__media's transform, so a scroll frame never invalidates the
+     computed style of the settle box's filter(). */
+  --kh-o: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* the LARGE viewport, not inset:0 — on phones inset:0 follows the address
+     bar, so the box (and the video crop in it) changed on every scroll */
+  height: 100vh;
+  height: 100lvh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--kh-ink);
+}
+
+/* the plate, in four layers, painted in DOM order:
+   media → the loop (parallax box › settle box › video)
+   scrim → the fixed composition: left ink for the giant name, edge vignettes
+   focus → the harnessing: ink gathers to the centre as the coda lands
+   veil  → the ground under the sections                                    */
+
+/* parallax box — bleeds 110px past the plate top and bottom so KhField's
+   translate (clamped to 100px) can never expose an edge */
+.kh-field__media {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -110px;
+  bottom: -110px;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+/* settle box — at land the frame sits a touch large and full strength; the
+   hero's pin walks it down to rest and takes a little light out of it.
+   scaleX(-1) MIRRORS the loop: as shot, its mass of light turns through the
+   left and centre and the right stays black — the exact half the giant name
+   needs. Flipped, the black corner lands under the kicker and the name, and
+   the light turns through the right, which is empty. */
+.kh-field__zoom {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(-1) scale(calc(1.08 - 0.08 * var(--kh-o)));
+  transform-origin: 50% 50%;
+  filter:
+    brightness(calc(1 - 0.13 * var(--kh-o)))
+    saturate(calc(1.02 - 0.1 * var(--kh-o)));
+}
+/* object-fit/-position frame the poster as well as the frames, so the still
+   the reader lands on and the loop that follows it are cropped identically —
+   and a loop that never loads leaves the poster in place, not a black box.
+   (These percentages are in the SOURCE's space; the mirror is applied to the
+   result, on the parent.) At 16:9 the desktop crop is ~90% of the width, so
+   the value barely matters there — it does all its work on a phone. */
+.kh-field__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+/* the composition. A left column of ink under KNOWLEDGE / HARNESS and the
+   body copy — light, because the mirrored loop is already near-black there;
+   it is insurance for the frames where the tail swings back across. Top band
+   protects the fixed header, bottom band the scroll cue. Last stop = the
+   kit's own 14% shade, tinted to this page's ink instead of pure black. */
+.kh-field__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 16, 32, 0.72) 0%, rgba(11, 16, 32, 0.18) 15%, rgba(11, 16, 32, 0) 32%),
+    linear-gradient(0deg, rgba(11, 16, 32, 0.6) 0%, rgba(11, 16, 32, 0.24) 14%, rgba(11, 16, 32, 0) 36%),
+    linear-gradient(96deg,
+      rgba(11, 16, 32, 0.82) 0%, rgba(11, 16, 32, 0.6) 26%, rgba(11, 16, 32, 0.28) 48%,
+      rgba(11, 16, 32, 0.06) 70%, rgba(11, 16, 32, 0) 86%),
+    rgba(11, 16, 32, 0.16);
+}
+
+/* the harnessing — the one thing the hero's scroll does to the light: it is
+   drawn off the centre and left as a rim, so the coda takes a clean field */
+.kh-field__focus {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(125% 90% at 50% 52%,
+    rgba(11, 16, 32, 0.97) 0%, rgba(11, 16, 32, 0.88) 32%,
+    rgba(11, 16, 32, 0.44) 62%, rgba(11, 16, 32, 0) 88%);
+  opacity: calc(0.62 * var(--kh-o));
+}
+
+/* the veil: navy over the plate under the sections — the loop keeps running
+   underneath it, this only dims it (opacity from KhField;
+   the transition-duration is written per call — 0 for the hero's scrub,
+   700ms for the CTA's toggle) */
+.kh-field__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--kh-ink);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0ms linear;
+}
+
+@media (max-width: 899px) {
+  /* portrait keeps only ~26% of the frame's width. 27% picks the band that
+     carries the arc high in the frame, so (mirrored) the light fills the
+     empty upper half and the copy — which sits at the BOTTOM on a phone —
+     gets the quiet end. The contrast is carried on a vertical scrim.
+     No grade: a full-screen filter on a phone GPU is not worth it. */
+  .kh-field__zoom { filter: none; }
+  .kh-field__video { object-position: 27% 50%; }
+  .kh-field__scrim {
+    background:
+      linear-gradient(180deg,
+        rgba(11, 16, 32, 0.9) 0%, rgba(11, 16, 32, 0.44) 22%, rgba(11, 16, 32, 0.36) 48%,
+        rgba(11, 16, 32, 0.68) 78%, rgba(11, 16, 32, 0.93) 100%),
+      rgba(11, 16, 32, 0.24);
+  }
+  /* the coda is one line across the full width here and the light band often
+     sits right behind it, so the wash carries slightly more than on desktop */
+  .kh-field__focus { opacity: calc(0.68 * var(--kh-o)); }
+}
+
+/* the footer needs its own positioned layer or the fixed field covers it */
+.kh-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Flash guard: first paint is navy; children stay hidden until KhScroll
+      has applied every initial state (released in a rAF at its end). */
+.kh-page[data-flash-guard] > * { visibility: hidden; }
+.kh-page[data-flash-guard]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: var(--kh-ink);
+  visibility: visible;
+  pointer-events: none;
+}
+
+/* ── Shared pieces ───────────────────────────────────────────────────── */
+.kh-container {
+  margin-inline: auto;
+  max-width: 76rem;
+  padding-inline: 16px;
+}
+@media (min-width: 768px)  { .kh-container { padding-inline: 24px; } }
+@media (min-width: 1024px) { .kh-container { padding-inline: 32px; } }
+
+.kh-section--navy  { background: transparent; color: var(--kh-paper); }
+.kh-section--paper { background: var(--kh-paper); color: var(--kh-ink); }
+
+/* :where() keeps these at zero class specificity, so any single-class rule
+   below (.kh-fold__cond, .kh-fold__sub-fig …) can recolour a <p> */
+:where(.kh-page) p { font-family: var(--font-body); }
+:where(.kh-section--navy) p  { color: var(--kh-muted-navy); }
+:where(.kh-section--paper) p { color: var(--kh-muted); }
+
+.kh-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* figures */
+.kh-yen { white-space: nowrap; }
+.kh-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.kh-unit {
+  margin-left: 0.12em;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.4em;
+}
+
+/* masked rise (hero intro) */
+.kh-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.08em 0.06em 0.16em;
+  margin: -0.08em -0.06em -0.16em;
+}
+.kh-mask__in { display: inline-block; will-change: transform; }
+
+/* section head — the only repeated motion on the page */
+.kh-head { max-width: 42rem; }
+.kh-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+}
+.kh-label__rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+}
+.kh-label__text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.kh-section--paper .kh-label { color: var(--kh-blue); }
+.kh-section--navy  .kh-label { color: var(--kh-blue-light); }
+.kh-h2 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.kh-h2__mask { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.kh-h2__line { display: block; }
+.kh-head__lead {
+  margin: 22px 0 0;
+  max-width: 42rem;
+  font-weight: 300;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.95;
+  text-wrap: pretty;
+}
+
+/* the site outline button on navy */
+.cta-btn--kh {
+  border-color: var(--kh-paper);
+  color: var(--kh-paper);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.cta-btn--kh::before { background-color: var(--kh-blue); }
+.cta-btn--kh:hover, .cta-btn--kh:focus-visible { border-color: var(--kh-blue); color: #ffffff; }
+
+/* ── 1. Hero — the harnessing ────────────────────────────────────────── */
+.kh-hero { position: relative; background: transparent; }
+.kh-hero__stick {
+  position: sticky;
+  top: 0;
+  height: var(--svh-frozen);         /* fill — bars-visible viewport, px-frozen */
+  min-height: 560px;
+  overflow: clip;
+}
+.kh-hero__spacer { height: calc(var(--vh-frozen) * 2.2); }
+.kh-hero__inner {
+  position: relative;
+  height: 100%;
+  padding-inline: var(--kh-pad);
+}
+
+.kh-hero__kicker {
+  position: absolute;
+  left: var(--kh-pad);
+  top: calc(var(--header-h) + 28px);
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--kh-muted-navy);
+  z-index: 2;
+}
+.kh-hero__kicker .kh-mask__in { display: inline-flex; align-items: center; gap: 12px; }
+.kh-hero__kicker-rule { display: inline-block; width: 32px; height: 1px; background: var(--kh-blue-light); }
+
+/* name + JP headline + body flow together inside one centred column; the
+   centring is flex, so KhScroll's transform on the block stays free */
+.kh-hero__block {
+  position: absolute;
+  left: var(--kh-pad);
+  right: var(--kh-pad);
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: calc(var(--header-h) * 0.5 - 3vh);
+  will-change: transform, opacity;
+}
+.kh-hero__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  /* KNOWLEDGE is ~6.6em wide in Poppins Bold: 13vw keeps it inside the pads */
+  font-size: clamp(48px, min(13vw, 24vh), 260px);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  color: var(--kh-paper);
+  white-space: nowrap;
+}
+.kh-hero__tline { display: block; }
+.kh-hero__tmask { padding: 0.06em 0.04em 0.1em; margin: -0.06em -0.04em -0.1em; }
+
+.kh-hero__jp {
+  margin: clamp(18px, 2.4vw, 34px) 0 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(16px, 1.55vw, 24px);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--kh-paper);
+}
+.kh-hero__jp-part { display: inline-block; white-space: nowrap; }
+.kh-hero__jp-br { font-weight: 300; font-feature-settings: 'palt' 1; }
+.kh-hero__jp-em { font-style: normal; font-weight: 800; color: var(--kh-blue-light); }
+.kh-hero__body {
+  margin: clamp(14px, 1.6vw, 22px) 0 0;
+  max-width: 30em;
+  font-weight: 300;
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.9;
+  color: var(--kh-muted-navy);
+  text-wrap: pretty;
+}
+
+/* the coda — centred by flex, moved by KhScroll */
+.kh-hero__coda {
+  position: absolute;
+  left: var(--kh-pad);
+  right: var(--kh-pad);
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding-top: calc(var(--header-h) * 0.5);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.kh-hero__coda-label {
+  margin: 0 0 18px;
+  color: var(--kh-blue-light);
+}
+.kh-hero__coda-line {
+  margin: 0;
+  max-width: 16em;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(30px, 4.6vw, 72px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--kh-paper);
+  text-wrap: balance;
+}
+
+.kh-hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--kh-muted-navy);
+}
+.kh-hero__cue-line {
+  position: relative;
+  width: 1px;
+  height: 40px;
+  background: var(--kh-line-navy);
+  overflow: hidden;
+}
+.kh-hero__cue-line > span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 40%;
+  background: var(--kh-paper);
+  animation: kh-cue 1.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes kh-cue {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(260%); }
+}
+
+/* ── 2. Features — the index ─────────────────────────────────────────── */
+.kh-index { position: relative; }
+.kh-index__stick {
+  position: sticky;
+  top: 0;
+  height: var(--svh-frozen);
+  min-height: 620px;
+  overflow: clip;
+  display: flex;
+}
+.kh-index__spacer { height: calc(var(--vh-frozen) * 2.6); }
+.kh-index__inner {
+  width: 100%;
+  height: 100%;
+  padding-top: calc(var(--header-h) + 24px);
+  padding-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+}
+.kh-index .kh-head { flex: 0 0 auto; }
+.kh-cabinet {
+  --verb-min: clamp(18px, 1.6vw, 24px);
+  --verb-range: clamp(22px, 3.2vw, 44px);
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: clamp(20px, 3.4vh, 40px) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--kh-line-navy);
+}
+.kh-drawer {
+  --open: 0;
+  position: relative;
+  flex: calc(1 + 3.8 * var(--open)) 1 0px;
+  min-height: 52px;
+  border-top: 1px solid var(--kh-line-navy);
+  overflow: clip;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-rows: auto 1fr;
+  column-gap: 32px;
+  align-content: start;
+  padding: 12px 0 0;
+}
+.kh-drawer::before {
+  /* the open drawer's faint room */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(109, 155, 255, 0.06);
+  opacity: var(--open);
+  pointer-events: none;
+}
+.kh-drawer__verb {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: calc(var(--verb-min) + var(--verb-range) * var(--open));
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--kh-paper);
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+.kh-drawer[data-open] .kh-drawer__verb { color: var(--kh-blue-light); }
+.kh-drawer__title {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  padding-top: calc(3px + 6px * var(--open));
+  font-weight: 500;
+  font-size: calc(15px + 4px * var(--open));
+  line-height: 1.5;
+  color: var(--kh-muted-navy);
+  transition: color 0.35s ease;
+}
+.kh-drawer[data-open] .kh-drawer__title { color: var(--kh-paper); }
+.kh-drawer__body {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 10px 0 16px;
+  max-width: 34rem;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--kh-muted-navy);
+  opacity: clamp(0, calc((var(--open) - 0.45) * 2), 1);
+  transform: translateY(calc((1 - var(--open)) * 14px));
+  will-change: opacity, transform;
+}
+
+/* ── 3. Pricing — 折半, the fold (the one paper sheet) ───────────────── */
+.kh-price { padding: clamp(96px, calc(var(--vh-frozen) * 0.14), 160px) 0; }
+.kh-price__monthly {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 28px;
+  margin: clamp(28px, calc(var(--vh-frozen) * 0.05), 52px) 0 0;
+  padding: 22px 0;
+  border-top: 1px solid var(--kh-ink);
+  border-bottom: 1px solid var(--kh-line);
+}
+.kh-price__monthly-label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--kh-muted);
+}
+.kh-price__monthly-fig {
+  font-size: clamp(44px, 5vw, 72px);
+  line-height: 1;
+  color: var(--kh-ink);
+}
+.kh-price__term {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--kh-muted);
+}
+
+.kh-ledger { margin: clamp(28px, calc(var(--vh-frozen) * 0.05), 48px) 0 0; }
+.kh-ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: baseline;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--kh-line);
+}
+.kh-ledger__row dt, .kh-ledger__row dd { margin: 0; }
+.kh-ledger__item {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.6;
+  color: var(--kh-ink);
+}
+.kh-ledger__detail {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--kh-muted);
+}
+.kh-ledger__row dd {
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1;
+  color: var(--kh-ink);
+}
+.kh-ledger__row--total {
+  margin-top: 4px;
+  padding-top: 24px;
+  border-top: 2px solid var(--kh-blue);
+  border-bottom: 0;
+}
+.kh-ledger__row--total .kh-ledger__item { font-weight: 800; font-size: clamp(16px, 1.4vw, 19px); }
+.kh-ledger__row--total dd { font-size: clamp(30px, 3.4vw, 44px); }
+
+/* the fold */
+.kh-fold-wrap {
+  position: relative;
+  margin-top: clamp(48px, calc(var(--vh-frozen) * 0.08), 96px);
+}
+.kh-fold-stick {
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+}
+.kh-fold-spacer { height: calc(var(--vh-frozen) * 1.1); }
+.kh-fold {
+  --fold: 0;
+  --shade-front: 0;
+  --shade-back: 0.5;
+  --shade-top: 0;
+  --sheet-h: min(58vh, 560px);
+  position: relative;
+  height: var(--sheet-h);
+  perspective: 1600px;
+  perspective-origin: 50% 50%;
+}
+.kh-fold__top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  overflow: clip;
+  background: var(--kh-paper-2);
+  border-top: 1px solid var(--kh-ink);
+  z-index: 1;
+}
+.kh-fold__label {
+  position: absolute;
+  left: 24px;
+  top: 18px;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--kh-ink);
+}
+.kh-fold__num {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--sheet-h) / 2);
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: clamp(120px, 22vw, 320px);
+  line-height: 1;
+  color: var(--kh-ink);
+  white-space: nowrap;
+}
+.kh-fold__num .kh-unit { font-size: 0.22em; }
+.kh-fold__flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 50%;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  /* positive rotateX about the top edge swings the flap TOWARD the viewer
+     and lays it over the top half — a sheet folded up, not tucked behind */
+  transform: rotateX(calc(var(--fold) * 180deg));
+  will-change: transform;
+  z-index: 2;
+}
+.kh-fold__face {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.kh-fold__face--front { background: var(--kh-paper-2); }
+.kh-fold__face--front .kh-fold__num--lower { top: 0; }
+.kh-fold__face--back {
+  transform: rotateX(180deg);
+  background: var(--kh-paper-3);
+  border-top: 1px solid var(--kh-ink);
+  padding: clamp(16px, 3vh, 28px) 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+.kh-fold__cond { margin: 0; color: var(--kh-blue); }
+.kh-fold__sub-label {
+  margin: 4px 0 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.5;
+  color: var(--kh-ink);
+}
+.kh-fold__sub-fig {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.1em;
+  font-size: clamp(56px, 9vw, 150px);
+  line-height: 1;
+  color: var(--kh-blue);
+}
+.kh-fold__sub-fig .kh-unit { font-size: 0.24em; }
+.kh-fold__aside {
+  align-self: center;
+  margin-left: 0.25em;
+  padding: 0.3em 0.6em;
+  border: 1px solid currentColor;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.14em;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--kh-blue);
+}
+.kh-fold__sub-body {
+  margin: 6px 0 0;
+  max-width: 34rem;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--kh-muted);
+}
+.kh-fold__shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.kh-fold__shade--top {
+  background: linear-gradient(to top, rgba(11, 16, 32, 0.6), transparent 60%);
+  opacity: var(--shade-top);
+}
+.kh-fold__shade--front { background: var(--kh-ink); opacity: var(--shade-front); }
+.kh-fold__shade--back  { background: var(--kh-ink); opacity: var(--shade-back); }
+
+.kh-price__tax {
+  margin: clamp(40px, calc(var(--vh-frozen) * 0.06), 64px) 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--kh-line);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--kh-muted);
+}
+
+/* ── 4. Glossary — the marker ────────────────────────────────────────── */
+.kh-gloss { padding: clamp(96px, calc(var(--vh-frozen) * 0.14), 160px) 0; }
+.kh-gloss__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+}
+.kh-gloss__term {
+  margin: 0;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.kh-gloss__term-en {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(26px, 3vw, 44px);
+  letter-spacing: -0.02em;
+  color: var(--kh-paper);
+}
+.kh-gloss__term-ja {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(16px, 1.4vw, 20px);
+  color: var(--kh-muted-navy);
+}
+.kh-gloss__body {
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 2.05;
+  color: var(--kh-muted-navy);
+  text-wrap: pretty;
+}
+.kh-mark__c {
+  padding: 0.1em 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.kh-mark__c.is-on {
+  background-color: rgba(37, 99, 235, 0.3);
+  color: var(--kh-paper);
+}
+
+/* ── 5. Support — the companion ──────────────────────────────────────── */
+.kh-support { padding: clamp(96px, calc(var(--vh-frozen) * 0.14), 160px) 0; }
+.kh-support__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) 40px minmax(0, 8fr);
+  column-gap: clamp(16px, 3vw, 48px);
+}
+.kh-support__side { position: sticky; top: calc(var(--header-h) + 40px); align-self: start; }
+.kh-support__rail { position: relative; }
+.kh-support__rail::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--kh-line-navy);
+}
+.kh-support__mark {
+  position: sticky;
+  top: 50%;
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin-left: calc(50% - 5px);
+  border-radius: 50%;
+  background: var(--kh-paper);
+  box-shadow: 0 0 0 6px var(--kh-ink);
+}
+.kh-support__mark::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 4.5px;
+  width: 24px;
+  height: 1px;
+  background: var(--kh-blue-light);
+}
+.kh-support__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--kh-paper);
+}
+.kh-support__item {
+  padding: 26px 0;
+  border-bottom: 1px solid var(--kh-line-navy);
+  opacity: 0.42;
+  transition: opacity 0.45s ease;
+}
+.kh-support__item.is-here { opacity: 1; }
+.kh-support__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(19px, 1.6vw, 24px);
+  line-height: 1.5;
+  color: var(--kh-paper);
+  text-wrap: balance;
+}
+.kh-support__detail {
+  margin: 8px 0 0;
+  max-width: 34rem;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+/* ── 6. CTA — the bookend ────────────────────────────────────────────── */
+.kh-cta {
+  position: relative;
+  background: transparent;           /* the field brightens behind */
+  color: var(--kh-paper);
+  min-height: var(--svh-frozen);
+  display: flex;
+  align-items: center;
+  overflow: clip;
+}
+.kh-cta__inner {
+  position: relative;
+  width: 100%;
+  padding-block: clamp(120px, calc(var(--vh-frozen) * 0.2), 200px);
+  display: grid;
+  gap: 40px;
+  justify-items: start;
+  will-change: transform;
+}
+.kh-cta__lead {
+  margin: 0;
+  max-width: 24em;
+  font-weight: 500;
+  font-size: clamp(22px, 2.6vw, 40px);
+  line-height: 1.6;
+  color: var(--kh-paper);
+  text-wrap: balance;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .kh-hero__kicker { top: calc(var(--header-h) + 22px); }
+  .kh-hero__block {
+    justify-content: flex-end;
+    padding-top: 0;
+    padding-bottom: clamp(120px, 20vh, 180px);
+  }
+  .kh-hero__title { font-size: clamp(40px, 13.5vw, 96px); }
+  .kh-hero__jp {
+    margin-top: 16px;
+    font-size: clamp(14px, 4vw, 18px);
+    letter-spacing: 0.04em;
+  }
+  .kh-hero__body { font-size: 14px; max-width: none; }
+  .kh-hero__coda { padding-inline: 4px; }
+  .kh-hero__coda-line { font-size: clamp(26px, 7.2vw, 40px); }
+
+  .kh-index__stick { min-height: 640px; }
+  .kh-index__inner { padding-top: calc(var(--header-h) + 16px); padding-bottom: 20px; }
+  .kh-cabinet { --verb-min: 17px; --verb-range: 15px; margin-top: 18px; }
+  .kh-drawer {
+    flex: calc(0.7 + 5.3 * var(--open)) 1 0px;
+    min-height: 44px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 0;
+    padding-top: 10px;
+  }
+  .kh-drawer__verb { grid-row: 1; }
+  .kh-drawer__title {
+    grid-column: 1;
+    grid-row: 2;
+    padding-top: calc(2px + 4px * var(--open));
+    font-size: calc(14px + 2px * var(--open));
+    opacity: calc(0.7 + 0.3 * var(--open));
+  }
+  .kh-drawer:not([data-open]) .kh-drawer__title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kh-drawer__body { grid-column: 1; grid-row: 3; margin: 8px 0 14px; font-size: 14px; line-height: 1.8; }
+
+  .kh-price__monthly-fig { font-size: clamp(40px, 12vw, 56px); }
+  .kh-price__term { margin-left: 0; flex-basis: 100%; }
+  .kh-ledger__row { gap: 16px; }
+  .kh-fold-stick { top: calc(var(--header-h) + 12px); }
+  .kh-fold { --sheet-h: min(56vh, 480px); }
+  .kh-fold__label { left: 16px; top: 14px; font-size: 12px; }
+  .kh-fold__num { font-size: clamp(88px, 30vw, 150px); }
+  .kh-fold__face--back { padding: 14px 16px; gap: 4px; }
+  .kh-fold__sub-fig { font-size: clamp(48px, 16vw, 84px); }
+  .kh-fold__sub-body { font-size: 13px; line-height: 1.7; }
+
+  .kh-gloss__grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .kh-gloss__body { font-size: 15px; line-height: 2; }
+
+  /* the companion on a phone: the head spans the row, then a slim rail on
+     the left edge with the sticky mark and the list beside it — the item
+     level with the mark lights and nudges right as the mark passes */
+  .kh-support__grid { grid-template-columns: 22px minmax(0, 1fr); column-gap: 14px; row-gap: 28px; }
+  .kh-support__side { grid-column: 1 / -1; position: static; }
+  .kh-support__mark { box-shadow: 0 0 0 5px var(--kh-ink); }
+  .kh-support__mark::after { left: 13px; width: 12px; }
+  .kh-support__item { padding: 22px 0; }
+  .kh-support__title { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+  .kh-support__item.is-here .kh-support__title { transform: translateX(6px); }
+  .kh-support__detail { font-size: 14.5px; line-height: 1.8; }
+
+  .kh-cta { min-height: calc(var(--svh-frozen) * 0.8); }
+}
+
+/* ── Reduced motion: every final state, no pins, no scrubs ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* the plate is a still frame at its natural size; KhField never plays the
+     loop, never writes the parallax, and holds the veil at full, so the
+     light stays a ghost throughout */
+  .kh-page .kh-field__zoom { transform: none; filter: none; }
+  .kh-page .kh-field__focus { opacity: 0; }
+  .kh-page .kh-field__veil { transition: none; }
+
+  .kh-page .kh-hero__cue { display: none; }
+  .kh-page .kh-hero__spacer,
+  .kh-page .kh-index__spacer,
+  .kh-page .kh-fold-spacer { display: none; }
+  .kh-page .kh-hero__stick,
+  .kh-page .kh-index__stick { position: relative; height: auto; min-height: 0; }
+  .kh-page .kh-hero__inner { padding-top: calc(var(--header-h) + 80px); padding-bottom: 80px; }
+  .kh-page .kh-hero__block,
+  .kh-page .kh-hero__coda {
+    position: static;
+    height: auto;
+    padding-top: 0;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto;
+  }
+  .kh-page .kh-hero__coda { margin-top: 64px; align-items: flex-start; text-align: left; }
+  .kh-page .kh-mask__in { transform: none !important; }
+  .kh-page .kh-index__inner { height: auto; padding-bottom: 48px; }
+  .kh-page .kh-cabinet { flex: none; }
+  .kh-page .kh-drawer { --open: 1 !important; flex: none; padding-bottom: 8px; }
+  .kh-page .kh-drawer__verb { color: var(--kh-blue-light); }
+  .kh-page .kh-drawer__title { color: var(--kh-paper); }
+  .kh-page .kh-fold-stick { position: static; }
+  .kh-page .kh-fold { --fold: 1 !important; --shade-back: 0 !important; --shade-top: 0 !important; }
+  .kh-page .kh-mark__c { background-color: rgba(37, 99, 235, 0.3); color: var(--kh-paper); }
+  .kh-page .kh-support__item { opacity: 1; }
+  .kh-page .kh-cta__inner { transform: none !important; }
+  .kh-page .kh-hero__cue-line > span { animation: none; }
+}

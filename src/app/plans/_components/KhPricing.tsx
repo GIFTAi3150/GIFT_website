@@ -1,106 +1,101 @@
-import KhSectionHead from './KhSectionHead';
 import { PRICING } from './khContent';
+import KhHead from './KhHead';
 
-/** Amount + 万円 unit. `tabular-nums` so every row's digits sit in the same column
- *  however many digits each figure has. The unit is sized in `em` so it scales with
- *  whatever figure size the caller passes — do not replace it with a px value. */
+/** Figure + 万円. Poppins for the digits, the JP unit sized in em so it rides
+ *  whatever figure size the caller sets. */
 function Yen({ figure, className }: { figure: string; className?: string }) {
   return (
-    <span className="whitespace-nowrap">
-      <span className={`font-display font-bold tabular-nums ${className ?? ''}`}>{figure}</span>
-      <span className="ml-1 font-sans text-[0.42em] font-light">万円</span>
+    <span className={`kh-yen${className ? ` ${className}` : ''}`}>
+      <span className="kh-num">{figure}</span>
+      <span className="kh-unit">万円</span>
     </span>
   );
 }
 
+/**
+ * Pricing — 折半, the fold. The one paper section. The ledger (216 + 38 + 45
+ * = 299) is typeset plainly; then the 299万円 sheet folds in half on a hinge
+ * as you scroll (KhScroll drives `--fold`), and the back of the flap carries
+ * 149.5万円・実質半額 with its condition. Half the sheet, half the price.
+ *
+ * No strikethrough anywhere: a struck price reads as a sale, and this is a
+ * public grant that may or may not be awarded. The condition
+ * 「補助金の交付を受けた場合」 sits on the same face as the figure it qualifies —
+ * never separated, never demoted to a footnote (khContent rule).
+ */
 export default function KhPricing() {
+  const { subsidy } = PRICING;
   return (
-    <section className="relative bg-[#0b1020] py-20 md:py-28 lg:py-32">
-      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <KhSectionHead word="Pricing" chip={PRICING.title} lead={PRICING.lead} />
+    <section id="pricing" className="kh-price kh-section--paper">
+      <div className="kh-container">
+        <KhHead label={PRICING.eyebrow} title={PRICING.title} lead={PRICING.lead} />
 
-        <div className="mx-auto mt-14 max-w-4xl border border-white/15 bg-white/[0.03] p-6 text-white md:p-10 lg:p-12">
-          {/* Headline price. 月額9万円 is what the manager leads with, so it leads
-              here — but the 合計 row below gets comparable weight so the page never
-              reads as if 9万円/月 were the whole cost. */}
-          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
-            <div className="flex items-baseline gap-4">
-              <span className="font-sans text-[17px] font-light text-white/70">
-                {PRICING.monthlyLabel}
-              </span>
-              <Yen figure={PRICING.monthlyFigure} className="text-[clamp(42px,7vw,64px)] leading-none" />
-            </div>
-            <span className="font-sans text-[15px] font-light text-white/70">
-              {PRICING.termNote}
-            </span>
-          </div>
+        {/* 月額9万円 is what the manager leads with, so it leads here */}
+        <div className="kh-price__monthly">
+          <span className="kh-price__monthly-label">{PRICING.monthlyLabel}</span>
+          <Yen figure={PRICING.monthlyFigure} className="kh-price__monthly-fig" />
+          <span className="kh-price__term">{PRICING.termNote}</span>
+        </div>
 
-          <dl className="mt-10 md:mt-12">
-            {PRICING.rows.map((row) => (
-              <div
-                key={row.item}
-                className="flex flex-col gap-2 border-t border-white/15 py-5 min-[560px]:flex-row min-[560px]:items-start min-[560px]:justify-between min-[560px]:gap-6"
-              >
-                <dt className="min-w-0">
-                  <span className="block font-sans text-[17px] font-light leading-normal">
-                    {row.item}
-                  </span>
-                  {row.detail ? (
-                    <span className="mt-1.5 block font-sans text-[15px] font-light leading-relaxed text-white/60">
-                      {row.detail}
-                    </span>
-                  ) : null}
-                </dt>
-                <dd className="shrink-0 min-[560px]:text-right">
-                  <Yen figure={row.amount} className="text-[24px] leading-none" />
-                </dd>
-              </div>
-            ))}
-
-            {/* Total. The blue rule and the larger figure mark this as the number a
-                buyer actually compares against the 補助金 ceiling. */}
-            <div className="flex flex-col gap-2 border-t-2 border-[#3b82f6] pt-6 min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between min-[560px]:gap-6">
-              <dt className="font-sans text-[19px] font-bold">{PRICING.totalLabel}</dt>
-              <dd className="shrink-0">
-                <Yen figure={PRICING.totalAmount} className="text-[clamp(30px,4.5vw,40px)] leading-none" />
+        <dl className="kh-ledger">
+          {PRICING.rows.map((row) => (
+            <div key={row.item} className="kh-ledger__row">
+              <dt>
+                <span className="kh-ledger__item">{row.item}</span>
+                {row.detail ? <span className="kh-ledger__detail">{row.detail}</span> : null}
+              </dt>
+              <dd>
+                <Yen figure={row.amount} />
               </dd>
             </div>
-          </dl>
-
-          {/* 補助金 panel. No strikethrough on 299万円 anywhere: a struck-through price
-              reads as a limited-time sale, and this is a public grant that may or may
-              not be awarded.
-              The condition 「補助金の交付を受けた場合」 is this panel's first line and sits
-              directly above the figure. Never separate them, never demote the
-              condition to a footnote. */}
-          <div className="mt-10 border border-[#3b82f6]/45 bg-[#3b82f6]/10 p-6 md:mt-12 md:p-8">
-            <p className="font-sans text-[17px] font-bold text-white">
-              {PRICING.subsidy.condition}
-            </p>
-
-            <div className="mt-5 flex flex-wrap items-end gap-x-5 gap-y-3">
-              <span className="font-sans text-[17px] font-light text-white/70">
-                {PRICING.subsidy.label}
-              </span>
-              <Yen
-                figure={PRICING.subsidy.figure}
-                className="text-[clamp(36px,6vw,54px)] leading-none text-[#60a5fa]"
-              />
-              <span className="bg-[#3b82f6] px-2 py-0.5 font-sans text-[14px] font-bold tracking-tight text-white">
-                {PRICING.subsidy.aside}
-              </span>
-            </div>
-
-            <p
-              className="mt-5 font-sans text-[16px] font-light text-white/70"
-              style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-            >
-              {PRICING.subsidy.body}
-            </p>
+          ))}
+          <div className="kh-ledger__row kh-ledger__row--total">
+            <dt>
+              <span className="kh-ledger__item">{PRICING.totalLabel}</span>
+            </dt>
+            <dd>
+              <Yen figure={PRICING.totalAmount} />
+            </dd>
           </div>
+        </dl>
 
-          <p className="mt-8 font-sans text-[15px] font-light text-white/50">{PRICING.taxNote}</p>
+        {/* the fold: sticky sheet, spacer = its travel */}
+        <div className="kh-fold-wrap" data-fold-wrap>
+          <div className="kh-fold-stick" data-fold-stick>
+            <div className="kh-fold" data-fold>
+              <div className="kh-fold__top">
+                <p className="kh-fold__label">{PRICING.totalLabel}</p>
+                <p className="kh-fold__num" aria-hidden>
+                  <Yen figure={PRICING.totalAmount} />
+                </p>
+                <span className="kh-fold__shade kh-fold__shade--top" aria-hidden />
+              </div>
+
+              <div className="kh-fold__flap">
+                <div className="kh-fold__face kh-fold__face--front" aria-hidden>
+                  <p className="kh-fold__num kh-fold__num--lower">
+                    <Yen figure={PRICING.totalAmount} />
+                  </p>
+                  <span className="kh-fold__shade kh-fold__shade--front" />
+                </div>
+
+                <div className="kh-fold__face kh-fold__face--back">
+                  <p className="kh-fold__cond kh-mono">{subsidy.condition}</p>
+                  <p className="kh-fold__sub-label">{subsidy.label}</p>
+                  <p className="kh-fold__sub-fig">
+                    <Yen figure={subsidy.figure} />
+                    <span className="kh-fold__aside">{subsidy.aside}</span>
+                  </p>
+                  <p className="kh-fold__sub-body">{subsidy.body}</p>
+                  <span className="kh-fold__shade kh-fold__shade--back" aria-hidden />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="kh-fold-spacer" data-fold-spacer aria-hidden />
         </div>
+
+        <p className="kh-price__tax">{PRICING.taxNote}</p>
       </div>
     </section>
   );

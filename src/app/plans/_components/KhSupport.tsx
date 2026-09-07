@@ -1,33 +1,32 @@
-import KhSectionHead from './KhSectionHead';
 import { SUPPORT } from './khContent';
+import KhHead from './KhHead';
 
+/**
+ * Support — the companion (伴走). The head stays on the left; between it and
+ * the list runs a rail with a mark that keeps level with the reader
+ * (position: sticky at 50%) while the five items scroll past. KhScroll lights
+ * the item beside the mark. Running alongside, literally.
+ */
 export default function KhSupport() {
   return (
-    <section className="relative bg-white py-20 md:py-28 lg:py-32">
-      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <KhSectionHead word="Support" chip={SUPPORT.title} lead={SUPPORT.lead} tone="light" />
+    <section id="support" className="kh-support kh-section--navy">
+      <div className="kh-container kh-support__grid">
+        <div className="kh-support__side">
+          <KhHead label={SUPPORT.eyebrow} title={SUPPORT.title} lead={SUPPORT.lead} />
+        </div>
 
-        <dl className="mx-auto mt-14 max-w-4xl">
+        <div className="kh-support__rail" aria-hidden>
+          <span className="kh-support__mark" />
+        </div>
+
+        <ol className="kh-support__list" data-support-list>
           {SUPPORT.items.map((item) => (
-            <div
-              key={item.title}
-              className="flex flex-col gap-y-2 border-t border-[#BFDBFE] py-6 min-[760px]:flex-row min-[760px]:items-baseline min-[760px]:gap-x-10"
-            >
-              <dt
-                className="font-sans text-[19px] font-bold leading-snug text-[#0C0E1A] min-[760px]:w-[42%] min-[760px]:shrink-0"
-                style={{ textWrap: 'balance' }}
-              >
-                {item.title}
-              </dt>
-              <dd
-                className="font-sans text-[17px] font-light text-[#5B6B8A]"
-                style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-              >
-                {item.detail}
-              </dd>
-            </div>
+            <li key={item.title} className="kh-support__item" data-support-item>
+              <h3 className="kh-support__title">{item.title}</h3>
+              <p className="kh-support__detail">{item.detail}</p>
+            </li>
           ))}
-        </dl>
+        </ol>
       </div>
     </section>
   );
