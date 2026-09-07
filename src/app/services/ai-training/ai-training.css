@@ -1,0 +1,851 @@
+/* /services/ai-training — v8 "Plasma" (2026-09-04).
+   One navy sheet over a fixed OGL plasma (React Bits Backgrounds/Plasma).
+   The hero reads over the live plasma; as it scrolls out a navy veil rises
+   to near-opaque so the writing below is the focus. Every section has its
+   own mechanism. Spec: docs/ai-training-redesign-spec.md
+
+   Viewport units: heights that fill the screen use var(--svh-frozen) (the
+   bars-visible viewport, px-frozen), scroll budgets and flow spacing use
+   var(--vh-frozen). Instagram's in-app browser physically resizes the
+   WebView on every toolbar toggle, so live vh/svh/dvh re-resolve and shift
+   the page under the reader's finger (see ViewportFreeze.tsx). Live vh stays
+   only in font sizes and in positions inside fixed-size frames. */
+
+.at-page {
+  --at-paper: #f3f1eb;
+  --at-ink: #0b1020;
+  --at-ink-2: #111827;
+  --at-ink-3: #1a2440;
+  --at-ink-4: #232c5e;
+  --at-ink-5: #2c347d;
+  --at-blue: #2563eb;
+  --at-blue-light: #6d9bff;
+  --at-peri: #363b9e;
+  --at-muted: rgba(11, 16, 32, 0.62);
+  --at-muted-navy: rgba(243, 241, 235, 0.7);
+  --at-line: rgba(11, 16, 32, 0.14);
+  --at-line-navy: rgba(243, 241, 235, 0.16);
+  --header-h: 80px; /* Header is h-20 fixed */
+  --at-pad: clamp(16px, 4vw, 64px);
+  --font-body: var(--font-noto-jp), sans-serif;
+  position: relative;
+  isolation: isolate;
+  background: var(--at-ink);
+  color: var(--at-paper);
+}
+
+/* One fixed plasma behind the page. Navy sections are transparent to it;
+   the paper section (Pricing) is opaque. The veil sits between the canvas
+   and the sections and is scrubbed by AtScroll. */
+.at-page > :not(.at-plasma) {
+  position: relative;
+  z-index: 1;
+}
+.at-plasma {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* the LARGE viewport, not inset:0 — on phones inset:0 follows the address
+     bar, so the box (and the canvas in it) changed size on every scroll */
+  height: 100vh;
+  height: 100lvh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--at-ink);
+}
+.at-plasma__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.at-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--at-ink);
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* the footer needs its own positioned layer or the fixed plasma covers it */
+.at-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* no WebGL / context lost: quiet navy with a blue bloom */
+.at-page[data-at-fallback] .at-plasma__canvas { display: none; }
+.at-page[data-at-fallback] .at-plasma {
+  background:
+    radial-gradient(ellipse 50% 44% at 50% 50%, rgba(37, 99, 235, 0.32) 0%, transparent 70%),
+    var(--at-ink);
+}
+
+/* ── Flash guard: first paint is navy; children stay hidden until AtScroll
+      has applied every initial state (released in a rAF at its end). */
+.at-page[data-flash-guard] > * { visibility: hidden; }
+.at-page[data-flash-guard]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: var(--at-ink);
+  visibility: visible;
+  pointer-events: none;
+}
+
+/* ── Shared pieces ───────────────────────────────────────────────────── */
+.at-container {
+  margin-inline: auto;
+  max-width: 76rem;
+  padding-inline: 16px;
+}
+@media (min-width: 768px)  { .at-container { padding-inline: 24px; } }
+@media (min-width: 1024px) { .at-container { padding-inline: 32px; } }
+
+.at-section--navy  { background: transparent; color: var(--at-paper); }
+.at-section--paper { background: var(--at-paper); color: var(--at-ink); }
+
+.at-page p { font-family: var(--font-body); }
+.at-section--navy p  { color: var(--at-muted-navy); }
+.at-section--paper p { color: var(--at-muted); }
+
+.at-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* masked rise (hero intro) */
+.at-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.08em 0.06em 0.16em;
+  margin: -0.08em -0.06em -0.16em;
+}
+.at-mask__in { display: inline-block; will-change: transform; }
+
+/* section head — the only repeated motion on the page */
+.at-head { max-width: 42rem; }
+.at-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+}
+.at-label__rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+}
+.at-label__text {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.at-section--paper .at-label { color: var(--at-blue); }
+.at-section--navy  .at-label { color: var(--at-blue-light); }
+.at-h2 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.at-h2__mask { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.at-h2__line { display: block; }
+.at-head__lead {
+  margin: 22px 0 0;
+  max-width: 42rem;
+  font-weight: 300;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.95;
+  text-wrap: pretty;
+}
+
+/* the site outline button on navy */
+.cta-btn--at {
+  border-color: var(--at-paper);
+  color: var(--at-paper);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.cta-btn--at::before { background-color: var(--at-blue); }
+.cta-btn--at:hover, .cta-btn--at:focus-visible { border-color: var(--at-blue); color: #ffffff; }
+
+/* ── 1. Hero — AI TRAINING over the plasma ───────────────────────────── */
+.at-scene { position: relative; background: transparent; }
+.at-hero {
+  position: relative;
+  height: var(--svh-frozen);         /* fill — bars-visible viewport, px-frozen */
+  min-height: 560px;
+  overflow: clip;
+}
+.at-hero__inner {
+  position: relative;
+  height: 100%;
+  padding-inline: var(--at-pad);
+}
+
+.at-hero__kicker {
+  position: absolute;
+  left: var(--at-pad);
+  top: calc(var(--header-h) + 28px);
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--at-muted-navy);
+}
+.at-hero__kicker .at-mask__in { display: inline-flex; align-items: center; gap: 12px; }
+.at-hero__kicker-rule { display: inline-block; width: 32px; height: 1px; background: var(--at-blue-light); }
+
+/* title + JP headline flow together inside one positioned block, so the
+   headline always sits under TRAINING whatever the title's size */
+.at-hero__block {
+  position: absolute;
+  left: var(--at-pad);
+  right: var(--at-pad);
+  top: calc(50% + var(--header-h) * 0.5 - 3vh);
+  transform: translateY(-50%);
+}
+.at-hero__title {
+  margin: 0;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: clamp(56px, min(15vw, 26vh), 300px);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  color: var(--at-paper);
+  white-space: nowrap;
+}
+.at-hero__tline { display: block; }
+.at-hero__tmask { padding: 0.06em 0.04em 0.1em; margin: -0.06em -0.04em -0.1em; }
+
+.at-hero__jp {
+  margin: clamp(18px, 2.4vw, 34px) 0 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(16px, 1.55vw, 24px);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--at-paper);
+  white-space: nowrap;
+}
+.at-hero__jp-br { font-weight: 300; font-feature-settings: 'palt' 1; }
+.at-hero__jp-em { font-style: normal; font-weight: 800; color: var(--at-blue-light); }
+
+.at-hero__cta {
+  position: absolute;
+  left: var(--at-pad);
+  bottom: clamp(56px, 12vh, 110px);
+}
+.at-hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--at-muted-navy);
+}
+.at-hero__cue-line {
+  position: relative;
+  width: 1px;
+  height: 40px;
+  background: var(--at-line-navy);
+  overflow: hidden;
+}
+.at-hero__cue-line > span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 40%;
+  background: var(--at-paper);
+  animation: at-cue 1.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes at-cue {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(260%); }
+}
+
+/* ── 2. Statement — the hero's coda ──────────────────────────────────── */
+.at-statement { padding: clamp(88px, calc(var(--vh-frozen) * 0.14), 160px) 0 clamp(72px, calc(var(--vh-frozen) * 0.1), 120px); }
+.at-statement__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;
+}
+.at-statement__body {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(20px, 2vw, 30px);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  color: var(--at-paper);
+  text-wrap: pretty;
+}
+.at-statement__points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--at-paper);
+}
+.at-statement__point {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--at-line-navy);
+}
+.at-statement__pt {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--at-paper);
+}
+.at-statement__pb {
+  margin: 0;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+/* ── 3. Concerns — the typewriter ────────────────────────────────────── */
+.at-type { position: relative; }
+.at-type__stick {
+  position: sticky;
+  top: 0;
+  height: var(--svh-frozen);
+  min-height: 600px;
+  overflow: clip;
+  display: flex;
+  align-items: center;
+}
+.at-type__spacer { height: calc(var(--vh-frozen) * 1.7); }
+.at-type__inner {
+  width: 100%;
+  padding-top: var(--header-h);
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+}
+.at-type__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(18px, 3.4vh, 38px);
+}
+.at-type__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(22px, min(3.3vw, 5.2vh), 46px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--at-paper);
+}
+.at-type__part { display: inline-block; white-space: nowrap; }
+.at-type__body {
+  margin: 8px 0 0;
+  max-width: 46rem;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.9;
+}
+.at-type__lead {
+  margin: clamp(26px, 4.5vh, 48px) 0 0;
+  max-width: 38rem;
+  font-weight: 500;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.8;
+  color: var(--at-blue-light);
+  text-wrap: pretty;
+}
+.at-type__c { position: relative; color: transparent; }
+.at-type__c.is-on { color: inherit; }
+.at-type__c.is-caret::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 0.08em;
+  width: 2px;
+  height: 0.96em;
+  background: var(--at-blue-light);
+  animation: at-caret 1.05s steps(2, start) infinite;
+}
+.at-type__c.is-caret.is-end::after { left: auto; right: -4px; }
+@keyframes at-caret { to { visibility: hidden; } }
+
+/* ── 4. Reasons — the focus band ─────────────────────────────────────── */
+.at-focus {
+  --band-top: 32vh;
+  --band-bottom: 68vh;
+  padding: clamp(96px, calc(var(--vh-frozen) * 0.16), 180px) 0 clamp(96px, calc(var(--vh-frozen) * 0.18), 200px);
+}
+.at-focus__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 5vw, 80px);
+}
+.at-focus__side { position: sticky; top: calc(var(--header-h) + 40px); align-self: start; }
+.at-focus__stage { position: relative; }
+.at-focus__layer--ghost { filter: blur(9px); opacity: 0.34; }
+.at-focus__layer--crisp { position: absolute; inset: 0; clip-path: inset(100% 0 0 0); }
+.at-focus__list {
+  list-style: none;
+  margin: 0;
+  padding: calc(var(--vh-frozen) * 0.1) 0;
+  display: grid;
+  gap: clamp(64px, calc(var(--vh-frozen) * 0.18), 200px);
+}
+.at-focus__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(26px, 3.2vw, 44px);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.at-focus__body {
+  margin: 14px 0 0;
+  max-width: 34rem;
+  font-weight: 300;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.95;
+}
+/* the reading rulers — fixed hairlines while the section is on screen */
+.at-focus::before,
+.at-focus::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--at-line-navy);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.at-focus::before { top: var(--band-top); }
+.at-focus::after  { top: var(--band-bottom); }
+.at-focus[data-focus-active]::before,
+.at-focus[data-focus-active]::after { opacity: 1; }
+
+/* ── 5. Flow — the deck ──────────────────────────────────────────────── */
+.at-flow { padding: clamp(80px, calc(var(--vh-frozen) * 0.12), 136px) 0 0; }
+.at-flow__deck {
+  list-style: none;
+  margin: clamp(28px, calc(var(--vh-frozen) * 0.05), 56px) 0 0;
+  padding: 0;
+}
+.at-sheet {
+  --shade: 0;
+  position: sticky;
+  top: calc(var(--header-h) + 8px + var(--i) * 18px);
+  height: min(calc(var(--vh-frozen) * 0.58), 520px);
+  min-height: 300px;
+  margin-bottom: calc(var(--vh-frozen) * 0.04);
+  background: var(--at-ink-2);
+  color: var(--at-paper);
+  border-top: 1px solid var(--at-line-navy);
+  transform-origin: 50% 0%;
+  will-change: transform;
+  overflow: clip;
+}
+.at-sheet:last-child { margin-bottom: 0; }
+.at-sheet:nth-child(2) { background: var(--at-ink-3); }
+.at-sheet:nth-child(3) { background: var(--at-ink-4); }
+/* the last sheet continues the ramp (deep indigo) — a full electric-blue card
+   read as too bright next to the rest of the deck */
+.at-sheet:nth-child(4) { background: var(--at-ink-5); }
+.at-sheet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #050914;
+  opacity: var(--shade);
+  pointer-events: none;
+}
+.at-sheet__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 32px;
+  padding-top: clamp(26px, calc(var(--vh-frozen) * 0.05), 48px);
+}
+.at-sheet__step { grid-column: 1 / -1; margin: 0; color: var(--at-blue-light); }
+.at-sheet:nth-child(4) .at-sheet__step { color: var(--at-blue-light); }
+.at-sheet__title {
+  margin: 10px 0 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(28px, 3.6vw, 52px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.at-sheet__body {
+  margin: 18px 0 0;
+  max-width: 32rem;
+  font-weight: 300;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.95;
+  color: var(--at-muted-navy);
+}
+.at-sheet:nth-child(4) .at-sheet__body { color: rgba(243, 241, 235, 0.78); }
+
+/* ── 6. Courses — the slot sentence ──────────────────────────────────── */
+.at-courses { position: relative; }
+.at-courses__stick {
+  position: sticky;
+  top: 0;
+  height: var(--svh-frozen);
+  min-height: 640px;
+  overflow: clip;
+  display: flex;
+  align-items: center;
+}
+.at-courses__spacer { height: calc(var(--vh-frozen) * 2.2); }
+.at-courses__inner { width: 100%; padding-top: var(--header-h); }
+.at-courses__sentence {
+  margin: clamp(26px, 5vh, 52px) 0 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(26px, min(4.2vw, 7vh), 60px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--at-paper);
+}
+.at-courses__line { display: block; white-space: nowrap; }
+.at-courses__br { font-weight: 300; font-feature-settings: 'palt' 1; }
+.at-slot {
+  display: inline-block;
+  vertical-align: bottom;
+  height: 1.25em;
+  overflow: hidden;
+  color: var(--at-blue-light);
+}
+.at-slot__roll { display: block; will-change: transform; }
+.at-slot__w { display: block; height: 1.25em; line-height: 1.25; }
+.at-courses__panels {
+  position: relative;
+  margin-top: clamp(26px, 5vh, 56px);
+  display: grid;
+  overflow: clip;
+}
+.at-course {
+  grid-area: 1 / 1;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 32px;
+  will-change: transform;
+}
+.at-course__name { margin: 0 0 12px; font-family: var(--font-body); font-weight: 800; font-size: 22px; line-height: 1.4; }
+.at-course__name-part { display: inline-block; white-space: nowrap; }
+.at-course__desc {
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.95;
+}
+.at-course__modules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--at-line-navy);
+}
+.at-course__module {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--at-line-navy);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.at-course__mh { color: var(--at-muted-navy); white-space: nowrap; }
+
+/* ── 7. Pricing — the transfer (the one paper sheet) ─────────────────── */
+.at-price { padding: clamp(96px, calc(var(--vh-frozen) * 0.14), 160px) 0; }
+.at-price__banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 24px;
+  align-items: baseline;
+  margin: clamp(28px, calc(var(--vh-frozen) * 0.05), 52px) 0 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--at-ink);
+  border-bottom: 1px solid var(--at-line);
+}
+.at-price__banner-eyebrow { color: var(--at-blue); }
+.at-price__banner-title {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.5;
+}
+.at-price__banner-sub {
+  grid-column: 2;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--at-muted);
+}
+.at-price__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
+  margin-top: clamp(40px, calc(var(--vh-frozen) * 0.07), 80px);
+  align-items: end;
+}
+.at-price__cond { margin: 0; color: var(--at-muted); }
+.at-price__label {
+  margin: 10px 0 0;
+  font-weight: 500;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.5;
+  color: var(--at-ink);
+}
+.at-price__figure {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.08em;
+  transform-origin: 0% 100%;
+  will-change: transform;
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 700;
+  font-size: clamp(72px, 11vw, 168px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.at-price__unit {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.26em;
+  letter-spacing: 0;
+}
+.at-price__aside {
+  align-self: center;
+  margin-left: 0.2em;
+  padding: 0.3em 0.6em;
+  border: 1px solid currentColor;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.13em;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--at-blue);
+}
+.at-price__note,
+.at-price__body {
+  margin: 16px 0 0;
+  max-width: 30rem;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--at-muted);
+}
+.at-price__notes {
+  list-style: none;
+  margin: clamp(40px, calc(var(--vh-frozen) * 0.06), 64px) 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--at-line);
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--at-muted);
+}
+
+/* ── 8. FAQ — the reader's hand ──────────────────────────────────────── */
+.at-faq { padding: clamp(96px, calc(var(--vh-frozen) * 0.14), 160px) 0; }
+.at-faq__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 5vw, 80px);
+}
+.at-faq__side { position: sticky; top: calc(var(--header-h) + 40px); align-self: start; }
+.at-faq__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--at-paper); }
+.at-faq__item { border-bottom: 1px solid var(--at-line-navy); }
+.at-faq__q {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.6;
+  color: var(--at-paper);
+}
+.at-faq__q:focus-visible { outline: 2px solid var(--at-blue-light); outline-offset: 4px; }
+.at-faq__plus { position: relative; flex: 0 0 14px; width: 14px; height: 14px; }
+.at-faq__plus::before,
+.at-faq__plus::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 14px;
+  height: 1.5px;
+  background: var(--at-paper);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.at-faq__plus::after { transform: rotate(90deg); }
+.at-faq__item[data-open] .at-faq__plus::after { transform: rotate(0deg); }
+.at-faq__item[data-open] .at-faq__plus::before { transform: rotate(180deg); }
+.at-faq__a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.at-faq__item[data-open] .at-faq__a { grid-template-rows: 1fr; }
+.at-faq__a-in { overflow: hidden; }
+.at-faq__a p {
+  margin: 0;
+  padding: 0 0 26px;
+  max-width: 36rem;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.95;
+}
+
+/* ── 9. CTA — the bookend ────────────────────────────────────────────── */
+.at-cta {
+  position: relative;
+  background: transparent;           /* the field brightens behind */
+  color: var(--at-paper);
+  min-height: var(--svh-frozen);
+  display: flex;
+  align-items: center;
+  overflow: clip;
+}
+.at-cta__inner {
+  position: relative;
+  width: 100%;
+  padding-block: clamp(120px, calc(var(--vh-frozen) * 0.2), 200px);
+  display: grid;
+  gap: 40px;
+  justify-items: start;
+  will-change: transform;
+}
+.at-cta__lead {
+  margin: 0;
+  max-width: 24em;
+  font-weight: 500;
+  font-size: clamp(22px, 2.6vw, 40px);
+  line-height: 1.6;
+  color: var(--at-paper);
+  text-wrap: balance;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .at-hero__kicker { top: calc(var(--header-h) + 22px); }
+  .at-hero__block {
+    top: auto;
+    bottom: clamp(150px, 24vh, 210px);
+    transform: none;
+  }
+  .at-hero__title { font-size: clamp(44px, 18.5vw, 96px); }
+  .at-hero__jp {
+    margin-top: 16px;
+    font-size: clamp(14px, 4vw, 18px);
+    letter-spacing: 0.04em;
+  }
+  .at-hero__cta { bottom: clamp(72px, 13vh, 120px); }
+
+  .at-statement__grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .at-statement__point { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+
+  .at-type__stick { align-items: flex-start; min-height: 0; }
+  .at-type__inner { padding-top: calc(var(--header-h) + 16px); grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .at-type__title { font-size: clamp(20px, 5.6vw, 26px); }
+  .at-type__body { font-size: 14px; }
+  .at-type__lead { font-size: 16px; }
+
+  .at-focus__grid { grid-template-columns: minmax(0, 1fr); }
+  .at-focus__side { position: static; }
+  .at-focus__list { gap: clamp(56px, calc(var(--vh-frozen) * 0.14), 120px); }
+
+  .at-sheet { height: auto; min-height: min(calc(var(--vh-frozen) * 0.56), 480px); top: calc(var(--header-h) + 6px + var(--i) * 14px); }
+  .at-sheet__inner { grid-template-columns: minmax(0, 1fr); gap: 4px; padding-bottom: 32px; }
+
+  .at-courses__stick { align-items: flex-start; }
+  .at-courses__inner { padding-top: calc(var(--header-h) + 16px); }
+  .at-course { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+
+  .at-price__row { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .at-price__figure { font-size: clamp(72px, 22vw, 120px); }
+  .at-price__banner { grid-template-columns: minmax(0, 1fr); }
+  .at-price__banner-sub { grid-column: 1; }
+
+  .at-faq__grid { grid-template-columns: minmax(0, 1fr); }
+  .at-faq__side { position: static; }
+
+  .at-cta { min-height: calc(var(--svh-frozen) * 0.8); }
+}
+
+/* ── Reduced motion: every final state, no pins, no scrubs ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .at-page .at-hero__cue { display: none; }
+  .at-page .at-type__spacer,
+  .at-page .at-courses__spacer { display: none; }
+  .at-page .at-type__stick,
+  .at-page .at-courses__stick { position: relative; height: auto; min-height: 0; }
+  .at-page .at-veil { opacity: 0.92 !important; }
+  .at-page .at-type__c { color: inherit; }
+  .at-page .at-focus__layer--ghost { display: none; }
+  .at-page .at-focus__layer--crisp { position: static; clip-path: none !important; }
+  .at-page .at-focus::before, .at-page .at-focus::after { display: none; }
+  .at-page .at-sheet { position: relative; top: auto; transform: none !important; }
+  .at-page .at-sheet::after { display: none; }
+  .at-page .at-courses__sentence { display: none; }
+  .at-page .at-courses__panels { display: grid; gap: 48px; overflow: visible; }
+  .at-page .at-course { grid-area: auto; transform: none !important; visibility: visible !important; }
+  .at-page .at-course > .sr-only {
+    position: static; width: auto; height: auto; margin: 0 0 12px; overflow: visible; clip: auto; white-space: normal;
+    font-family: var(--font-body); font-weight: 800; font-size: 22px; line-height: 1.4;
+  }
+  .at-page .at-price__figure { transform: none !important; }
+  .at-page .at-cta__inner { transform: none !important; }
+  .at-page .at-hero__cue-line > span { animation: none; }
+  .at-page .at-type__c.is-caret::after { display: none; }
+}

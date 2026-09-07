@@ -1,40 +1,39 @@
-import Reveal from '@/components/ui/Reveal';
-import AtSectionHead from './AtSectionHead';
 import { REASONS } from './aiTrainingContent';
+import AtHead from './AtHead';
 
+function List() {
+  return (
+    <ol className="at-focus__list">
+      {REASONS.items.map((item) => (
+        <li key={item.title} className="at-focus__item">
+          <h3 className="at-focus__title">{item.title}</h3>
+          <p className="at-focus__body">{item.body}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
+ * Reasons — the focus band. Two identical layers: a defocused ghost in flow
+ * and a crisp copy clipped to a viewport-fixed reading band (AtScroll moves
+ * the clip every frame). Scrolling pulls each reason into focus.
+ */
 export default function AtReasons() {
   return (
-    <section className="relative bg-white py-20 md:py-28 lg:py-32">
-      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <Reveal>
-          <AtSectionHead word={REASONS.eyebrow} chip={REASONS.title} />
-        </Reveal>
-
-        <dl className="mx-auto mt-14 max-w-4xl">
-          {/* Hover/transition classes sit on the inner div, not on Reveal: Reveal
-              sets transitionProperty:'opacity, transform' inline on its own
-              element, which silently drops a class-based transition-colors on
-              the same element (the border-color change would snap instantly). */}
-          {REASONS.items.map((item, i) => (
-            <Reveal key={item.title} delay={i * 70}>
-              <div className="flex flex-col gap-y-2 border-t border-ai-border py-6 transition-colors duration-300 hover:border-ai-accent min-[760px]:flex-row min-[760px]:items-baseline min-[760px]:gap-x-10">
-                <dt
-                  className="flex items-baseline gap-3 font-sans text-[19px] font-bold leading-snug text-ai-ink min-[760px]:w-[42%] min-[760px]:shrink-0"
-                  style={{ textWrap: 'balance' }}
-                >
-                  <span className="font-display text-[14px] font-bold text-ai-accent">{`0${i + 1}`}</span>
-                  {item.title}
-                </dt>
-                <dd
-                  className="font-sans text-[17px] font-light text-ai-muted"
-                  style={{ lineHeight: 1.9, textWrap: 'pretty' }}
-                >
-                  {item.body}
-                </dd>
-              </div>
-            </Reveal>
-          ))}
-        </dl>
+    <section id="reasons" className="at-focus at-section--navy">
+      <div className="at-container at-focus__grid">
+        <div className="at-focus__side">
+          <AtHead label={REASONS.eyebrow} title={REASONS.title} />
+        </div>
+        <div className="at-focus__stage">
+          <div className="at-focus__layer at-focus__layer--ghost" aria-hidden>
+            <List />
+          </div>
+          <div className="at-focus__layer at-focus__layer--crisp" data-focus-crisp>
+            <List />
+          </div>
+        </div>
       </div>
     </section>
   );
