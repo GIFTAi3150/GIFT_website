@@ -1,0 +1,15 @@
+{
+  "width": 848,
+  "height": 738,
+  "fps": 24,
+  "frames": 241,
+  "duration": 10.041666666666666,
+  "posterTime": 1.25,
+  "encoding": "premultiplied-rgb-left-alpha-right",
+  "sourceCrop": {
+    "x": 784,
+    "y": 160,
+    "width": 1056,
+    "height": 920
+  }
+}
