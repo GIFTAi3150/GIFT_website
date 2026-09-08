@@ -31,7 +31,8 @@ export default function KhPricing() {
         <KhHead label={PRICING.eyebrow} title={PRICING.title} lead={PRICING.lead} />
 
         <div className="kh-price__card">
-          <p className="kh-price__card-label kh-mono">PACKAGE</p>
+          <p className="kh-price__card-label kh-mono">{PRICING.basicEyebrow}</p>
+          <h3 className="kh-price__card-title">{PRICING.basicTitle}</h3>
           <div className="kh-price__monthly">
             <div className="kh-price__monthly-item">
               <span className="kh-price__monthly-label">{PRICING.monthlyLabel}</span>
@@ -44,31 +45,38 @@ export default function KhPricing() {
               <span className="kh-price__term">{PRICING.setupNote}</span>
             </div>
           </div>
+        </div>
 
-          <dl className="kh-ledger">
-          <div className="kh-ledger__head">
-            <dt>{PRICING.columnLabels.item}</dt>
-            <dd>{PRICING.columnLabels.price}</dd>
+        <div className="kh-price__subsidy">
+          <div className="kh-price__subsidy-head">
+            <p className="kh-price__subsidy-label kh-mono">{PRICING.subsidyEyebrow}</p>
+            <h3 className="kh-price__subsidy-title">{PRICING.subsidyTitle}</h3>
+            <p className="kh-price__subsidy-lead">{PRICING.subsidyLead}</p>
           </div>
-          {PRICING.rows.map((row) => (
-            <div key={row.item} className="kh-ledger__row">
+          <dl className="kh-ledger">
+            <div className="kh-ledger__head">
+              <dt>{PRICING.columnLabels.item}</dt>
+              <dd>{PRICING.columnLabels.price}</dd>
+            </div>
+            {PRICING.rows.map((row) => (
+              <div key={row.item} className="kh-ledger__row">
+                <dt>
+                  <span className="kh-ledger__item">{row.item}</span>
+                  {row.detail ? <span className="kh-ledger__detail">{row.detail}</span> : null}
+                </dt>
+                <dd>
+                  <Yen figure={row.amount} />
+                </dd>
+              </div>
+            ))}
+            <div className="kh-ledger__row kh-ledger__row--total">
               <dt>
-                <span className="kh-ledger__item">{row.item}</span>
-                {row.detail ? <span className="kh-ledger__detail">{row.detail}</span> : null}
+                <span className="kh-ledger__item">{PRICING.totalLabel}</span>
               </dt>
               <dd>
-                <Yen figure={row.amount} />
+                <Yen figure={PRICING.totalAmount} />
               </dd>
             </div>
-          ))}
-          <div className="kh-ledger__row kh-ledger__row--total">
-            <dt>
-              <span className="kh-ledger__item">{PRICING.totalLabel}</span>
-            </dt>
-            <dd>
-              <Yen figure={PRICING.totalAmount} />
-            </dd>
-          </div>
           </dl>
         </div>
 
