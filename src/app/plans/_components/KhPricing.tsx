@@ -53,31 +53,14 @@ export default function KhPricing() {
             <h3 className="kh-price__subsidy-title">{PRICING.subsidyTitle}</h3>
             <p className="kh-price__subsidy-lead">{PRICING.subsidyLead}</p>
           </div>
-          <dl className="kh-ledger">
-            <div className="kh-ledger__head">
-              <dt>{PRICING.columnLabels.item}</dt>
-              <dd>{PRICING.columnLabels.price}</dd>
-            </div>
-            {PRICING.rows.map((row) => (
-              <div key={row.item} className="kh-ledger__row">
-                <dt>
-                  <span className="kh-ledger__item">{row.item}</span>
-                  {row.detail ? <span className="kh-ledger__detail">{row.detail}</span> : null}
-                </dt>
-                <dd>
-                  <Yen figure={row.amount} />
-                </dd>
-              </div>
+          <ul className="kh-price__package-items">
+            {PRICING.packageItems.map((item) => (
+              <li key={item.item}>
+                <span className="kh-ledger__item">{item.item}</span>
+                {item.detail ? <span className="kh-ledger__detail">{item.detail}</span> : null}
+              </li>
             ))}
-            <div className="kh-ledger__row kh-ledger__row--total">
-              <dt>
-                <span className="kh-ledger__item">{PRICING.totalLabel}</span>
-              </dt>
-              <dd>
-                <Yen figure={PRICING.totalAmount} />
-              </dd>
-            </div>
-          </dl>
+          </ul>
         </div>
 
         {/* the fold: sticky sheet, spacer = its travel */}
