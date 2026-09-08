@@ -563,6 +563,14 @@
   font-weight: 700;
   letter-spacing: 0.16em;
 }
+.kh-price__card-title {
+  margin: 0 0 22px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1.4;
+  color: var(--kh-ink);
+}
 .kh-price__monthly {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -593,6 +601,32 @@
   font-family: var(--font-body);
   font-weight: 300;
   font-size: 14px;
+  color: var(--kh-muted);
+}
+
+.kh-price__subsidy {
+  width: min(100%, 820px);
+  margin: clamp(72px, calc(var(--vh-frozen) * 0.1), 112px) auto 0;
+  padding: clamp(28px, 3vw, 40px);
+  background: var(--kh-paper-2);
+  border: 1px solid var(--kh-line);
+  border-top: 4px solid var(--kh-blue);
+}
+.kh-price__subsidy-head { padding-bottom: 24px; border-bottom: 1px solid var(--kh-line); }
+.kh-price__subsidy-label { margin: 0 0 10px; color: var(--kh-blue); }
+.kh-price__subsidy-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(22px, 2.5vw, 32px);
+  line-height: 1.45;
+  color: var(--kh-ink);
+}
+.kh-price__subsidy-lead {
+  margin: 12px 0 0;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.8;
   color: var(--kh-muted);
 }
 
@@ -987,11 +1021,14 @@
 
   .kh-price__card { padding: 28px 18px 24px; box-shadow: 6px 7px 0 rgba(37, 99, 235, 0.12); }
   .kh-price__card-label { left: 18px; padding: 6px 12px; font-size: 10px; }
+  .kh-price__card-title { margin-bottom: 18px; }
   .kh-price__monthly-item { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 10px 12px 16px; }
   .kh-price__monthly-item:first-child { padding-left: 0; }
   .kh-price__monthly-item:last-child { padding-right: 0; }
   .kh-price__monthly-fig { font-size: clamp(34px, 10vw, 50px); }
   .kh-price__term { grid-column: 1; font-size: 12px; }
+  .kh-price__subsidy { margin-top: 64px; padding: 24px 18px; }
+  .kh-price__subsidy-head { padding-bottom: 18px; }
   .kh-ledger__row { gap: 16px; }
   .kh-fold-stick { top: calc(var(--header-h) + 12px); }
   .kh-fold { --sheet-h: min(53vh, 440px); }
