@@ -571,6 +571,19 @@
 }
 
 .kh-ledger { margin: clamp(28px, calc(var(--vh-frozen) * 0.05), 48px) 0 0; }
+.kh-ledger__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--kh-ink);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--kh-muted);
+}
+.kh-ledger__head dt, .kh-ledger__head dd { margin: 0; }
 .kh-ledger__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

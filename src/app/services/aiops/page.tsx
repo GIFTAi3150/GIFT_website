@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
-import AoField from './_components/AoField';
+import EvolveField from './_components/EvolveField';
 import AoHero from './_components/AoHero';
 import AoCaps from './_components/AoCaps';
 import AoPains from './_components/AoPains';
@@ -24,8 +24,8 @@ export default function AiOpsPage() {
   return (
     <>
       <main className="ao-page" data-flash-guard="">
-        {/* The ground: one fixed liquid plate + navy veil behind the page (z 0). */}
-        <AoField />
+        {/* The ground: one fixed Evolve mountain plate behind the page (z 0). */}
+        <EvolveField />
 
         <AoHero />
         <AoCaps />

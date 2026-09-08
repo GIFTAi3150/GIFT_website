@@ -1,10 +1,7 @@
 /* /services/aiops — "Groundwork" (2026-09-07).
-   One navy sheet over a fixed liquid plate (AoField: the approved loudsrl
-   "Balatro" paint, navy / indigo / periwinkle). The hero scene reads over the
-   paint at full turbulence; the pin calms the paint itself while the statement
-   comes up out of it; under the sections a navy veil dims it to a slow pulse;
-   under the CTA the veil lifts and the paint moves again. Every section has
-   its own mechanism. Spec: docs/aiops-groundwork-redesign-spec.md
+   One fixed blue Evolve mountain plate sits behind the hero and all navy
+   sections. Every foreground section keeps its own scrolling mechanism.
+   Spec: docs/aiops-groundwork-redesign-spec.md
 
    Viewport units: heights that fill the screen use var(--svh-frozen) (the
    bars-visible viewport, px-frozen), scroll budgets use var(--vh-frozen).
@@ -32,21 +29,21 @@
   --font-display: var(--font-poppins), sans-serif;
   /* scroll budgets — multiples of --vh-frozen added to each pinned frame */
   --ao-scene-budget: 1.7;
-  --ao-caps-budget: 1.6;
+  --ao-caps-budget: 2;
   --ao-pains-budget: 2.2;
   --ao-steps-budget: 2.6; /* six steps; each flip spans ~230 px of scroll (user: slower) */
   --ao-agents-budget: 2;
   position: relative;
   isolation: isolate;
-  background: var(--ao-ink);
+  background: #000;
   color: var(--ao-paper);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
 
-/* One fixed plate behind the page. Every section is transparent to it
-   (the veil provides the ground); the Thinking sheet is opaque paper. */
+/* One fixed Evolve plate behind the page. Every navy section is transparent
+   to it; the Thinking sheet remains the page's one opaque paper section. */
 .ao-page > :not(.ao-field) {
   position: relative;
   z-index: 1;
@@ -63,26 +60,57 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: var(--ao-ink);
+  background: #000;
 }
-.ao-field canvas {
+.ao-field::before {
+  position: absolute;
+  inset: -5%;
+  content: '';
+  background: #2453dc url('/evolve-hero/assets/hero-still.webp') center center / cover no-repeat;
+  background-blend-mode: luminosity;
+  animation: ao-mountain-drift 24s linear infinite paused;
+  transition: opacity 700ms ease;
+}
+.ao-field.fallback-moving::before {
+  animation-play-state: running;
+  will-change: transform;
+}
+.ao-field.is-live::before {
+  opacity: 0;
+  animation-play-state: paused;
+}
+@keyframes ao-mountain-drift {
+  from { transform: rotate(0turn) translate3d(0, 1.6%, 0) rotate(0turn) scale(1.025); }
+  to { transform: rotate(1turn) translate3d(0, 1.6%, 0) rotate(-1turn) scale(1.025); }
+}
+.ao-field > canvas {
+  position: relative;
+  z-index: 1;
   display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 700ms ease;
 }
-.ao-veil {
+.ao-field.is-live > canvas {
+  opacity: 1;
+}
+.ao-field::after {
   position: absolute;
   inset: 0;
-  background: var(--ao-ink);
-  opacity: 0;
-  transition-property: opacity;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity;
+  z-index: 2;
+  content: '';
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.08);
 }
-/* no WebGL / context lost: quiet navy with the two lights as a bloom */
-.ao-page[data-ao-fallback] .ao-field {
-  background:
-    radial-gradient(ellipse 46% 40% at 30% 42%, rgba(79, 106, 240, 0.42) 0%, transparent 70%),
-    radial-gradient(ellipse 36% 30% at 72% 68%, rgba(191, 204, 250, 0.22) 0%, transparent 70%),
-    var(--ao-ink);
+.ao-evolve-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
 }
 
 /* the footer needs its own positioned layer or the fixed plate covers it */
@@ -101,7 +129,7 @@
   position: fixed;
   inset: 0;
   z-index: 9998;
-  background: var(--ao-ink);
+  background: #000;
   visibility: visible;
   pointer-events: none;
 }

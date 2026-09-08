@@ -13,7 +13,7 @@ function Yen({ figure, className }: { figure: string; className?: string }) {
 }
 
 /**
- * Pricing — 折半, the fold. The one paper section. The ledger (216 + 38 + 45
+ * Pricing — 折半, the fold. The one paper section. The ledger (216 + 38 + 27 + 18
  * = 299) is typeset plainly; then the 299万円 sheet folds in half on a hinge
  * as you scroll (KhScroll drives `--fold`), and the back of the flap carries
  * 149.5万円・実質半額 with its condition. Half the sheet, half the price.
@@ -38,6 +38,10 @@ export default function KhPricing() {
         </div>
 
         <dl className="kh-ledger">
+          <div className="kh-ledger__head">
+            <dt>{PRICING.columnLabels.item}</dt>
+            <dd>{PRICING.columnLabels.price}</dd>
+          </div>
           {PRICING.rows.map((row) => (
             <div key={row.item} className="kh-ledger__row">
               <dt>

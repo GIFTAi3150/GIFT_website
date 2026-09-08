@@ -15,7 +15,7 @@ export default function AiOpsLoading() {
         position: 'fixed',
         inset: 0,
         zIndex: 9998,
-        background: '#0B1020',
+        background: '#000000',
       }}
       aria-label="Loading"
     />

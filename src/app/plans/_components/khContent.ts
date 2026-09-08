@@ -51,7 +51,7 @@ export const FEATURES = {
     {
       kicker: '標準セット',
       title: 'Claude Code 標準セット',
-      body: 'Anthropic社のAI「Claude」（Claude Code含む・Team Standard 5名分）の24ヶ月分利用料をプランに含めて提供。導入した日からAIと社内知識を組み合わせて使えます。',
+      body: 'Anthropic社のAI「Claude」（Claude Code含む・Team Standard 3名分）の24ヶ月分利用料をプランに含めて提供。導入した日からAIと社内知識を組み合わせて使えます。',
     },
     {
       kicker: '広がる',
@@ -76,14 +76,24 @@ export const PRICING = {
   monthlyFigure: '9',
   termNote: '契約は1年（以降自動更新）',
 
+  columnLabels: {
+    item: '項目',
+    price: '料金',
+  },
+
   /** Line items. `detail` is optional and prints under the item name. */
   rows: [
     { item: '月額利用料（24ヶ月分）', detail: null, amount: '216' },
     { item: '初期導入費', detail: '導入研修・オンボーディング初期設定込み', amount: '38' },
     {
-      item: 'Claude Team Standard 5名分（24ヶ月分）',
+      item: 'Claude Team Standard 3名分（24ヶ月分）',
       detail: 'Claude Code含む・標準セット',
-      amount: '45',
+      amount: '27',
+    },
+    {
+      item: '専用サーバー利用料（24ヶ月分）',
+      detail: 'お客様専用のデータ保管サーバー（さくらのVPS・Xserver VPS）・標準セット',
+      amount: '18',
     },
   ] as { item: string; detail: string | null; amount: string }[],
 
@@ -98,7 +108,7 @@ export const PRICING = {
     label: 'お客様の実質負担',
     figure: '149.5',
     aside: '実質半額',
-    body: 'Claudeの利用料も、クラウド利用料として最大2年分が補助対象にできます。',
+    body: 'Claude・専用サーバーの利用料も、クラウド利用料として最大2年分が補助対象にできます。',
   },
 
   taxNote: '※表示価格はすべて税別です。',
@@ -107,7 +117,7 @@ export const PRICING = {
 export const GLOSSARY = {
   eyebrow: 'GLOSSARY',
   title: 'Claude Team Standard とは',
-  body: 'AI開発企業Anthropic（アンソロピック）社の公式法人プランです。世界トップクラスの生成AI「Claude」との対話に加え、文書作成や業務の自動化までこなすAI作業ツール「Claude Code」が使えます。利用メンバーの管理機能などの法人向けセキュリティが付き、入力した内容がAIの学習に使われない設計です。1名につき1席で、本プランには5名分（24ヶ月）が含まれます。',
+  body: 'AI開発企業Anthropic（アンソロピック）社の公式法人プランです。世界トップクラスの生成AI「Claude」との対話に加え、文書作成や業務の自動化までこなすAI作業ツール「Claude Code」が使えます。利用メンバーの管理機能などの法人向けセキュリティが付き、入力した内容がAIの学習に使われない設計です。1名につき1席で、本プランには3名分（24ヶ月）が含まれます。',
 } as const;
 
 export const SUPPORT = {
