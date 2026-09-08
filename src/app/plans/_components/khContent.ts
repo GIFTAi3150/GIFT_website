@@ -67,9 +67,12 @@ export const FEATURES = {
 } as const;
 
 export const PRICING = {
-  eyebrow: 'PACKAGE',
+  eyebrow: 'PRICING',
   title: '料金',
-  lead: '単一プラン。2年間のフルセットが補助金の枠に収まる設計です。',
+  lead: '基本費用と、AI導入補助金の活用を想定した2年間のパッケージをご案内します。',
+
+  basicEyebrow: 'BASIC COST',
+  basicTitle: '基本費用',
 
   monthlyLabel: '月額',
   /** Figure only — the component draws the 万円 unit itself. */
@@ -79,6 +82,10 @@ export const PRICING = {
   setupFigure: '38',
   setupNote: '導入研修・オンボーディング初期設定込み',
 
+  subsidyEyebrow: 'AI SUBSIDY PACKAGE',
+  subsidyTitle: 'AI導入補助金活用パッケージ',
+  subsidyLead: '2年間の利用料と導入費用をまとめた、補助金活用を想定した費用構成です。',
+
   columnLabels: {
     item: '項目',
     price: '料金',
@@ -87,6 +94,7 @@ export const PRICING = {
   /** Line items. `detail` is optional and prints under the item name. */
   rows: [
     { item: '月額利用料（24ヶ月分）', detail: '※2年プランの場合', amount: '216' },
+    { item: '初期導入費', detail: '導入研修・オンボーディング初期設定込み', amount: '38' },
     {
       item: 'Claude Team Standard 3名分（24ヶ月分）',
       detail: 'Claude Code含む・標準セット',
