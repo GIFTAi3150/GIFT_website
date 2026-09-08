@@ -67,7 +67,7 @@ export const FEATURES = {
 } as const;
 
 export const PRICING = {
-  eyebrow: 'PRICING',
+  eyebrow: 'PACKAGE',
   title: '料金',
   lead: '単一プラン。2年間のフルセットが補助金の枠に収まる設計です。',
 
@@ -75,6 +75,9 @@ export const PRICING = {
   /** Figure only — the component draws the 万円 unit itself. */
   monthlyFigure: '9',
   termNote: '契約は1年（以降自動更新）',
+  setupLabel: '初期導入費',
+  setupFigure: '38',
+  setupNote: '導入研修・オンボーディング初期設定込み',
 
   columnLabels: {
     item: '項目',
@@ -83,8 +86,7 @@ export const PRICING = {
 
   /** Line items. `detail` is optional and prints under the item name. */
   rows: [
-    { item: '月額利用料（24ヶ月分）', detail: null, amount: '216' },
-    { item: '初期導入費', detail: '導入研修・オンボーディング初期設定込み', amount: '38' },
+    { item: '月額利用料（24ヶ月分）', detail: '※2年プランの場合', amount: '216' },
     {
       item: 'Claude Team Standard 3名分（24ヶ月分）',
       detail: 'Claude Code含む・標準セット',

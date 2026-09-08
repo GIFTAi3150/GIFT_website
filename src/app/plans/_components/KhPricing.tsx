@@ -30,14 +30,22 @@ export default function KhPricing() {
       <div className="kh-container">
         <KhHead label={PRICING.eyebrow} title={PRICING.title} lead={PRICING.lead} />
 
-        {/* 月額9万円 is what the manager leads with, so it leads here */}
-        <div className="kh-price__monthly">
-          <span className="kh-price__monthly-label">{PRICING.monthlyLabel}</span>
-          <Yen figure={PRICING.monthlyFigure} className="kh-price__monthly-fig" />
-          <span className="kh-price__term">{PRICING.termNote}</span>
-        </div>
+        <div className="kh-price__card">
+          <p className="kh-price__card-label kh-mono">PACKAGE</p>
+          <div className="kh-price__monthly">
+            <div className="kh-price__monthly-item">
+              <span className="kh-price__monthly-label">{PRICING.monthlyLabel}</span>
+              <Yen figure={PRICING.monthlyFigure} className="kh-price__monthly-fig" />
+              <span className="kh-price__term">{PRICING.termNote}</span>
+            </div>
+            <div className="kh-price__monthly-item">
+              <span className="kh-price__monthly-label">{PRICING.setupLabel}</span>
+              <Yen figure={PRICING.setupFigure} className="kh-price__monthly-fig" />
+              <span className="kh-price__term">{PRICING.setupNote}</span>
+            </div>
+          </div>
 
-        <dl className="kh-ledger">
+          <dl className="kh-ledger">
           <div className="kh-ledger__head">
             <dt>{PRICING.columnLabels.item}</dt>
             <dd>{PRICING.columnLabels.price}</dd>
@@ -61,7 +69,8 @@ export default function KhPricing() {
               <Yen figure={PRICING.totalAmount} />
             </dd>
           </div>
-        </dl>
+          </dl>
+        </div>
 
         {/* the fold: sticky sheet, spacer = its travel */}
         <div className="kh-fold-wrap" data-fold-wrap>
