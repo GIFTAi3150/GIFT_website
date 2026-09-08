@@ -301,6 +301,8 @@ export default function KhScroll() {
 
     const onVh = () => ScrollTrigger.refresh();
     window.addEventListener(VH_FROZEN_CHANGE, onVh);
+    const onRouteStyles = () => ScrollTrigger.refresh();
+    window.addEventListener('gift:route-styles-ready', onRouteStyles);
     const fontsRefresh = () => ScrollTrigger.refresh();
     document.fonts?.ready.then(fontsRefresh, fontsRefresh);
 
@@ -311,6 +313,7 @@ export default function KhScroll() {
       window.removeEventListener('scroll', onFirstScroll);
       unlistenReady?.();
       window.removeEventListener(VH_FROZEN_CHANGE, onVh);
+      window.removeEventListener('gift:route-styles-ready', onRouteStyles);
       ctx.revert();
       if (lenisRaf) gsap.ticker.remove(lenisRaf);
       lenis?.destroy();

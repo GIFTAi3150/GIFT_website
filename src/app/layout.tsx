@@ -7,6 +7,7 @@ import RootCanvasMount from '@/components/three/RootCanvasMount';
 import Header from '@/components/layout/Header';
 import ErrorReporter from '@/components/util/ErrorReporter';
 import ViewportFreeze from '@/components/util/ViewportFreeze';
+import RouteTransitionGuard from '@/components/util/RouteTransitionGuard';
 
 export const metadata: Metadata = {
   // Canonical host is www — gift-inc.org 301s here (2026-07-13 domain switch).
@@ -238,6 +239,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CtaHoverHydrator />
         <ScrollToTopOnRouteChange />
+        <RouteTransitionGuard />
         <RootCanvasMount />
         <ViewportFreeze />
         <ErrorReporter />

@@ -438,6 +438,8 @@ export default function AoScroll() {
 
     const onVh = () => ScrollTrigger.refresh();
     window.addEventListener(VH_FROZEN_CHANGE, onVh);
+    const onRouteStyles = () => ScrollTrigger.refresh();
+    window.addEventListener('gift:route-styles-ready', onRouteStyles);
     const fontsRefresh = () => ScrollTrigger.refresh();
     document.fonts?.ready.then(fontsRefresh, fontsRefresh);
     const onLoad = () => ScrollTrigger.refresh();
@@ -449,6 +451,7 @@ export default function AoScroll() {
       window.clearTimeout(introCap);
       window.removeEventListener('scroll', onFirstScroll);
       window.removeEventListener(VH_FROZEN_CHANGE, onVh);
+      window.removeEventListener('gift:route-styles-ready', onRouteStyles);
       window.removeEventListener('load', onLoad);
       ctx.revert();
       if (lenisRaf) gsap.ticker.remove(lenisRaf);
