@@ -290,6 +290,8 @@ export default function AtScroll() {
 
     const onVh = () => ScrollTrigger.refresh();
     window.addEventListener(VH_FROZEN_CHANGE, onVh);
+    const onRouteStyles = () => ScrollTrigger.refresh();
+    window.addEventListener('gift:route-styles-ready', onRouteStyles);
     const fontsRefresh = () => ScrollTrigger.refresh();
     document.fonts?.ready.then(fontsRefresh, fontsRefresh);
 
@@ -300,6 +302,7 @@ export default function AtScroll() {
       window.clearTimeout(cueTimer);
       window.removeEventListener('scroll', onFirstScroll);
       window.removeEventListener(VH_FROZEN_CHANGE, onVh);
+      window.removeEventListener('gift:route-styles-ready', onRouteStyles);
       qa('.at-faq__a').forEach((a) => a.removeEventListener('transitionend', onFaq));
       ctx.revert();
       if (lenisRaf) gsap.ticker.remove(lenisRaf);

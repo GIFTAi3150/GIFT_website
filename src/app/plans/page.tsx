@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
-import PlansHero from './_components/PlansHero';
+import KhField from './_components/KhField';
+import KhHero from './_components/KhHero';
 import KhFeatures from './_components/KhFeatures';
 import KhPricing from './_components/KhPricing';
 import KhGlossary from './_components/KhGlossary';
 import KhSupport from './_components/KhSupport';
 import KhCta from './_components/KhCta';
+import KhScroll from './_components/KhScroll';
+import './plans.css';
 
 const OG_TITLE = 'ナレッジハーネス｜社内の知識を「全社の記憶基盤」に';
 const OG_DESCRIPTION =
@@ -40,21 +43,32 @@ export const metadata: Metadata = {
   },
 };
 
+// Redesign "the harnessing" (2026-09-07) — docs/knowledge-harness-redesign-spec.md.
+// Every string comes from _components/khContent.ts.
 export default function PlansPage() {
   return (
     <>
-      {/* Dark base behind every section. Each section paints its own band on top;
-          this only guarantees no light seam shows through between them, and covers
-          the overscroll area on iOS. */}
-      <main className="bg-[#0b1020]">
-        <PlansHero />
+      <main className="kh-page" data-flash-guard="">
+        {/* The field: one fixed 2D canvas behind the page (z 0). */}
+        <KhField />
+
+        <KhHero />
         <KhFeatures />
         <KhPricing />
         <KhGlossary />
         <KhSupport />
         <KhCta />
+
+        {/* Orchestrator LAST: its effect must run after every section above. */}
+        <KhScroll />
       </main>
-      <Footer />
+      {/* The field canvas is fixed inside <main>, and <main> is positioned —
+          positioned content paints above a static sibling whatever the DOM
+          order, so an unwrapped footer sits UNDER the canvas. The wrapper
+          gives the footer its own positioned layer. */}
+      <div className="kh-footer">
+        <Footer />
+      </div>
     </>
   );
 }

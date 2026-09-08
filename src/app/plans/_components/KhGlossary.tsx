@@ -1,23 +1,44 @@
 import { GLOSSARY } from './khContent';
 
+// Every character is a span so KhScroll can run the marker through the
+// definition by scroll position. Inline (not inline-block): this is body
+// text and must wrap like body text.
+function chars(text: string) {
+  return Array.from(text).map((ch, i) => (
+    <span key={i} className="kh-mark__c">
+      {ch}
+    </span>
+  ));
+}
+
+/**
+ * Glossary — the marker. The definition of Claude Team Standard is fully
+ * visible from the start; a highlighter sweeps through it, character by
+ * character, with the scroll — the reader's pen, not a reveal.
+ */
 export default function KhGlossary() {
+  // 「Claude Team Standard とは」— the Latin term gets the display face, とは
+  // stays Japanese. Split on the last space so the source string is intact.
+  const cut = GLOSSARY.title.lastIndexOf(' ');
+  const termEn = cut === -1 ? GLOSSARY.title : GLOSSARY.title.slice(0, cut);
+  const termJa = cut === -1 ? '' : GLOSSARY.title.slice(cut + 1);
+
   return (
-    <section className="relative bg-[#F0F7FF] py-20 md:py-28 lg:py-32">
-      <div className="mx-auto max-w-container px-4 md:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl border border-[#BFDBFE] bg-white p-6 md:p-10">
-          <p className="font-display text-[12px] font-bold uppercase tracking-widest text-[#2563EB]">
-            Glossary
+    <section id="glossary" className="kh-gloss kh-section--navy">
+      <div className="kh-container kh-gloss__grid">
+        <div className="kh-gloss__side">
+          <p className="kh-label" data-kh-label>
+            <span className="kh-label__rule" aria-hidden />
+            <span className="kh-label__text">{GLOSSARY.eyebrow}</span>
           </p>
-          <h2 className="mt-4 font-sans text-[clamp(21px,2.4vw,25px)] font-extrabold leading-snug text-[#0C0E1A]">
-            {GLOSSARY.title}
+          <h2 className="kh-gloss__term">
+            <span className="kh-gloss__term-en">{termEn}</span>
+            {termJa ? <span className="kh-gloss__term-ja">{termJa}</span> : null}
           </h2>
-          <p
-            className="mt-5 font-sans text-[17px] font-light text-[#5B6B8A]"
-            style={{ lineHeight: 1.95, textWrap: 'pretty' }}
-          >
-            {GLOSSARY.body}
-          </p>
         </div>
+        <p className="kh-gloss__body" data-marker>
+          {chars(GLOSSARY.body)}
+        </p>
       </div>
     </section>
   );
