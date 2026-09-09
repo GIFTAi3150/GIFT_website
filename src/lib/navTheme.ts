@@ -310,6 +310,7 @@ const THEME_MAP: Array<[RegExp, NavTheme]> = [
   [/^\/services\/callcenter(\/|$)/, CALLCENTER_THEME],
   [/^\/services\/aiops(\/|$)/, DX_CONSULTING_THEME],
   [/^\/services\/ai-training(\/|$)/, AI_TRAINING_THEME],
+  [/^\/services\/web-development(\/|$)/, AI_TRAINING_THEME],
   [/^\/plans(\/|$)/, PLANS_THEME],
   [/^\/services\/finance-consulting(\/|$)/, FINANCE_THEME],
   [/^\/member(\/|$)/, MEMBER_THEME],
@@ -346,4 +347,3 @@ export function navThemeVars(theme: NavTheme): Record<string, string> {
     '--nav-text-faint': theme.textFaint,
   };
 }
-

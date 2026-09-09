@@ -180,7 +180,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var darkRoutes = [
                   ['/services/aiops', '#000000'],
                   ['/company', '#0b1020'],
-                  ['/services/ai-training', '#0b1020']
+                  ['/services/ai-training', '#0b1020'],
+                  ['/services/web-development', '#0b1020']
                 ];
                 for (var i = 0; i < darkRoutes.length; i++) {
                   if (location.pathname.indexOf(darkRoutes[i][0]) === 0) {
