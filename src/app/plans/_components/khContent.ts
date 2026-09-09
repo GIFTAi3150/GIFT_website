@@ -86,19 +86,26 @@ export const PRICING = {
   subsidyTitle: 'AI導入補助金活用パッケージ',
   subsidyLead: '2年間の利用料と導入費用をまとめた、補助金活用を想定した費用構成です。',
 
-  /** Package inclusions only. Individual prices are intentionally not displayed. */
-  packageItems: [
-    { item: '月額利用料（24ヶ月分）', detail: '※2年プランの場合' },
-    { item: '初期導入費', detail: '導入研修・オンボーディング初期設定込み' },
+  columnLabels: {
+    item: '項目',
+    price: '料金',
+  },
+
+  /** Line items. `detail` is optional and prints under the item name. */
+  rows: [
+    { item: '月額利用料（24ヶ月分）', detail: '※2年プランの場合', amount: '216' },
+    { item: '初期導入費', detail: '導入研修・オンボーディング初期設定込み', amount: '38' },
     {
       item: 'Claude Team Standard 3名分（24ヶ月分）',
       detail: 'Claude Code含む・標準セット',
+      amount: '27',
     },
     {
       item: '専用サーバー利用料（24ヶ月分）',
       detail: 'お客様専用のデータ保管サーバー（さくらのVPS・Xserver VPS）・標準セット',
+      amount: '18',
     },
-  ] as { item: string; detail: string | null }[],
+  ] as { item: string; detail: string | null; amount: string }[],
 
   totalLabel: '2年間フルセット合計',
   totalAmount: '299',
