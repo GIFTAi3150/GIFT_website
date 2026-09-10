@@ -18,14 +18,11 @@ const footerServices = [
   { href: '/plans', label: 'ナレッジハーネス' },
 ];
 
-export default function Footer() {
+export default function Footer({ creditsHref }: { creditsHref?: string } = {}) {
   const theme = useNavTheme();
   const themeStyle = navThemeVars(theme) as CSSProperties;
   return (
-    <footer
-      className="bg-[var(--nav-bg)] text-[var(--nav-text)]"
-      style={themeStyle}
-    >
+    <footer className="bg-[var(--nav-bg)] text-[var(--nav-text)]" style={themeStyle}>
       <div className="mx-auto max-w-container px-4 py-s-80 md:px-6 lg:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-4">
@@ -40,7 +37,10 @@ export default function Footer() {
                 className="h-10 w-auto"
               />
             </Link>
-            <p className="font-sans text-normal text-[var(--nav-text-muted)]" style={{ lineHeight: '1.8' }}>
+            <p
+              className="font-sans text-normal text-[var(--nav-text-muted)]"
+              style={{ lineHeight: '1.8' }}
+            >
               {company.address}
             </p>
             {/* Explicit tel: link. format-detection is off site-wide (iOS Safari
@@ -94,12 +94,22 @@ export default function Footer() {
           <p className="font-sans text-small text-[var(--nav-text-faint)]">
             &copy; Copyright 2026 GIFT inc. All Rights Reserved.
           </p>
-          <Link
-            href="/privacy"
-            className="font-sans text-small text-[var(--nav-text-faint)] transition-colors hover:text-[var(--nav-text)]"
-          >
-            プライバシーポリシー
-          </Link>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link
+              href="/privacy"
+              className="font-sans text-small text-[var(--nav-text-faint)] transition-colors hover:text-[var(--nav-text)]"
+            >
+              プライバシーポリシー
+            </Link>
+            {creditsHref && (
+              <a
+                href={creditsHref}
+                className="font-sans text-small text-[var(--nav-text-faint)] transition-colors hover:text-[var(--nav-text)]"
+              >
+                クレジット
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </footer>

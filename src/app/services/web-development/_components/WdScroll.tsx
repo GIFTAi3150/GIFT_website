@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -24,14 +24,14 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
  * is released in a rAF at the very end (project_dx_navigation_flash_fix).
  *
  * One mechanism per section — different in KIND, not in parameters:
- *   hero       three-depth parallax exit (copy, preview, atmosphere)
+ *   hero       a full browser evolves from a 1990s homepage to a modern site
  *   manifesto  the lock — the two words travel in from the edges and lock; 先 fills
  *   worries    the strike — a blue stroke crosses each worry out, the answer rises
  *   included   the build — a browser frame assembles beside the index, then narrows to a phone
  *   prepare    the handover — 文章 / 写真 / ロゴ slide across the divider from 御社 to GIFT
  *   pages      the spread — ten sheets fan out of a pile into the sitemap grid
  *   compare    the column — the GIFT column drops into the ledger
- *   approach   the join — two image halves travel together and meet
+ *   approach   the craft — a wireframe becomes a finished website
  *   plans      the separation — the two sheets part from one stack as they enter
  *   flow       the route — a path drawn through the steps; a dot travels it
  *   closing    the aperture — a blue disc opens over the section
@@ -45,6 +45,22 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
  * progress. No GSAP pin anywhere.
  */
 export default function WdScroll() {
+  const [motionRevision, setMotionRevision] = useState(0);
+
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobile = window.matchMedia('(max-width: 899px)');
+    const change = () => setMotionRevision((revision) => revision + 1);
+    // Rebuild desktop-only scrolling and animation geometry when DevTools or
+    // window resizing crosses the same breakpoint as the responsive CSS.
+    preference.addEventListener('change', change);
+    mobile.addEventListener('change', change);
+    return () => {
+      preference.removeEventListener('change', change);
+      mobile.removeEventListener('change', change);
+    };
+  }, []);
+
   useEffect(() => {
     const root = document.querySelector<HTMLElement>('main.wd-page');
     if (!root) return;
@@ -90,6 +106,7 @@ export default function WdScroll() {
     // Layout-dependent measurements run on refreshInit (transforms cleared),
     // and every stage re-places itself after the refresh.
     const measurers: Array<() => void> = [];
+    const cleanups: Array<() => void> = [];
     const stages: Array<{ place: (p: number) => void; last: number }> = [];
     const stage = (el: HTMLElement | null, place: (p: number) => void, s = scrub) => {
       if (!el) return;
@@ -114,12 +131,6 @@ export default function WdScroll() {
         onUpdate: () => wrapped(proxy.p),
       });
     };
-
-    const onFirstScroll = () => {
-      const cue = q('.wd-scroll');
-      if (cue) gsap.to(cue, { autoAlpha: 0, duration: 0.25, overwrite: true });
-    };
-    window.addEventListener('scroll', onFirstScroll, { passive: true, once: true });
 
     const ctx = gsap.context(() => {
       // ═══ shared: section labels + h2 ═══════════════════════════════════
@@ -148,31 +159,153 @@ export default function WdScroll() {
         );
       });
 
-      // ═══ hero: three-depth exit ═════════════════════════════════════════
-      const hero = q('.wd-hero');
+      // ═══ hero: one browser travels from 1994 to today ═══════════════════
+      const hero = q('[data-time-travel]');
       if (hero) {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: hero,
-            start: 'top top',
-            end: 'bottom top',
-            scrub,
-            invalidateOnRefresh: true,
-          },
-        });
-        const copy = q('.wd-copy', hero);
-        const preview = q('[data-wd-preview]', hero);
-        const atmosphere = q('.wd-hero__atmosphere', hero);
-        if (copy)
-          tl.to(
-            copy,
-            { y: isMobile ? 40 : 140, opacity: 0, scale: 0.96, ease: 'power1.in', duration: 1 },
-            0,
+        const viewport = q('[data-pixel-viewport]', hero);
+        const retro = q('[data-browser-era="retro"]', hero);
+        const modern = q('[data-browser-era="modern"]', hero);
+        const mask = hero.querySelector<SVGClipPathElement>('[data-pixel-mask]');
+        const tiles = hero.querySelector<SVGGElement>('[data-pixel-tiles]');
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const clipUrl = `url(#${hero.dataset.pixelClipId})`;
+        type Pixel = {
+          x: number;
+          y: number;
+          w: number;
+          h: number;
+          threshold: number;
+          duration: number;
+          revealed: boolean;
+          lastSize: number;
+          lastOpacity: number;
+          clip: SVGRectElement;
+          tile: SVGRectElement;
+        };
+        let pixels: Pixel[] = [];
+        let progress = 0;
+        let gridWidth = 0;
+        let gridHeight = 0;
+        let bleedX = 0;
+        let bleedY = 0;
+        let activeModern: boolean | null = null;
+
+        const paint = (value: number) => {
+          progress = value;
+          hero.style.setProperty('--era-progress', value.toFixed(4));
+          hero.dataset.era = value >= 0.999 ? 'modern' : 'retro';
+          if (modern) modern.style.clipPath = value >= 1 ? 'none' : clipUrl;
+          if (retro) retro.style.visibility = value >= 1 ? 'hidden' : 'visible';
+          const nextModern = value >= 0.5;
+          if (nextModern !== activeModern) {
+            activeModern = nextModern;
+            [retro, modern].forEach((browser, index) => {
+              if (!browser) return;
+              const active = index === (nextModern ? 1 : 0);
+              browser.inert = !active;
+              browser.setAttribute('aria-hidden', String(!active));
+            });
+          }
+          pixels.forEach((pixel) => {
+            const phase = clamp01((value - pixel.threshold) / pixel.duration);
+            // Cover the old cell completely before swapping its contents. This
+            // avoids tiny fragments of both eras' type competing in one cell.
+            const size = Math.round(ss(0, 0.42, phase) * 6) / 6;
+            const revealed = phase >= 0.44;
+            const opacity = Math.round((1 - ss(0.48, 1, phase)) * 24) / 24;
+            if (revealed !== pixel.revealed) {
+              pixel.revealed = revealed;
+              pixel.clip.setAttribute('width', String(revealed ? pixel.w + bleedX : 0));
+            }
+            if (size !== pixel.lastSize) {
+              pixel.lastSize = size;
+              pixel.tile.setAttribute('x', String(pixel.x + (pixel.w * (1 - size)) / 2));
+              pixel.tile.setAttribute('y', String(pixel.y + (pixel.h * (1 - size)) / 2));
+              pixel.tile.setAttribute('width', String((pixel.w + bleedX) * size));
+              pixel.tile.setAttribute('height', String((pixel.h + bleedY) * size));
+            }
+            if (opacity !== pixel.lastOpacity) {
+              pixel.lastOpacity = opacity;
+              pixel.tile.setAttribute('opacity', String(opacity));
+            }
+          });
+        };
+
+        const buildPixels = () => {
+          if (!viewport || !mask || !tiles) return;
+          const width = viewport.clientWidth;
+          const height = viewport.clientHeight;
+          if (!width || !height || (width === gridWidth && height === gridHeight)) return;
+          gridWidth = width;
+          gridHeight = height;
+          // Bound the grid by both area and width, including tall phone screens.
+          const size = Math.max(
+            24,
+            Math.ceil(width / 32),
+            Math.ceil(Math.sqrt((width * height) / 700)),
           );
-        if (preview)
-          tl.to(preview, { y: isMobile ? 30 : 90, scale: 0.97, ease: 'none', duration: 1 }, 0);
-        if (atmosphere)
-          tl.to(atmosphere, { yPercent: 24, opacity: 0.25, ease: 'none', duration: 1 }, 0);
+          const columns = Math.max(1, Math.ceil(width / size));
+          const rows = Math.max(1, Math.ceil(height / size));
+          bleedX = 1.25 / width;
+          bleedY = 1.25 / height;
+          const clipFragment = document.createDocumentFragment();
+          const tileFragment = document.createDocumentFragment();
+          const palette = ['#1749bb', '#2563eb', '#458af2', '#85ceff', '#b4f0ff'];
+          pixels = [];
+          for (let row = 0; row < rows; row += 1) {
+            for (let column = 0; column < columns; column += 1) {
+              // Repeatable spatial noise keeps the wave identical when reversing
+              // or rebuilding after a resize. A small cluster offset breaks up
+              // the straight edge without scattering pixels over the whole page.
+              const noise = ((column * 73 + row * 151 + column * row * 17) % 101) / 101;
+              const cluster = ((Math.floor(column / 3) * 17 + Math.floor(row / 3) * 31) % 19) / 19;
+              const rank =
+                (column / Math.max(1, columns - 1)) * 0.68 +
+                (row / Math.max(1, rows - 1)) * 0.2 +
+                cluster * 0.08 +
+                noise * 0.04;
+              const x = column / columns;
+              const y = row / rows;
+              const w = 1 / columns;
+              const h = 1 / rows;
+              const clip = document.createElementNS(svgNS, 'rect');
+              clip.setAttribute('x', String(x));
+              clip.setAttribute('y', String(y));
+              clip.setAttribute('width', '0');
+              clip.setAttribute('height', String(h + bleedY));
+              const tile = document.createElementNS(svgNS, 'rect');
+              tile.setAttribute('fill', palette[Math.floor(noise * palette.length)]);
+              tile.setAttribute('opacity', '0');
+              clipFragment.appendChild(clip);
+              tileFragment.appendChild(tile);
+              pixels.push({
+                x,
+                y,
+                w,
+                h,
+                threshold: 0.02 + rank * 0.74,
+                duration: 0.18 + noise * 0.04,
+                revealed: false,
+                lastSize: -1,
+                lastOpacity: -1,
+                clip,
+                tile,
+              });
+            }
+          }
+          mask.replaceChildren(clipFragment);
+          tiles.replaceChildren(tileFragment);
+          paint(progress);
+        };
+        hero.setAttribute('data-animated', '');
+        measurers.push(buildPixels);
+        buildPixels();
+        // The viewport can change height without a full scroll-layout refresh.
+        const observer = new ResizeObserver(buildPixels);
+        if (viewport) observer.observe(viewport);
+        cleanups.push(() => observer.disconnect());
+        // Give both eras a readable resting beat; smoothing stays scroll-bound.
+        stage(hero, (p) => paint(clamp01((p - 0.08) / 0.78)), isMobile ? 0.2 : 0.4);
       }
 
       // ═══ the seam: every sheet slides over the one before it ═══════════
@@ -201,6 +334,24 @@ export default function WdScroll() {
         const rule = q('[data-lock-rule]');
         const leads = qa('[data-lock-lead]');
         const gear = q('[data-gear]');
+        // Keep the cog engaged from entry through exit, including outside the text lock.
+        if (el && gear) {
+          gsap.fromTo(
+            gear,
+            { rotation: -30 },
+            {
+              rotation: 510,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: el,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: isMobile ? 0.12 : 0.2,
+                invalidateOnRefresh: true,
+              },
+            },
+          );
+        }
         stage(el, (p) => {
           const amp = Math.min(window.innerWidth * (isMobile ? 0.7 : 0.6), 760);
           const t = ss(0.02, 0.5, p);
@@ -214,7 +365,6 @@ export default function WdScroll() {
             const y = (1 - ss(0.56 + i * 0.05, 0.78 + i * 0.05, p)) * 110;
             line.style.transform = `translate3d(0,${y.toFixed(2)}%,0)`;
           });
-          if (gear) gear.style.transform = `rotate(${(p * 150).toFixed(2)}deg)`;
         });
       }
 
@@ -353,37 +503,14 @@ export default function WdScroll() {
         }
       }
 
-      // ═══ approach: the join ═════════════════════════════════════════════
+      // ═══ approach: wireframe to finished website ═══════════════════════
       {
         const el = q('.wd-approach');
-        const box = q('[data-join]');
-        const halves = qa('[data-join-half]');
-        const imgs = qa('[data-join-img]');
-        const size = { w: 0, h: 0 };
-        const measure = () => {
-          if (!box) return;
-          const r = box.getBoundingClientRect();
-          size.w = r.width;
-          size.h = r.height;
-        };
-        measurers.push(measure);
-        measure();
+        const visual = q('[data-craft]');
         stage(el, (p) => {
-          const t = ss(0.04, 0.58, p);
-          const gap = (isMobile ? 0.18 * size.h : 0.16 * size.w) * (1 - t);
-          const lift = 0.05 * size.h * (1 - t);
-          halves.forEach((half) => {
-            const dir = Number(half.dataset.joinHalf) || 1;
-            half.style.transform = isMobile
-              ? `translate3d(0,${(dir * gap).toFixed(1)}px,0)`
-              : `translate3d(${(dir * gap).toFixed(1)}px,${(-dir * lift).toFixed(1)}px,0)`;
-          });
-          const zoom = lerp(1.16, 1, ss(0, 1, p));
-          imgs.forEach((img) => {
-            img.style.transform = `scale(${zoom.toFixed(4)})`;
-          });
-          box?.classList.toggle('is-joined', t > 0.985);
+          visual?.style.setProperty('--craft-progress', ss(0.04, 0.65, p).toFixed(4));
         });
+        cleanups.push(() => visual?.style.removeProperty('--craft-progress'));
       }
 
       // ═══ plans: the separation ══════════════════════════════════════════
@@ -556,18 +683,38 @@ export default function WdScroll() {
 
     return () => {
       window.clearTimeout(late);
-      window.removeEventListener('scroll', onFirstScroll);
       window.removeEventListener(VH_FROZEN_CHANGE, refresh);
       window.removeEventListener('gift:route-styles-ready', refresh);
       window.removeEventListener('gift:layout', refresh);
       window.removeEventListener('load', refresh);
       ScrollTrigger.removeEventListener('refreshInit', onRefreshInit);
       ScrollTrigger.removeEventListener('refresh', onRefresh);
+      cleanups.forEach((cleanup) => cleanup());
       ctx.revert();
+      // Proxy stages write styles directly, outside GSAP's style snapshots.
+      // Restore their readable end states before a live reduced-motion rebuild.
+      stages.forEach(({ place }) => place(1));
+      qa('.wd-sec').forEach((section) => {
+        section.style.removeProperty('--wd-in');
+        section.style.removeProperty('--wd-out');
+      });
+      const hero = q('[data-time-travel]');
+      hero?.removeAttribute('data-animated');
+      hero?.style.removeProperty('--era-progress');
+      hero?.querySelectorAll<HTMLElement>('[data-browser-era]').forEach((window) => {
+        const modern = window.dataset.browserEra === 'modern';
+        window.inert = !modern;
+        window.setAttribute('aria-hidden', String(!modern));
+        window.style.removeProperty('clip-path');
+        window.style.removeProperty('visibility');
+      });
+      hero?.querySelector('[data-pixel-mask]')?.replaceChildren();
+      hero?.querySelector('[data-pixel-tiles]')?.replaceChildren();
+      if (hero) hero.dataset.era = 'modern';
       if (lenisRaf) gsap.ticker.remove(lenisRaf);
       lenis?.destroy();
     };
-  }, []);
+  }, [motionRevision]);
 
   return null;
 }

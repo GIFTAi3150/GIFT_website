@@ -31,10 +31,9 @@ export default function WebDevelopmentPage() {
       <main className="wd-page" data-flash-guard="">
         <noscript>
           <style>{`#page-cover { display: none !important; }
-            .wd-page[data-flash-guard] > * { visibility: visible !important; }
+            .wd-page[data-flash-guard] section { visibility: visible !important; }
             .wd-page[data-flash-guard]::after { display: none !important; }
-            .wd-promise__sizer { visibility: visible; }
-            .wd-promise__typed { display: none; }`}</style>
+            [data-time-travel] button { display: none; }`}</style>
         </noscript>
 
         <WebDevelopmentHero />
@@ -55,7 +54,7 @@ export default function WebDevelopmentPage() {
         <WdScroll />
       </main>
       <div className="wd-footer">
-        <Footer />
+        <Footer creditsHref="/models/earth/credits.txt" />
       </div>
     </>
   );

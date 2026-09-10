@@ -1,0 +1,2251 @@
+/* One browser, two eras. WdScroll owns the reversible --era-progress.
+   The first era paints before hydration; reduced motion shows the modern page. */
+.hero {
+  --evolution: 1;
+  --scene-height: calc(min(var(--svh-frozen, 100svh), 100svh) - 80px);
+  position: relative;
+  padding-top: 80px;
+  color: #12172a;
+  background: #0b1020;
+  --era-progress: 1;
+}
+.hero p {
+  color: inherit;
+}
+.hero[data-animated] {
+  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * 1.4);
+}
+.hero .stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 12px clamp(12px, 2vw, 32px) 0;
+  background: rgb(
+    calc(23 - 12 * var(--era-progress)) calc(99 - 83 * var(--era-progress))
+      calc(102 - 70 * var(--era-progress))
+  );
+  height: var(--scene-height);
+  container-type: size;
+}
+.hero[data-animated] .stage {
+  position: sticky;
+  top: 80px;
+}
+.hero .browser {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: calc(4px * (1 - var(--evolution)));
+  overflow: hidden;
+  border: 1px solid
+    rgb(
+      calc(239 - 48 * var(--evolution)) calc(239 - 44 * var(--evolution))
+        calc(231 - 28 * var(--evolution))
+    );
+  border-radius: calc(14px * var(--evolution));
+  background: #c4c4c4;
+  min-height: 0;
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  margin: 0;
+}
+.hero .chrome {
+  position: relative;
+  display: grid;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  background: rgb(
+    calc(8 + 228 * var(--evolution)) calc(26 + 211 * var(--evolution))
+      calc(124 + 116 * var(--evolution))
+  );
+  color: rgb(
+    calc(255 - 176 * var(--evolution)) calc(255 - 170 * var(--evolution))
+      calc(255 - 159 * var(--evolution))
+  );
+  font:
+    11px/1.2 Arial,
+    sans-serif;
+  grid-template-columns: 62px minmax(0, 1fr) 62px;
+}
+.hero .windowTitle {
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+.hero .windowControls {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  justify-self: start;
+}
+.hero .windowControls i {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #00000018;
+  border-radius: calc(50% * var(--evolution));
+  box-shadow: inset 0 1px 0 #ffffff55;
+}
+.hero .windowControls i:nth-child(1) {
+  background: #ff5f57;
+}
+.hero .windowControls i:nth-child(2) {
+  background: #febc2e;
+}
+.hero .windowControls i:nth-child(3) {
+  background: #28c840;
+}
+/* Classic beveled window controls for the retro preview. */
+.hero .browser[data-browser-era='retro'] .chrome {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-inline: 6px;
+}
+.hero .browser[data-browser-era='retro'] .windowTitle {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+  font-weight: 700;
+}
+.hero .browser[data-browser-era='retro'] .windowControls {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  gap: 2px;
+}
+.hero .browser[data-browser-era='retro'] .windowControls i {
+  position: relative;
+  width: 17px;
+  height: 15px;
+  border: 1px solid;
+  border-color: #fff #404040 #404040 #fff;
+  border-radius: 0;
+  background: #c0c0c0;
+  box-shadow:
+    inset 1px 1px #dfdfdf,
+    inset -1px -1px #808080;
+}
+.hero .browser[data-browser-era='retro'] .windowControls i::before {
+  content: '';
+  position: absolute;
+}
+.hero .browser[data-browser-era='retro'] .windowControls i:nth-child(1)::before {
+  width: 7px;
+  height: 2px;
+  left: 3px;
+  bottom: 3px;
+  background: #111;
+}
+.hero .browser[data-browser-era='retro'] .windowControls i:nth-child(2)::before {
+  inset: 2px 3px 3px;
+  border: 1px solid #111;
+  border-top-width: 2px;
+}
+.hero .browser[data-browser-era='retro'] .windowControls i:nth-child(3) {
+  margin-left: 2px;
+}
+.hero .browser[data-browser-era='retro'] .windowControls i:nth-child(3)::before {
+  inset: 3px;
+  background:
+    linear-gradient(45deg, transparent 40%, #111 40% 60%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, #111 40% 60%, transparent 60%);
+}
+.hero .menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: calc(20px * (1 - var(--evolution)));
+  padding-inline: 12px;
+  overflow: hidden;
+  opacity: calc(1 - var(--evolution));
+  font:
+    11px/1 Arial,
+    sans-serif;
+  color: #181818;
+  flex-shrink: 0;
+}
+.hero .toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 30px;
+  padding: 4px 13px;
+  flex-shrink: 0;
+  background: rgb(
+    calc(196 + 40 * var(--evolution)) calc(196 + 41 * var(--evolution))
+      calc(196 + 44 * var(--evolution))
+  );
+  border-bottom: 1px solid #13172b20;
+  font:
+    11px/1.2 'Courier New',
+    monospace;
+}
+.hero .arrows {
+  display: flex;
+  gap: 15px;
+  font:
+    20px/1 Arial,
+    sans-serif;
+}
+.hero .arrows span {
+  opacity: 0.35;
+}
+.hero .address {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 23px;
+  overflow: hidden;
+  border: 1px solid #13172b20;
+  border-radius: calc(6px * var(--evolution));
+  background: #fff;
+  box-shadow: inset 1px 1px 0 rgb(0 0 0 / calc(0.5 * (1 - var(--evolution))));
+}
+.hero .retroAddress,
+.hero .modernAddress {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-inline: 10px;
+  white-space: nowrap;
+}
+.hero .retroAddress {
+  opacity: calc(1 - var(--evolution));
+}
+.hero .modernAddress {
+  opacity: var(--evolution);
+  color: #62697b;
+}
+.hero .reload {
+  font:
+    20px/1 Arial,
+    sans-serif;
+}
+.hero .page {
+  padding: 0 clamp(18px, 3vw, 48px);
+  background-color: rgb(
+    calc(244 + 3 * var(--evolution)) calc(241 + 6 * var(--evolution))
+      calc(218 + 24 * var(--evolution))
+  );
+  background-image: radial-gradient(#172fa124 0.7px, transparent 0.7px);
+  background-size: 5px 5px;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #7b88a6 #00000008;
+}
+.hero .browser[data-browser-era='modern'] .page {
+  background-image:
+    linear-gradient(90deg, #080f1db8, #080f1d70 44%, #080f1d00 72%),
+    url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%3Cg%20fill%3D%22%23c5d9ff%22%3E%3Ccircle%20cx%3D%22552.7%22%20cy%3D%22169.8%22%20r%3D%221.15%22%20fill-opacity%3D%220.70%22%2F%3E%3Ccircle%20cx%3D%2262.2%22%20cy%3D%22199.6%22%20r%3D%220.48%22%20fill-opacity%3D%220.38%22%2F%3E%3Ccircle%20cx%3D%22299.6%22%20cy%3D%22245.5%22%20r%3D%220.64%22%20fill-opacity%3D%220.22%22%2F%3E%3Ccircle%20cx%3D%22508.9%22%20cy%3D%22368.2%22%20r%3D%220.64%22%20fill-opacity%3D%220.35%22%2F%3E%3Ccircle%20cx%3D%22229.3%22%20cy%3D%22267.3%22%20r%3D%220.48%22%20fill-opacity%3D%220.43%22%2F%3E%3Ccircle%20cx%3D%22437.6%22%20cy%3D%22413.8%22%20r%3D%220.59%22%20fill-opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22453.7%22%20cy%3D%22379.0%22%20r%3D%220.60%22%20fill-opacity%3D%220.48%22%2F%3E%3Ccircle%20cx%3D%22376.9%22%20cy%3D%22263.6%22%20r%3D%220.44%22%20fill-opacity%3D%220.35%22%2F%3E%3Ccircle%20cx%3D%2289.3%22%20cy%3D%22277.9%22%20r%3D%220.46%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%22376.5%22%20cy%3D%22131.0%22%20r%3D%220.66%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%2212.0%22%20cy%3D%22471.4%22%20r%3D%220.84%22%20fill-opacity%3D%220.32%22%2F%3E%3Ccircle%20cx%3D%22281.4%22%20cy%3D%22381.6%22%20r%3D%220.77%22%20fill-opacity%3D%220.27%22%2F%3E%3Ccircle%20cx%3D%22498.5%22%20cy%3D%22360.1%22%20r%3D%220.81%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%2244.9%22%20cy%3D%22385.8%22%20r%3D%221.15%22%20fill-opacity%3D%220.70%22%2F%3E%3Ccircle%20cx%3D%22438.2%22%20cy%3D%22179.1%22%20r%3D%220.51%22%20fill-opacity%3D%220.48%22%2F%3E%3Ccircle%20cx%3D%22602.0%22%20cy%3D%22439.0%22%20r%3D%220.45%22%20fill-opacity%3D%220.24%22%2F%3E%3Ccircle%20cx%3D%22121.8%22%20cy%3D%22458.4%22%20r%3D%220.76%22%20fill-opacity%3D%220.24%22%2F%3E%3Ccircle%20cx%3D%22378.2%22%20cy%3D%22267.4%22%20r%3D%220.69%22%20fill-opacity%3D%220.49%22%2F%3E%3Ccircle%20cx%3D%22328.5%22%20cy%3D%22408.3%22%20r%3D%220.84%22%20fill-opacity%3D%220.33%22%2F%3E%3Ccircle%20cx%3D%22532.8%22%20cy%3D%22292.3%22%20r%3D%220.72%22%20fill-opacity%3D%220.42%22%2F%3E%3Ccircle%20cx%3D%22369.0%22%20cy%3D%2297.5%22%20r%3D%220.77%22%20fill-opacity%3D%220.47%22%2F%3E%3Ccircle%20cx%3D%22461.6%22%20cy%3D%22384.8%22%20r%3D%220.50%22%20fill-opacity%3D%220.51%22%2F%3E%3Ccircle%20cx%3D%2234.4%22%20cy%3D%22223.0%22%20r%3D%220.63%22%20fill-opacity%3D%220.42%22%2F%3E%3Ccircle%20cx%3D%22275.8%22%20cy%3D%22296.6%22%20r%3D%220.72%22%20fill-opacity%3D%220.20%22%2F%3E%3Ccircle%20cx%3D%22621.2%22%20cy%3D%22418.9%22%20r%3D%220.78%22%20fill-opacity%3D%220.23%22%2F%3E%3Ccircle%20cx%3D%22597.9%22%20cy%3D%2212.6%22%20r%3D%220.46%22%20fill-opacity%3D%220.24%22%2F%3E%3Ccircle%20cx%3D%2267.5%22%20cy%3D%2228.6%22%20r%3D%221.15%22%20fill-opacity%3D%220.70%22%2F%3E%3Ccircle%20cx%3D%22604.2%22%20cy%3D%22314.3%22%20r%3D%220.55%22%20fill-opacity%3D%220.37%22%2F%3E%3Ccircle%20cx%3D%22613.3%22%20cy%3D%22416.0%22%20r%3D%220.61%22%20fill-opacity%3D%220.48%22%2F%3E%3Ccircle%20cx%3D%2259.3%22%20cy%3D%22376.9%22%20r%3D%220.62%22%20fill-opacity%3D%220.41%22%2F%3E%3Ccircle%20cx%3D%2273.9%22%20cy%3D%2288.4%22%20r%3D%220.79%22%20fill-opacity%3D%220.51%22%2F%3E%3Ccircle%20cx%3D%22172.7%22%20cy%3D%22436.1%22%20r%3D%220.65%22%20fill-opacity%3D%220.38%22%2F%3E%3Ccircle%20cx%3D%22587.4%22%20cy%3D%2227.2%22%20r%3D%220.74%22%20fill-opacity%3D%220.25%22%2F%3E%3Ccircle%20cx%3D%22154.1%22%20cy%3D%22219.0%22%20r%3D%220.75%22%20fill-opacity%3D%220.22%22%2F%3E%3Ccircle%20cx%3D%22295.1%22%20cy%3D%22154.6%22%20r%3D%220.64%22%20fill-opacity%3D%220.33%22%2F%3E%3Ccircle%20cx%3D%22207.0%22%20cy%3D%22288.0%22%20r%3D%220.44%22%20fill-opacity%3D%220.51%22%2F%3E%3Ccircle%20cx%3D%22346.5%22%20cy%3D%2248.8%22%20r%3D%220.76%22%20fill-opacity%3D%220.24%22%2F%3E%3Ccircle%20cx%3D%22262.5%22%20cy%3D%228.6%22%20r%3D%220.40%22%20fill-opacity%3D%220.44%22%2F%3E%3Ccircle%20cx%3D%2264.4%22%20cy%3D%22463.8%22%20r%3D%220.73%22%20fill-opacity%3D%220.40%22%2F%3E%3Ccircle%20cx%3D%22624.4%22%20cy%3D%2268.9%22%20r%3D%221.15%22%20fill-opacity%3D%220.70%22%2F%3E%3Ccircle%20cx%3D%22262.0%22%20cy%3D%22185.6%22%20r%3D%220.58%22%20fill-opacity%3D%220.28%22%2F%3E%3Ccircle%20cx%3D%22234.9%22%20cy%3D%229.2%22%20r%3D%220.51%22%20fill-opacity%3D%220.38%22%2F%3E%3Ccircle%20cx%3D%22387.4%22%20cy%3D%22335.2%22%20r%3D%220.65%22%20fill-opacity%3D%220.41%22%2F%3E%3Ccircle%20cx%3D%22134.1%22%20cy%3D%22160.4%22%20r%3D%220.48%22%20fill-opacity%3D%220.22%22%2F%3E%3Ccircle%20cx%3D%2281.4%22%20cy%3D%22453.7%22%20r%3D%220.76%22%20fill-opacity%3D%220.26%22%2F%3E%3Ccircle%20cx%3D%22349.4%22%20cy%3D%2246.6%22%20r%3D%220.82%22%20fill-opacity%3D%220.31%22%2F%3E%3Ccircle%20cx%3D%22596.5%22%20cy%3D%22321.4%22%20r%3D%220.45%22%20fill-opacity%3D%220.41%22%2F%3E%3Ccircle%20cx%3D%22195.8%22%20cy%3D%22460.9%22%20r%3D%220.82%22%20fill-opacity%3D%220.48%22%2F%3E%3Ccircle%20cx%3D%22288.1%22%20cy%3D%22407.9%22%20r%3D%220.74%22%20fill-opacity%3D%220.48%22%2F%3E%3Ccircle%20cx%3D%22235.5%22%20cy%3D%2227.5%22%20r%3D%220.56%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%22494.7%22%20cy%3D%22251.7%22%20r%3D%220.78%22%20fill-opacity%3D%220.51%22%2F%3E%3Ccircle%20cx%3D%22377.8%22%20cy%3D%2234.7%22%20r%3D%220.60%22%20fill-opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22537.4%22%20cy%3D%22234.8%22%20r%3D%221.15%22%20fill-opacity%3D%220.70%22%2F%3E%3Ccircle%20cx%3D%2275.5%22%20cy%3D%22138.0%22%20r%3D%220.54%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%2245.6%22%20cy%3D%2261.2%22%20r%3D%220.80%22%20fill-opacity%3D%220.37%22%2F%3E%3Ccircle%20cx%3D%22396.1%22%20cy%3D%2258.2%22%20r%3D%220.58%22%20fill-opacity%3D%220.34%22%2F%3E%3Ccircle%20cx%3D%2299.1%22%20cy%3D%22293.2%22%20r%3D%220.64%22%20fill-opacity%3D%220.46%22%2F%3E%3Ccircle%20cx%3D%22379.6%22%20cy%3D%22165.6%22%20r%3D%220.81%22%20fill-opacity%3D%220.26%22%2F%3E%3Ccircle%20cx%3D%22239.0%22%20cy%3D%22434.1%22%20r%3D%220.66%22%20fill-opacity%3D%220.42%22%2F%3E%3Ccircle%20cx%3D%22178.9%22%20cy%3D%22395.7%22%20r%3D%220.56%22%20fill-opacity%3D%220.41%22%2F%3E%3Ccircle%20cx%3D%22484.2%22%20cy%3D%22246.1%22%20r%3D%220.43%22%20fill-opacity%3D%220.42%22%2F%3E%3Ccircle%20cx%3D%22551.4%22%20cy%3D%22307.6%22%20r%3D%220.55%22%20fill-opacity%3D%220.36%22%2F%3E%3Ccircle%20cx%3D%22283.5%22%20cy%3D%2259.5%22%20r%3D%220.53%22%20fill-opacity%3D%220.20%22%2F%3E%3Ccircle%20cx%3D%22364.5%22%20cy%3D%2223.5%22%20r%3D%220.84%22%20fill-opacity%3D%220.27%22%2F%3E%3Ccircle%20cx%3D%22253.2%22%20cy%3D%22393.1%22%20r%3D%220.81%22%20fill-opacity%3D%220.24%22%2F%3E%3Ccircle%20cx%3D%22379.4%22%20cy%3D%22153.6%22%20r%3D%221.15%22%20fill-opacity%3D%220.70%22%2F%3E%3Ccircle%20cx%3D%22533.7%22%20cy%3D%22303.3%22%20r%3D%220.54%22%20fill-opacity%3D%220.26%22%2F%3E%3Ccircle%20cx%3D%2294.7%22%20cy%3D%22418.4%22%20r%3D%220.55%22%20fill-opacity%3D%220.36%22%2F%3E%3Ccircle%20cx%3D%22174.3%22%20cy%3D%22455.9%22%20r%3D%220.65%22%20fill-opacity%3D%220.49%22%2F%3E%3Ccircle%20cx%3D%22628.0%22%20cy%3D%22341.1%22%20r%3D%220.62%22%20fill-opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22311.8%22%20cy%3D%22439.4%22%20r%3D%220.40%22%20fill-opacity%3D%220.38%22%2F%3E%3Ccircle%20cx%3D%22319.4%22%20cy%3D%22179.2%22%20r%3D%220.60%22%20fill-opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22116.6%22%20cy%3D%22171.3%22%20r%3D%220.51%22%20fill-opacity%3D%220.49%22%2F%3E%3Ccircle%20cx%3D%22155.9%22%20cy%3D%22380.1%22%20r%3D%220.59%22%20fill-opacity%3D%220.40%22%2F%3E%3Ccircle%20cx%3D%22371.9%22%20cy%3D%22470.7%22%20r%3D%220.63%22%20fill-opacity%3D%220.30%22%2F%3E%3Ccircle%20cx%3D%22339.5%22%20cy%3D%22225.2%22%20r%3D%220.84%22%20fill-opacity%3D%220.50%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23deebff%22%20stroke-opacity%3D%22.38%22%20stroke-width%3D%22.6%22%3E%3Cpath%20d%3D%22M493%2079v6m-3-3h6M571%20357v5m-2.5-2.5h5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E'),
+    radial-gradient(ellipse at 82% 42%, #17396145, transparent 56%);
+  background-color: #080f1d;
+  background-size:
+    100% 100%,
+    640px 480px,
+    100% 100%;
+  scrollbar-color: #405777 #0d1728;
+  background-repeat: no-repeat, repeat, no-repeat;
+  background-position:
+    0 0,
+    37px 19px,
+    0 0;
+}
+.hero .welcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: calc(22px * (1 - var(--evolution)));
+  overflow: hidden;
+  opacity: calc(1 - var(--evolution));
+  color: #000099;
+  font:
+    bold 12px/1.2 'Times New Roman',
+    serif;
+  white-space: nowrap;
+  font-size: 10px;
+}
+.hero .welcome > span:first-child,
+.hero .welcome > span:nth-child(2) {
+  color: #d42330;
+}
+.hero .welcomeExtra {
+  font-weight: normal;
+}
+.hero .content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  padding-block: clamp(12px, 2.4cqh, 24px);
+}
+.hero .copy {
+  min-width: 0;
+  max-width: 660px;
+  text-align: left;
+}
+.hero .title {
+  margin: 10px 0 12px;
+  font-family: var(--font-body);
+  font-size: clamp(24px, min(2.65vw, 4.4cqh), 42px);
+  font-weight: 800;
+  line-height: 1.28;
+  letter-spacing: -0.065em;
+}
+.hero .title > span {
+  display: block;
+}
+.hero .title em {
+  color: #285ae5;
+  font-style: normal;
+}
+.hero .titleLast {
+  font-size: 1em;
+  margin-top: 5px;
+}
+.hero .lead {
+  color: #5c606b;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+.hero .actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 14px;
+}
+.hero .contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 34px;
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid #2458e6;
+  border-radius: calc(4px * var(--evolution));
+  background: #2458e6;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  transition:
+    background 180ms,
+    box-shadow 180ms;
+}
+.hero .contact span {
+  font:
+    19px/1 Arial,
+    sans-serif;
+}
+.hero .contact:hover {
+  background: #1645c8;
+  box-shadow: 0 4px 18px #2458e630;
+}
+.hero .visual {
+  min-width: 0;
+}
+.hero .art {
+  position: relative;
+  height: clamp(180px, 24vh, 270px);
+}
+.hero .artLabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font: 8px/1.2 var(--wd-mono-face);
+  letter-spacing: 0.13em;
+  color: #596078;
+}
+.hero .globe {
+  position: absolute;
+  top: 9%;
+  left: 14%;
+  width: clamp(155px, 16vw, 238px);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid #1744a6;
+  border-radius: 50%;
+  background: radial-gradient(circle at 31% 25%, #9dcaff 0%, #316df0 32%, #1540bb 60%, #071d60 91%);
+  box-shadow:
+    inset -14px -12px 24px #030a473d,
+    14px 18px 26px #193cbd1a;
+  transform: rotate(calc(-14deg + 30deg * var(--evolution)));
+}
+.hero .globe svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: #d9ebff95;
+  stroke-width: 1;
+}
+.hero .globeShine {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 32% 17%, #fff9, transparent 40%);
+  opacity: var(--evolution);
+}
+.hero .orbit {
+  position: absolute;
+  top: 24%;
+  left: 2%;
+  width: 87%;
+  height: 45%;
+  border: 1px solid #285ae577;
+  border-radius: 50%;
+  transform: rotate(-26deg);
+  opacity: var(--evolution);
+  pointer-events: none;
+}
+.hero .starOne,
+.hero .starTwo {
+  position: absolute;
+  z-index: 1;
+  color: #2458e6;
+  font-family: Arial, sans-serif;
+  line-height: 1;
+}
+.hero .starOne {
+  right: 12%;
+  top: 3%;
+  font-size: 64px;
+  transform: rotate(calc(55deg * var(--evolution)));
+}
+.hero .starTwo {
+  left: 3%;
+  bottom: 8%;
+  font-size: 30px;
+}
+.hero .artCaption {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 5%;
+  font:
+    600 clamp(16px, 1.7vw, 24px)/1.12 Arial,
+    sans-serif;
+  letter-spacing: -0.045em;
+}
+.hero .artCaption em {
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+.hero .pixelCursor {
+  position: absolute;
+  bottom: 5%;
+  right: 42%;
+  width: 29px;
+  transform: rotate(-12deg);
+  opacity: calc(1 - var(--evolution));
+}
+.hero .pixelCursor svg {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 2;
+}
+.hero .offer {
+  margin-top: 14px;
+  max-width: 460px;
+  padding: 10px 16px;
+  border: 1px solid #2458e633;
+  border-radius: calc(10px * var(--evolution));
+  background: #2458e607;
+}
+.hero .offerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  gap: 12px;
+  font-weight: 600;
+}
+.hero .offerTop b {
+  font:
+    500 19px/1 Arial,
+    sans-serif;
+  font-size: 15px;
+}
+.hero .price {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-top: 3px;
+  font:
+    400 26px/1.3 Arial,
+    sans-serif;
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+}
+.hero .price strong {
+  font-size: clamp(28px, min(2.7vw, 4.5cqh), 40px);
+  font-weight: 800;
+  font-family: var(--font-body);
+}
+.hero .price > span {
+  margin-left: 6px;
+  font: 10px/1.4 var(--font-body);
+  letter-spacing: 0;
+  color: #5c606b;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.hero .services {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-top: 0;
+  margin-top: 12px;
+  gap: 5px;
+}
+.hero .services li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding-block: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.hero .services li > span {
+  color: #fff;
+  font:
+    12px/1 Arial,
+    sans-serif;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border-radius: calc(50% * var(--evolution));
+  background: #2458e6;
+  font-size: 11px;
+}
+.hero .statusbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
+  padding: 0 14px;
+  border-top: 1px solid #13172b20;
+  background: rgb(
+    calc(196 + 40 * var(--evolution)) calc(196 + 41 * var(--evolution))
+      calc(196 + 44 * var(--evolution))
+  );
+  color: #4b5260;
+  font:
+    9px/1.2 'Courier New',
+    monospace;
+  flex-shrink: 0;
+}
+.hero .retroStatus,
+.hero .visitor {
+  opacity: calc(1 - var(--evolution));
+}
+.hero .visitor b {
+  margin-left: 8px;
+  padding: 2px 5px;
+  color: #50fc73;
+  background: #111;
+  font-weight: normal;
+}
+.hero .modernStatus {
+  position: absolute;
+  left: 14px;
+  opacity: var(--evolution);
+}
+.hero .timeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: calc(100% - 6% * var(--evolution));
+  max-width: 1440px;
+  min-height: 38px;
+  margin-inline: auto;
+  color: #e9eeff;
+  font: 9px/1.4 var(--wd-mono-face);
+  flex-shrink: 0;
+}
+.hero .eraTrack {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.hero .track {
+  position: relative;
+  display: block;
+  width: 95px;
+  height: 1px;
+  background: #ffffff40;
+}
+.hero .track i {
+  position: absolute;
+  top: -2px;
+  left: calc(100% * var(--era-progress));
+  width: 5px;
+  height: 5px;
+  background: #d2fc82;
+}
+.hero .timelineNote {
+  color: #e9eeff9e;
+  font-size: 10px;
+}
+.hero .scrollButton {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-block: 8px;
+  font: inherit;
+  letter-spacing: 0.08em;
+}
+.hero .scrollButton > span:last-child {
+  font-size: 18px;
+}
+.hero .scrollButton:focus-visible {
+  outline: 2px solid #d2fc82;
+  outline-offset: 3px;
+}
+.hero .scrollButton:hover {
+  color: #d2fc82;
+}
+.hero .upgradeText {
+  display: none;
+}
+.hero[data-era='retro'] .upgradeText {
+  display: inline;
+}
+.hero[data-era='retro'] .exploreText {
+  display: none;
+}
+
+/* The same offer and links adopt the typography and bevels of an early homepage. */
+.hero .browser[data-browser-era='retro'] .title {
+  color: #000080;
+  font-family: 'Yu Mincho', 'MS PMincho', serif;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  text-shadow: 2px 2px #fff;
+}
+.hero .browser[data-browser-era='retro'] .title em {
+  color: #b61438;
+}
+.hero .browser[data-browser-era='retro'] .lead {
+  color: #333;
+  font-family: 'Yu Mincho', 'MS PMincho', serif;
+}
+.hero .browser[data-browser-era='retro'] .contact {
+  border: 3px outset #e9e9e9;
+  border-radius: 0;
+  background: #c8c8c8;
+  color: #000099;
+  text-decoration: underline;
+  box-shadow: 1px 1px #555;
+}
+.hero .browser[data-browser-era='retro'] .contact:hover {
+  background: #d9d9d9;
+}
+.hero .browser[data-browser-era='retro'] .globe {
+  border: 2px solid #000080;
+  background: #b9d4c5;
+  box-shadow: 5px 5px #000080;
+}
+.hero .browser[data-browser-era='retro'] .globe svg {
+  stroke: #000099;
+  stroke-width: 1.5;
+}
+.hero .browser[data-browser-era='retro'] .starOne {
+  color: #d52b30;
+  text-shadow: 2px 2px #ffdf00;
+}
+.hero .browser[data-browser-era='retro'] .artCaption {
+  font-family: 'Times New Roman', serif;
+  color: #000099;
+}
+.hero .browser[data-browser-era='retro'] .offer {
+  border: 3px double #000080;
+  padding: 10px 13px;
+  background: #ffffe7;
+}
+.hero .browser[data-browser-era='retro'] .price strong {
+  font-family: 'Times New Roman', serif;
+  font-weight: 700;
+  color: #b61438;
+}
+.hero .browser[data-browser-era='retro'] .services {
+  border-top: 0;
+}
+.hero .browser[data-browser-era='retro'] .services li {
+  color: #000099;
+  font-family: 'Yu Mincho', 'MS PMincho', serif;
+}
+
+@media (min-width: 1500px) and (min-height: 850px) {
+  .hero .art {
+    height: 290px;
+  }
+  .hero .globe {
+    width: 260px;
+  }
+}
+@media (max-width: 1050px) {
+  .hero .content {
+    gap: 28px;
+  }
+  .hero .actions {
+    gap: 16px;
+  }
+  .hero .contact {
+    gap: 20px;
+    padding-inline: 13px;
+    font-size: 10px;
+  }
+}
+@media (max-width: 699px) {
+  .hero[data-animated] {
+    height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * 1.1);
+  }
+  .hero .stage {
+    padding: 10px 12px 0;
+  }
+  .hero .browser,
+  .hero .timeline {
+    width: 100%;
+  }
+  .hero .page {
+    padding-inline: 18px;
+  }
+  .hero .chrome {
+    height: 25px;
+    font-size: 10px;
+  }
+  .hero .menu {
+    gap: 15px;
+    height: calc(18px * (1 - var(--evolution)));
+    font-size: 9px;
+  }
+  .hero .toolbar {
+    height: 29px;
+    gap: 9px;
+    padding-inline: 8px;
+    font-size: 9px;
+  }
+  .hero .arrows {
+    gap: 8px;
+    font-size: 17px;
+  }
+  .hero .address {
+    height: 22px;
+  }
+  .hero .welcome {
+    height: calc(20px * (1 - var(--evolution)));
+    gap: 8px;
+    font-size: 9px;
+  }
+  .hero .welcomeExtra {
+    display: none;
+  }
+  .hero .content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-block: 12px;
+  }
+  .hero .title {
+    margin: 8px 0 10px;
+    font-size: clamp(22px, min(6.3vw, 3.9cqh), 32px);
+    line-height: 1.28;
+  }
+  .hero .titleLast {
+    font-size: 1em;
+  }
+  .hero .lead {
+    font-size: 11px;
+    line-height: 1.65;
+  }
+  .hero .actions {
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .hero .contact {
+    min-height: 40px;
+    font-size: 10px;
+    gap: 12px;
+    padding: 8px 10px;
+  }
+  .hero .art {
+    height: 119px;
+  }
+  .hero .artLabel,
+  .hero .artCaption,
+  .hero .pixelCursor {
+    display: none;
+  }
+  .hero .globe {
+    top: 5%;
+    left: 9%;
+    width: 100px;
+  }
+  .hero .starOne {
+    right: -3%;
+    top: 0;
+    font-size: 28px;
+  }
+  .hero .starTwo {
+    left: 0;
+    bottom: 0;
+    font-size: 19px;
+  }
+  .hero .orbit {
+    top: 24%;
+    left: 0;
+    width: 114%;
+  }
+  .hero .offerTop {
+    gap: 8px;
+    font-size: 9px;
+  }
+  .hero .offerTop b {
+    font-size: 15px;
+  }
+  .hero .price {
+    margin-top: 2px;
+    font-size: 18px;
+  }
+  .hero .price strong {
+    font-size: clamp(28px, min(8vw, 4.4cqh), 36px);
+  }
+  .hero .price > span {
+    margin-left: 5px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .hero .services li {
+    gap: 8px;
+    padding-block: 0;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .hero .services li > span {
+    font-size: 11px;
+  }
+  .hero .statusbar {
+    min-height: 18px;
+    padding-inline: 8px;
+    font-size: 7px;
+  }
+  .hero .retroStatus {
+    display: none;
+  }
+  .hero .modernStatus {
+    left: 8px;
+  }
+  .hero .timeline {
+    min-height: 34px;
+    gap: 10px;
+    font-size: 8px;
+  }
+  .hero .timelineNote {
+    display: none;
+  }
+  .hero .eraTrack {
+    gap: 8px;
+  }
+  .hero .track {
+    width: 55px;
+  }
+  .hero .scrollButton {
+    gap: 10px;
+  }
+}
+@media (max-width: 359px) {
+  .hero .page {
+    padding-inline: 12px;
+  }
+  .hero .title {
+    font-size: 21px;
+  }
+  .hero .visual {
+    gap: 10px;
+  }
+  .hero .globe {
+    width: 86px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero[data-animated] {
+    height: auto;
+  }
+  .hero[data-animated] .stage {
+    position: relative;
+    top: auto;
+  }
+  .hero .timeline {
+    display: none;
+  }
+  .hero .stage {
+    padding-bottom: 12px;
+  }
+}
+.hero .initialFee {
+  padding: 3px 7px;
+  border: 1px solid #2458e633;
+  border-radius: calc(20px * var(--evolution));
+  background: #fff;
+  white-space: nowrap;
+}
+.hero .browser[data-browser-era='retro'] .initialFee {
+  border: 2px outset #eee;
+  background: #ffed79;
+  color: #000080;
+}
+@media (max-width: 899px) {
+  .hero .content {
+    grid-template-columns: 1fr;
+  }
+  .hero .copy {
+    max-width: 660px;
+  }
+  .hero .visual {
+    display: none;
+  }
+}
+@media (max-width: 699px) {
+  .hero .offer {
+    margin-top: 12px;
+    padding: 9px 12px;
+  }
+  .hero .browser[data-browser-era='retro'] .offer {
+    padding: 8px 10px;
+  }
+  .hero .services {
+    margin-top: 10px;
+    gap: 5px;
+  }
+  .hero .initialFee {
+    padding: 2px 5px;
+  }
+  .hero .actions {
+    gap: 10px;
+    margin-top: 12px;
+  }
+}
+/* Keep both headline phrases together when they fit, wrapping naturally on phones. */
+.hero .titleLast em {
+  display: flex;
+  flex-wrap: wrap;
+}
+.hero .titleLast em > span {
+  white-space: nowrap;
+}
+/* The window remains visible at short heights and high browser/text zoom.
+   Its document can scroll naturally while the browser chrome stays in place. */
+.hero .page:focus-visible {
+  outline: 2px solid #2458e6;
+  outline-offset: -3px;
+}
+@media (max-width: 699px) {
+  .hero .browser,
+  .hero .timeline {
+    width: 100%;
+  }
+}
+@media (max-height: 740px) {
+  .hero .content {
+    padding-block: 10px;
+  }
+  .hero .title {
+    margin-block: 7px 9px;
+  }
+  .hero .offer {
+    margin-top: 10px;
+  }
+  .hero .services {
+    margin-top: 9px;
+  }
+  .hero .actions {
+    margin-top: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero .browser {
+    transform: none;
+  }
+}
+.hero .browserViewport {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 94%;
+  max-width: 1440px;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: calc(14px * var(--era-progress));
+  box-shadow: 0 18px 60px #00000028;
+  isolation: isolate;
+}
+.hero .browser[data-browser-era='retro'] {
+  --evolution: 0;
+  z-index: 1;
+}
+.hero .browser[data-browser-era='modern'] {
+  --evolution: 1;
+  z-index: 2;
+  background: #111a2a;
+  border-color: #2a3850;
+  color: #eef3ff;
+}
+.hero:not([data-animated]) {
+  --era-progress: 0;
+}
+.hero:not([data-animated]) .browser[data-browser-era='modern'] {
+  visibility: hidden;
+}
+.hero .pixelOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.hero .srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 699px) {
+  .hero .browserViewport {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero .browser[data-browser-era='modern'] {
+    clip-path: none !important;
+  }
+  .hero .pixelOverlay {
+    display: none;
+  }
+}
+
+/* Phone layout: matching geometry keeps the pixel reveal readable in both eras. */
+@media (max-width: 699px) {
+  .hero .stage {
+    padding: 8px 10px 0;
+  }
+  .hero .browser {
+    padding: 0;
+  }
+  .hero .browserViewport {
+    max-width: 480px;
+  }
+  .hero .chrome {
+    height: 28px;
+    padding-inline: 10px;
+    grid-template-columns: 52px minmax(0, 1fr) 52px;
+  }
+  .hero .windowControls {
+    gap: 6px;
+  }
+  .hero .windowControls i {
+    width: 10px;
+    height: 10px;
+  }
+  .hero .menu,
+  .hero .welcome {
+    display: none;
+  }
+  .hero .toolbar {
+    height: 30px;
+    font-size: 10px;
+  }
+  .hero .arrows span {
+    display: none;
+  }
+  .hero .retroAddress,
+  .hero .modernAddress {
+    padding-inline: 7px;
+  }
+  .hero .page {
+    padding-inline: 18px;
+  }
+  .hero .content {
+    padding-block: 18px;
+  }
+  .hero .copy {
+    max-width: none;
+  }
+  .hero .title,
+  .hero .browser[data-browser-era='retro'] .title {
+    margin: 12px 0;
+    font-family: var(--font-body);
+    font-size: clamp(23px, 6.4vw, 32px);
+    font-weight: 800;
+    line-height: 1.35;
+    letter-spacing: -0.065em;
+  }
+  .hero .titleLast {
+    margin-top: 8px;
+  }
+  .hero .titleLast em {
+    display: block;
+  }
+  .hero .titleLast em > span {
+    display: block;
+  }
+  .hero .lead,
+  .hero .browser[data-browser-era='retro'] .lead {
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .hero .offer,
+  .hero .browser[data-browser-era='retro'] .offer {
+    margin-top: 16px;
+    padding: 12px;
+    border-width: 1px;
+    max-width: none;
+  }
+  .hero .browser[data-browser-era='retro'] .offer {
+    border-style: solid;
+    box-shadow:
+      inset 0 0 0 2px #ffffe7,
+      inset 0 0 0 3px #000080;
+  }
+  .hero .offerTop {
+    font-size: 10px;
+    line-height: 1.5;
+    gap: 6px;
+  }
+  .hero .initialFee,
+  .hero .browser[data-browser-era='retro'] .initialFee {
+    padding: 3px 6px;
+    border-width: 1px;
+  }
+  .hero .price {
+    margin-top: 7px;
+  }
+  .hero .price strong,
+  .hero .browser[data-browser-era='retro'] .price strong {
+    font-family: var(--font-body);
+    font-size: 34px;
+    font-weight: 800;
+  }
+  .hero .price > span {
+    font-size: 10px;
+  }
+  .hero .services {
+    margin-top: 14px;
+    gap: 7px;
+  }
+  .hero .services li,
+  .hero .browser[data-browser-era='retro'] .services li {
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.6;
+    gap: 7px;
+  }
+  .hero .services li > span {
+    margin-top: 2px;
+  }
+  .hero .actions {
+    display: grid;
+    gap: 0;
+    margin-top: 16px;
+  }
+  .hero .contact,
+  .hero .browser[data-browser-era='retro'] .contact {
+    min-height: 48px;
+    padding: 12px 14px;
+    border-width: 1px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .hero .statusbar {
+    min-height: 20px;
+    font-size: 8px;
+  }
+  .hero .modernStatus {
+    max-width: 65%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .hero .timeline {
+    min-height: 44px;
+    max-width: 480px;
+    font-size: 9px;
+  }
+  .hero .track {
+    width: 42px;
+  }
+  .hero .scrollButton {
+    min-height: 44px;
+    letter-spacing: 0;
+  }
+}
+@media (max-width: 374px) {
+  .hero .page {
+    padding-inline: 12px;
+  }
+  .hero .price strong,
+  .hero .browser[data-browser-era='retro'] .price strong {
+    font-size: 30px;
+  }
+}
+@media (max-width: 699px) and (max-height: 740px) {
+  .hero .content {
+    padding-block: 12px;
+  }
+  .hero .title,
+  .hero .browser[data-browser-era='retro'] .title {
+    margin-block: 8px;
+  }
+  .hero .offer,
+  .hero .browser[data-browser-era='retro'] .offer {
+    margin-top: 12px;
+  }
+  .hero .services {
+    margin-top: 10px;
+  }
+  .hero .actions {
+    margin-top: 12px;
+  }
+}
+
+/* Short phones keep the offer in view; its details are repeated in the price card and benefits. */
+@media (max-width: 699px) and (max-height: 740px) {
+  .hero .lead,
+  .hero .titleLast em > span:last-child {
+    display: none;
+  }
+}
+
+/* CSS selects the readable first paint without waiting for the motion bundle. */
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    --era-progress: 1 !important;
+  }
+  .hero .browser[data-browser-era='retro'] {
+    visibility: hidden !important;
+  }
+  .hero .browser[data-browser-era='modern'] {
+    visibility: visible !important;
+  }
+}
+
+/* Homemade web ads: live type, printed halftones, and a die-cut offer badge. */
+.hero .browser[data-browser-era='retro'] .page {
+  background-color: #e9e9ed;
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M-16%2016%200%200l32%2032M16-16%2048%2016M-16%2048%2048-16%22%20fill%3D%22none%22%20stroke%3D%22%23babac2%22%20stroke-opacity%3D%22.32%22%2F%3E%3Cpath%20d%3D%22M-16%2017%200%201l32%2032M16-15%2048%2017M-16%2049%2048-15%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.8%22%2F%3E%3Cpath%20d%3D%22M15%2015h2v2h-2z%22%20fill%3D%22%23a9a9b5%22%20fill-opacity%3D%22.22%22%2F%3E%3C%2Fsvg%3E');
+  background-size: 32px 32px;
+  background-repeat: repeat;
+}
+.hero .browser[data-browser-era='retro'] .welcome {
+  margin-top: 6px;
+  border-block: 1px solid #9d8738;
+  background: repeating-linear-gradient(90deg, #fff39b 0 3px, #ffef80 3px 4px);
+  color: #181855;
+  text-shadow: 1px 1px #fff;
+}
+.hero .browser[data-browser-era='retro'] .art {
+  display: block;
+}
+.hero .retroAds {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin-inline: auto;
+  padding: 16px 8px 0;
+  container-type: inline-size;
+}
+.hero .retroPoster {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 73%;
+  min-height: 270px;
+  padding: 20px 14px 0;
+  overflow: hidden;
+  border: 4px ridge #e4e2e9;
+  outline: 1px solid #11143f;
+  background:
+    radial-gradient(#a2b9ff 0.8px, transparent 1px) 0 0 / 13px 13px,
+    linear-gradient(140deg, #11166c, #331168 62%, #111644);
+  color: #fff;
+  box-shadow: 5px 6px 0 #1b1746;
+  transform: rotate(-4deg);
+  text-decoration: none;
+}
+.hero .posterTop {
+  padding-bottom: 14px;
+  font:
+    bold 9px/1.2 'Courier New',
+    monospace;
+  letter-spacing: 0.07em;
+  color: #b9d4ff;
+}
+.hero .retroPoster > strong {
+  position: relative;
+  z-index: 1;
+  font:
+    400 clamp(22px, 6.8cqw, 32px)/1.04 'Times New Roman',
+    serif;
+  letter-spacing: -0.045em;
+  text-shadow: 2px 2px #03072b;
+}
+.hero .retroPoster > strong em {
+  color: #f7fd85;
+}
+.hero .posterRibbon {
+  position: absolute;
+  z-index: 2;
+  top: 19px;
+  right: -38px;
+  width: 154px;
+  padding: 5px 0;
+  border-block: 1px solid #ffb7cf;
+  background: #db194c;
+  color: #fff;
+  text-align: center;
+  font:
+    italic bold 12px/1 'Times New Roman',
+    serif;
+  transform: rotate(38deg);
+  box-shadow: 0 2px #580b31;
+}
+.hero .posterSpark {
+  align-self: center;
+  padding-block: 4px;
+  color: #a9e8ff;
+  font:
+    72px/1 Georgia,
+    serif;
+  text-shadow: 3px 3px #de308c;
+}
+.hero .posterBottom {
+  align-self: stretch;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin: auto -14px 0;
+  padding: 10px 6px;
+  border-top: 3px double #151242;
+  background: #fff070;
+  color: #11114c;
+  font:
+    bold 10px/1.3 'Times New Roman',
+    serif;
+}
+.hero .posterBottom b {
+  font: 800 clamp(20px, 5.4cqw, 26px)/1.3 var(--font-body);
+}
+.hero .posterBottom small {
+  font: 9px/1.5 var(--font-body);
+}
+.hero .retroBurst {
+  position: absolute;
+  z-index: 3;
+  top: 96px;
+  right: 0;
+  width: 56%;
+  aspect-ratio: 1;
+  color: #ce1845;
+  filter: drop-shadow(3px 4px 0 #a7482150);
+  transform: rotate(9deg);
+  text-decoration: none;
+}
+.hero .burstInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 18%;
+  clip-path: polygon(
+    50% 0%,
+    56.83% 15.67%,
+    67.6% 7.5%,
+    69.44% 20.9%,
+    85.36% 14.64%,
+    79.1% 30.56%,
+    92.5% 32.4%,
+    84.33% 43.17%,
+    100% 50%,
+    84.33% 56.83%,
+    92.5% 67.6%,
+    79.1% 69.44%,
+    85.36% 85.36%,
+    69.44% 79.1%,
+    67.6% 92.5%,
+    56.83% 84.33%,
+    50% 100%,
+    43.17% 84.33%,
+    32.4% 92.5%,
+    30.56% 79.1%,
+    14.64% 85.36%,
+    20.9% 69.44%,
+    7.5% 67.6%,
+    15.67% 56.83%,
+    0% 50%,
+    15.67% 43.17%,
+    7.5% 32.4%,
+    20.9% 30.56%,
+    14.64% 14.64%,
+    30.56% 20.9%,
+    32.4% 7.5%,
+    43.17% 15.67%
+  );
+  background:
+    radial-gradient(#eb872749 0.7px, transparent 0.8px) 0 0 / 3px 3px,
+    radial-gradient(circle, #fff56b 20%, #ffd62b 67%, #ffae25);
+  text-align: center;
+}
+.hero .burstInner > small {
+  font:
+    900 clamp(9px, 2.8cqw, 13px)/1 Arial,
+    sans-serif;
+}
+.hero .burstInner > strong {
+  margin-top: 7px;
+  font: 800 clamp(10px, 3cqw, 14px)/1.2 var(--font-body);
+}
+.hero .burstInner b {
+  display: block;
+  font:
+    900 clamp(44px, 15cqw, 68px)/0.95 Arial,
+    sans-serif;
+  letter-spacing: -0.08em;
+}
+.hero .burstInner b em {
+  font: normal 800 0.26em/1 var(--font-body);
+  letter-spacing: 0;
+}
+.hero .burstInner > span {
+  margin-top: 6px;
+  white-space: nowrap;
+  font:
+    900 clamp(6px, 1.9cqw, 9px)/1 Arial,
+    sans-serif;
+}
+.hero .retroBadges {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+  justify-content: center;
+}
+.hero .retroBadges > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 5px;
+  border: 2px outset #fff;
+  background: #151762;
+  color: #faff79;
+  font:
+    bold 13px/1 'Times New Roman',
+    serif;
+}
+.hero .retroBadges b {
+  max-width: 63px;
+  color: #fff;
+  font:
+    bold 7px/1.2 'Courier New',
+    monospace;
+}
+@media (max-width: 899px) {
+  .hero .browser[data-browser-era='retro'] .visual {
+    display: block;
+    order: -1;
+  }
+  .hero .retroAds {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: none;
+    padding: 0;
+  }
+  .hero .retroPoster {
+    flex: 1;
+    width: auto;
+    min-height: 80px;
+    padding: 9px 12px;
+    transform: none;
+    border-width: 3px;
+    box-shadow: 3px 3px 0 #1b1746;
+  }
+  .hero .posterTop {
+    padding-bottom: 4px;
+    font-size: 8px;
+  }
+  .hero .retroPoster > strong {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .hero .posterRibbon {
+    top: 15px;
+    right: -43px;
+    font-size: 9px;
+    padding-block: 3px;
+  }
+  .hero .posterSpark,
+  .hero .posterBottom,
+  .hero .retroBadges {
+    display: none;
+  }
+  .hero .retroBurst {
+    position: relative;
+    top: auto;
+    right: auto;
+    flex-shrink: 0;
+    width: 90px;
+  }
+  .hero .burstInner {
+    padding: 16%;
+  }
+  .hero .burstInner > small {
+    font-size: 6px;
+  }
+  .hero .burstInner > strong {
+    margin-top: 3px;
+    font-size: 8px;
+  }
+  .hero .burstInner b {
+    font-size: 29px;
+  }
+  .hero .burstInner > span {
+    margin-top: 3px;
+    font-size: 4px;
+  }
+}
+@media (max-width: 374px) {
+  .hero .retroAds {
+    gap: 8px;
+  }
+  .hero .retroPoster {
+    padding-inline: 8px;
+  }
+  .hero .retroPoster > strong {
+    font-size: 18px;
+  }
+  .hero .retroBurst {
+    width: 80px;
+  }
+}
+
+/* The copy shares its meaning across eras, with a distinct typographic voice. */
+.hero .copy {
+  container-type: inline-size;
+}
+.hero .browser[data-browser-era='retro'] .title {
+  margin-block: 18px 16px;
+  color: #14116e;
+  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', 'MS PMincho', serif;
+  font-size: clamp(26px, min(6.2cqw, 4.6cqh), 42px);
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: -0.06em;
+  text-shadow:
+    1px 1px #fff,
+    2px 2px #aca6ce;
+}
+.hero .browser[data-browser-era='retro'] .titleKeyword {
+  color: #0000b5;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.12em;
+}
+.hero .browser[data-browser-era='retro'] .titleLast {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 12px;
+  padding: 4px 10px;
+  border: 3px double #b78024;
+  background: #fff38b;
+  box-shadow: 3px 3px 0 #44385b;
+  font-size: 0.86em;
+  line-height: 1.4;
+}
+.hero .browser[data-browser-era='retro'] .titleLast em {
+  color: #a90c35;
+  text-shadow: 1px 1px #fff9dc;
+}
+.hero .browser[data-browser-era='retro'] .lead {
+  padding: 10px 12px;
+  border: 1px dotted #777197;
+  background: #ffffff80;
+  color: #37304e;
+  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', 'MS PMincho', serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.9;
+}
+.hero .browser[data-browser-era='retro'] .offer {
+  max-width: 100%;
+  margin-top: 16px;
+  background: #fffde8;
+  box-shadow: 3px 3px 0 #25206330;
+}
+.hero .browser[data-browser-era='retro'] .price strong {
+  font-family: 'Yu Mincho', 'MS PMincho', serif;
+  font-size: clamp(30px, 6.2cqw, 43px);
+  letter-spacing: -0.055em;
+  text-shadow:
+    1px 1px #fff,
+    2px 2px #dfb3bc;
+}
+.hero .browser[data-browser-era='retro'] .services {
+  gap: 7px;
+}
+.hero .browser[data-browser-era='retro'] .services li {
+  font-family: 'MS PGothic', 'Yu Gothic', sans-serif;
+  font-size: 12px;
+  color: #292366;
+}
+.hero .browser[data-browser-era='retro'] .services li > span {
+  border: 1px outset #fff;
+  background: #fff088;
+  color: #19147d;
+}
+.hero .browser[data-browser-era='retro'] .contact {
+  min-height: 46px;
+  padding-inline: 16px;
+  border-width: 3px;
+  font-family: 'MS PGothic', 'Yu Gothic', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+.hero .browser[data-browser-era='modern'] .title {
+  margin-block: 16px 14px;
+  font-size: clamp(28px, min(6.6cqw, 5.3cqh), 48px);
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: -0.075em;
+  color: #f4f7ff;
+}
+.hero .browser[data-browser-era='modern'] .titleLast {
+  margin-top: 14px;
+}
+.hero .browser[data-browser-era='modern'] .titleLast em {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.hero .browser[data-browser-era='modern'] .titleLast em > span:first-child {
+  font-size: 0.58em;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: #b0c2de;
+}
+.hero .browser[data-browser-era='modern'] .titleLast em > span:last-child {
+  color: #8db4ff;
+  letter-spacing: -0.08em;
+  background: linear-gradient(transparent 84%, #345d9d66 84%);
+}
+.hero .browser[data-browser-era='modern'] .lead {
+  max-width: 46em;
+  padding-left: 14px;
+  border-left: 2px solid #cfddf6;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #b6c4da;
+  border-left-color: #334b74;
+}
+.hero .browser[data-browser-era='modern'] .offer {
+  max-width: 100%;
+  margin-top: 18px;
+  padding: 14px 18px;
+  border: 1px solid #dce5f5;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #14233b, #101b2f);
+  border-color: #2b4060;
+  box-shadow: 0 14px 35px #00000020;
+}
+.hero .browser[data-browser-era='modern'] .offerTop {
+  font-size: 11px;
+  color: #c5d3e8;
+}
+.hero .browser[data-browser-era='modern'] .price {
+  margin-top: 6px;
+  color: #f3f7ff;
+}
+.hero .browser[data-browser-era='modern'] .price strong {
+  font-size: clamp(30px, 6.2cqw, 43px);
+  letter-spacing: -0.07em;
+  color: #f3f7ff;
+}
+.hero .browser[data-browser-era='modern'] .services {
+  margin-top: 16px;
+  gap: 8px;
+  border-color: #273752;
+}
+.hero .browser[data-browser-era='modern'] .services li {
+  font-size: 12px;
+  color: #c8d4e7;
+}
+
+/* The world sits above the vintage ads, and becomes a polished orb today. */
+.hero .browser[data-browser-era='retro'] .visual {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hero .browser[data-browser-era='retro'] .art {
+  order: 0;
+  width: 100%;
+  height: 175px;
+}
+.hero .browser[data-browser-era='retro'] .retroAds {
+  order: 1;
+}
+.hero .browser[data-browser-era='retro'] .globe {
+  top: 8px;
+  left: 14%;
+  width: 150px;
+  background: radial-gradient(circle at 30% 22%, #e0fff5, #83c4cd 40%, #4386b5 80%);
+  box-shadow: 4px 5px 0 #16156a;
+}
+.hero .browser[data-browser-era='retro'] .globeShine {
+  opacity: 0.6;
+}
+.hero .browser[data-browser-era='retro'] .artLabel {
+  top: 0;
+  left: 0;
+  color: #282272;
+}
+.hero .browser[data-browser-era='retro'] .artCaption {
+  right: 0;
+  bottom: 17px;
+  font-size: 22px;
+}
+.hero .browser[data-browser-era='retro'] .starOne {
+  right: 17%;
+  top: 17px;
+  font-size: 36px;
+}
+.hero .browser[data-browser-era='retro'] .starTwo {
+  left: 3%;
+  bottom: 20px;
+  font-size: 21px;
+}
+.hero .browser[data-browser-era='retro'] .pixelCursor {
+  bottom: 14px;
+  right: 40%;
+  width: 23px;
+}
+.hero .browser[data-browser-era='modern'] .visual {
+  opacity: 1;
+}
+.hero .browser[data-browser-era='modern'] .art {
+  height: 330px;
+}
+.hero .browser[data-browser-era='modern'] .globe {
+  width: clamp(170px, 18vw, 270px);
+  left: 12%;
+  top: 6%;
+}
+.hero .browser[data-browser-era='modern'] .artLabel {
+  color: #65799d;
+  font-size: 9px;
+}
+.hero .browser[data-browser-era='modern'] .artCaption {
+  bottom: 0;
+  color: #213663;
+  font-size: 26px;
+}
+@media (max-width: 899px) {
+  .hero .browser[data-browser-era='retro'] .visual {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero .browser[data-browser-era='retro'] .art {
+    flex: 0 0 85px;
+    height: 92px;
+  }
+  .hero .browser[data-browser-era='retro'] .globe {
+    width: 76px;
+    left: 0;
+    top: 5px;
+  }
+  .hero .browser[data-browser-era='retro'] .artLabel,
+  .hero .browser[data-browser-era='retro'] .artCaption,
+  .hero .browser[data-browser-era='retro'] .pixelCursor,
+  .hero .browser[data-browser-era='retro'] .starTwo {
+    display: none;
+  }
+  .hero .browser[data-browser-era='retro'] .starOne {
+    top: 0;
+    right: -3px;
+    font-size: 19px;
+  }
+  .hero .browser[data-browser-era='retro'] .retroAds {
+    flex: 1;
+    min-width: 0;
+  }
+  .hero .browser[data-browser-era='retro'] .retroPoster {
+    width: 100%;
+    padding-right: 44px;
+  }
+  .hero .browser[data-browser-era='retro'] .retroPoster > strong {
+    font-size: 17px;
+  }
+  .hero .browser[data-browser-era='retro'] .posterTop {
+    font-size: 7px;
+  }
+  .hero .browser[data-browser-era='retro'] .posterRibbon {
+    display: none;
+  }
+  .hero .browser[data-browser-era='retro'] .retroBurst {
+    position: absolute;
+    top: 16px;
+    right: -4px;
+    width: 74px;
+  }
+}
+@media (max-width: 699px) {
+  .hero .browser[data-browser-era='retro'] .title {
+    font-size: clamp(22px, 7.7cqw, 31px);
+    margin-block: 14px;
+  }
+  .hero .browser[data-browser-era='modern'] .title {
+    font-size: clamp(22px, 7.7cqw, 32px);
+    margin-block: 16px;
+  }
+  .hero .browser[data-browser-era='retro'] .titleLast {
+    padding: 4px 8px;
+    font-size: 0.94em;
+  }
+  .hero .browser[data-browser-era='retro'] .lead {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+  .hero .browser[data-browser-era='modern'] .lead {
+    font-size: 13px;
+  }
+  .hero .browser[data-browser-era='retro'] .price strong,
+  .hero .browser[data-browser-era='modern'] .price strong {
+    font-size: 32px;
+  }
+  .hero .browser[data-browser-era='modern'] .offer {
+    padding: 12px;
+  }
+}
+@media (max-width: 374px) {
+  .hero .browser[data-browser-era='retro'] .visual {
+    gap: 8px;
+  }
+  .hero .browser[data-browser-era='retro'] .art {
+    flex-basis: 66px;
+    height: 80px;
+  }
+  .hero .browser[data-browser-era='retro'] .globe {
+    width: 62px;
+  }
+  .hero .browser[data-browser-era='retro'] .retroPoster > strong {
+    font-size: 15px;
+  }
+  .hero .browser[data-browser-era='retro'] .retroBurst {
+    width: 64px;
+    top: 18px;
+  }
+  .hero .browser[data-browser-era='retro'] .price strong,
+  .hero .browser[data-browser-era='modern'] .price strong {
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 900px) {
+  .hero .browser[data-browser-era] .content {
+    padding-block: 14px;
+  }
+  .hero .browser[data-browser-era='retro'] .title {
+    line-height: 1.4;
+    margin-block: 14px;
+  }
+  .hero .browser[data-browser-era='modern'] .title {
+    line-height: 1.35;
+  }
+}
+
+/* Keep the complete offer usable on shorter laptop windows. */
+@media (min-width: 900px) and (max-height: 800px) {
+  .hero .browser[data-browser-era] .content {
+    padding-block: 10px;
+  }
+  .hero .browser[data-browser-era] .title {
+    font-size: clamp(26px, 5cqw, 30px);
+    line-height: 1.3;
+    margin-block: 10px;
+  }
+  .hero .browser[data-browser-era] .titleLast {
+    margin-top: 8px;
+  }
+  .hero .browser[data-browser-era='modern'] .titleLast em {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .hero .browser[data-browser-era] .lead {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .hero .browser[data-browser-era='retro'] .lead {
+    padding: 6px 9px;
+  }
+  .hero .browser[data-browser-era] .offer {
+    margin-top: 10px;
+    padding: 8px 12px;
+  }
+  .hero .browser[data-browser-era] .price strong {
+    font-size: 30px;
+  }
+  .hero .browser[data-browser-era] .services {
+    margin-top: 10px;
+    gap: 4px;
+  }
+  .hero .browser[data-browser-era] .services li {
+    font-size: 11px;
+  }
+  .hero .browser[data-browser-era] .actions {
+    margin-top: 10px;
+  }
+  .hero .browser[data-browser-era] .contact {
+    min-height: 40px;
+    padding-block: 8px;
+  }
+  .hero .browser[data-browser-era='retro'] .art {
+    height: 140px;
+  }
+  .hero .browser[data-browser-era='retro'] .globe {
+    width: 120px;
+  }
+  .hero .browser[data-browser-era='retro'] .artCaption {
+    font-size: 18px;
+  }
+  .hero .browser[data-browser-era='retro'] .retroPoster {
+    min-height: 218px;
+    padding-top: 13px;
+  }
+  .hero .browser[data-browser-era='retro'] .posterTop {
+    padding-bottom: 9px;
+  }
+  .hero .browser[data-browser-era='retro'] .posterSpark {
+    font-size: 42px;
+  }
+  .hero .browser[data-browser-era='retro'] .retroBurst {
+    top: 65px;
+    width: 53%;
+  }
+  .hero .browser[data-browser-era='retro'] .retroBadges {
+    margin-top: 15px;
+  }
+}
+.hero .browser[data-browser-era='modern'] .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  margin-top: 22px;
+}
+@media (max-width: 699px) {
+  .hero .browser[data-browser-era='modern'] .actions {
+    display: grid;
+    gap: 5px;
+    margin-top: 18px;
+  }
+}
+@media (min-width: 900px) and (max-height: 800px) {
+  .hero .browser[data-browser-era='modern'] .actions {
+    margin-top: 14px;
+    gap: 12px 18px;
+  }
+}
+
+/* The modern Earth remains visible as a compact illustration on phones. */
+@media (max-width: 899px) {
+  .hero .browser[data-browser-era='modern'] .visual {
+    display: block;
+    order: -1;
+    width: 100%;
+    max-width: 360px;
+    justify-self: center;
+  }
+}
+.hero .browser[data-browser-era='modern'] .chrome {
+  background: #111a2a;
+  color: #bdcae0;
+}
+.hero .browser[data-browser-era='modern'] .toolbar {
+  background: #141e30;
+  color: #b3c2da;
+  border-bottom-color: #26354b;
+}
+.hero .browser[data-browser-era='modern'] .address {
+  background: #080f1d;
+  border-color: #2a3a53;
+  box-shadow: none;
+}
+.hero .browser[data-browser-era='modern'] .modernAddress {
+  color: #a7b8d2;
+}
+.hero .browser[data-browser-era='modern'] .statusbar {
+  background: #111a2a;
+  border-top-color: #26354b;
+  color: #91a4c1;
+}
+.hero .browser[data-browser-era='modern'] .initialFee {
+  background: #172f50;
+  border-color: #375783;
+  color: #acceff;
+}
+.hero .browser[data-browser-era='modern'] .price > span {
+  color: #a9b9d0;
+}
+
+/* Twinkling stars stay behind the modern document and never intercept input. */
+.hero .browser[data-browser-era='modern'] .page {
+  position: relative;
+  isolation: isolate;
+}
+.hero .browser[data-browser-era='modern'] .content {
+  position: relative;
+  z-index: 1;
+}
+/* Keep the phone demo in one viewport: artwork gets the remaining height above
+   compact copy. Repeated headline pricing and lead copy live in the offer/list. */
+@media (max-width: 899px) {
+  .hero .stage {
+    padding: 8px 10px 0;
+  }
+  .hero .browserViewport,
+  .hero .timeline {
+    width: 100%;
+    max-width: 480px;
+  }
+  .hero .browser[data-browser-era] .page {
+    padding-inline: 14px;
+    overflow: visible;
+  }
+  .hero .browser[data-browser-era] .content {
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding-block: 8px;
+  }
+  .hero .browser[data-browser-era] .visual {
+    order: -1;
+    min-height: 0;
+    height: 100%;
+    max-height: 240px;
+    width: 100%;
+    align-self: center;
+  }
+  .hero .browser[data-browser-era='retro'] .visual {
+    display: flex;
+  }
+  .hero .browser[data-browser-era] .copy {
+    width: 100%;
+    max-width: none;
+  }
+  .hero .browser[data-browser-era] .title {
+    margin: 0;
+    font-size: clamp(20px, 6.8cqw, 28px);
+    line-height: 1.3;
+  }
+  .hero .browser[data-browser-era] .title > .titleLast,
+  .hero .browser[data-browser-era] .lead {
+    display: none;
+  }
+  .hero .browser[data-browser-era] .offer {
+    margin-top: 8px;
+    padding: 7px 10px;
+  }
+  .hero .browser[data-browser-era] .offerTop {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .hero .browser[data-browser-era] .initialFee {
+    padding: 2px 5px;
+  }
+  .hero .browser[data-browser-era] .price {
+    margin-top: 3px;
+    line-height: 1.1;
+  }
+  .hero .browser[data-browser-era] .price strong {
+    font-size: clamp(26px, 8cqw, 32px);
+    line-height: 1.1;
+  }
+  .hero .browser[data-browser-era] .services {
+    margin-top: 8px;
+    gap: 3px;
+  }
+  .hero .browser[data-browser-era] .services li {
+    font-size: 11px;
+    line-height: 1.5;
+    gap: 6px;
+  }
+  .hero .browser[data-browser-era] .actions {
+    display: grid;
+    margin-top: 8px;
+    gap: 0;
+  }
+  .hero .browser[data-browser-era] .actions > a {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 12px;
+    justify-content: center;
+  }
+  .hero .browser[data-browser-era] .actions > a > span {
+    margin: 0;
+  }
+  .hero .chrome {
+    height: 24px;
+  }
+  .hero .toolbar {
+    height: 26px;
+  }
+  .hero .menu,
+  .hero .welcome,
+  .hero .timelineNote {
+    display: none;
+  }
+  .hero .statusbar {
+    min-height: 16px;
+  }
+  .hero .timeline,
+  .hero .scrollButton {
+    min-height: 44px;
+  }
+}
+
+/* The retro banner has a natural height; it must not inherit the Earth slot. */
+@media (max-width: 899px) {
+  .hero .browser[data-browser-era='retro'] .content {
+    grid-template-rows: auto auto;
+    align-content: start;
+  }
+  .hero .browser[data-browser-era='retro'] .visual {
+    height: auto;
+  }
+}
+@media (max-width: 899px) and (min-height: 740px) {
+  .hero .browser[data-browser-era='retro'] .title > .titleLast {
+    display: block;
+  }
+  .hero .browser[data-browser-era='retro'] .content {
+    gap: 14px;
+    padding-block: 14px;
+  }
+  .hero .browser[data-browser-era='retro'] .offer,
+  .hero .browser[data-browser-era='retro'] .services,
+  .hero .browser[data-browser-era='retro'] .actions {
+    margin-top: 12px;
+  }
+}
+@media (max-width: 899px) and (min-height: 820px) {
+  .hero .browser[data-browser-era='retro'] .lead {
+    display: block;
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+}
+
+/* A landscape phone has room beside the offer for the Earth. */
+@media (min-width: 600px) and (max-width: 899px) and (max-height: 500px) {
+  .hero .browserViewport,
+  .hero .timeline {
+    max-width: none;
+  }
+  .hero .browser[data-browser-era] .content {
+    padding-block: 4px;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-content: normal;
+    gap: 16px;
+  }
+  .hero .browser[data-browser-era] .visual {
+    order: 0;
+  }
+  .hero .browser[data-browser-era='retro'] .retroAds {
+    display: none;
+  }
+  .hero .browser[data-browser-era='retro'] .visual {
+    justify-content: center;
+  }
+  .hero .browser[data-browser-era] .copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 4px;
+    align-items: center;
+  }
+  .hero .browser[data-browser-era] .title {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 18px;
+  }
+  .hero .browser[data-browser-era] .services {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+  }
+  .hero .browser[data-browser-era] .services li {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .hero .browser[data-browser-era] .offer {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    padding: 6px;
+  }
+  .hero .browser[data-browser-era] .offerTop {
+    flex-wrap: wrap;
+    gap: 3px;
+    font-size: 9px;
+  }
+  .hero .browser[data-browser-era] .price {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .hero .browser[data-browser-era] .price > span {
+    margin-left: 0;
+    font-size: 9px;
+  }
+  .hero .browser[data-browser-era] .price strong {
+    font-size: 22px;
+  }
+  .hero .browser[data-browser-era] .actions {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+  .hero .browser[data-browser-era] .actions > a {
+    font-size: 11px;
+    padding: 6px;
+  }
+}

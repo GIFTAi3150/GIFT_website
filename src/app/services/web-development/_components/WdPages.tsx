@@ -1,6 +1,31 @@
 import type { CSSProperties } from 'react';
+import {
+  House,
+  PanelsTopLeft,
+  Layers3,
+  BadgeCheck,
+  MessageSquareQuote,
+  Building2,
+  UserRound,
+  Megaphone,
+  Mail,
+  ShieldCheck,
+} from 'lucide-react';
 import { PAGES } from './wdContent';
 import WdHead from './WdHead';
+
+const PAGE_ICONS = [
+  House,
+  PanelsTopLeft,
+  Layers3,
+  BadgeCheck,
+  MessageSquareQuote,
+  Building2,
+  UserRound,
+  Megaphone,
+  Mail,
+  ShieldCheck,
+];
 
 /**
  * 10 pages — the spread. Ten sheets sit in a pile and fan out into the sitemap
@@ -37,17 +62,21 @@ export default function WdPages() {
               <span>{PAGES.index}</span>
             </div>
             <ol className="wd-spread__grid" data-spread>
-              {PAGES.pages.map((page, i) => (
-                <li
-                  className="wd-sheet"
-                  data-sheet
-                  key={page}
-                  style={{ '--i': i } as CSSProperties}
-                >
-                  <span className="wd-mono">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="wd-sheet__name">{page}</span>
-                </li>
-              ))}
+              {PAGES.pages.map((page, i) => {
+                const Icon = PAGE_ICONS[i];
+                return (
+                  <li
+                    className="wd-sheet"
+                    data-sheet
+                    key={page}
+                    style={{ '--i': i } as CSSProperties}
+                  >
+                    <span className="wd-mono">{String(i + 1).padStart(2, '0')}</span>
+                    <Icon className="wd-sheet__icon" strokeWidth={1.75} aria-hidden="true" />
+                    <span className="wd-sheet__name">{page}</span>
+                  </li>
+                );
+              })}
             </ol>
             <p className="wd-spread__foot">{PAGES.footnote}</p>
           </div>

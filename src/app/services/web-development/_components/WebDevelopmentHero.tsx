@@ -1,132 +1,325 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
-import WdWebsitePreview from './WdWebsitePreview';
+import { useId, useLayoutEffect, useRef } from 'react';
+import styles from './WebDevelopmentHero.module.css';
+import ModernEarth from './ModernEarth';
+import ModernStars from './ModernStars';
 
-const PROMISE = 'ぜんぶ込みで、月額3万円。';
+function RetroPromos() {
+  return (
+    <div className={styles.retroAds} aria-hidden="true">
+      <div className={styles.retroPoster}>
+        <span className={styles.posterRibbon}>ALL IN ONE!</span>
+        <span className={styles.posterTop}>GIFT WEB CREATION</span>
+        <strong>
+          Small business.
+          <br />
+          <em>Big presence.</em>
+        </strong>
+        <span className={styles.posterSpark} aria-hidden="true">
+          ✦
+        </span>
+        <span className={styles.posterBottom}>
+          YOUR OWN WEBSITE.
+          <b>月額3万円</b>
+          <small>サーバー・更新込み / 税抜</small>
+        </span>
+      </div>
+      <div className={styles.retroBurst}>
+        <span className={styles.burstInner}>
+          <small>
+            THE GIFT
+            <br />
+            WEB PACKAGE
+          </small>
+          <strong>
+            初期費用
+            <b>
+              0<em>円</em>
+            </b>
+          </strong>
+          <span>LET'S GO ONLINE!</span>
+        </span>
+      </div>
+      <div className={styles.retroBadges} aria-hidden="true">
+        <span>
+          100%<b>CUSTOM DESIGN</b>
+        </span>
+        <span>
+          WWW.<b>READY FOR THE WEB</b>
+        </span>
+      </div>
+    </div>
+  );
+}
 
-function useTypewriter(text: string) {
-  const [displayed, setDisplayed] = useState('');
+function BrowserWindow({ era }: { era: 'retro' | 'modern' }) {
+  return (
+    <div className={styles.browser} data-browser-era={era}>
+      <div className={styles.chrome} aria-hidden="true">
+        <span className={styles.windowControls}>
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className={styles.windowTitle}>GIFT — Your next chapter</span>
+      </div>
 
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setDisplayed(text);
-      return;
-    }
-    let interval: ReturnType<typeof setInterval> | undefined;
-    const timeout = window.setTimeout(() => {
-      let index = 0;
-      interval = setInterval(() => {
-        index += 1;
-        setDisplayed(text.slice(0, index));
-        if (index >= text.length) clearInterval(interval);
-      }, 60);
-    }, 760);
-    return () => {
-      window.clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, [text]);
+      <div className={styles.menu} aria-hidden="true">
+        <span>
+          <u>F</u>ile
+        </span>
+        <span>
+          <u>E</u>dit
+        </span>
+        <span>
+          <u>V</u>iew
+        </span>
+        <span>
+          <u>G</u>o
+        </span>
+        <span>
+          <u>B</u>ookmarks
+        </span>
+        <span>
+          <u>H</u>elp
+        </span>
+      </div>
 
-  return displayed;
+      <div className={styles.toolbar} aria-hidden="true">
+        <span className={styles.arrows}>
+          ← <span>→</span>
+        </span>
+        <span className={styles.address}>
+          <span className={styles.retroAddress}>Location: http://www.gift.home/index.html</span>
+          <span className={styles.modernAddress}>⌁ &nbsp; gift-inc.co.jp / your-next-chapter</span>
+        </span>
+        <span className={styles.reload}>↻</span>
+      </div>
+
+      <div
+        className={styles.page}
+        data-lenis-prevent
+        data-wd-browser-page
+        tabIndex={0}
+        role="region"
+        aria-label="ホームページ制作サービスのプレビュー"
+      >
+        {era === 'modern' && <ModernStars />}
+        <div className={styles.welcome} aria-hidden="true">
+          <span>★</span> Welcome to the GIFT Home Page! <span>★</span>
+          <span className={styles.welcomeExtra}>Your dream website starts here.</span>
+        </div>
+
+        <div className={styles.content}>
+          <div className={styles.copy}>
+            <h2 className={styles.title}>
+              <span>
+                <span className={styles.titleKeyword}>ホームページ</span>の制作も、
+              </span>
+              <span>サーバーも、更新も。</span>
+              <span className={styles.titleLast}>
+                <em>
+                  <span>ぜんぶ込みで、</span>
+                  <span>月額3万円。</span>
+                </em>
+              </span>
+            </h2>
+            <p className={styles.lead}>
+              初期費用は0円。テンプレートではない、御社専用デザインのホームページを最大10ページ。
+              <br />
+              公開したあとの管理と更新まで、まとめてお任せいただけます。
+            </p>
+
+            <div className={styles.offer}>
+              <div className={styles.offerTop}>
+                <span>サーバー・更新対応 込み</span>
+                <span className={styles.initialFee}>
+                  初期費用 <b>0</b> 円
+                </span>
+              </div>
+              <p className={styles.price}>
+                <strong>月額3万円</strong>
+                <span>／月（税抜）</span>
+              </p>
+            </div>
+
+            <ul className={styles.services} aria-label="月額料金に含まれる内容">
+              <li>
+                <span aria-hidden="true">✓</span>
+                御社専用デザイン（テンプレ不使用）で最大10ページ
+              </li>
+              <li>
+                <span aria-hidden="true">✓</span>
+                サーバー・ドメイン・SSLの管理費込み
+              </li>
+              <li>
+                <span aria-hidden="true">✓</span>
+                公開後の軽微な更新対応も込み
+              </li>
+            </ul>
+
+            <div className={styles.actions}>
+              {era === 'modern' ? (
+                <Link href="/contact" className="cta-btn cta-btn--wd-white">
+                  <span>お問い合わせ・ご相談はこちら</span>
+                </Link>
+              ) : (
+                <Link href="/contact" className={styles.contact}>
+                  お問い合わせ・ご相談はこちら
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.visual}>
+            {era === 'modern' ? (
+              <ModernEarth />
+            ) : (
+              <>
+                <RetroPromos />
+                <div className={styles.art} aria-hidden="true">
+                  <span className={styles.artLabel}>A WORLD OF POSSIBILITIES</span>
+                  <span className={styles.starOne}>✦</span>
+                  <span className={styles.starTwo}>✦</span>
+                  <div className={styles.globe}>
+                    <svg viewBox="0 0 240 240" fill="none">
+                      <circle cx="120" cy="120" r="113" />
+                      <ellipse cx="120" cy="120" rx="74" ry="113" />
+                      <ellipse cx="120" cy="120" rx="29" ry="113" />
+                      <ellipse cx="120" cy="120" rx="113" ry="42" />
+                      <path d="M20 68Q120 105 220 68M20 172Q120 135 220 172M7 120H233M120 7V233" />
+                    </svg>
+                    <span className={styles.globeShine} />
+                  </div>
+                  <span className={styles.orbit} />
+                  <span className={styles.artCaption}>
+                    You dream it.
+                    <br />
+                    <em>We build it.</em>
+                  </span>
+                  <span className={styles.pixelCursor}>
+                    <svg viewBox="0 0 28 34">
+                      <path d="M2 2v26l7-7 6 11 5-3-6-10h10Z" />
+                    </svg>
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.statusbar} aria-hidden="true">
+        <span className={styles.retroStatus}>Document: Done</span>
+        <span className={styles.visitor}>
+          You are visitor <b>0 0 0 1 9 9 4</b>
+        </span>
+        <span className={styles.modernStatus}>Made for you. Built for what’s next.</span>
+      </div>
+    </div>
+  );
 }
 
 export default function WebDevelopmentHero() {
   const rootRef = useRef<HTMLElement>(null);
-  const displayed = useTypewriter(PROMISE);
-
+  const pixelId = useId().replace(/:/g, '');
   useLayoutEffect(() => {
-    const context = gsap.context(() => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        gsap.set('[data-wd-enter]', { opacity: 1, y: 0 });
-        return;
-      }
-      gsap.fromTo(
-        '[data-wd-enter]',
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.95, stagger: 0.09, ease: 'power3.out', delay: 0.4 },
-      );
-    }, rootRef);
+    const root = rootRef.current;
+    const scrollers = Array.from(
+      root?.querySelectorAll<HTMLElement>('[data-wd-browser-page]') ?? [],
+    );
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const initialEra = reduced ? 'modern' : 'retro';
+    if (root) root.dataset.era = initialEra;
+    root?.querySelectorAll<HTMLElement>('[data-browser-era]').forEach((browser) => {
+      const active = browser.dataset.browserEra === initialEra;
+      browser.inert = !active;
+      browser.setAttribute('aria-hidden', String(!active));
+    });
+    const syncScroll = (event: Event) => {
+      const source = event.currentTarget as HTMLElement;
+      if (source.closest<HTMLElement>('[data-browser-era]')?.inert) return;
+      const ratio = source.scrollTop / Math.max(1, source.scrollHeight - source.clientHeight);
+      scrollers.forEach((target) => {
+        if (target !== source)
+          target.scrollTop = ratio * (target.scrollHeight - target.clientHeight);
+      });
+    };
+    scrollers.forEach((element) =>
+      element.addEventListener('scroll', syncScroll, { passive: true }),
+    );
     window.dispatchEvent(new Event('gift:logo-ready'));
-    return () => context.revert();
+    return () => scrollers.forEach((element) => element.removeEventListener('scroll', syncScroll));
   }, []);
 
-  const typedPrefix = displayed.slice(0, 7);
-  const typedPrice = displayed.slice(7);
+  const advance = () => {
+    const root = rootRef.current;
+    if (!root) return;
+    const start = window.scrollY + root.getBoundingClientRect().top;
+    const distance = root.offsetHeight - window.innerHeight;
+    const modern = root.dataset.era === 'modern';
+    if (!modern) {
+      root.querySelectorAll<HTMLElement>('[data-wd-browser-page]').forEach((page) => {
+        page.scrollTo({ top: 0, behavior: 'instant' });
+      });
+    }
+    window.scrollTo({
+      top: modern ? start + root.offsetHeight : start + distance * 0.86,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    });
+  };
 
   return (
-    <section ref={rootRef} id="web-development-hero" className="wd-hero" aria-labelledby="wd-title">
-      <div className="wd-hero__atmosphere" aria-hidden="true">
-        <span className="wd-orbit wd-orbit--one" />
-        <span className="wd-orbit wd-orbit--two" />
-        <span className="wd-glow" />
-      </div>
-
-      <div className="wd-hero__inner wd-hero__inner--website">
-        <div className="wd-copy">
-          <p className="wd-eyebrow" data-wd-enter>
-            <span>Website Design &amp; Care</span>
-            <span className="wd-eyebrow__jp">ホームページ制作・保守</span>
-          </p>
-
-          <h1 id="wd-title" className="wd-title" data-wd-enter>
-            <span className="wd-title__line">
-              ホームページの<em>制作</em>も、
-            </span>
-            <span className="wd-title__line">
-              サーバーも、<em>更新</em>も。
-            </span>
-            <span className="wd-promise" aria-label={PROMISE}>
-              <span className="wd-promise__sizer" aria-hidden="true">
-                ぜんぶ込みで、
-                <em>
-                  月額<span>3</span>万円。
-                </em>
-              </span>
-              <span className="wd-promise__typed" aria-hidden="true">
-                {typedPrefix}
-                <em>
-                  {typedPrice.slice(0, 2)}
-                  <span>{typedPrice.slice(2, 3)}</span>
-                  {typedPrice.slice(3)}
-                </em>
-                {displayed.length < PROMISE.length && <i className="wd-caret" />}
-              </span>
-            </span>
-          </h1>
-
-          <p className="wd-lead" data-wd-enter>
-            <strong>初期費用は0円。</strong>
-            テンプレートではない御社専用デザインを、最大10ページ。
-            公開後の管理と更新まで、ひとつのチームにお任せいただけます。
-          </p>
-
-          <ul className="wd-benefits" data-wd-enter aria-label="月額料金に含まれる内容">
-            <li>オリジナルデザイン</li>
-            <li>サーバー・ドメイン・SSL</li>
-            <li>公開後の軽微な更新</li>
-          </ul>
-
-          <div className="wd-actions" data-wd-enter>
-            <Link className="cta-btn cta-btn--wd" href="/contact">
-              <span>お問い合わせ・ご相談</span>
-            </Link>
-            <p className="wd-price-note">
-              <strong>¥30,000</strong>
-              <span>/ month · 税抜</span>
-            </p>
-          </div>
+    <section
+      ref={rootRef}
+      id="web-development-hero"
+      className={styles.hero}
+      data-time-travel
+      data-pixel-clip-id={pixelId}
+      data-era="retro"
+      aria-labelledby="wd-title"
+    >
+      <h1 id="wd-title" className={styles.srOnly}>
+        ホームページの制作も、サーバーも、更新も。ぜんぶ込みで、月額3万円。
+      </h1>
+      <div className={styles.stage}>
+        <div className={styles.browserViewport} data-pixel-viewport>
+          <BrowserWindow era="retro" />
+          <BrowserWindow era="modern" />
+          <svg
+            className={styles.pixelOverlay}
+            viewBox="0 0 1 1"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <clipPath id={pixelId} clipPathUnits="objectBoundingBox" data-pixel-mask />
+            </defs>
+            <g data-pixel-tiles />
+          </svg>
         </div>
 
-        <WdWebsitePreview />
+        <div className={styles.timeline}>
+          <div className={styles.eraTrack} aria-hidden="true">
+            <span>1994</span>
+            <span className={styles.track}>
+              <i />
+            </span>
+            <span>TODAY</span>
+          </div>
+          <p className={styles.timelineNote}>時代が変わる。Webも、変わる。</p>
+          <button type="button" className={styles.scrollButton} onClick={advance}>
+            <span className={styles.upgradeText}>SCROLL TO UPGRADE</span>
+            <span className={styles.exploreText}>KEEP EXPLORING</span>
+            <span aria-hidden="true">↓</span>
+          </button>
+        </div>
       </div>
-
-      <p className="wd-scroll" aria-hidden="true">
-        <span>SCROLL TO EXPLORE</span>
-        <i />
-      </p>
     </section>
   );
 }

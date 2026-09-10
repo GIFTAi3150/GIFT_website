@@ -64,6 +64,9 @@ export default function ViewportFreeze() {
     let settleTimer: number | undefined;
 
     const apply = (announce: boolean) => {
+      // DevTools docking and hidden webviews can briefly report a 1x1 viewport.
+      // Keep the last usable dimensions until the real viewport is available.
+      if (window.innerWidth <= 1 || window.innerHeight <= 1) return;
       const px = measureViewport('100vh');
       // 非表示タブ等で 0 が返ることがある。そのときは前の値を保持する。
       if (!px) return;

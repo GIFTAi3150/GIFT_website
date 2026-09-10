@@ -1106,6 +1106,13 @@ html {
   overflow-x: hidden;
 }
 
+/* Contain document overflow before Chromium changes emulation metrics. DevTools
+   briefly uses a 1px viewport; footer overflow during that transition otherwise
+   leaves the visual viewport at 4x scale. Clip preserves native vertical scrolling
+   and sticky sections, without disabling user zoom. */
+body {
+  overflow-x: clip;
+}
 /* Canvas bg transparent so the hero shows through — no visible walls. */
 canvas {
   background-color: transparent;

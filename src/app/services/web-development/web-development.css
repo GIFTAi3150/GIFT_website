@@ -39,19 +39,16 @@
   overflow-x: clip;
 }
 
-/* ── Flash guard: first paint is navy; children stay hidden until WdScroll
-      has applied every initial state (released in a rAF at its end). */
-.wd-page[data-flash-guard] > * {
+/* The hero is server-rendered and must paint before the scroll bundle loads.
+   Keep the lower sections guarded until their initial motion states are set. */
+.wd-page[data-flash-guard] > :not([data-time-travel]) {
   visibility: hidden;
 }
-.wd-page[data-flash-guard]::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
-  background: var(--wd-navy);
-  visibility: visible;
-  pointer-events: none;
+
+/* Keep the shared cover for client navigation, but never gate this route's
+   initial text paint on hydration, analytics, or the window load event. */
+body:has(.wd-page) #page-cover:not([data-route-transition]) {
+  display: none;
 }
 
 .wd-footer {
@@ -760,15 +757,13 @@
 .wd-manifesto__gear {
   position: absolute;
   top: 50%;
-  right: -8%;
+  right: -7%;
   z-index: 0;
-  margin-top: -0.5em;
-  font-family: var(--font-display);
-  font-size: clamp(280px, min(44vw, 72vh), 640px);
-  line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(109, 155, 255, 0.28);
+  width: clamp(330px, min(44vw, 70vh), 640px);
+  aspect-ratio: 1;
+  color: rgba(109, 155, 255, 0.32);
   pointer-events: none;
+  translate: 0 -50%;
   transform-origin: center;
   will-change: transform;
 }
@@ -1505,6 +1500,10 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 132px;
   aspect-ratio: 3 / 3.9;
   padding: 10px 11px;
   background: var(--wd-paper);
@@ -1518,6 +1517,12 @@
   will-change: transform;
 }
 .wd-sheet > .wd-mono {
+  color: var(--wd-blue);
+}
+.wd-sheet__icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
   color: var(--wd-blue);
 }
 .wd-sheet__name {
@@ -1614,84 +1619,12 @@
   color: var(--wd-blue);
 }
 
-/* ── Approach: the join ──────────────────────────────────────────────── */
+/* ── Approach: website craft ──────────────────────────────────────────────── */
 .wd-approach__inner {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 24px clamp(40px, 5vw, 72px);
   align-items: center;
-}
-.wd-join {
-  position: relative;
-  height: min(560px, calc(var(--svh-frozen, 100svh) - var(--header-h) - 140px));
-}
-.wd-join__half {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  margin: 0;
-  overflow: hidden;
-  background: var(--wd-navy-2);
-  will-change: transform;
-}
-.wd-join__half--l {
-  left: 0;
-}
-.wd-join__half--r {
-  right: 0;
-}
-.wd-join__img {
-  position: absolute;
-  top: 0;
-  width: 200%;
-  max-width: none;
-  height: 100%;
-  object-fit: cover;
-  will-change: transform;
-}
-.wd-join__half--l .wd-join__img {
-  left: 0;
-  transform-origin: 50% 50%;
-}
-.wd-join__half--r .wd-join__img {
-  right: 0;
-  transform-origin: 50% 50%;
-}
-.wd-join__half figcaption {
-  position: absolute;
-  top: 16px;
-  padding: 5px 9px;
-  background: var(--wd-navy);
-  color: var(--wd-paper);
-}
-.wd-join__half--l figcaption {
-  left: 16px;
-}
-.wd-join__half--r figcaption {
-  right: 16px;
-}
-.wd-join__cross {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: var(--wd-blue);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 36px;
-  font-weight: 300;
-  line-height: 1;
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.wd-join.is-joined .wd-join__cross {
-  transform: translate(-50%, -50%) scale(1);
 }
 .wd-approach__copy .wd-h2 span {
   color: var(--wd-blue-light);
@@ -1699,27 +1632,6 @@
 .wd-approach__p {
   margin-top: 18px;
   font-size: 15px;
-}
-.wd-approach__next {
-  display: flex;
-  gap: 14px;
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid var(--wd-line-navy);
-}
-.wd-approach__next > span {
-  color: var(--wd-blue-light);
-}
-.wd-approach__next p {
-  font-size: 14px;
-}
-.wd-approach__next a {
-  color: var(--wd-paper);
-  border-bottom: 1px solid var(--wd-blue-light);
-  transition: color 0.25s ease;
-}
-.wd-approach__next a:hover {
-  color: var(--wd-blue-light);
 }
 
 /* ── Plans: the separation ───────────────────────────────────────────── */
@@ -2188,8 +2100,9 @@
     gap: 16px;
   }
   .wd-manifesto__gear {
-    right: -30%;
-    font-size: clamp(260px, 90vw, 420px);
+    right: -25%;
+    width: clamp(300px, 88vw, 420px);
+    opacity: 0.7;
   }
 
   .wd-worries__inner {
@@ -2235,8 +2148,77 @@
   }
   .wd-build__frame {
     width: calc(100% - var(--on6) * 42%);
-    height: min(300px, calc(var(--svh-frozen, 100svh) * 0.34));
+    height: clamp(260px, calc(var(--svh-frozen, 100svh) * 0.34), 300px);
     border-radius: 10px;
+  }
+  /* Reserve separate rows so the page tiles cannot run into the news strip. */
+  .wd-build__page {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto 28px;
+    gap: 8px;
+    padding: 10px;
+  }
+  .wd-build__hero {
+    min-height: 0;
+    gap: 6px 16px;
+  }
+  .wd-build__aa {
+    font-size: 36px;
+  }
+  .wd-build__art {
+    min-height: 0;
+  }
+  .wd-build__line {
+    height: 6px;
+  }
+  .wd-build__btn {
+    width: min(80px, 100%);
+    height: 20px;
+    margin-top: 2px;
+  }
+  .wd-build__pages,
+  .wd-build[data-step='6'] .wd-build__pages {
+    gap: 4px;
+    margin-top: 0;
+  }
+  .wd-build__pages li {
+    aspect-ratio: auto;
+    height: 36px;
+    min-width: 0;
+    padding: 4px;
+    font-size: 8px;
+  }
+  .wd-build__pages li::before {
+    height: 3px;
+    margin-bottom: 4px;
+  }
+  .wd-build__news,
+  .wd-build[data-step='6'] .wd-build__news {
+    position: relative;
+    inset: auto;
+    min-width: 0;
+    height: 28px;
+    gap: 8px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+  .wd-build__news-slot {
+    min-width: 0;
+  }
+  .wd-build[data-step='6'] .wd-build__hero {
+    grid-template-rows: minmax(0, 1fr) repeat(4, auto);
+    align-content: stretch;
+    gap: 4px;
+  }
+  .wd-build[data-step='6'] .wd-build__art {
+    min-height: 0;
+  }
+  .wd-build[data-step='6'] .wd-build__aa {
+    font-size: 26px;
+  }
+  .wd-build[data-step='6'] .wd-build__btn {
+    height: 16px;
+    margin-top: 2px;
   }
   .wd-build__nav,
   .wd-build__tools {
@@ -2311,14 +2293,25 @@
   .wd-handover {
     --noun: clamp(24px, 7vw, 32px);
   }
+  .wd-handover__head,
+  .wd-hand {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+  .wd-handover__rows::before {
+    left: 40%;
+  }
   .wd-hand {
     padding: 12px 0;
   }
   .wd-hand__to {
-    padding-left: calc(var(--noun) * 2.2);
+    /* Two-character label, 12px landing inset, and a 12px text gap. */
+    padding-left: calc(var(--noun) * 2 + 24px);
   }
   .wd-hand__note h3 {
     font-size: 14px;
+    word-break: normal;
+    overflow-wrap: normal;
+    line-break: strict;
   }
   .wd-hand__note p {
     display: none;
@@ -2344,12 +2337,18 @@
     gap: 6px;
   }
   .wd-sheet {
+    gap: 8px;
+    min-height: 112px;
     aspect-ratio: 3 / 4.2;
     padding: 7px 8px;
     font-size: 10.5px;
   }
   .wd-sheet > .wd-mono {
     font-size: 9px;
+  }
+  .wd-sheet__icon {
+    width: 20px;
+    height: 20px;
   }
 
   .wd-compare__head,
@@ -2366,45 +2365,6 @@
     align-content: start;
     height: 100%;
   }
-  .wd-join {
-    height: min(300px, calc(var(--svh-frozen, 100svh) * 0.36));
-  }
-  .wd-join__half {
-    width: 100%;
-    height: 50%;
-    bottom: auto;
-  }
-  .wd-join__half--l {
-    top: 0;
-  }
-  .wd-join__half--r {
-    top: 50%;
-    right: auto;
-    left: 0;
-  }
-  .wd-join__img {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 200%;
-  }
-  .wd-join__half--r .wd-join__img {
-    top: -100%;
-    right: auto;
-  }
-  .wd-join__half figcaption {
-    top: 12px;
-  }
-  .wd-join__half--r figcaption {
-    top: auto;
-    bottom: 12px;
-    right: 12px;
-  }
-  .wd-join__cross {
-    width: 56px;
-    height: 56px;
-    font-size: 28px;
-  }
   .wd-approach__p {
     margin-top: 12px;
     font-size: 14px;
@@ -2412,10 +2372,6 @@
   }
   .wd-approach__p + .wd-approach__p {
     display: none;
-  }
-  .wd-approach__next {
-    margin-top: 16px;
-    padding-top: 14px;
   }
 
   .wd-plans__grid {
@@ -2455,17 +2411,11 @@
   .wd-h2 {
     font-size: clamp(22px, 5.6vw, 28px);
   }
-  .wd-join {
-    height: calc(var(--svh-frozen, 100svh) * 0.3);
-  }
-  .wd-approach__next,
   .wd-included__price,
   .wd-spread__foot {
     display: none;
   }
-  .wd-build__frame {
-    height: calc(var(--svh-frozen, 100svh) * 0.3);
-  }
+
 }
 
 @media (max-width: 767px) {
@@ -2678,4 +2628,11 @@
   .wd-hero__inner--website {
     padding: 104px 16px 64px;
   }
+}
+.wd-manifesto__gear svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  stroke-width: 1.5;
 }
