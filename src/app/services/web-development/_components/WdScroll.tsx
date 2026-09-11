@@ -224,7 +224,13 @@ export default function WdScroll() {
           hero.style.setProperty('--era-progress', value.toFixed(4));
           const era = value >= 0.999 ? 'modern' : 'retro';
           if (hero.dataset.era !== era) hero.dataset.era = era;
-          if (modern) modern.style.clipPath = isMobile || value >= 1 ? 'none' : clipUrl;
+          if (modern) {
+            modern.style.clipPath = isMobile
+              ? `inset(0 ${((1 - value) * 100).toFixed(4)}% 0 0)`
+              : value >= 1
+                ? 'none'
+                : clipUrl;
+          }
           if (retro) retro.style.visibility = value >= 1 ? 'hidden' : 'visible';
           const nextModern = value >= 0.5;
           if (nextModern !== activeModern) {
@@ -336,8 +342,30 @@ export default function WdScroll() {
           cleanups.push(() => observer.disconnect());
         }
         if (isMobile) {
-          // Phones show the modern site in normal flow, without a scroll transition.
-          paint(1);
+          let start = 0;
+          let distance = 1;
+          let frame = 0;
+          const render = () => {
+            frame = 0;
+            paint(clamp01(((window.scrollY - start) / distance - 0.08) / 0.78));
+          };
+          const measure = () => {
+            cancelAnimationFrame(frame);
+            start = window.scrollY + hero.getBoundingClientRect().top;
+            distance = getHeroScrollDistance(hero);
+            render();
+          };
+          const onScroll = () => {
+            if (!frame) frame = requestAnimationFrame(render);
+          };
+          // No scrub tween to rewind during refresh or chase the reader's swipe.
+          measurers.push(measure);
+          measure();
+          window.addEventListener('scroll', onScroll, { passive: true });
+          cleanups.push(() => {
+            window.removeEventListener('scroll', onScroll);
+            cancelAnimationFrame(frame);
+          });
         } else {
           // Desktop retains the eased pixel reveal.
           stage(

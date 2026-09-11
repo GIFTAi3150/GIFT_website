@@ -2296,40 +2296,12 @@
   }
 }
 
-/* Mobile presents the modern site from the first paint in normal document flow. */
+/* Mobile keeps the two eras with one continuous reveal, driven by native scroll. */
 @media (max-width: 899px) {
-  .hero,
-  .hero:not([data-animated]) {
-    --era-progress: 1;
-    height: auto;
-  }
-  .hero .stage {
-    position: relative;
-    top: auto;
-    background: #0b1020;
-  }
-  .hero .pixelOverlay,
-  .hero .browser[data-browser-era='retro'],
-  .hero .eraTrack,
-  .hero .timelineNote,
-  .hero[data-era] .upgradeText {
+  .hero .pixelOverlay {
     display: none;
   }
-  .hero .browser[data-browser-era='modern'],
-  .hero:not([data-animated]) .browser[data-browser-era='modern'] {
-    visibility: visible;
-  }
-  .hero[data-era] .exploreText {
-    display: inline;
-  }
-  .hero .browserViewport {
-    border-radius: 12px;
-  }
-  .hero .timeline {
-    justify-content: center;
-  }
-  .hero:not([data-hero-entered]) .browserViewport,
-  .hero:not([data-hero-entered]) .timeline {
-    animation: none;
+  .hero .browser[data-browser-era='modern'] {
+    will-change: clip-path;
   }
 }

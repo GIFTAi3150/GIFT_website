@@ -22,8 +22,8 @@ for (const engine of [chromium, webkit]) {
       await page
         .locator('[data-browser-era="modern"]')
         .evaluate((el) => getComputedStyle(el).clipPath),
-      'none',
-      'mobile hero must not animate an SVG clipping mask',
+      'inset(0px 100% 0px 0px)',
+      'mobile starts with the modern layer fully clipped so retro is visible',
     );
 
     await page.evaluate(() => scrollTo({ top: 320, behavior: 'instant' }));
@@ -41,7 +41,7 @@ for (const engine of [chromium, webkit]) {
         .locator('[data-time-travel]')
         .evaluate((el) => Number(el.style.getPropertyValue('--era-progress')));
     const before = await progress();
-    assert.equal(before, 1, 'mobile starts with the modern website');
+    assert.ok(before > 0 && before < 1, 'scrolling must reveal the modern website');
     for (const event of ['gift:layout', 'load', 'gift:route-styles-ready']) {
       await page.evaluate((type) => dispatchEvent(new Event(type)), event);
       await page.waitForTimeout(500);

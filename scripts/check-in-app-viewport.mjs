@@ -167,14 +167,9 @@ try {
   });
   try {
     await startup.goto(origin + '/services/web-development', { waitUntil: 'commit' });
-    await startup.waitForFunction(() => {
-      const hero = document.querySelector('[data-time-travel]');
-      return (
-        hero &&
-        Math.abs(hero.offsetHeight - 844) <= 1 &&
-        getComputedStyle(hero.querySelector('[data-browser-era=modern]')).visibility === 'visible'
-      );
-    });
+    await startup.waitForFunction(
+      () => document.querySelector('[data-time-travel]')?.offsetHeight > 1500,
+    );
     await startup.evaluate(() => scrollTo({ top: 320, behavior: 'instant' }));
     await startup.waitForTimeout(300);
     const initialHeight = await startup
