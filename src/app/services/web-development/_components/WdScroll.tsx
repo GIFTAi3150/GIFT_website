@@ -122,6 +122,10 @@ export default function WdScroll() {
       gsap.ticker.lagSmoothing(0);
     }
     const scrub = isMobile ? 0.15 : 0.5;
+    // Every frame on this route uses CSS sticky, never GSAP pinning. The global
+    // refresh scrolls the window to 0 and back, which disrupts WebView momentum.
+    // On mobile we own refresh events and refresh only this route's instances.
+    if (isMobile) ScrollTrigger.config({ autoRefreshEvents: 'none' });
 
     // Layout-dependent measurements run on refreshInit (transforms cleared),
     // and every stage re-places itself after the refresh.
@@ -329,13 +333,40 @@ export default function WdScroll() {
         const observer = new ResizeObserver(buildPixels);
         if (viewport) observer.observe(viewport);
         cleanups.push(() => observer.disconnect());
-        // Give both eras a readable resting beat; smoothing stays scroll-bound.
-        stage(
-          hero,
-          (p) => paint(clamp01((p - 0.08) / 0.78)),
-          isMobile ? 0.2 : 0.4,
-          () => `+=${getHeroScrollDistance(hero)}`,
-        );
+        if (isMobile) {
+          let start = 0;
+          let distance = 1;
+          let frame = 0;
+          const render = () => {
+            frame = 0;
+            paint(clamp01(((window.scrollY - start) / distance - 0.08) / 0.78));
+          };
+          const measure = () => {
+            cancelAnimationFrame(frame);
+            start = window.scrollY + hero.getBoundingClientRect().top;
+            distance = getHeroScrollDistance(hero);
+            render();
+          };
+          const onScroll = () => {
+            if (!frame) frame = requestAnimationFrame(render);
+          };
+          // No scrub tween to rewind during refresh or chase the reader's swipe.
+          measurers.push(measure);
+          measure();
+          window.addEventListener('scroll', onScroll, { passive: true });
+          cleanups.push(() => {
+            window.removeEventListener('scroll', onScroll);
+            cancelAnimationFrame(frame);
+          });
+        } else {
+          // Desktop retains the eased pixel reveal.
+          stage(
+            hero,
+            (p) => paint(clamp01((p - 0.08) / 0.78)),
+            0.4,
+            () => `+=${getHeroScrollDistance(hero)}`,
+          );
+        }
       }
 
       // ═══ the seam: every sheet slides over the one before it ═══════════
@@ -702,8 +733,53 @@ export default function WdScroll() {
     const onRefresh = () => stages.forEach((s) => s.place(s.last));
     ScrollTrigger.addEventListener('refreshInit', onRefreshInit);
     ScrollTrigger.addEventListener('refresh', onRefresh);
-    // Late fonts/layout events must not restore a cached scroll position mid-swipe.
-    const refresh = () => ScrollTrigger.refresh(true);
+    let disposed = false;
+    let touching = false;
+    let refreshTimer: number | undefined;
+    const refresh = () => {
+      if (disposed) return;
+      if (!isMobile) {
+        ScrollTrigger.refresh(true);
+        return;
+      }
+      window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        if (touching) {
+          refresh();
+          return;
+        }
+        refreshTimer = undefined;
+        // Instance refresh measures at the current scroll position. Unlike a
+        // global refresh it does not reset the document's native scroll offset.
+        ScrollTrigger.update();
+        onRefreshInit();
+        ScrollTrigger.getAll().forEach((trigger) => {
+          if (trigger.trigger && root.contains(trigger.trigger)) trigger.refresh();
+        });
+        ScrollTrigger.update();
+        onRefresh();
+      }, 200);
+    };
+    const onTouchStart = () => {
+      touching = true;
+    };
+    const onTouchEnd = () => {
+      touching = false;
+    };
+    const onMobileScroll = () => {
+      if (refreshTimer !== undefined) refresh();
+    };
+    const onVisible = () => {
+      if (!document.hidden) refresh();
+    };
+    if (isMobile) {
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchend', onTouchEnd, { passive: true });
+      window.addEventListener('touchcancel', onTouchEnd, { passive: true });
+      window.addEventListener('scroll', onMobileScroll, { passive: true });
+      window.addEventListener('pageshow', refresh);
+      document.addEventListener('visibilitychange', onVisible);
+    }
     window.addEventListener(VH_FROZEN_CHANGE, refresh);
     window.addEventListener('gift:route-styles-ready', refresh);
     window.addEventListener('gift:layout', refresh);
@@ -716,6 +792,20 @@ export default function WdScroll() {
     release();
 
     return () => {
+      disposed = true;
+      window.clearTimeout(refreshTimer);
+      if (isMobile) {
+        window.removeEventListener('touchstart', onTouchStart);
+        window.removeEventListener('touchend', onTouchEnd);
+        window.removeEventListener('touchcancel', onTouchEnd);
+        window.removeEventListener('scroll', onMobileScroll);
+        window.removeEventListener('pageshow', refresh);
+        document.removeEventListener('visibilitychange', onVisible);
+        // Other routes use GSAP's standard automatic refresh lifecycle.
+        ScrollTrigger.config({
+          autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load,resize',
+        });
+      }
       window.clearTimeout(late);
       window.removeEventListener(VH_FROZEN_CHANGE, refresh);
       window.removeEventListener('gift:route-styles-ready', refresh);
