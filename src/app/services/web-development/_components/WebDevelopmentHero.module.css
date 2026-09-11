@@ -2295,13 +2295,3 @@
     animation: timelineEntrance 600ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
   }
 }
-
-/* Mobile keeps the two eras with one continuous reveal, driven by native scroll. */
-@media (max-width: 899px) {
-  .hero .pixelOverlay {
-    display: none;
-  }
-  .hero .browser[data-browser-era='modern'] {
-    will-change: clip-path;
-  }
-}

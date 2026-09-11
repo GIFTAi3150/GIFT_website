@@ -224,13 +224,7 @@ export default function WdScroll() {
           hero.style.setProperty('--era-progress', value.toFixed(4));
           const era = value >= 0.999 ? 'modern' : 'retro';
           if (hero.dataset.era !== era) hero.dataset.era = era;
-          if (modern) {
-            modern.style.clipPath = isMobile
-              ? `inset(0 ${((1 - value) * 100).toFixed(4)}% 0 0)`
-              : value >= 1
-                ? 'none'
-                : clipUrl;
-          }
+          if (modern) modern.style.clipPath = value >= 1 ? 'none' : clipUrl;
           if (retro) retro.style.visibility = value >= 1 ? 'hidden' : 'visible';
           const nextModern = value >= 0.5;
           if (nextModern !== activeModern) {
@@ -274,14 +268,15 @@ export default function WdScroll() {
           if (!width || !height || (width === gridWidth && height === gridHeight)) return;
           gridWidth = width;
           gridHeight = height;
-          // Bound the grid by both area and width, including tall phone screens.
+          // Keep the same pixel effect with a much smaller grid on phones.
           const size = Math.max(
-            24,
-            Math.ceil(width / 32),
-            Math.ceil(Math.sqrt((width * height) / 700)),
+            isMobile ? 48 : 24,
+            Math.ceil(width / (isMobile ? 8 : 32)),
+            Math.ceil(Math.sqrt((width * height) / (isMobile ? 80 : 700))),
           );
-          const columns = Math.max(1, Math.ceil(width / size));
-          const rows = Math.max(1, Math.ceil(height / size));
+          const round = isMobile ? Math.floor : Math.ceil;
+          const columns = Math.max(1, round(width / size));
+          const rows = Math.max(1, round(height / size));
           bleedX = 1.25 / width;
           bleedY = 1.25 / height;
           const clipFragment = document.createDocumentFragment();
@@ -334,13 +329,11 @@ export default function WdScroll() {
           paint(progress);
         };
         hero.setAttribute('data-animated', '');
-        if (!isMobile) {
-          measurers.push(buildPixels);
-          buildPixels();
-          const observer = new ResizeObserver(buildPixels);
-          if (viewport) observer.observe(viewport);
-          cleanups.push(() => observer.disconnect());
-        }
+        measurers.push(buildPixels);
+        buildPixels();
+        const observer = new ResizeObserver(buildPixels);
+        if (viewport) observer.observe(viewport);
+        cleanups.push(() => observer.disconnect());
         if (isMobile) {
           let start = 0;
           let distance = 1;

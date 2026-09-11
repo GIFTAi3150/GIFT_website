@@ -13,17 +13,22 @@ for (const engine of [chromium, webkit]) {
     await page.goto(origin, { waitUntil: 'networkidle' });
     await page.waitForSelector('[data-time-travel][data-animated]');
     await page.waitForTimeout(1600);
-    assert.equal(
-      await page.locator('[data-pixel-mask] rect, [data-pixel-tiles] rect').count(),
-      0,
-      'mobile hero must not build glitch/pixel tiles',
-    );
-    assert.equal(
+    const tileCount = await page.locator('[data-pixel-tiles] rect').count();
+    assert.ok(tileCount > 0 && tileCount <= 80, 'mobile uses a smaller pixel grid');
+    assert.equal(await page.locator('[data-pixel-mask] rect').count(), tileCount);
+    assert.match(
       await page
         .locator('[data-browser-era="modern"]')
         .evaluate((el) => getComputedStyle(el).clipPath),
-      'inset(0px 100% 0px 0px)',
-      'mobile starts with the modern layer fully clipped so retro is visible',
+      /url\(/,
+      'mobile uses the same pixel mask transition as desktop',
+    );
+    assert.equal(
+      await page
+        .locator('[data-pixel-mask] rect')
+        .evaluateAll((rects) => rects.every((rect) => Number(rect.getAttribute('width')) === 0)),
+      true,
+      'retro is fully visible at the start',
     );
 
     await page.evaluate(() => scrollTo({ top: 320, behavior: 'instant' }));
