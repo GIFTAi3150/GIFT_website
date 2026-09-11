@@ -39,6 +39,16 @@
   overflow-x: clip;
 }
 
+/* Keep mobile sticky layers out of page-wide clipping ancestors. The root
+   document already contains horizontal overflow; clip local artwork instead.
+   WebKit has exhibited sticky-position jitter inside overflow-x: clip layers. */
+@media (max-width: 899px) {
+  body:has(.wd-page),
+  .wd-page {
+    overflow: visible;
+  }
+}
+
 /* The hero is server-rendered and must paint before the scroll bundle loads.
    Keep the lower sections guarded until their initial motion states are set. */
 .wd-page[data-flash-guard] > :not([data-time-travel]) {

@@ -13,6 +13,18 @@ for (const engine of [chromium, webkit]) {
     await page.goto(origin, { waitUntil: 'networkidle' });
     await page.waitForSelector('[data-time-travel][data-animated]');
     await page.waitForTimeout(1600);
+    const clippedAncestors = await page.locator('[data-time-travel]').evaluate((hero) => {
+      const clipped = [];
+      for (
+        let el = hero.parentElement;
+        el && el !== document.documentElement;
+        el = el.parentElement
+      ) {
+        if (getComputedStyle(el).overflowX !== 'visible') clipped.push(el.tagName);
+      }
+      return clipped;
+    });
+    assert.deepEqual(clippedAncestors, [], 'mobile sticky hero has a page-wide clipping ancestor');
     const tileCount = await page.locator('[data-pixel-tiles] rect').count();
     assert.ok(tileCount > 0 && tileCount <= 80, 'mobile uses a smaller pixel grid');
     assert.equal(await page.locator('[data-pixel-mask] rect').count(), tileCount);
@@ -77,7 +89,17 @@ for (const engine of [chromium, webkit]) {
         window.scrollWrites = [];
         window.swipeFrames = [];
         const sample = () => {
+          const hero = document.querySelector('[data-time-travel]');
+          const stage = hero.querySelector('[data-pixel-viewport]').parentElement;
+          const heroRect = hero.getBoundingClientRect();
+          const stageRect = stage.getBoundingClientRect();
+          const expectedTop = Math.min(
+            Math.max(heroRect.top + 80, 80),
+            heroRect.bottom - stageRect.height,
+          );
           window.swipeFrames.push({
+            stageError: stageRect.top - expectedTop,
+            stageHeight: stageRect.height,
             y: scrollY,
             p: Number(
               document.querySelector('[data-time-travel]').style.getPropertyValue('--era-progress'),
@@ -102,7 +124,10 @@ for (const engine of [chromium, webkit]) {
             type: 'touchMove',
             touchPoints: [{ x: 195, y: 650 - step * 16 }],
           });
-          if (step === 8) await page.evaluate(() => dispatchEvent(new Event('gift:layout')));
+          if (step === 8) {
+            await page.setViewportSize({ width: 390, height: swipe % 2 ? 844 : 784 });
+            await page.evaluate(() => dispatchEvent(new Event('gift:layout')));
+          }
           await page.waitForTimeout(20);
         }
         await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
@@ -120,6 +145,17 @@ for (const engine of [chromium, webkit]) {
       assert.ok(state.y > 800, 'touch swipes did not move the document');
       assert.equal(state.era, 'modern');
       assert.deepEqual(state.writes, [], 'animation interrupted native touch scrolling');
+      for (const frame of state.frames) {
+        assert.ok(
+          Math.abs(frame.stageError) <= 1,
+          'sticky hero jumped away from its expected position',
+        );
+        assert.equal(
+          frame.stageHeight,
+          state.frames[0].stageHeight,
+          'toolbar resized the scene during a swipe',
+        );
+      }
       for (let i = 1; i < state.frames.length; i++) {
         assert.ok(
           state.frames[i].y >= state.frames[i - 1].y - 1,
