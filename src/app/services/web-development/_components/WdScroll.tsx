@@ -222,12 +222,20 @@ export default function WdScroll() {
         const paint = (value: number) => {
           progress = value;
           hero.style.setProperty('--era-progress', value.toFixed(4));
-          hero.dataset.era = value >= 0.999 ? 'modern' : 'retro';
-          if (modern) modern.style.clipPath = value >= 1 ? 'none' : clipUrl;
-          if (retro) retro.style.visibility = value >= 1 ? 'hidden' : 'visible';
-          const nextModern = value >= 0.5;
+          const era = value >= 0.999 ? 'modern' : 'retro';
+          if (hero.dataset.era !== era) hero.dataset.era = era;
+          if (modern) modern.style.clipPath = isMobile || value >= 1 ? 'none' : clipUrl;
+          if (retro) retro.style.visibility = !isMobile && value >= 1 ? 'hidden' : 'visible';
+          // A short fade-through-background on phones finishes even if scrolling
+          // stops. Hysteresis avoids flickering between eras near the threshold.
+          const nextModern = isMobile
+            ? activeModern
+              ? value > 0.38
+              : value >= 0.58
+            : value >= 0.5;
           if (nextModern !== activeModern) {
             activeModern = nextModern;
+            if (isMobile) hero.dataset.mobileEra = nextModern ? 'modern' : 'retro';
             [retro, modern].forEach((browser, index) => {
               if (!browser) return;
               const active = index === (nextModern ? 1 : 0);
@@ -327,12 +335,13 @@ export default function WdScroll() {
           paint(progress);
         };
         hero.setAttribute('data-animated', '');
-        measurers.push(buildPixels);
-        buildPixels();
-        // The viewport can change height without a full scroll-layout refresh.
-        const observer = new ResizeObserver(buildPixels);
-        if (viewport) observer.observe(viewport);
-        cleanups.push(() => observer.disconnect());
+        if (!isMobile) {
+          measurers.push(buildPixels);
+          buildPixels();
+          const observer = new ResizeObserver(buildPixels);
+          if (viewport) observer.observe(viewport);
+          cleanups.push(() => observer.disconnect());
+        }
         if (isMobile) {
           let start = 0;
           let distance = 1;
@@ -817,6 +826,7 @@ export default function WdScroll() {
       });
       const hero = q('[data-time-travel]');
       hero?.removeAttribute('data-animated');
+      hero?.removeAttribute('data-mobile-era');
       hero?.style.removeProperty('--era-progress');
       hero?.querySelectorAll<HTMLElement>('[data-browser-era]').forEach((window) => {
         const modern = window.dataset.browserEra === 'modern';
@@ -824,6 +834,7 @@ export default function WdScroll() {
         window.setAttribute('aria-hidden', String(!modern));
         window.style.removeProperty('clip-path');
         window.style.removeProperty('visibility');
+        window.style.removeProperty('opacity');
       });
       hero?.querySelector('[data-pixel-mask]')?.replaceChildren();
       hero?.querySelector('[data-pixel-tiles]')?.replaceChildren();

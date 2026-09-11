@@ -2295,3 +2295,35 @@
     animation: timelineEntrance 600ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
   }
 }
+
+/* Phones use a quiet dissolve, with no pixel tiles or animated clipping edge. */
+@media (max-width: 899px) {
+  .hero .pixelOverlay {
+    display: none;
+  }
+  .hero .stage {
+    background: #0b1020;
+  }
+  .hero .browserViewport {
+    border-radius: 12px;
+  }
+  .hero .browser[data-browser-era] {
+    will-change: opacity;
+  }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+  .hero[data-animated] .browser[data-browser-era] {
+    transition: opacity 180ms ease;
+  }
+  .hero[data-mobile-era='retro'] .browser[data-browser-era='retro'],
+  .hero[data-mobile-era='modern'] .browser[data-browser-era='modern'] {
+    opacity: 1;
+    transition-delay: 180ms;
+  }
+  .hero[data-mobile-era='retro'] .browser[data-browser-era='modern'],
+  .hero[data-mobile-era='modern'] .browser[data-browser-era='retro'] {
+    opacity: 0;
+    transition-delay: 0ms;
+  }
+}

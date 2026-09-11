@@ -13,6 +13,19 @@ for (const engine of [chromium, webkit]) {
     await page.goto(origin, { waitUntil: 'networkidle' });
     await page.waitForSelector('[data-time-travel][data-animated]');
     await page.waitForTimeout(1600);
+    assert.equal(
+      await page.locator('[data-pixel-mask] rect, [data-pixel-tiles] rect').count(),
+      0,
+      'mobile hero must not build glitch/pixel tiles',
+    );
+    assert.equal(
+      await page
+        .locator('[data-browser-era="modern"]')
+        .evaluate((el) => getComputedStyle(el).clipPath),
+      'none',
+      'mobile hero must not animate an SVG clipping mask',
+    );
+
     await page.evaluate(() => scrollTo({ top: 320, behavior: 'instant' }));
     await page.waitForTimeout(400);
     await page.evaluate(() => {
