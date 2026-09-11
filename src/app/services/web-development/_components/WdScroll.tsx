@@ -579,32 +579,24 @@ export default function WdScroll() {
 
       // ═══ plans: the separation ══════════════════════════════════════════
       {
+        // Mobile cards stay in normal flow with their CSS gap at every scroll position.
         const grid = q('[data-plans]');
         const plans = qa('[data-plan]');
-        if (grid && plans.length === 2) {
+        if (!isMobile && grid && plans.length === 2) {
           const tl = gsap.timeline({
             scrollTrigger: { trigger: grid, start: 'top 92%', end: 'top 42%', scrub },
           });
-          if (isMobile) {
-            tl.fromTo(
-              plans[1],
-              { yPercent: -45, rotate: 1.5 },
-              { yPercent: 0, rotate: 0, ease: 'power2.out', duration: 1 },
-              0,
-            );
-          } else {
-            tl.fromTo(
-              plans[0],
-              { xPercent: 52, y: 30, rotate: -2.5 },
-              { xPercent: 0, y: 0, rotate: 0, ease: 'power2.out', duration: 1 },
-              0,
-            ).fromTo(
-              plans[1],
-              { xPercent: -52, y: 60, rotate: 2.5 },
-              { xPercent: 0, y: 0, rotate: 0, ease: 'power2.out', duration: 1 },
-              0.05,
-            );
-          }
+          tl.fromTo(
+            plans[0],
+            { xPercent: 52, y: 30, rotate: -2.5 },
+            { xPercent: 0, y: 0, rotate: 0, ease: 'power2.out', duration: 1 },
+            0,
+          ).fromTo(
+            plans[1],
+            { xPercent: -52, y: 60, rotate: 2.5 },
+            { xPercent: 0, y: 0, rotate: 0, ease: 'power2.out', duration: 1 },
+            0.05,
+          );
         }
       }
 
