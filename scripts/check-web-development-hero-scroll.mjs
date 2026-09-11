@@ -25,7 +25,7 @@ try {
       page.evaluate(() => {
         const hero = document.querySelector('[data-time-travel]');
         const viewport = hero.querySelector('[data-pixel-viewport]').getBoundingClientRect();
-        const title = hero.querySelector('[data-browser-era="retro"] h2').getBoundingClientRect();
+        const title = hero.querySelector('[data-browser-era="modern"] h2').getBoundingClientRect();
         return {
           y: scrollY,
           height: viewport.height,
@@ -61,7 +61,6 @@ try {
     } catch (error) {
       failures.push(`${initialHeight}px: ${error.message}`);
     }
-    let previous = -1;
     for (let step = 1; step <= 8; step += 1) {
       await page.setViewportSize({ width: 390, height: initialHeight - (step % 2) * 60 });
       await page.evaluate((y) => {
@@ -74,22 +73,17 @@ try {
         Math.abs(sample.y - step * 100) <= 1,
         'layout refresh restored an older scroll position',
       );
-      assert.ok(sample.progress >= previous, 'downward scrolling reversed the reveal');
-      previous = sample.progress;
+      assert.equal(sample.progress, 1, 'scrolling changed the modern mobile hero');
     }
     await page.setViewportSize({ width: 390, height: initialHeight });
     await page.evaluate(() => window.scrollTo({ top: 250, behavior: 'instant' }));
     await page.waitForTimeout(500);
     assert.ok(
-      (await read()).progress < previous,
-      'deliberate upward scrolling should reverse the reveal',
+      (await read()).progress === 1,
+      'upward scrolling should keep the modern site visible',
     );
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /SCROLL TO UPGRADE/ }).click();
-    await page.waitForFunction(
-      () => document.querySelector('[data-time-travel]').dataset.era === 'modern',
-    );
     await page.getByRole('button', { name: /KEEP EXPLORING/ }).click();
     await page.waitForFunction(() => {
       const hero = document.querySelector('[data-time-travel]');
@@ -104,7 +98,7 @@ try {
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       'rotation caused horizontal overflow',
     );
-    console.log('Downward scrolling, intentional reverse, hero buttons, and rotation passed.');
+    console.log('Native scrolling, modern hero, explore button, and rotation passed.');
     await page.close();
   }
 } finally {

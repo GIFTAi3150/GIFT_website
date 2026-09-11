@@ -41,6 +41,7 @@ for (const engine of [chromium, webkit]) {
         .locator('[data-time-travel]')
         .evaluate((el) => Number(el.style.getPropertyValue('--era-progress')));
     const before = await progress();
+    assert.equal(before, 1, 'mobile starts with the modern website');
     for (const event of ['gift:layout', 'load', 'gift:route-styles-ready']) {
       await page.evaluate((type) => dispatchEvent(new Event(type)), event);
       await page.waitForTimeout(500);
@@ -125,7 +126,7 @@ for (const engine of [chromium, webkit]) {
         );
       }
       console.log(
-        `chromium: ${state.frames.length} frames of native touch swipes stayed monotonic through the modern reveal`,
+        `chromium: ${state.frames.length} frames of native touch swipes stayed monotonic through the mobile hero`,
       );
     }
   } finally {

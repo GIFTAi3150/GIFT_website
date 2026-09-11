@@ -232,7 +232,8 @@ export default function WebDevelopmentHero() {
       root?.querySelectorAll<HTMLElement>('[data-wd-browser-page]') ?? [],
     );
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const initialEra = reduced ? 'modern' : 'retro';
+    const initialEra =
+      reduced || window.matchMedia('(max-width: 899px)').matches ? 'modern' : 'retro';
     if (root) root.dataset.era = initialEra;
     root?.querySelectorAll<HTMLElement>('[data-browser-era]').forEach((browser) => {
       const active = browser.dataset.browserEra === initialEra;

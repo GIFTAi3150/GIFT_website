@@ -24,7 +24,7 @@ const snapshot = (page) =>
     })),
   }));
 try {
-  for (const path of (process.env.VIEWPORT_TEST_PATHS?.split(',') || [
+  for (const path of process.env.VIEWPORT_TEST_PATHS?.split(',') || [
     '/',
     '/company',
     '/services/aiops',
@@ -32,7 +32,7 @@ try {
     '/services/web-development',
     '/plans',
     '/contact',
-  ])) {
+  ]) {
     const page = await browser.newPage({
       viewport: { width: 390, height: 720 },
       isMobile: true,
@@ -41,9 +41,10 @@ try {
     try {
       page.setDefaultTimeout(30000);
       await page.goto(origin + path, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() =>
-        document.documentElement.style.getPropertyValue('--svh-frozen').endsWith('px') &&
-        !document.querySelector('main[data-flash-guard]'),
+      await page.waitForFunction(
+        () =>
+          document.documentElement.style.getPropertyValue('--svh-frozen').endsWith('px') &&
+          !document.querySelector('main[data-flash-guard]'),
       );
       await page.waitForTimeout(1500);
       const meta = await page.locator('meta[name=viewport]').getAttribute('content');
@@ -166,9 +167,14 @@ try {
   });
   try {
     await startup.goto(origin + '/services/web-development', { waitUntil: 'commit' });
-    await startup.waitForFunction(
-      () => document.querySelector('[data-time-travel]')?.offsetHeight > 1500,
-    );
+    await startup.waitForFunction(() => {
+      const hero = document.querySelector('[data-time-travel]');
+      return (
+        hero &&
+        Math.abs(hero.offsetHeight - 844) <= 1 &&
+        getComputedStyle(hero.querySelector('[data-browser-era=modern]')).visibility === 'visible'
+      );
+    });
     await startup.evaluate(() => scrollTo({ top: 320, behavior: 'instant' }));
     await startup.waitForTimeout(300);
     const initialHeight = await startup

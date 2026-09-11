@@ -2296,34 +2296,40 @@
   }
 }
 
-/* Phones use a quiet dissolve, with no pixel tiles or animated clipping edge. */
+/* Mobile presents the modern site from the first paint in normal document flow. */
 @media (max-width: 899px) {
-  .hero .pixelOverlay {
-    display: none;
+  .hero,
+  .hero:not([data-animated]) {
+    --era-progress: 1;
+    height: auto;
   }
   .hero .stage {
+    position: relative;
+    top: auto;
     background: #0b1020;
+  }
+  .hero .pixelOverlay,
+  .hero .browser[data-browser-era='retro'],
+  .hero .eraTrack,
+  .hero .timelineNote,
+  .hero[data-era] .upgradeText {
+    display: none;
+  }
+  .hero .browser[data-browser-era='modern'],
+  .hero:not([data-animated]) .browser[data-browser-era='modern'] {
+    visibility: visible;
+  }
+  .hero[data-era] .exploreText {
+    display: inline;
   }
   .hero .browserViewport {
     border-radius: 12px;
   }
-  .hero .browser[data-browser-era] {
-    will-change: opacity;
+  .hero .timeline {
+    justify-content: center;
   }
-}
-
-@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
-  .hero[data-animated] .browser[data-browser-era] {
-    transition: opacity 180ms ease;
-  }
-  .hero[data-mobile-era='retro'] .browser[data-browser-era='retro'],
-  .hero[data-mobile-era='modern'] .browser[data-browser-era='modern'] {
-    opacity: 1;
-    transition-delay: 180ms;
-  }
-  .hero[data-mobile-era='retro'] .browser[data-browser-era='modern'],
-  .hero[data-mobile-era='modern'] .browser[data-browser-era='retro'] {
-    opacity: 0;
-    transition-delay: 0ms;
+  .hero:not([data-hero-entered]) .browserViewport,
+  .hero:not([data-hero-entered]) .timeline {
+    animation: none;
   }
 }
