@@ -125,13 +125,13 @@ export default function AIOps() {
           style={{
             position: 'sticky',
             top: 0,
-            height: '100dvh',
+            height: 'calc(var(--svh-frozen) * 1)',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
-            paddingTop: 'clamp(48px, 7vh, 88px)',
-            paddingBottom: 'clamp(24px, 4vh, 48px)',
+            paddingTop: 'clamp(48px, calc(var(--vh-frozen) * 0.07), 88px)',
+            paddingBottom: 'clamp(24px, calc(var(--vh-frozen) * 0.04), 48px)',
           }}
         >
           {/* Aurora background — flowing glow lines in place of the old static blobs */}
@@ -162,7 +162,7 @@ export default function AIOps() {
                 >
                   <p
                     className="font-sans font-light text-white"
-                    style={{ fontSize: 'clamp(20px, min(3.2vw, 3.6vh), 40px)', lineHeight: '1.45', letterSpacing: '-0.01em' }}
+                    style={{ fontSize: 'clamp(20px, min(3.2vw, calc(var(--vh-frozen) * 0.036)), 40px)', lineHeight: '1.45', letterSpacing: '-0.01em' }}
                   >
                     <span className="font-bold">{line.bold}</span>
                     {line.rest}
@@ -178,7 +178,7 @@ export default function AIOps() {
             >
               <p
                 className="font-sans font-extrabold text-white"
-                style={{ fontSize: 'clamp(22px, min(3.5vw, 3.8vh), 44px)', lineHeight: '1.4', letterSpacing: '-0.02em', maxWidth: '800px' }}
+                style={{ fontSize: 'clamp(22px, min(3.5vw, calc(var(--vh-frozen) * 0.038)), 44px)', lineHeight: '1.4', letterSpacing: '-0.02em', maxWidth: '800px' }}
               >
                 そんな状態から、
                 <br />
@@ -208,12 +208,12 @@ export default function AIOps() {
           <div
             ref={aiopsWrapRef}
             className="relative z-10 flex justify-center"
-            style={{ opacity: 0, transform: 'translateY(64px)', marginTop: 'clamp(32px, 6vh, 80px)' }}
+            style={{ opacity: 0, transform: 'translateY(64px)', marginTop: 'clamp(32px, calc(var(--vh-frozen) * 0.06), 80px)' }}
           >
             <span
               className="font-nube-display leading-none cursor-none select-none"
               style={{
-                fontSize: 'clamp(60px, min(14vw, 15vh), 230px)',
+                fontSize: 'clamp(60px, min(14vw, calc(var(--vh-frozen) * 0.15)), 230px)',
                 color: '#363b9e',
                 letterSpacing: '-0.01em',
                 display: 'inline-block',

@@ -2,7 +2,7 @@
    The first era paints before hydration; reduced motion shows the modern page. */
 .hero {
   --evolution: 1;
-  --scene-height: calc(min(var(--svh-frozen, 100svh), 100svh) - 80px);
+  --scene-height: calc(var(--svh-frozen, 100svh) - 80px);
   position: relative;
   padding-top: 80px;
   color: #12172a;
@@ -12,11 +12,13 @@
 .hero p {
   color: inherit;
 }
-.hero[data-animated] {
+/* Reserve the scroll budget before hydration to avoid scroll anchoring jumps. */
+.hero {
   height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * 1.4);
 }
 .hero .stage {
-  position: relative;
+  position: sticky;
+  top: 80px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -28,10 +30,7 @@
   );
   height: var(--scene-height);
   container-type: size;
-}
-.hero[data-animated] .stage {
-  position: sticky;
-  top: 80px;
+  container-name: wd-hero;
 }
 .hero .browser {
   display: flex;
@@ -692,12 +691,14 @@
   font-family: 'Yu Mincho', 'MS PMincho', serif;
 }
 
-@media (min-width: 1500px) and (min-height: 850px) {
-  .hero .art {
-    height: 290px;
-  }
-  .hero .globe {
-    width: 260px;
+@media (min-width: 1500px) {
+  @container wd-hero (min-height: 770px) {
+    .hero .art {
+      height: 290px;
+    }
+    .hero .globe {
+      width: 260px;
+    }
   }
 }
 @media (max-width: 1050px) {
@@ -714,7 +715,7 @@
   }
 }
 @media (max-width: 699px) {
-  .hero[data-animated] {
+  .hero {
     height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * 1.1);
   }
   .hero .stage {
@@ -884,10 +885,10 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero[data-animated] {
+  .hero {
     height: auto;
   }
-  .hero[data-animated] .stage {
+  .hero .stage {
     position: relative;
     top: auto;
   }
@@ -961,7 +962,7 @@
     width: 100%;
   }
 }
-@media (max-height: 740px) {
+@container wd-hero (max-height: 660px) {
   .hero .content {
     padding-block: 10px;
   }
@@ -1002,8 +1003,8 @@
 .hero .browser[data-browser-era='modern'] {
   --evolution: 1;
   z-index: 2;
-  background: #111a2a;
-  border-color: #2a3850;
+  background: #ececee;
+  border-color: #c4c5ca;
   color: #eef3ff;
 }
 .hero:not([data-animated]) {
@@ -1208,31 +1209,35 @@
     font-size: 30px;
   }
 }
-@media (max-width: 699px) and (max-height: 740px) {
-  .hero .content {
-    padding-block: 12px;
-  }
-  .hero .title,
-  .hero .browser[data-browser-era='retro'] .title {
-    margin-block: 8px;
-  }
-  .hero .offer,
-  .hero .browser[data-browser-era='retro'] .offer {
-    margin-top: 12px;
-  }
-  .hero .services {
-    margin-top: 10px;
-  }
-  .hero .actions {
-    margin-top: 12px;
+@media (max-width: 699px) {
+  @container wd-hero (max-height: 660px) {
+    .hero .content {
+      padding-block: 12px;
+    }
+    .hero .title,
+    .hero .browser[data-browser-era='retro'] .title {
+      margin-block: 8px;
+    }
+    .hero .offer,
+    .hero .browser[data-browser-era='retro'] .offer {
+      margin-top: 12px;
+    }
+    .hero .services {
+      margin-top: 10px;
+    }
+    .hero .actions {
+      margin-top: 12px;
+    }
   }
 }
 
 /* Short phones keep the offer in view; its details are repeated in the price card and benefits. */
-@media (max-width: 699px) and (max-height: 740px) {
-  .hero .lead,
-  .hero .titleLast em > span:last-child {
-    display: none;
+@media (max-width: 699px) {
+  @container wd-hero (max-height: 660px) {
+    .hero .lead,
+    .hero .titleLast em > span:last-child {
+      display: none;
+    }
   }
 }
 
@@ -1888,76 +1893,78 @@
 }
 
 /* Keep the complete offer usable on shorter laptop windows. */
-@media (min-width: 900px) and (max-height: 800px) {
-  .hero .browser[data-browser-era] .content {
-    padding-block: 10px;
-  }
-  .hero .browser[data-browser-era] .title {
-    font-size: clamp(26px, 5cqw, 30px);
-    line-height: 1.3;
-    margin-block: 10px;
-  }
-  .hero .browser[data-browser-era] .titleLast {
-    margin-top: 8px;
-  }
-  .hero .browser[data-browser-era='modern'] .titleLast em {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 8px;
-  }
-  .hero .browser[data-browser-era] .lead {
-    font-size: 12px;
-    line-height: 1.65;
-  }
-  .hero .browser[data-browser-era='retro'] .lead {
-    padding: 6px 9px;
-  }
-  .hero .browser[data-browser-era] .offer {
-    margin-top: 10px;
-    padding: 8px 12px;
-  }
-  .hero .browser[data-browser-era] .price strong {
-    font-size: 30px;
-  }
-  .hero .browser[data-browser-era] .services {
-    margin-top: 10px;
-    gap: 4px;
-  }
-  .hero .browser[data-browser-era] .services li {
-    font-size: 11px;
-  }
-  .hero .browser[data-browser-era] .actions {
-    margin-top: 10px;
-  }
-  .hero .browser[data-browser-era] .contact {
-    min-height: 40px;
-    padding-block: 8px;
-  }
-  .hero .browser[data-browser-era='retro'] .art {
-    height: 140px;
-  }
-  .hero .browser[data-browser-era='retro'] .globe {
-    width: 120px;
-  }
-  .hero .browser[data-browser-era='retro'] .artCaption {
-    font-size: 18px;
-  }
-  .hero .browser[data-browser-era='retro'] .retroPoster {
-    min-height: 218px;
-    padding-top: 13px;
-  }
-  .hero .browser[data-browser-era='retro'] .posterTop {
-    padding-bottom: 9px;
-  }
-  .hero .browser[data-browser-era='retro'] .posterSpark {
-    font-size: 42px;
-  }
-  .hero .browser[data-browser-era='retro'] .retroBurst {
-    top: 65px;
-    width: 53%;
-  }
-  .hero .browser[data-browser-era='retro'] .retroBadges {
-    margin-top: 15px;
+@media (min-width: 900px) {
+  @container wd-hero (max-height: 720px) {
+    .hero .browser[data-browser-era] .content {
+      padding-block: 10px;
+    }
+    .hero .browser[data-browser-era] .title {
+      font-size: clamp(26px, 5cqw, 30px);
+      line-height: 1.3;
+      margin-block: 10px;
+    }
+    .hero .browser[data-browser-era] .titleLast {
+      margin-top: 8px;
+    }
+    .hero .browser[data-browser-era='modern'] .titleLast em {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .hero .browser[data-browser-era] .lead {
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .hero .browser[data-browser-era='retro'] .lead {
+      padding: 6px 9px;
+    }
+    .hero .browser[data-browser-era] .offer {
+      margin-top: 10px;
+      padding: 8px 12px;
+    }
+    .hero .browser[data-browser-era] .price strong {
+      font-size: 30px;
+    }
+    .hero .browser[data-browser-era] .services {
+      margin-top: 10px;
+      gap: 4px;
+    }
+    .hero .browser[data-browser-era] .services li {
+      font-size: 11px;
+    }
+    .hero .browser[data-browser-era] .actions {
+      margin-top: 10px;
+    }
+    .hero .browser[data-browser-era] .contact {
+      min-height: 40px;
+      padding-block: 8px;
+    }
+    .hero .browser[data-browser-era='retro'] .art {
+      height: 140px;
+    }
+    .hero .browser[data-browser-era='retro'] .globe {
+      width: 120px;
+    }
+    .hero .browser[data-browser-era='retro'] .artCaption {
+      font-size: 18px;
+    }
+    .hero .browser[data-browser-era='retro'] .retroPoster {
+      min-height: 218px;
+      padding-top: 13px;
+    }
+    .hero .browser[data-browser-era='retro'] .posterTop {
+      padding-bottom: 9px;
+    }
+    .hero .browser[data-browser-era='retro'] .posterSpark {
+      font-size: 42px;
+    }
+    .hero .browser[data-browser-era='retro'] .retroBurst {
+      top: 65px;
+      width: 53%;
+    }
+    .hero .browser[data-browser-era='retro'] .retroBadges {
+      margin-top: 15px;
+    }
   }
 }
 .hero .browser[data-browser-era='modern'] .actions {
@@ -1974,10 +1981,12 @@
     margin-top: 18px;
   }
 }
-@media (min-width: 900px) and (max-height: 800px) {
-  .hero .browser[data-browser-era='modern'] .actions {
-    margin-top: 14px;
-    gap: 12px 18px;
+@media (min-width: 900px) {
+  @container wd-hero (max-height: 720px) {
+    .hero .browser[data-browser-era='modern'] .actions {
+      margin-top: 14px;
+      gap: 12px 18px;
+    }
   }
 }
 
@@ -1992,26 +2001,26 @@
   }
 }
 .hero .browser[data-browser-era='modern'] .chrome {
-  background: #111a2a;
-  color: #bdcae0;
+  background: linear-gradient(#f5f5f7, #e9e9ec);
+  color: #606168;
 }
 .hero .browser[data-browser-era='modern'] .toolbar {
-  background: #141e30;
-  color: #b3c2da;
-  border-bottom-color: #26354b;
+  background: #e9e9ec;
+  color: #6e6e73;
+  border-bottom-color: #c8c8cd;
 }
 .hero .browser[data-browser-era='modern'] .address {
-  background: #080f1d;
-  border-color: #2a3a53;
-  box-shadow: none;
+  background: #fafafa;
+  border-color: #d5d5da;
+  box-shadow: inset 0 1px 1px #ffffffb3;
 }
 .hero .browser[data-browser-era='modern'] .modernAddress {
-  color: #a7b8d2;
+  color: #65656b;
 }
 .hero .browser[data-browser-era='modern'] .statusbar {
-  background: #111a2a;
-  border-top-color: #26354b;
-  color: #91a4c1;
+  background: #e9e9ec;
+  border-top-color: #c8c8cd;
+  color: #6e6e73;
 }
 .hero .browser[data-browser-era='modern'] .initialFee {
   background: #172f50;
@@ -2152,100 +2161,137 @@
     height: auto;
   }
 }
-@media (max-width: 899px) and (min-height: 740px) {
-  .hero .browser[data-browser-era='retro'] .title > .titleLast {
-    display: block;
-  }
-  .hero .browser[data-browser-era='retro'] .content {
-    gap: 14px;
-    padding-block: 14px;
-  }
-  .hero .browser[data-browser-era='retro'] .offer,
-  .hero .browser[data-browser-era='retro'] .services,
-  .hero .browser[data-browser-era='retro'] .actions {
-    margin-top: 12px;
+@media (max-width: 899px) {
+  @container wd-hero (min-height: 660px) {
+    .hero .browser[data-browser-era='retro'] .title > .titleLast {
+      display: block;
+    }
+    .hero .browser[data-browser-era='retro'] .content {
+      gap: 14px;
+      padding-block: 14px;
+    }
+    .hero .browser[data-browser-era='retro'] .offer,
+    .hero .browser[data-browser-era='retro'] .services,
+    .hero .browser[data-browser-era='retro'] .actions {
+      margin-top: 12px;
+    }
   }
 }
-@media (max-width: 899px) and (min-height: 820px) {
-  .hero .browser[data-browser-era='retro'] .lead {
-    display: block;
-    margin-top: 12px;
-    font-size: 12px;
-    line-height: 1.7;
+@media (max-width: 899px) {
+  @container wd-hero (min-height: 740px) {
+    .hero .browser[data-browser-era='retro'] .lead {
+      display: block;
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+    }
   }
 }
 
 /* A landscape phone has room beside the offer for the Earth. */
-@media (min-width: 600px) and (max-width: 899px) and (max-height: 500px) {
-  .hero .browserViewport,
-  .hero .timeline {
-    max-width: none;
+@media (min-width: 600px) and (max-width: 899px) {
+  @container wd-hero (max-height: 420px) {
+    .hero .browserViewport,
+    .hero .timeline {
+      max-width: none;
+    }
+    .hero .browser[data-browser-era] .content {
+      padding-block: 4px;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+      align-content: normal;
+      gap: 16px;
+    }
+    .hero .browser[data-browser-era] .visual {
+      order: 0;
+    }
+    .hero .browser[data-browser-era='retro'] .retroAds {
+      display: none;
+    }
+    .hero .browser[data-browser-era='retro'] .visual {
+      justify-content: center;
+    }
+    .hero .browser[data-browser-era] .copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 4px;
+      align-items: center;
+    }
+    .hero .browser[data-browser-era] .title {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 18px;
+    }
+    .hero .browser[data-browser-era] .services {
+      grid-column: 1;
+      grid-row: 2;
+      margin: 0;
+    }
+    .hero .browser[data-browser-era] .services li {
+      font-size: 10px;
+      line-height: 1.4;
+    }
+    .hero .browser[data-browser-era] .offer {
+      grid-column: 2;
+      grid-row: 1;
+      margin: 0;
+      padding: 6px;
+    }
+    .hero .browser[data-browser-era] .offerTop {
+      flex-wrap: wrap;
+      gap: 3px;
+      font-size: 9px;
+    }
+    .hero .browser[data-browser-era] .price {
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .hero .browser[data-browser-era] .price > span {
+      margin-left: 0;
+      font-size: 9px;
+    }
+    .hero .browser[data-browser-era] .price strong {
+      font-size: 22px;
+    }
+    .hero .browser[data-browser-era] .actions {
+      grid-column: 2;
+      grid-row: 2;
+      margin: 0;
+    }
+    .hero .browser[data-browser-era] .actions > a {
+      font-size: 11px;
+      padding: 6px;
+    }
   }
-  .hero .browser[data-browser-era] .content {
-    padding-block: 4px;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    align-content: normal;
-    gap: 16px;
+}
+
+/* One entrance per mount. Animate the complete browser so the two eras and
+   their pixel mask stay aligned; the sticky stage keeps its frozen size. */
+@keyframes browserEntrance {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.975);
   }
-  .hero .browser[data-browser-era] .visual {
-    order: 0;
+  to {
+    opacity: 1;
+    transform: none;
   }
-  .hero .browser[data-browser-era='retro'] .retroAds {
-    display: none;
+}
+@keyframes timelineEntrance {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
   }
-  .hero .browser[data-browser-era='retro'] .visual {
-    justify-content: center;
+  to {
+    opacity: 1;
+    transform: none;
   }
-  .hero .browser[data-browser-era] .copy {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    gap: 4px;
-    align-items: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero:not([data-hero-entered]) .browserViewport {
+    animation: browserEntrance 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .hero .browser[data-browser-era] .title {
-    grid-column: 1;
-    grid-row: 1;
-    font-size: 18px;
-  }
-  .hero .browser[data-browser-era] .services {
-    grid-column: 1;
-    grid-row: 2;
-    margin: 0;
-  }
-  .hero .browser[data-browser-era] .services li {
-    font-size: 10px;
-    line-height: 1.4;
-  }
-  .hero .browser[data-browser-era] .offer {
-    grid-column: 2;
-    grid-row: 1;
-    margin: 0;
-    padding: 6px;
-  }
-  .hero .browser[data-browser-era] .offerTop {
-    flex-wrap: wrap;
-    gap: 3px;
-    font-size: 9px;
-  }
-  .hero .browser[data-browser-era] .price {
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .hero .browser[data-browser-era] .price > span {
-    margin-left: 0;
-    font-size: 9px;
-  }
-  .hero .browser[data-browser-era] .price strong {
-    font-size: 22px;
-  }
-  .hero .browser[data-browser-era] .actions {
-    grid-column: 2;
-    grid-row: 2;
-    margin: 0;
-  }
-  .hero .browser[data-browser-era] .actions > a {
-    font-size: 11px;
-    padding: 6px;
+  .hero:not([data-hero-entered]) .timeline {
+    animation: timelineEntrance 600ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
   }
 }

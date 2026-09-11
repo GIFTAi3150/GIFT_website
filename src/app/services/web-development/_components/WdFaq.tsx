@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, type MouseEvent } from 'react';
-import { CONTACT, FAQ } from './wdContent';
+import { FAQ } from './wdContent';
 import WdHead from './WdHead';
 
 /** Native details keep keyboard and no-JS behaviour; WAAPI interpolates the real height. */
@@ -70,20 +69,6 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
   );
 }
 
-function Arrow() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M6 18 18 6M6 6h12v12"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 /** FAQ — the accordion. Quiet by design; the shared head is the only motion. */
 export default function WdFaq() {
   return (
@@ -91,9 +76,6 @@ export default function WdFaq() {
       <div className="wd-container wd-faq__inner">
         <div className="wd-faq__side">
           <WdHead label={FAQ.eyebrow} title={FAQ.title} lead={FAQ.lead} />
-          <Link className="wd-textlink" href={CONTACT}>
-            {FAQ.link} <Arrow />
-          </Link>
         </div>
         <div className="wd-faq__list">
           {FAQ.items.map((item, i) => (

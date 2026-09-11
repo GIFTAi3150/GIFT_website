@@ -181,7 +181,7 @@ export default function WheelScroll() {
           style={{
             position: 'sticky',
             top: 0,
-            height: '100vh',
+            height: 'calc(var(--vh-frozen) * 1)',
             overflow: 'hidden',
             background: '#fff',
           }}
@@ -209,7 +209,7 @@ export default function WheelScroll() {
               borderRadius: '50%',
               border: '1px dashed rgba(37,99,235,0.18)',
               left: '-25vw',
-              top: '28vh',
+              top: 'calc(var(--vh-frozen) * 0.28)',
             }}
           >
             {STEPS.map((step, i) => (
@@ -227,7 +227,7 @@ export default function WheelScroll() {
           <div
             style={{
               position: 'absolute',
-              top: '40vh',
+              top: 'calc(var(--vh-frozen) * 0.4)',
               left: 0,
               right: 0,
               zIndex: 10,

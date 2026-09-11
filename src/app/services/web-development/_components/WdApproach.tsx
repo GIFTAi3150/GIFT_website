@@ -127,10 +127,6 @@ export default function WdApproach() {
                 <WebsitePreview finished />
               </div>
             </div>
-            <figcaption className={styles.caption}>
-              <span>構成から、御社らしいデザインへ。</span>
-              <span>制作イメージ</span>
-            </figcaption>
           </figure>
           <div className="wd-approach__copy">
             <div id="wd-approach-title">

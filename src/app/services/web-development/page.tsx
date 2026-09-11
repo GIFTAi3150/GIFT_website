@@ -33,6 +33,7 @@ export default function WebDevelopmentPage() {
           <style>{`#page-cover { display: none !important; }
             .wd-page[data-flash-guard] section { visibility: visible !important; }
             .wd-page[data-flash-guard]::after { display: none !important; }
+            [data-time-travel] { height: auto !important; }
             [data-time-travel] button { display: none; }`}</style>
         </noscript>
 

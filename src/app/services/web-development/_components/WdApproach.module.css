@@ -245,20 +245,6 @@
 .draft .siteFoot i {
   width: 26%;
 }
-.visual .caption {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 16px;
-  color: #a2aec4;
-  font-size: 10px;
-  line-height: 1.5;
-}
-.caption > span:last-child {
-  color: #7f8ca5;
-  font-size: 9px;
-  white-space: nowrap;
-}
 @media (max-width: 1120px) and (min-width: 900px) {
   .progression {
     grid-template-columns: minmax(0, 0.8fr) 20px minmax(0, 1.2fr);
@@ -281,15 +267,22 @@
   }
 }
 @media (max-width: 899px) {
+  .visual {
+    max-width: 560px;
+    margin-inline: auto;
+  }
   .progression {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .stepLabel {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+  .stepLabel > span:first-child {
     font-size: 10px;
   }
   .connector {
-    height: 22px;
+    height: 36px;
   }
   .horizontalArrow {
     display: none;
@@ -298,129 +291,47 @@
     display: block;
   }
   .chrome {
-    height: 18px;
-    padding-inline: 8px;
+    height: 25px;
+    padding-inline: 10px;
   }
-  .dots i {
-    width: 3px;
-    height: 3px;
-  }
-  .address {
-    font-size: 7px;
-  }
-  .site {
-    height: clamp(108px, calc(var(--svh-frozen, 100svh) * 0.2), 170px);
+  .site,
+  .draft .site {
+    height: auto;
+    aspect-ratio: 16 / 10;
   }
   .siteNav {
-    padding: 6px 10px;
+    flex-shrink: 0;
+    padding: 10px 12px;
   }
   .brand {
-    font-size: 9px;
+    font-size: 10px;
   }
   .navItems {
     font-size: 6px;
   }
-  .heroCopy {
-    gap: 4px;
-    padding: 6px 10px;
-  }
-  .eyebrow {
-    font-size: 5px;
+  .heroCopy,
+  .draft .heroCopy {
+    gap: 8px;
+    padding: 12px;
   }
   .headline {
-    font-size: clamp(15px, 4.2vw, 21px);
+    font-size: clamp(15px, 4.2vw, 23px);
     line-height: 1.4;
   }
   .siteLead {
     display: none;
   }
   .sampleLink {
-    margin: 0;
-    padding-bottom: 2px;
-    font-size: 6px;
+    margin-top: 2px;
+    padding-bottom: 3px;
   }
   .heroImage {
-    margin: 5px 10px 7px 0;
+    min-height: 0;
+    margin: 10px 12px 10px 0;
   }
   .siteFoot {
-    display: none;
-  }
-  .draft .site {
-    height: clamp(42px, calc(var(--svh-frozen, 100svh) * 0.085), 70px);
-    flex-direction: row;
-  }
-  .draft .siteNav {
-    width: 28%;
-    flex: 0 0 28%;
-    padding: 8px 10px;
-    border-bottom: 0;
-    border-right: 1px solid #3b4860;
-  }
-  .draft .siteNav > svg,
-  .draft .navItems {
-    display: none;
-  }
-  .draft .hero {
-    grid-template-columns: 1fr 1fr;
-  }
-  .draft .heroCopy {
-    padding: 7px 12px;
-    gap: 4px;
-  }
-  .draft .heroCopy .titleLine {
-    height: 5px;
-  }
-  .draft .heroCopy .shortLine,
-  .draft .heroCopy .textLine,
-  .draft .heroCopy .buttonLine {
-    display: none;
-  }
-  .draft .heroImage {
-    margin: 7px 10px 7px 0;
-  }
-  .draft .heroImage svg {
-    width: 18px;
-    height: 18px;
-  }
-  .visual .caption {
-    margin-top: 10px;
-    font-size: 9px;
-  }
-  .caption > span:last-child {
-    font-size: 8px;
-  }
-}
-@media (max-width: 899px) and (max-height: 700px) {
-  .stepLabel {
-    margin-bottom: 4px;
-  }
-  .connector {
-    height: 16px;
-  }
-  .site {
-    height: 92px;
-  }
-  .siteNav {
-    padding-block: 4px;
-  }
-  .heroCopy {
-    padding-block: 4px;
-  }
-  .headline {
-    font-size: 15px;
-    line-height: 1.35;
-  }
-  .eyebrow {
-    display: none;
-  }
-  .draft .chrome {
-    display: none;
-  }
-  .draft .site {
-    height: 32px;
-  }
-  .visual .caption {
-    margin-top: 6px;
+    flex-shrink: 0;
+    padding: 8px 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

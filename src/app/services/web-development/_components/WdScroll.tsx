@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { VH_FROZEN_CHANGE } from '@/components/util/ViewportFreeze';
 import { INCLUDED } from './wdContent';
+import { getFrozenViewportHeight, getHeroScrollDistance } from './heroScrollGeometry';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,6 +47,25 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
  */
 export default function WdScroll() {
   const [motionRevision, setMotionRevision] = useState(0);
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>('main.wd-page');
+    if (!root) return;
+    const layout = () => {
+      const height = getFrozenViewportHeight();
+      root.toggleAttribute('data-wd-short', height <= 700);
+      root.toggleAttribute('data-wd-landscape', height <= 500);
+    };
+    layout();
+    const frame = requestAnimationFrame(layout);
+    window.addEventListener(VH_FROZEN_CHANGE, layout);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener(VH_FROZEN_CHANGE, layout);
+      root.removeAttribute('data-wd-short');
+      root.removeAttribute('data-wd-landscape');
+    };
+  }, []);
 
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -108,7 +128,12 @@ export default function WdScroll() {
     const measurers: Array<() => void> = [];
     const cleanups: Array<() => void> = [];
     const stages: Array<{ place: (p: number) => void; last: number }> = [];
-    const stage = (el: HTMLElement | null, place: (p: number) => void, s = scrub) => {
+    const stage = (
+      el: HTMLElement | null,
+      place: (p: number) => void,
+      s = scrub,
+      end?: string | (() => string),
+    ) => {
       if (!el) return;
       const entry = { place, last: 0 };
       stages.push(entry);
@@ -124,7 +149,7 @@ export default function WdScroll() {
         scrollTrigger: {
           trigger: el,
           start: 'top top',
-          end: 'bottom bottom',
+          end: end ?? (isMobile ? () => `+=${getHeroScrollDistance(el)}` : 'bottom bottom'),
           scrub: s,
           invalidateOnRefresh: true,
         },
@@ -305,7 +330,12 @@ export default function WdScroll() {
         if (viewport) observer.observe(viewport);
         cleanups.push(() => observer.disconnect());
         // Give both eras a readable resting beat; smoothing stays scroll-bound.
-        stage(hero, (p) => paint(clamp01((p - 0.08) / 0.78)), isMobile ? 0.2 : 0.4);
+        stage(
+          hero,
+          (p) => paint(clamp01((p - 0.08) / 0.78)),
+          isMobile ? 0.2 : 0.4,
+          () => `+=${getHeroScrollDistance(hero)}`,
+        );
       }
 
       // ═══ the seam: every sheet slides over the one before it ═══════════
@@ -319,7 +349,7 @@ export default function WdScroll() {
         };
         ScrollTrigger.create({
           trigger: sec,
-          start: 'top bottom',
+          start: () => (isMobile ? `top ${getFrozenViewportHeight()}px` : 'top bottom'),
           end: 'top top',
           onUpdate: (self) => write(self.progress),
           onRefresh: (self) => write(self.progress),
@@ -394,10 +424,13 @@ export default function WdScroll() {
         const frame = q('[data-build-frame]');
         const rows = qa('[data-inc]');
         const caption = q('[data-build-caption]');
+        if (isMobile) el?.setAttribute('data-included-steps', '');
         let last = -1;
         stage(el, (p) => {
           // 0 blueprint · 1 design · 2 pages · 3 zero · 4 https · 5 news · 6 phone
-          const step = Math.max(0, Math.min(6, Math.floor((p - 0.04) / 0.15) + 1));
+          const step = isMobile
+            ? Math.min(6, Math.floor(p * 6) + 1)
+            : Math.max(0, Math.min(6, Math.floor((p - 0.04) / 0.15) + 1));
           if (step !== last) {
             last = step;
             if (build) {
@@ -623,7 +656,7 @@ export default function WdScroll() {
       {
         const el = q('.wd-closing');
         const disc = q('[data-disc]');
-        const aria = q('[data-aria]');
+        const preview = q('[data-close-preview]');
         const lines = qa('[data-close-line]');
         if (el && disc) {
           const at = isMobile ? '78% 70%' : '84% 62%';
@@ -650,9 +683,9 @@ export default function WdScroll() {
             },
           );
         }
-        if (el && aria) {
+        if (el && preview && !isMobile) {
           gsap.fromTo(
-            aria,
+            preview,
             { y: 70 },
             {
               y: -30,
@@ -669,7 +702,8 @@ export default function WdScroll() {
     const onRefresh = () => stages.forEach((s) => s.place(s.last));
     ScrollTrigger.addEventListener('refreshInit', onRefreshInit);
     ScrollTrigger.addEventListener('refresh', onRefresh);
-    const refresh = () => ScrollTrigger.refresh();
+    // Late fonts/layout events must not restore a cached scroll position mid-swipe.
+    const refresh = () => ScrollTrigger.refresh(true);
     window.addEventListener(VH_FROZEN_CHANGE, refresh);
     window.addEventListener('gift:route-styles-ready', refresh);
     window.addEventListener('gift:layout', refresh);
@@ -694,6 +728,7 @@ export default function WdScroll() {
       // Proxy stages write styles directly, outside GSAP's style snapshots.
       // Restore their readable end states before a live reduced-motion rebuild.
       stages.forEach(({ place }) => place(1));
+      q('.wd-included')?.removeAttribute('data-included-steps');
       qa('.wd-sec').forEach((section) => {
         section.style.removeProperty('--wd-in');
         section.style.removeProperty('--wd-out');

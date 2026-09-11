@@ -324,14 +324,14 @@
   position: absolute;
   left: var(--ao-pad);
   right: var(--ao-pad);
-  top: calc(50% + var(--header-h) * 0.5 - 4vh);
+  top: calc(50% + var(--header-h) * 0.5 - calc(var(--vh-frozen, 100vh) * 0.04));
   transform: translateY(-50%);
 }
 .ao-hero__title {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(64px, min(17vw, 28vh), 320px);
+  font-size: clamp(64px, min(17vw, calc(var(--vh-frozen, 100vh) * 0.28)), 320px);
   line-height: 0.86;
   letter-spacing: -0.03em;
   color: var(--ao-paper);
@@ -358,7 +358,7 @@
 .ao-hero__cta {
   position: absolute;
   left: var(--ao-pad);
-  bottom: clamp(56px, 12vh, 110px);
+  bottom: clamp(56px, calc(var(--vh-frozen, 100vh) * 0.12), 110px);
 }
 .ao-hero__cue {
   position: absolute;
@@ -428,11 +428,11 @@
 
 /* ── 2. Capabilities — the dial ──────────────────────────────────────── */
 .ao-caps {
-  padding-top: clamp(96px, 14vh, 180px);
+  padding-top: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 180px);
 }
 .ao-caps__stage {
   position: relative;
-  margin-top: clamp(40px, 6vh, 72px);
+  margin-top: clamp(40px, calc(var(--vh-frozen, 100vh) * 0.06), 72px);
   height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-caps-budget));
 }
 .ao-caps__frame {
@@ -441,7 +441,7 @@
   padding-top: var(--header-h);
 }
 .ao-dial {
-  --dial-r: clamp(240px, 40vh, 380px);
+  --dial-r: clamp(240px, calc(var(--vh-frozen, 100vh) * 0.4), 380px);
   --dial-step: 40deg; /* keep in sync with DIAL_STEP in AoScroll.tsx */
   --dial-a0: 0deg;
   --dial-dir: 1;
@@ -534,7 +534,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-content: center;
-  gap: clamp(18px, 3vh, 32px);
+  gap: clamp(18px, calc(var(--vh-frozen, 100vh) * 0.03), 32px);
   padding-inline: inherit;
   opacity: 0;
   visibility: hidden;
@@ -554,7 +554,7 @@
     visibility 0s linear 0.1s;
 }
 .ao-cap__lottie {
-  width: clamp(180px, 34vh, 360px);
+  width: clamp(180px, calc(var(--vh-frozen, 100vh) * 0.34), 360px);
   aspect-ratio: 1;
   overflow: hidden;
 }
@@ -629,7 +629,7 @@
 /* ── 3. Signs — the pile ─────────────────────────────────────────────── */
 .ao-pains {
   position: relative;
-  margin-top: clamp(40px, 8vh, 96px);
+  margin-top: clamp(40px, calc(var(--vh-frozen, 100vh) * 0.08), 96px);
 }
 .ao-pains__stage {
   position: relative;
@@ -657,7 +657,7 @@
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  padding: clamp(16px, 2.2vh, 24px) clamp(18px, 2.4vw, 30px);
+  padding: clamp(16px, calc(var(--vh-frozen, 100vh) * 0.022), 24px) clamp(18px, 2.4vw, 30px);
   border: 1px solid var(--ao-line-navy);
   background: rgba(11, 16, 32, 0.62);
   will-change: transform;
@@ -711,11 +711,11 @@
 
 /* ── 4. How we work — the flip board ─────────────────────────────────── */
 .ao-steps {
-  padding-top: clamp(96px, 14vh, 180px);
+  padding-top: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 180px);
 }
 .ao-steps__stage {
   position: relative;
-  margin-top: clamp(40px, 6vh, 72px);
+  margin-top: clamp(40px, calc(var(--vh-frozen, 100vh) * 0.06), 72px);
   height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-steps-budget));
 }
 .ao-steps__frame {
@@ -733,7 +733,7 @@
   --flip: 0;
   --flap-pad: clamp(22px, 3.4vw, 52px);
   position: relative;
-  height: min(62vh, 580px);
+  height: min(calc(var(--vh-frozen, 100vh) * 0.62), 580px);
   min-height: 380px;
   perspective: 1500px;
 }
@@ -894,11 +894,11 @@
 
 /* ── 5. Agents — the fill ────────────────────────────────────────────── */
 .ao-agents {
-  padding-top: clamp(96px, 14vh, 180px);
+  padding-top: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 180px);
 }
 .ao-agents__stage {
   position: relative;
-  margin-top: clamp(40px, 6vh, 72px);
+  margin-top: clamp(40px, calc(var(--vh-frozen, 100vh) * 0.06), 72px);
   height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * var(--ao-agents-budget));
 }
 .ao-agents__frame {
@@ -922,7 +922,7 @@
   position: relative;
   font-family: var(--font-body);
   font-weight: 800;
-  font-size: clamp(52px, 12.6vh, 128px);
+  font-size: clamp(52px, calc(var(--vh-frozen, 100vh) * 0.126), 128px);
   line-height: 1.08;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -1015,13 +1015,13 @@
 }
 
 .ao-conditions {
-  padding-top: clamp(80px, 12vh, 150px);
+  padding-top: clamp(80px, calc(var(--vh-frozen, 100vh) * 0.12), 150px);
 }
 .ao-conditions__head {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin: 0 0 clamp(32px, 5vh, 56px);
+  margin: 0 0 clamp(32px, calc(var(--vh-frozen, 100vh) * 0.05), 56px);
   font-weight: 500;
   font-size: clamp(14px, 1.2vw, 17px);
   letter-spacing: 0.1em;
@@ -1076,8 +1076,8 @@
   color: var(--ao-ink);
 }
 .ao-thinking {
-  margin-top: clamp(96px, 14vh, 180px);
-  padding: clamp(96px, 14vh, 170px) 0 clamp(96px, 13vh, 170px);
+  margin-top: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 180px);
+  padding: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 170px) 0 clamp(96px, calc(var(--vh-frozen, 100vh) * 0.13), 170px);
   overflow: clip;
 }
 .ao-thinking__h {
@@ -1101,7 +1101,7 @@
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: clamp(28px, 4vw, 64px);
-  padding-top: clamp(44px, 7vh, 88px);
+  padding-top: clamp(44px, calc(var(--vh-frozen, 100vh) * 0.07), 88px);
 }
 .ao-thinking__label {
   margin: 0;
@@ -1146,7 +1146,7 @@
   display: grid;
   align-items: center;
   min-height: calc(var(--svh-frozen, 100svh) * 0.9);
-  padding: clamp(96px, 14vh, 180px) 0;
+  padding: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 180px) 0;
 }
 .ao-cta__inner {
   width: 100%;
@@ -1163,7 +1163,7 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(56px, min(11vw, 20vh), 176px);
+  font-size: clamp(56px, min(11vw, calc(var(--vh-frozen, 100vh) * 0.2)), 176px);
   line-height: 0.95;
   letter-spacing: -0.03em;
   color: var(--ao-paper);
@@ -1174,7 +1174,7 @@
   color: var(--ao-blue-light);
 }
 .ao-cta__ja {
-  margin: clamp(22px, 3.5vh, 36px) 0 clamp(28px, 4.5vh, 44px);
+  margin: clamp(22px, calc(var(--vh-frozen, 100vh) * 0.035), 36px) 0 clamp(28px, calc(var(--vh-frozen, 100vh) * 0.045), 44px);
   font-weight: 500;
   font-size: clamp(16px, 1.5vw, 22px);
   line-height: 1.7;
@@ -1185,13 +1185,13 @@
 /* ── Phone ───────────────────────────────────────────────────────────── */
 @media (max-width: 899px) {
   .ao-hero__block {
-    top: calc(50% + var(--header-h) * 0.5 - 6vh);
+    top: calc(50% + var(--header-h) * 0.5 - calc(var(--vh-frozen, 100vh) * 0.06));
   }
   .ao-hero__title {
-    font-size: clamp(64px, min(23vw, 24vh), 160px);
+    font-size: clamp(64px, min(23vw, calc(var(--vh-frozen, 100vh) * 0.24)), 160px);
   }
   .ao-hero__cta {
-    bottom: clamp(88px, 14vh, 130px);
+    bottom: clamp(88px, calc(var(--vh-frozen, 100vh) * 0.14), 130px);
   }
   .ao-stanza {
     font-size: clamp(20px, 5.6vw, 26px);
@@ -1235,7 +1235,7 @@
     justify-items: center;
     text-align: center;
     padding-top: 0;
-    padding-bottom: 6vh;
+    padding-bottom: calc(var(--vh-frozen, 100vh) * 0.06);
     gap: 14px;
   }
   .ao-cap__body {
@@ -1245,7 +1245,7 @@
     justify-content: center;
   }
   .ao-cap__lottie {
-    width: clamp(120px, 26vh, 180px);
+    width: clamp(120px, calc(var(--vh-frozen, 100vh) * 0.26), 180px);
   }
   .ao-cap__title {
     font-size: clamp(26px, 7vw, 34px);
@@ -1273,7 +1273,7 @@
   }
 
   .ao-flap {
-    height: min(66vh, 560px);
+    height: min(calc(var(--vh-frozen, 100vh) * 0.66), 560px);
   }
   .ao-face__title {
     font-size: clamp(52px, 17vw, 96px);

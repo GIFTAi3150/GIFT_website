@@ -138,7 +138,7 @@
 .co-scene__stick {
   position: sticky;
   top: 0;
-  height: 100dvh;           /* fill — dvh, never svh */
+  height: var(--svh-frozen, 100svh); /* stable visible viewport */
   overflow: hidden;
   z-index: 0;
 }
@@ -184,12 +184,12 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: clamp(270px, 39dvh, 400px);
+  top: clamp(270px, calc(var(--svh-frozen, 100svh) * 0.39), 400px);
   width: max-content;
   margin-inline: auto;
   font-family: var(--font-poppins), sans-serif;
   font-weight: 700;
-  font-size: clamp(130px, min(15vw, 23dvh), 220px);
+  font-size: clamp(130px, min(15vw, calc(var(--svh-frozen, 100svh) * 0.23)), 220px);
   line-height: 0.82;
   letter-spacing: -0.045em;
   color: rgba(255, 255, 255, 0.94);
@@ -225,7 +225,7 @@
   .co-hero__wordmark {
     left: var(--hero-pad, 16px);
     right: auto;
-    top: clamp(230px, 38dvh, 330px);
+    top: clamp(230px, calc(var(--svh-frozen, 100svh) * 0.38), 330px);
     margin-inline: 0;
     font-size: clamp(94px, 29vw, 122px);
   }
@@ -235,7 +235,7 @@
 .co-hero__title {
   position: absolute;
   left: var(--hero-pad, 16px);
-  bottom: clamp(56px, 11dvh, 112px);
+  bottom: clamp(56px, calc(var(--svh-frozen, 100svh) * 0.11), 112px);
   margin: 0;
   max-width: min(16.5em, 100% - 32px); /* 15 JP chars on one line; 22ch forced 「贈る。」onto its own line */
   font-family: var(--font-noto-jp), sans-serif;
@@ -249,7 +249,7 @@
 .co-hero__sub {
   position: absolute;
   left: var(--hero-pad, 16px);
-  bottom: clamp(30px, 6dvh, 64px);
+  bottom: clamp(30px, calc(var(--svh-frozen, 100svh) * 0.06), 64px);
   margin: 0;
   font-family: var(--font-poppins), sans-serif;
   font-weight: 700;
@@ -261,10 +261,10 @@
 .co-hero__cue {
   position: absolute;
   left: 50%;
-  bottom: clamp(20px, 4dvh, 40px);
+  bottom: clamp(20px, calc(var(--svh-frozen, 100svh) * 0.04), 40px);
   transform: translateX(-50%);
   width: 1px;
-  height: min(88px, 9dvh);
+  height: min(88px, calc(var(--svh-frozen, 100svh) * 0.09));
   overflow: hidden;
 }
 .co-hero__cue span {
@@ -285,7 +285,7 @@
 .co-mission {
   position: relative;
   z-index: 1;
-  padding: clamp(96px, 14vh, 160px) 0 clamp(120px, 18vh, 200px);
+  padding: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 160px) 0 clamp(120px, calc(var(--vh-frozen, 100vh) * 0.18), 200px);
   background: linear-gradient(180deg, rgba(11, 16, 32, 0) 0%, rgba(11, 16, 32, 0.45) 18%, rgba(11, 16, 32, 0.72) 100%);
 }
 .co-mission__grid {
@@ -354,7 +354,7 @@
 .co-vision__stick {
   position: sticky;
   top: 0;
-  height: 100dvh;
+  height: var(--svh-frozen, 100svh);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -389,7 +389,7 @@
   display: block;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 800;
-  font-size: clamp(24px, min(6.2vw, 9.5vh), 78px);  /* vh-bounded: see giant-text-crop memory; 24px min so 13 chars fit 390px */
+  font-size: clamp(24px, min(6.2vw, calc(var(--vh-frozen, 100vh) * 0.095)), 78px);  /* vh-bounded: see giant-text-crop memory; 24px min so 13 chars fit 390px */
   line-height: 1.28;
   letter-spacing: -0.01em;
   color: var(--c-ink);
@@ -400,7 +400,7 @@
 }
 .co-vision__line--accent { color: var(--c-blue); }
 .co-vision__rule {
-  margin-top: clamp(24px, 4vh, 44px);
+  margin-top: clamp(24px, calc(var(--vh-frozen, 100vh) * 0.04), 44px);
   width: 72px;
   height: 1px;
   background: var(--c-blue);
@@ -431,7 +431,7 @@
   position: relative;
   overflow: clip;   /* NOT hidden: hidden makes this the scroll container and kills sticky children */
   background: linear-gradient(180deg, rgba(11, 16, 32, 0.78) 0%, rgba(5, 12, 26, 0.88) 100%);
-  padding: clamp(96px, 14vh, 160px) 0;
+  padding: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 160px) 0;
 }
 .co-why__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; }
 @media (min-width: 1024px) {
@@ -452,7 +452,7 @@
     grid-row: 1;
     position: sticky;
     top: calc(var(--header-h) + 32px);
-    height: min(72vh, 640px);
+    height: min(calc(var(--vh-frozen, 100vh) * 0.72), 640px);
   }
 }
 /* NB: no `position` here — the desktop block above sets `position: sticky`; a base
@@ -482,7 +482,7 @@
 .co-why__block {
   display: grid;
   place-items: center;
-  height: clamp(50px, 8vh, 84px);
+  height: clamp(50px, calc(var(--vh-frozen, 100vh) * 0.08), 84px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.045);
   font-family: var(--font-noto-jp), sans-serif;
@@ -509,7 +509,7 @@
 }
 .co-why__ground .co-mono { letter-spacing: 0.1em; }
 .co-why__argument { display: flex; flex-direction: column; }
-.co-why__head { margin-bottom: clamp(40px, 6vh, 64px); }
+.co-why__head { margin-bottom: clamp(40px, calc(var(--vh-frozen, 100vh) * 0.06), 64px); }
 .co-why__st { margin: 0; }
 .co-why__lead {
   font-family: var(--font-noto-jp), sans-serif;
@@ -548,7 +548,7 @@
    by ONE number, --vs (0..3), written by CompanyScroll; the transforms live here. */
 .co-values { position: relative; background: rgba(240, 247, 255, 0.84); color: var(--c-ink); }
 .co-values__spacer { height: calc(var(--vh-frozen) * 3.8); }   /* 4 states: 3 holds + 3 pushes + tail */
-.co-values__stick { position: sticky; top: 0; height: 100dvh; overflow: clip; }
+.co-values__stick { container-type: size; container-name: company-values; position: sticky; top: 0; height: var(--svh-frozen, 100svh); overflow: clip; }
 .co-values__inner {
   --vs: 0;
   position: relative;
@@ -574,7 +574,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 6vh;
+  padding-bottom: calc(var(--vh-frozen, 100vh) * 0.06);
 }
 .co-values__kanji {
   position: absolute;
@@ -601,7 +601,7 @@
   /* counter-motion: the text pushes UP, the glyph pushes DOWN, one full viewport
      per state so exactly one kanji is ever on screen (a sideways exit left ghosts
      lingering behind the next title). */
-  transform: translateY(calc((var(--vs) - var(--i)) * 110dvh));
+  transform: translateY(calc((var(--vs) - var(--i)) * calc(var(--svh-frozen, 100svh) * 1.1)));
   will-change: transform;
 }
 @media (max-width: 767px) {
@@ -611,20 +611,22 @@
     right: auto;
     left: 50%;
     top: 44%;
-    width: min(46vw, 29vh);
-    height: min(46vw, 29vh);
+    width: min(46vw, calc(var(--vh-frozen, 100vh) * 0.29));
+    height: min(46vw, calc(var(--vh-frozen, 100vh) * 0.29));
     transform: translate(-50%, -46%);
   }
-  .co-values__kanji span { font-size: min(46vw, 29vh); }
+  .co-values__kanji span { font-size: min(46vw, calc(var(--vh-frozen, 100vh) * 0.29)); }
   .co-values__machine {
     justify-content: flex-end;
     padding-bottom: 12px;
   }
 }
-@media (max-width: 767px) and (max-height: 600px) {
-  .co-values__kanji { top: 47%; width: min(24vw, 18vh); height: min(24vw, 18vh); }
-  .co-values__kanji span { font-size: min(24vw, 18vh); }
+@media (max-width: 767px) {
+@container company-values (max-height: 600px) {
+  .co-values__kanji { top: 47%; width: min(24vw, calc(var(--vh-frozen, 100vh) * 0.18)); height: min(24vw, calc(var(--vh-frozen, 100vh) * 0.18)); }
+  .co-values__kanji span { font-size: min(24vw, calc(var(--vh-frozen, 100vh) * 0.18)); }
   .co-values__machine { padding-bottom: 0; }
+}
 }
 .co-values__mask { overflow: hidden; }
 .co-values__stack { display: grid; margin: 0; padding: 0; list-style: none; }
@@ -632,7 +634,7 @@
   grid-area: 1 / 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 2vh, 22px);
+  gap: clamp(12px, calc(var(--vh-frozen, 100vh) * 0.02), 22px);
   transform: translateY(calc((var(--i) - var(--vs)) * 100%));
   will-change: transform;
 }
@@ -641,7 +643,7 @@
   margin: 0;
   font-family: var(--font-noto-jp), sans-serif;
   font-weight: 800;
-  font-size: clamp(34px, min(6vw, 9vh), 84px);
+  font-size: clamp(34px, min(6vw, calc(var(--vh-frozen, 100vh) * 0.09)), 84px);
   line-height: 1.2;
   letter-spacing: -0.01em;
   color: var(--c-ink);
@@ -664,7 +666,7 @@
   gap: 0.55em;
   font-family: var(--font-shippori), var(--font-noto-jp), sans-serif;
   font-weight: 400;
-  font-size: clamp(21px, min(3vw, 4.5vh), 40px);
+  font-size: clamp(21px, min(3vw, calc(var(--vh-frozen, 100vh) * 0.045)), 40px);
   line-height: 1.55;
   letter-spacing: 0.02em;
   color: var(--c-ink);
@@ -693,7 +695,7 @@
    liquid field continues beneath the section. */
 .co-info {
   position: relative;
-  padding: clamp(96px, 14vh, 160px) 0;
+  padding: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 160px) 0;
   background:
     radial-gradient(ellipse 72% 50% at 78% 20%, rgba(54, 59, 158, 0.18) 0%, transparent 72%),
     radial-gradient(ellipse 80% 34% at 6% 60%, rgba(37, 99, 235, 0.07) 0%, transparent 70%),
@@ -806,7 +808,7 @@
   position: relative;
   overflow: hidden;
   background: rgba(11, 16, 32, 0.86);
-  padding: clamp(96px, 16vh, 180px) 0 clamp(80px, 12vh, 140px);
+  padding: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.16), 180px) 0 clamp(80px, calc(var(--vh-frozen, 100vh) * 0.12), 140px);
   text-align: center;
 }
 .co-cta__meta {
@@ -820,7 +822,7 @@
 .co-cta__word {
   display: block;
   font-family: var(--font-anton), Impact, sans-serif;
-  font-size: clamp(64px, min(17vw, 22vh), 280px);
+  font-size: clamp(64px, min(17vw, calc(var(--vh-frozen, 100vh) * 0.22)), 280px);
   line-height: 0.95;
   letter-spacing: -0.01em;
   color: var(--c-peri);
@@ -850,8 +852,8 @@
   .co-rail__fill { transform: scaleY(1); }
   /* Values: unpin and list the four states in flow */
   .co-values__spacer { height: auto; }
-  .co-values__stick { position: static; height: auto; overflow: visible; }
-  .co-values__inner { height: auto; padding-top: clamp(96px, 14vh, 160px); padding-bottom: clamp(96px, 14vh, 160px); }
+  .co-values__stick { container-type: normal; position: static; height: auto; overflow: visible; }
+  .co-values__inner { height: auto; padding-top: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 160px); padding-bottom: clamp(96px, calc(var(--vh-frozen, 100vh) * 0.14), 160px); }
   .co-values__machine { padding-bottom: 0; margin-top: 48px; }
   .co-values__kanji { display: none; }
   .co-values__mask { overflow: visible; }

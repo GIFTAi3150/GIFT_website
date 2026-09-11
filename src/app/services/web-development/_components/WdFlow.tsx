@@ -1,20 +1,5 @@
-import Link from 'next/link';
-import { CONTACT, FLOW } from './wdContent';
+import { FLOW } from './wdContent';
 import WdHead from './WdHead';
-
-function Arrow() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M6 18 18 6M6 6h12v12"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 /**
  * Flow — the route. A path is drawn through the four steps; a dot travels it
@@ -27,9 +12,6 @@ export default function WdFlow() {
       <div className="wd-container wd-flow__inner">
         <div className="wd-flow__side">
           <WdHead label={FLOW.eyebrow} title={FLOW.title} lead={FLOW.lead} />
-          <Link className="wd-textlink" href={CONTACT}>
-            {FLOW.link} <Arrow />
-          </Link>
         </div>
         <div className="wd-route" data-route>
           <svg className="wd-route__svg" data-route-svg aria-hidden>

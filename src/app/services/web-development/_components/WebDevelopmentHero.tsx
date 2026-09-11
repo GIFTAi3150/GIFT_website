@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useId, useLayoutEffect, useRef } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import styles from './WebDevelopmentHero.module.css';
 import ModernEarth from './ModernEarth';
 import ModernStars from './ModernStars';
+import { getHeroScrollDistance } from './heroScrollGeometry';
 
 function RetroPromos() {
   return (
@@ -254,11 +255,44 @@ export default function WebDevelopmentHero() {
     return () => scrollers.forEach((element) => element.removeEventListener('scroll', syncScroll));
   }, []);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finish = () => root.setAttribute('data-hero-entered', '');
+    const onScroll = () => {
+      if (window.scrollY > 4) finish();
+    };
+    const onEnd = (event: AnimationEvent) => {
+      if ((event.target as HTMLElement).hasAttribute('data-hero-entrance-timeline')) finish();
+    };
+
+    // Entrance transforms never change the frozen geometry or scroll progress.
+    // Hand control back immediately when the visitor starts interacting.
+    if (motion.matches || window.scrollY > 4) finish();
+    root.addEventListener('animationend', onEnd);
+    root.addEventListener('pointerdown', finish, { passive: true });
+    root.addEventListener('wheel', finish, { passive: true });
+    root.addEventListener('focusin', finish);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    motion.addEventListener('change', finish);
+    const fallback = window.setTimeout(finish, 1400);
+    return () => {
+      window.clearTimeout(fallback);
+      root.removeEventListener('animationend', onEnd);
+      root.removeEventListener('pointerdown', finish);
+      root.removeEventListener('wheel', finish);
+      root.removeEventListener('focusin', finish);
+      window.removeEventListener('scroll', onScroll);
+      motion.removeEventListener('change', finish);
+    };
+  }, []);
+
   const advance = () => {
     const root = rootRef.current;
     if (!root) return;
     const start = window.scrollY + root.getBoundingClientRect().top;
-    const distance = root.offsetHeight - window.innerHeight;
+    const distance = getHeroScrollDistance(root);
     const modern = root.dataset.era === 'modern';
     if (!modern) {
       root.querySelectorAll<HTMLElement>('[data-wd-browser-page]').forEach((page) => {
@@ -266,7 +300,8 @@ export default function WebDevelopmentHero() {
       });
     }
     window.scrollTo({
-      top: modern ? start + root.offsetHeight : start + distance * 0.86,
+      // Land inside the modern resting beat, beyond subpixel scroll rounding.
+      top: modern ? start + root.offsetHeight : start + distance * 0.9,
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'instant'
         : 'smooth',
@@ -304,7 +339,7 @@ export default function WebDevelopmentHero() {
           </svg>
         </div>
 
-        <div className={styles.timeline}>
+        <div className={styles.timeline} data-hero-entrance-timeline>
           <div className={styles.eraTrack} aria-hidden="true">
             <span>1994</span>
             <span className={styles.track}>

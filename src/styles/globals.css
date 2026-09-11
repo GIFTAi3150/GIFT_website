@@ -361,7 +361,7 @@ body.page-ready .fade-up-word {
   border: 1.5px solid #CDD0D5;
   border-radius: 10px;
   font-family: var(--font-noto-jp), sans-serif;
-  font-size: 15px;
+  font-size: 16px; /* Avoid focus zoom in iPhone browsers. */
   color: #111B21;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;

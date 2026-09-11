@@ -28,16 +28,21 @@ export default function WdIncluded() {
       className="wd-sec wd-sec--paper wd-included"
       data-stage
       style={{ '--budget': 3.4 } as CSSProperties}
-      aria-labelledby="wd-included-title"
+      aria-label={INCLUDED.title.join('')}
     >
       <div className="wd-frame">
         <div className="wd-container wd-included__inner">
           <div className="wd-included__side">
             <WdHead label={INCLUDED.eyebrow} title={INCLUDED.title} />
             <ol className="wd-included__index" data-build-index>
-              {INCLUDED.items.map((item) => (
+              {INCLUDED.items.map((item, index) => (
                 <li className="wd-inc" data-inc key={item.key}>
-                  <span className="wd-mono wd-inc__label">{item.label}</span>
+                  <span className="wd-mono wd-inc__label">
+                    {item.label}
+                    <span className="wd-inc__count" aria-hidden="true">
+                      {String(index + 1).padStart(2, '0')} / 06
+                    </span>
+                  </span>
                   <h3 className="wd-inc__title">{item.title}</h3>
                   <div className="wd-inc__body">
                     <p>{item.text}</p>
@@ -93,7 +98,10 @@ export default function WdIncluded() {
                 </span>
                 <span className="wd-build__tools">
                   <svg viewBox="0 0 16 16" width="15" height="15">
-                    <path d="M8 10.2V2.8M5.6 5.2 8 2.8l2.4 2.4M4.6 7.2H3.2v6.2h9.6V7.2h-1.4" {...STROKE} />
+                    <path
+                      d="M8 10.2V2.8M5.6 5.2 8 2.8l2.4 2.4M4.6 7.2H3.2v6.2h9.6V7.2h-1.4"
+                      {...STROKE}
+                    />
                   </svg>
                   <svg viewBox="0 0 16 16" width="15" height="15">
                     <path d="M8 3.4v9.2M3.4 8h9.2" {...STROKE} />
