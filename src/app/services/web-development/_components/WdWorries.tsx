@@ -13,7 +13,7 @@ export default function WdWorries() {
       id="problem"
       className="wd-sec wd-sec--navy wd-worries"
       data-stage
-      style={{ '--budget': 2.2 } as CSSProperties}
+      style={{ '--budget': 4.4 } as CSSProperties}
     >
       <div className="wd-frame">
         <div className="wd-container wd-worries__inner">

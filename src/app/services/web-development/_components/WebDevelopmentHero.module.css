@@ -1,6 +1,7 @@
 /* One browser, two eras. WdScroll owns the reversible --era-progress.
    The first era paints before hydration; reduced motion shows the modern page. */
 .hero {
+  --wd-rest: 1.25;
   --evolution: 1;
   --scene-height: calc(var(--svh-frozen, 100svh) - 80px);
   position: relative;
@@ -14,7 +15,10 @@
 }
 /* Reserve the scroll budget before hydration to avoid scroll anchoring jumps. */
 .hero {
-  height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * 1.4);
+  height: calc(
+    var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) *
+      (1.4 * var(--wd-motion-scale) + var(--wd-rest))
+  );
 }
 .hero .stage {
   position: sticky;
@@ -549,16 +553,8 @@
     monospace;
   flex-shrink: 0;
 }
-.hero .retroStatus,
-.hero .visitor {
+.hero .retroStatus {
   opacity: calc(1 - var(--evolution));
-}
-.hero .visitor b {
-  margin-left: 8px;
-  padding: 2px 5px;
-  color: #50fc73;
-  background: #111;
-  font-weight: normal;
 }
 .hero .modernStatus {
   position: absolute;
@@ -602,32 +598,84 @@
   color: #e9eeff9e;
   font-size: 10px;
 }
-.hero .scrollButton {
+/* An instruction, not a control: no button surface, hover state or click target. */
+.hero .scrollCue {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding-block: 8px;
-  font: inherit;
-  letter-spacing: 0.08em;
+  gap: 16px;
+  flex-shrink: 0;
+  margin: 0;
+  padding-block: 12px;
+  color: #eef3ff;
+  font-family: var(--font-body);
+  text-align: left;
+  letter-spacing: 0;
+  cursor: default;
 }
-.hero .scrollButton > span:last-child {
+.hero .scrollCueText {
+  /* Reserve both wordings' space while a single text layer changes at midpoint. */
+  --cue-style: var(--cue-progress, var(--era-progress));
+  display: block;
+  width: 9em;
   font-size: 18px;
+  font-family: var(--font-body);
+  opacity: var(--cue-opacity, 1);
+  transform: translate3d(0, var(--cue-offset, 0px), 0);
+  text-shadow: calc(1px * (1 - var(--cue-style))) calc(1px * (1 - var(--cue-style))) 0
+    rgb(0 0 128 / calc(1 - var(--cue-style)));
 }
-.hero .scrollButton:focus-visible {
-  outline: 2px solid #d2fc82;
-  outline-offset: 3px;
+.hero .scrollCueText[data-cue-era='retro'] {
+  font-family: 'MS Gothic', 'Osaka-Mono', var(--wd-mono-face);
 }
-.hero .scrollButton:hover {
-  color: #d2fc82;
+.hero .scrollCue strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: calc(0.04em * (1 - var(--cue-style)));
+  line-height: 1.5;
+  white-space: nowrap;
 }
-.hero .upgradeText {
-  display: none;
+.hero .scrollCue small {
+  display: block;
+  margin-top: 3px;
+  color: rgb(
+    calc(233 - 69 * var(--cue-style)) calc(238 - 54 * var(--cue-style))
+      calc(255 - 38 * var(--cue-style))
+  );
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: nowrap;
 }
-.hero[data-era='retro'] .upgradeText {
-  display: inline;
+.hero .scrollArrow {
+  --cue-style: var(--cue-progress, var(--era-progress));
+  color: rgb(
+    calc(255 - 91 * var(--cue-style)) calc(223 - 39 * var(--cue-style))
+      calc(102 + 115 * var(--cue-style))
+  );
+  font-family: 'Courier New', monospace;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
 }
-.hero[data-era='retro'] .exploreText {
-  display: none;
+@keyframes scrollInvitation {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(5px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero .scrollArrow {
+    animation: scrollInvitation 2.4s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+  .hero[data-hero-cue-idle] .scrollArrow {
+    animation-play-state: running;
+  }
 }
 
 /* The same offer and links adopt the typography and bevels of an early homepage. */
@@ -716,7 +764,10 @@
 }
 @media (max-width: 699px) {
   .hero {
-    height: calc(var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) * 1.1);
+    height: calc(
+      var(--svh-frozen, 100svh) + var(--vh-frozen, 100vh) *
+        (1.1 * var(--wd-motion-scale) + var(--wd-rest))
+    );
   }
   .hero .stage {
     padding: 10px 12px 0;
@@ -866,7 +917,7 @@
   .hero .track {
     width: 55px;
   }
-  .hero .scrollButton {
+  .hero .scrollCue {
     gap: 10px;
   }
 }
@@ -1195,7 +1246,7 @@
   .hero .track {
     width: 42px;
   }
-  .hero .scrollButton {
+  .hero .scrollCue {
     min-height: 44px;
     letter-spacing: 0;
   }
@@ -2146,7 +2197,7 @@
     min-height: 16px;
   }
   .hero .timeline,
-  .hero .scrollButton {
+  .hero .scrollCue {
     min-height: 44px;
   }
 }
@@ -2289,17 +2340,96 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .hero:not([data-hero-entered]) .browserViewport {
-    animation: browserEntrance 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: browserEntrance 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .hero:not([data-hero-entered]) .timeline {
-    animation: timelineEntrance 600ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+    animation: timelineEntrance 850ms cubic-bezier(0.22, 1, 0.36, 1) 400ms both;
   }
 }
 
 /* Keep the complete mobile scene on one stable composited layer while its
    pixel mask changes. No scroll-driven translation is applied to this layer. */
 @media (max-width: 899px) {
+  .hero .scrollCue {
+    gap: 10px;
+    padding: 10px 0;
+  }
+  .hero .scrollCue strong {
+    font-size: 15px;
+  }
+  .hero .scrollCueText {
+    font-size: 15px;
+  }
+  .hero .scrollCue small {
+    font-size: 10px;
+  }
+  .hero .scrollArrow {
+    font-size: 24px;
+  }
+  .hero .eraTrack {
+    gap: 6px;
+  }
+  .hero .track {
+    width: 32px;
+  }
   .hero .stage {
     transform: translateZ(0);
+  }
+}
+
+/* Service details need a quiet surface and readable type in both browser eras. */
+.serviceText {
+  min-width: 0;
+}
+.serviceText > span {
+  white-space: nowrap;
+}
+.hero .browser[data-browser-era] .services li {
+  font-family: var(--font-body), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+  gap: 8px;
+}
+.hero .browser[data-browser-era='retro'] .services {
+  padding: 10px 12px;
+  border: 1px solid #b8bbca;
+  background: #fffef7;
+  gap: 6px;
+}
+.hero .browser[data-browser-era='retro'] .services li {
+  color: #18213b;
+}
+.hero .browser[data-browser-era] .services li > span {
+  margin-top: 3px;
+}
+@media (max-width: 899px) {
+  .hero .browser[data-browser-era] .services li {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .hero .browser[data-browser-era='retro'] .services {
+    padding: 8px;
+    gap: 5px;
+  }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  @container wd-hero (max-height: 420px) {
+    .hero .browser[data-browser-era] .services li {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .hero .browser[data-browser-era='retro'] .services {
+      padding: 6px;
+      gap: 3px;
+    }
+  }
+}
+@media (max-width: 599px) {
+  @container wd-hero (max-height: 520px) {
+    /* Preserve space for the complete offer on short phones. */
+    .hero .browser[data-browser-era='retro'] .visual {
+      display: none;
+    }
   }
 }

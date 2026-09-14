@@ -86,11 +86,22 @@ try {
     );
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /SCROLL TO UPGRADE/ }).click();
+    assert.equal(await page.locator('[data-hero-scroll-cue]').getAttribute('role'), null);
+    await page.locator('[data-time-travel]').evaluate((hero) => {
+      const css = getComputedStyle(document.documentElement);
+      const distance =
+        hero.offsetHeight -
+        parseFloat(css.getPropertyValue('--svh-frozen')) -
+        parseFloat(css.getPropertyValue('--vh-frozen')) *
+          parseFloat(getComputedStyle(hero).getPropertyValue('--wd-rest'));
+      window.scrollTo({ top: distance * 0.95, behavior: 'instant' });
+    });
     await page.waitForFunction(
       () => document.querySelector('[data-time-travel]').dataset.era === 'modern',
     );
-    await page.getByRole('button', { name: /KEEP EXPLORING/ }).click();
+    await page
+      .locator('[data-time-travel]')
+      .evaluate((hero) => window.scrollTo({ top: hero.offsetHeight, behavior: 'instant' }));
     await page.waitForFunction(() => {
       const hero = document.querySelector('[data-time-travel]');
       return hero.getBoundingClientRect().bottom <= 1;
@@ -104,7 +115,7 @@ try {
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       'rotation caused horizontal overflow',
     );
-    console.log('Downward scrolling, intentional reverse, hero buttons, and rotation passed.');
+    console.log('Downward scrolling, intentional reverse, full reveal, and rotation passed.');
     await page.close();
   }
 } finally {

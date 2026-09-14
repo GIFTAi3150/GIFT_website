@@ -5,7 +5,6 @@ import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import styles from './WebDevelopmentHero.module.css';
 import ModernEarth from './ModernEarth';
 import ModernStars from './ModernStars';
-import { getHeroScrollDistance } from './heroScrollGeometry';
 
 function RetroPromos() {
   return (
@@ -101,7 +100,6 @@ function BrowserWindow({ era }: { era: 'retro' | 'modern' }) {
 
       <div
         className={styles.page}
-        data-lenis-prevent
         data-wd-browser-page
         tabIndex={0}
         role="region"
@@ -149,11 +147,15 @@ function BrowserWindow({ era }: { era: 'retro' | 'modern' }) {
             <ul className={styles.services} aria-label="月額料金に含まれる内容">
               <li>
                 <span aria-hidden="true">✓</span>
-                御社専用デザイン（テンプレ不使用）で最大10ページ
+                <div className={styles.serviceText}>
+                  御社専用デザイン（テンプレ不使用）で<span>最大10ページ</span>
+                </div>
               </li>
               <li>
                 <span aria-hidden="true">✓</span>
-                サーバー・ドメイン・SSLの管理費込み
+                <div className={styles.serviceText}>
+                  サーバー・ドメイン・SSLの<span>管理費込み</span>
+                </div>
               </li>
               <li>
                 <span aria-hidden="true">✓</span>
@@ -214,9 +216,6 @@ function BrowserWindow({ era }: { era: 'retro' | 'modern' }) {
 
       <div className={styles.statusbar} aria-hidden="true">
         <span className={styles.retroStatus}>Document: Done</span>
-        <span className={styles.visitor}>
-          You are visitor <b>0 0 0 1 9 9 4</b>
-        </span>
         <span className={styles.modernStatus}>Made for you. Built for what’s next.</span>
       </div>
     </div>
@@ -276,7 +275,7 @@ export default function WebDevelopmentHero() {
     root.addEventListener('focusin', finish);
     window.addEventListener('scroll', onScroll, { passive: true });
     motion.addEventListener('change', finish);
-    const fallback = window.setTimeout(finish, 1400);
+    const fallback = window.setTimeout(finish, 1900);
     return () => {
       window.clearTimeout(fallback);
       root.removeEventListener('animationend', onEnd);
@@ -287,26 +286,6 @@ export default function WebDevelopmentHero() {
       motion.removeEventListener('change', finish);
     };
   }, []);
-
-  const advance = () => {
-    const root = rootRef.current;
-    if (!root) return;
-    const start = window.scrollY + root.getBoundingClientRect().top;
-    const distance = getHeroScrollDistance(root);
-    const modern = root.dataset.era === 'modern';
-    if (!modern) {
-      root.querySelectorAll<HTMLElement>('[data-wd-browser-page]').forEach((page) => {
-        page.scrollTo({ top: 0, behavior: 'instant' });
-      });
-    }
-    window.scrollTo({
-      // Land inside the modern resting beat, beyond subpixel scroll rounding.
-      top: modern ? start + root.offsetHeight : start + distance * 0.9,
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'instant'
-        : 'smooth',
-    });
-  };
 
   return (
     <section
@@ -348,11 +327,15 @@ export default function WebDevelopmentHero() {
             <span>TODAY</span>
           </div>
           <p className={styles.timelineNote}>時代が変わる。Webも、変わる。</p>
-          <button type="button" className={styles.scrollButton} onClick={advance}>
-            <span className={styles.upgradeText}>SCROLL TO UPGRADE</span>
-            <span className={styles.exploreText}>KEEP EXPLORING</span>
-            <span aria-hidden="true">↓</span>
-          </button>
+          <p className={styles.scrollCue} data-hero-scroll-cue>
+            <span className={styles.scrollCueText} data-hero-cue-text data-cue-era="retro">
+              <strong>下にスクロール</strong>
+              <small>スクロールで新しいサイトへ</small>
+            </span>
+            <span className={styles.scrollArrow} aria-hidden="true">
+              ↓
+            </span>
+          </p>
         </div>
       </div>
     </section>

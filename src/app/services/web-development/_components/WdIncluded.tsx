@@ -17,9 +17,9 @@ const STROKE = {
  * All included — the build. A browser frame assembles beside the six-item
  * index as the reader scrolls: the design block lands, ten page sheets fan in,
  * the 0 stamps on, the address turns https, the news row flips, and finally
- * the frame narrows into a phone. WdScroll writes `data-step` (0–5) on
- * [data-build] and `.is-on` on the matching index row; CSS transitions do the
- * rest, so scrolling back reverses every step.
+ * the frame narrows into a phone. WdScroll writes `data-step` (1–6) on
+ * [data-build] and `.is-on` on the matching index row. Each feature has a
+ * gradual reveal and its own reading interval; scrolling back reverses it.
  */
 export default function WdIncluded() {
   return (
@@ -27,7 +27,7 @@ export default function WdIncluded() {
       id="included"
       className="wd-sec wd-sec--paper wd-included"
       data-stage
-      style={{ '--budget': 3.4 } as CSSProperties}
+      style={{ '--budget': 6.4 } as CSSProperties}
       aria-label={INCLUDED.title.join('')}
     >
       <div className="wd-frame">
@@ -35,14 +35,9 @@ export default function WdIncluded() {
           <div className="wd-included__side">
             <WdHead label={INCLUDED.eyebrow} title={INCLUDED.title} />
             <ol className="wd-included__index" data-build-index>
-              {INCLUDED.items.map((item, index) => (
+              {INCLUDED.items.map((item) => (
                 <li className="wd-inc" data-inc key={item.key}>
-                  <span className="wd-mono wd-inc__label">
-                    {item.label}
-                    <span className="wd-inc__count" aria-hidden="true">
-                      {String(index + 1).padStart(2, '0')} / 06
-                    </span>
-                  </span>
+                  <span className="wd-mono wd-inc__label">{item.label}</span>
                   <h3 className="wd-inc__title">{item.title}</h3>
                   <div className="wd-inc__body">
                     <p>{item.text}</p>
