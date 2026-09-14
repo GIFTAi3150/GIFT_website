@@ -62,6 +62,10 @@ try {
         frozen: parseFloat(document.documentElement.style.getPropertyValue('--svh-frozen')),
         badMeasurements: window.__resizeSamples.filter((sample) => parseFloat(sample.frozen) <= 1),
       }));
+      if (result.scale !== 1) {
+        const samples = await page.evaluate(() => window.__resizeSamples);
+        console.error(JSON.stringify({ route, result, samples }));
+      }
       assert.equal(result.scale, 1, `${route}: DevTools unexpectedly zoomed the page`);
       assert.ok(Math.abs(result.visualWidth - result.width) <= 1, 'Visual and layout widths differ');
       assert.equal(result.overflow, false, 'Document overflows horizontally');

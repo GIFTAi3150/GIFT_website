@@ -18,7 +18,7 @@ const footerServices = [
   { href: '/plans', label: 'ナレッジハーネス' },
 ];
 
-export default function Footer({ creditsHref }: { creditsHref?: string } = {}) {
+export default function Footer() {
   const theme = useNavTheme();
   const themeStyle = navThemeVars(theme) as CSSProperties;
   return (
@@ -101,14 +101,6 @@ export default function Footer({ creditsHref }: { creditsHref?: string } = {}) {
             >
               プライバシーポリシー
             </Link>
-            {creditsHref && (
-              <a
-                href={creditsHref}
-                className="font-sans text-small text-[var(--nav-text-faint)] transition-colors hover:text-[var(--nav-text)]"
-              >
-                クレジット
-              </a>
-            )}
           </div>
         </div>
       </div>

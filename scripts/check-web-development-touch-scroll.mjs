@@ -114,7 +114,8 @@ for (const engine of [chromium, webkit]) {
         window.swipeFrames = [];
       });
       const cdp = await page.context().newCDPSession(page);
-      for (let swipe = 0; swipe < 3; swipe++) {
+      // The longer reveal now needs four swipes before reaching the modern resting beat.
+      for (let swipe = 0; swipe < 4; swipe++) {
         await cdp.send('Input.dispatchTouchEvent', {
           type: 'touchStart',
           touchPoints: [{ x: 195, y: 650 }],

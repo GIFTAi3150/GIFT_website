@@ -4,14 +4,15 @@ const engine = process.env.INCLUDED_TEST_ENGINE === 'webkit' ? webkit : chromium
 const browser = await engine.launch({ headless: true });
 try {
   for (const [width, height] of [
+    [1440, 900],
     [320, 568],
     [390, 844],
     [844, 390],
   ]) {
     const page = await browser.newPage({
       viewport: { width, height },
-      isMobile: true,
-      hasTouch: true,
+      isMobile: width < 900,
+      hasTouch: width < 900,
     });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -21,21 +22,25 @@ try {
       await page.evaluate(
         (progress) => {
           const section = document.querySelector('#included');
+          const rest = Number.parseFloat(getComputedStyle(section).getPropertyValue('--wd-rest'));
+          const viewport = Number.parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue('--vh-frozen'),
+          );
           scrollTo({
             top:
               scrollY +
               section.getBoundingClientRect().top +
-              (section.offsetHeight - innerHeight) * progress,
+              (section.offsetHeight - innerHeight - rest * viewport) * progress,
             behavior: 'instant',
           });
         },
-        (step - 0.5) / 6,
+        (step - 0.25) / 6,
       );
       await page.waitForTimeout(1000);
       const state = await page.evaluate(() => {
         const section = document.querySelector('#included');
         const rows = [...section.querySelectorAll('[data-inc]')];
-        const visible = rows.filter((row) => getComputedStyle(row).visibility === 'visible');
+        const visible = rows.filter((row) => row.classList.contains('is-on'));
         const row = visible[0];
         const rect = row.getBoundingClientRect();
         const body = row.querySelector('.wd-inc__body > p');
@@ -46,6 +51,9 @@ try {
           visibleCount: visible.length,
           index: rows.indexOf(row) + 1,
           build: Number(section.querySelector('[data-build]').dataset.step),
+          enter: Number(
+            section.querySelector('[data-build]').style.getPropertyValue('--step-enter'),
+          ),
           top: rect.top,
           bottom: rect.bottom,
           bodyClipped: body.scrollHeight > body.clientHeight + 1,
@@ -61,6 +69,7 @@ try {
       assert.equal(state.visibleCount, 1);
       assert.equal(state.index, step);
       assert.equal(state.build, step);
+      assert.equal(state.enter, 1, 'the feature must finish revealing before its reading interval');
       assert.ok(state.top >= 80 && state.bottom <= height, 'feature text extends outside viewport');
       assert.ok(!state.bodyClipped && !state.overflow, 'feature text is clipped');
       assert.ok(state.newsFits, 'miniature website news is clipped');

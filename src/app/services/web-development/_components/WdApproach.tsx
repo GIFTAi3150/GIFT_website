@@ -72,7 +72,7 @@ function WebsitePreview({ finished = false }: { finished?: boolean }) {
         <div className={styles.siteFoot}>
           {finished ? (
             <>
-              <span>01 / 空間から、可能性を。</span>
+              <span>空間から、可能性を。</span>
               <ArrowRight size={12} />
             </>
           ) : (
@@ -95,39 +95,11 @@ export default function WdApproach() {
       id="approach"
       className="wd-sec wd-sec--navy wd-approach"
       data-stage
-      style={{ '--budget': 1.7 } as CSSProperties}
+      style={{ '--budget': 3.2 } as CSSProperties}
       aria-labelledby="wd-approach-title"
     >
       <div className="wd-frame">
         <div className="wd-container wd-approach__inner">
-          <figure className={styles.visual} data-craft>
-            <div className={styles.progression}>
-              <div className={styles.step}>
-                <div className={styles.stepLabel}>
-                  <span>
-                    <Sparkles size={13} />
-                    01 / AI DRAFT
-                  </span>
-                  <span>構成をつくる</span>
-                </div>
-                <WebsitePreview />
-              </div>
-              <div className={styles.connector} aria-hidden="true">
-                <ArrowRight className={styles.horizontalArrow} size={18} />
-                <ArrowDown className={styles.verticalArrow} size={18} />
-              </div>
-              <div className={`${styles.step} ${styles.finishedStep}`}>
-                <div className={styles.stepLabel}>
-                  <span>
-                    <Check size={13} />
-                    02 / HUMAN CRAFT
-                  </span>
-                  <span>プロが整える</span>
-                </div>
-                <WebsitePreview finished />
-              </div>
-            </div>
-          </figure>
           <div className="wd-approach__copy">
             <div id="wd-approach-title">
               <WdHead label={APPROACH.eyebrow} title={APPROACH.title} />
@@ -137,6 +109,36 @@ export default function WdApproach() {
                 {paragraph}
               </p>
             ))}
+          </div>
+          <div className="wd-approach__window">
+            <figure className={styles.visual} data-craft>
+              <div className={styles.progression}>
+                <div className={styles.step} data-craft-step="draft">
+                  <div className={styles.stepLabel}>
+                    <span>
+                      <Sparkles size={13} />
+                      AI DRAFT
+                    </span>
+                    <span>構成をつくる</span>
+                  </div>
+                  <WebsitePreview />
+                </div>
+                <div className={styles.connector} aria-hidden="true">
+                  <ArrowRight className={styles.horizontalArrow} size={18} />
+                  <ArrowDown className={styles.verticalArrow} size={18} />
+                </div>
+                <div className={`${styles.step} ${styles.finishedStep}`} data-craft-step="finished">
+                  <div className={styles.stepLabel}>
+                    <span>
+                      <Check size={13} />
+                      HUMAN CRAFT
+                    </span>
+                    <span>プロが整える</span>
+                  </div>
+                  <WebsitePreview finished />
+                </div>
+              </div>
+            </figure>
           </div>
         </div>
       </div>

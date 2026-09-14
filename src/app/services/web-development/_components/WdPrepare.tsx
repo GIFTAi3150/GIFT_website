@@ -14,7 +14,7 @@ export default function WdPrepare() {
       id="prepare"
       className="wd-sec wd-sec--paper wd-prepare"
       data-stage
-      style={{ '--budget': 2 } as CSSProperties}
+      style={{ '--budget': 4 } as CSSProperties}
       aria-labelledby="wd-prepare-title"
     >
       <div className="wd-frame">

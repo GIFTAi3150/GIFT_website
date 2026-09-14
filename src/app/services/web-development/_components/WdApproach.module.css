@@ -149,7 +149,7 @@
 .heroImage img {
   object-fit: cover;
   object-position: 50% 14%;
-  filter: saturate(calc(0.35 + var(--craft-progress) * 0.65));
+  filter: saturate(calc(0.35 + var(--craft-color, var(--craft-progress)) * 0.65));
 }
 .siteFoot {
   display: flex;
@@ -165,7 +165,7 @@
   box-shadow: 0 14px 36px #0003;
 }
 .finishedStep {
-  transform: translateY(calc((1 - var(--craft-progress)) * 12px));
+  transform: translateY(calc((1 - var(--craft-position, var(--craft-progress))) * 12px));
 }
 .draft {
   border-style: dashed;
@@ -273,6 +273,37 @@
   }
   .progression {
     grid-template-columns: minmax(0, 1fr);
+  }
+  /* Each full-size preview builds in the mobile stage, then rests for reading. */
+  .finishedStep {
+    transform: none;
+  }
+  .browser {
+    opacity: calc(0.24 + var(--craft-shell, 1) * 0.76);
+    transform: translateY(calc((1 - var(--craft-shell, 1)) * 24px));
+  }
+  .siteNav {
+    opacity: var(--craft-nav, 1);
+    transform: translateY(calc((1 - var(--craft-nav, 1)) * 8px));
+  }
+  .heroCopy {
+    opacity: var(--craft-copy, 1);
+    transform: translateY(calc((1 - var(--craft-copy, 1)) * 16px));
+  }
+  .heroImage {
+    clip-path: inset(0 0 calc((1 - var(--craft-image, 1)) * 100%) 0);
+  }
+  .heroImage img {
+    transform: scale(calc(1.08 - var(--craft-image, 1) * 0.08));
+    filter: saturate(calc(0.35 + var(--craft-image, 1) * 0.65));
+  }
+  .siteFoot {
+    opacity: var(--craft-detail, 1);
+    transform: translateY(calc((1 - var(--craft-detail, 1)) * 8px));
+  }
+  .connector {
+    opacity: calc(0.2 + var(--craft-handoff, 1) * 0.8);
+    transform: translateY(calc((1 - var(--craft-handoff, 1)) * -8px));
   }
   .stepLabel {
     margin-bottom: 10px;

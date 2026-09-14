@@ -28,9 +28,9 @@ const PAGE_ICONS = [
 ];
 
 /**
- * 10 pages — the spread. Ten sheets sit in a pile and fan out into the sitemap
- * grid with the scroll (WdScroll measures each sheet's grid slot and tweens it
- * from the pile). The index numbers are real content: it is a sitemap.
+ * 10 pages — the spread. The deck starts in slot 10; cards 01–09 move into
+ * their grid positions in order before card 10 settles. Finished cards remain
+ * unobstructed throughout the sequence, including on narrow phones.
  */
 export default function WdPages() {
   return (
@@ -38,7 +38,7 @@ export default function WdPages() {
       id="pages"
       className="wd-sec wd-sec--blue wd-pages"
       data-stage
-      style={{ '--budget': 1.8 } as CSSProperties}
+      style={{ '--budget': 8.4 } as CSSProperties}
       aria-labelledby="wd-pages-title"
     >
       <div className="wd-frame">
@@ -59,7 +59,6 @@ export default function WdPages() {
           <div className="wd-spread">
             <div className="wd-spread__head wd-mono">
               <span>{PAGES.heading}</span>
-              <span>{PAGES.index}</span>
             </div>
             <ol className="wd-spread__grid" data-spread>
               {PAGES.pages.map((page, i) => {
@@ -71,7 +70,6 @@ export default function WdPages() {
                     key={page}
                     style={{ '--i': i } as CSSProperties}
                   >
-                    <span className="wd-mono">{String(i + 1).padStart(2, '0')}</span>
                     <Icon className="wd-sheet__icon" strokeWidth={1.75} aria-hidden="true" />
                     <span className="wd-sheet__name">{page}</span>
                   </li>

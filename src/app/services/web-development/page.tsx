@@ -34,7 +34,7 @@ export default function WebDevelopmentPage() {
             .wd-page[data-flash-guard] section { visibility: visible !important; }
             .wd-page[data-flash-guard]::after { display: none !important; }
             [data-time-travel] { height: auto !important; }
-            [data-time-travel] button { display: none; }`}</style>
+            [data-hero-scroll-cue] { display: none !important; }`}</style>
         </noscript>
 
         <WebDevelopmentHero />
@@ -55,7 +55,7 @@ export default function WebDevelopmentPage() {
         <WdScroll />
       </main>
       <div className="wd-footer">
-        <Footer creditsHref="/models/earth/credits.txt" />
+        <Footer />
       </div>
     </>
   );

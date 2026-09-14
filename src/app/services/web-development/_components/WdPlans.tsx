@@ -3,9 +3,8 @@ import { CONTACT, PLANS } from './wdContent';
 import WdHead from './WdHead';
 
 /**
- * Plans — the separation. Both sheets are always in the document and fully
- * readable; as the section enters they part from one stack and settle side by
- * side before the reading zone (WdScroll). No carousel, no interaction.
+ * Plans — both offers stay in their own layout positions and settle gently
+ * as they enter view (WdScroll), keeping the full comparison readable.
  */
 export default function WdPlans() {
   return (

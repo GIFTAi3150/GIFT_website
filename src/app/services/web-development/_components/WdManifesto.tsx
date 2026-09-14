@@ -13,7 +13,7 @@ export default function WdManifesto() {
       id="manifesto"
       className="wd-sec wd-sec--navy wd-manifesto"
       data-stage
-      style={{ '--budget': 1.5 } as CSSProperties}
+      style={{ '--budget': 4.2 } as CSSProperties}
       aria-labelledby="wd-manifesto-title"
     >
       <div className="wd-frame">

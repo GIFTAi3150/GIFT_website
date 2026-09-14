@@ -5,7 +5,7 @@ import { FAQ } from './wdContent';
 import WdHead from './WdHead';
 
 /** Native details keep keyboard and no-JS behaviour; WAAPI interpolates the real height. */
-function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
+function FaqItem({ q, a }: { q: string; a: string }) {
   const root = useRef<HTMLDetailsElement>(null);
   const animation = useRef<Animation | null>(null);
   const expanding = useRef(false);
@@ -58,7 +58,6 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
       }}
     >
       <summary onClick={toggle}>
-        <span className="wd-mono wd-faq__n">Q{String(index + 1).padStart(2, '0')}</span>
         <h3>{q}</h3>
         <span className="wd-faq__toggle" aria-hidden />
       </summary>
@@ -78,8 +77,8 @@ export default function WdFaq() {
           <WdHead label={FAQ.eyebrow} title={FAQ.title} lead={FAQ.lead} />
         </div>
         <div className="wd-faq__list">
-          {FAQ.items.map((item, i) => (
-            <FaqItem key={item.q} q={item.q} a={item.a} index={i} />
+          {FAQ.items.map((item) => (
+            <FaqItem key={item.q} q={item.q} a={item.a} />
           ))}
         </div>
       </div>
