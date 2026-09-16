@@ -1,0 +1,56 @@
+.stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, #0005, #0008 44%, #000 72%);
+}
+.stars i {
+  position: absolute;
+  inset: 0;
+  background-size: 640px 480px;
+  background-position: 37px 19px;
+  background-repeat: repeat;
+  opacity: 0.12;
+  animation: twinkle 4.6s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.stars[data-active='true'] i {
+  animation-play-state: running;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  44%,
+  56% {
+    opacity: 0.95;
+  }
+}
+
+.stars i:nth-child(1) {
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%3Ccircle%20cx%3D%22552.7%22%20cy%3D%22169.8%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22552.7%22%20cy%3D%22169.8%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22552.7%22%20cy%3D%22169.8%22%20r%3D%221.15%22%20fill%3D%22%23eff7ff%22%2F%3E%3Cpath%20d%3D%22M552.7%20166.3v7m-3.5-3.5h7%22%20stroke%3D%22%23b8d9ff%22%20stroke-width%3D%22.5%22%20stroke-opacity%3D%22.5%22%2F%3E%3Ccircle%20cx%3D%22498.5%22%20cy%3D%22360.1%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22498.5%22%20cy%3D%22360.1%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22498.5%22%20cy%3D%22360.1%22%20r%3D%220.81%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22369.0%22%20cy%3D%2297.5%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22369.0%22%20cy%3D%2297.5%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22369.0%22%20cy%3D%2297.5%22%20r%3D%220.77%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22613.3%22%20cy%3D%22416.0%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22613.3%22%20cy%3D%22416.0%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22613.3%22%20cy%3D%22416.0%22%20r%3D%220.61%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22624.4%22%20cy%3D%2268.9%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22624.4%22%20cy%3D%2268.9%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22624.4%22%20cy%3D%2268.9%22%20r%3D%221.15%22%20fill%3D%22%23eff7ff%22%2F%3E%3Cpath%20d%3D%22M624.4%2065.4v7m-3.5-3.5h7%22%20stroke%3D%22%23b8d9ff%22%20stroke-width%3D%22.5%22%20stroke-opacity%3D%22.5%22%2F%3E%3Ccircle%20cx%3D%22288.1%22%20cy%3D%22407.9%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22288.1%22%20cy%3D%22407.9%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22288.1%22%20cy%3D%22407.9%22%20r%3D%220.74%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22484.2%22%20cy%3D%22246.1%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22484.2%22%20cy%3D%22246.1%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22484.2%22%20cy%3D%22246.1%22%20r%3D%220.43%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22174.3%22%20cy%3D%22455.9%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22174.3%22%20cy%3D%22455.9%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22174.3%22%20cy%3D%22455.9%22%20r%3D%220.65%22%20fill%3D%22%23eff7ff%22%2F%3E%3C%2Fsvg%3E');
+  animation-duration: 4.6s;
+  animation-delay: -1.3s;
+}
+
+.stars i:nth-child(2) {
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%3Ccircle%20cx%3D%22229.3%22%20cy%3D%22267.3%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22229.3%22%20cy%3D%22267.3%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22229.3%22%20cy%3D%22267.3%22%20r%3D%220.48%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%2244.9%22%20cy%3D%22385.8%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%2244.9%22%20cy%3D%22385.8%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%2244.9%22%20cy%3D%22385.8%22%20r%3D%221.15%22%20fill%3D%22%23eff7ff%22%2F%3E%3Cpath%20d%3D%22M44.9%20382.3v7m-3.5-3.5h7%22%20stroke%3D%22%23b8d9ff%22%20stroke-width%3D%22.5%22%20stroke-opacity%3D%22.5%22%2F%3E%3Ccircle%20cx%3D%22621.2%22%20cy%3D%22418.9%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22621.2%22%20cy%3D%22418.9%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22621.2%22%20cy%3D%22418.9%22%20r%3D%220.78%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22587.4%22%20cy%3D%2227.2%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22587.4%22%20cy%3D%2227.2%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22587.4%22%20cy%3D%2227.2%22%20r%3D%220.74%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22262.0%22%20cy%3D%22185.6%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22262.0%22%20cy%3D%22185.6%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22262.0%22%20cy%3D%22185.6%22%20r%3D%220.58%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22537.4%22%20cy%3D%22234.8%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22537.4%22%20cy%3D%22234.8%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22537.4%22%20cy%3D%22234.8%22%20r%3D%221.15%22%20fill%3D%22%23eff7ff%22%2F%3E%3Cpath%20d%3D%22M537.4%20231.3v7m-3.5-3.5h7%22%20stroke%3D%22%23b8d9ff%22%20stroke-width%3D%22.5%22%20stroke-opacity%3D%22.5%22%2F%3E%3Ccircle%20cx%3D%22253.2%22%20cy%3D%22393.1%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22253.2%22%20cy%3D%22393.1%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22253.2%22%20cy%3D%22393.1%22%20r%3D%220.81%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22116.6%22%20cy%3D%22171.3%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22116.6%22%20cy%3D%22171.3%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22116.6%22%20cy%3D%22171.3%22%20r%3D%220.51%22%20fill%3D%22%23eff7ff%22%2F%3E%3C%2Fsvg%3E');
+  animation-duration: 6.2s;
+  animation-delay: -4.2s;
+}
+
+.stars i:nth-child(3) {
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22640%22%20height%3D%22480%22%20viewBox%3D%220%200%20640%20480%22%3E%3Ccircle%20cx%3D%2289.3%22%20cy%3D%22277.9%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%2289.3%22%20cy%3D%22277.9%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%2289.3%22%20cy%3D%22277.9%22%20r%3D%220.46%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22121.8%22%20cy%3D%22458.4%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22121.8%22%20cy%3D%22458.4%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22121.8%22%20cy%3D%22458.4%22%20r%3D%220.76%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%2267.5%22%20cy%3D%2228.6%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%2267.5%22%20cy%3D%2228.6%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%2267.5%22%20cy%3D%2228.6%22%20r%3D%221.15%22%20fill%3D%22%23eff7ff%22%2F%3E%3Cpath%20d%3D%22M67.5%2025.1v7m-3.5-3.5h7%22%20stroke%3D%22%23b8d9ff%22%20stroke-width%3D%22.5%22%20stroke-opacity%3D%22.5%22%2F%3E%3Ccircle%20cx%3D%22346.5%22%20cy%3D%2248.8%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22346.5%22%20cy%3D%2248.8%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22346.5%22%20cy%3D%2248.8%22%20r%3D%220.76%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%2281.4%22%20cy%3D%22453.7%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%2281.4%22%20cy%3D%22453.7%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%2281.4%22%20cy%3D%22453.7%22%20r%3D%220.76%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%2299.1%22%20cy%3D%22293.2%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%2299.1%22%20cy%3D%22293.2%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%2299.1%22%20cy%3D%22293.2%22%20r%3D%220.64%22%20fill%3D%22%23eff7ff%22%2F%3E%3Ccircle%20cx%3D%22379.4%22%20cy%3D%22153.6%22%20r%3D%224%22%20fill%3D%22%2392beff%22%20fill-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22379.4%22%20cy%3D%22153.6%22%20r%3D%222.3%22%20fill%3D%22%23b5d5ff%22%20fill-opacity%3D%22.16%22%2F%3E%3Ccircle%20cx%3D%22379.4%22%20cy%3D%22153.6%22%20r%3D%221.15%22%20fill%3D%22%23eff7ff%22%2F%3E%3Cpath%20d%3D%22M379.4%20150.1v7m-3.5-3.5h7%22%20stroke%3D%22%23b8d9ff%22%20stroke-width%3D%22.5%22%20stroke-opacity%3D%22.5%22%2F%3E%3C%2Fsvg%3E');
+  animation-duration: 8.1s;
+  animation-delay: -6.1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stars i {
+    animation: none;
+    opacity: 0.2;
+  }
+}
