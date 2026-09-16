@@ -210,15 +210,17 @@ body:has(.wd-page) #page-cover:not([data-route-transition]) {
 .wd-h2__line {
   display: block;
   will-change: transform;
-}
-/* Keep the authored title lines inside these narrower desktop columns.
-   Normal Japanese line breaking keeps closing punctuation with its text. */
-.wd-prepare .wd-h2,
-.wd-pages .wd-h2 {
-  --wd-heading-max: 46px;
+  /* Keep Japanese closing punctuation attached in every section heading. */
   word-break: normal;
   overflow-wrap: normal;
   line-break: strict;
+}
+/* Keep the authored title lines inside these narrower desktop columns. */
+.wd-prepare .wd-h2,
+.wd-pages .wd-h2,
+.wd-faq .wd-h2,
+.wd-flow .wd-h2 {
+  --wd-heading-max: 46px;
 }
 .wd-head__lead {
   margin: 22px 0 0;
