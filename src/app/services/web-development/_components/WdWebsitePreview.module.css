@@ -1,0 +1,527 @@
+.preview {
+  container-type: inline-size;
+  line-height: 1.25;
+  width: 100%;
+  min-width: 0;
+  max-width: 590px;
+  margin: 0;
+  justify-self: end;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.caption,
+.eras {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.caption {
+  margin-bottom: 15px;
+  color: #a7b5d1;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+.eras {
+  gap: 10px;
+  letter-spacing: 0.03em;
+  font-size: 11px;
+}
+.activeEra {
+  color: #fff;
+}
+.eraLine {
+  width: 34px;
+  height: 1px;
+  background: #576682;
+}
+.browser {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1.08;
+  overflow: hidden;
+  border: 3px solid;
+  border-color: #f4f4f4 #707070 #707070 #f4f4f4;
+  border-radius: 2px;
+  background: #c6c6c6;
+  color: #111;
+  box-shadow:
+    12px 18px 0 rgb(0 0 0 / 12%),
+    0 30px 70px rgb(0 0 0 / 24%);
+  transition:
+    border-color 550ms ease,
+    border-radius 550ms ease,
+    box-shadow 550ms ease,
+    background 550ms ease;
+}
+.chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 6.2cqi;
+  min-height: 21px;
+  padding: 0 2cqi;
+  margin: 2px;
+  background: #080f80;
+  color: white;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: clamp(10px, 2.9cqi, 16px);
+  font-weight: bold;
+}
+.windowControls {
+  display: flex;
+  gap: 1cqi;
+  width: 8cqi;
+}
+.windowControls i {
+  display: block;
+  width: 2cqi;
+  height: 2cqi;
+  border: 1px solid #fff;
+  background: #bdbdbd;
+}
+.windowControls i:not(:first-child) {
+  display: none;
+}
+.windowMark {
+  width: 8cqi;
+  text-align: right;
+}
+.menu {
+  display: flex;
+  gap: 3cqi;
+  align-items: center;
+  height: 4.8cqi;
+  min-height: 17px;
+  padding: 0 2cqi;
+  font-size: clamp(9px, 2.3cqi, 13px);
+}
+.address {
+  display: flex;
+  align-items: center;
+  gap: 1.8cqi;
+  min-height: 24px;
+  height: 6.6cqi;
+  padding: 0.8cqi 1.8cqi;
+  font-size: clamp(9px, 2.1cqi, 12px);
+}
+.arrows {
+  flex-shrink: 0;
+  font-size: 3.2cqi;
+}
+.url {
+  display: flex;
+  align-items: center;
+  gap: 1.5cqi;
+  flex: 1;
+  min-width: 0;
+  padding: 0.8cqi 1cqi;
+  border: 2px inset #e8e8e8;
+  background: white;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.url > span {
+  font-weight: bold;
+}
+.retroPage {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  margin: 1cqi;
+  margin-top: 0;
+  border: 2px inset #eee;
+  font-family: 'Times New Roman', Times, serif;
+}
+.retroMasthead {
+  display: flex;
+  align-items: center;
+  gap: 3cqi;
+  min-height: 9cqi;
+  padding: 1cqi 2cqi;
+  background: linear-gradient(#e5e5e5, #b7b7b7);
+  border-bottom: 2px groove #f5f5f5;
+  font-size: 3.15cqi;
+}
+.retroLogo {
+  display: grid;
+  place-items: center;
+  width: 7cqi;
+  height: 7cqi;
+  background: #fff;
+  border: 3px ridge #d7d7d7;
+  font-size: 5.5cqi;
+  font-weight: bold;
+  color: #1515a1;
+  line-height: 1;
+}
+.retroLayout {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 25% 75%;
+}
+.retroSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 3.4cqi;
+  padding: 3.7cqi 1.8cqi;
+  border-right: 3px ridge #dedede;
+  background: #cacaca;
+  color: #00009a;
+  font-size: 2.35cqi;
+  font-weight: bold;
+  font-style: italic;
+}
+.retroSidebar > span {
+  text-decoration: underline;
+}
+.retroSidebar > strong {
+  margin-top: auto;
+  text-align: center;
+  font-size: 4cqi;
+  line-height: 0.9;
+  color: #555;
+  font-style: normal;
+}
+.retroSidebar small {
+  font-size: 1.8cqi;
+  font-weight: normal;
+}
+.retroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.55cqi;
+  padding: 2.7cqi 1.5cqi;
+  background: #fff;
+  text-align: center;
+}
+.retroContent p {
+  margin: 0;
+  font-size: 2.55cqi;
+  line-height: 1.4;
+}
+.retroContent .retroWelcome {
+  font-size: 2.15cqi;
+}
+.retroWelcome b {
+  padding: 0.3cqi 0.7cqi;
+  margin-right: 0.6cqi;
+  background: #fff000;
+  color: #d00000;
+  font-family: Arial, sans-serif;
+  font-size: 1.8cqi;
+}
+.retroContent h2 {
+  margin: 0;
+  color: #e00000;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 7.3cqi;
+  font-weight: normal;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+.retroContent hr {
+  width: 86%;
+  margin: 0;
+  border: 0;
+  border-top: 2px groove #eee;
+}
+.retroContent > a {
+  color: #0000c8;
+  font-size: 2.7cqi;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.retroConstruction {
+  color: #555;
+  font-size: 2cqi;
+}
+.retroFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1cqi;
+  padding: 1.5cqi;
+  border-top: 2px groove #fff;
+  font-size: 1.8cqi;
+}
+.retroFooter b {
+  padding: 0.4cqi 0.7cqi;
+  background: #101010;
+  color: #81fa68;
+  font-family: monospace;
+  font-size: 1.9cqi;
+  font-weight: normal;
+}
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6cqi 1.4cqi;
+  border: 2px inset #ddd;
+  font-size: 1.9cqi;
+}
+.statusbar > span:last-child {
+  color: #208700;
+}
+
+.preview[data-era='modern'] .browser {
+  border-color: #e1e4e9;
+  border-radius: 12px;
+  background: #e9ecf0;
+  box-shadow:
+    0 28px 80px rgb(0 0 0 / 28%),
+    0 0 65px rgb(77 112 238 / 12%);
+}
+.preview[data-era='modern'] .chrome {
+  margin: 0;
+  background: #e9ecf0;
+  color: #6a7180;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2cqi;
+  font-weight: normal;
+}
+.preview[data-era='modern'] .windowControls i {
+  display: block;
+  border: none;
+  border-radius: 50%;
+  background: #ff625c;
+}
+.preview[data-era='modern'] .windowControls i:nth-child(2) {
+  background: #ffbd44;
+}
+.preview[data-era='modern'] .windowControls i:nth-child(3) {
+  background: #00c84e;
+}
+.preview[data-era='modern'] .url {
+  justify-content: center;
+  border: 0;
+  border-radius: 5px;
+  padding: 1cqi;
+  background: #f7f8fa;
+  color: #5a6170;
+  font-size: 2cqi;
+}
+.modernPage {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f4f3ed;
+  color: #14191f;
+  animation: arrive 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.modernNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3.3cqi 5cqi;
+  border-bottom: 1px solid #deded5;
+  font-size: 1.65cqi;
+  letter-spacing: 0.08em;
+}
+.wordmark {
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 4.2cqi;
+  font-weight: 800;
+  letter-spacing: -0.07em;
+  line-height: 1;
+}
+.wordmark > span {
+  margin-left: 0.4cqi;
+  font-size: 1.7cqi;
+  vertical-align: top;
+}
+.modernContent {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4cqi 5cqi;
+}
+.preview .modernEyebrow {
+  margin: 0 0 2.3cqi;
+  color: #505758;
+  font-size: 1.8cqi;
+  font-weight: bold;
+  letter-spacing: 0.13em;
+}
+.modernContent h2 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 8.8cqi;
+  line-height: 1.03;
+  font-weight: 600;
+  letter-spacing: -0.065em;
+}
+.modernContent h2 em {
+  color: #284bec;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.1em;
+  font-weight: normal;
+  letter-spacing: -0.065em;
+}
+.preview .modernLead {
+  position: relative;
+  z-index: 1;
+  margin: 3cqi 0 2.8cqi;
+  color: #555a62;
+  font-size: 2.1cqi;
+  line-height: 1.55;
+}
+.preview .modernContact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4cqi;
+  padding: 1.8cqi 2.6cqi;
+  background: #171d25;
+  color: #fff;
+  font-size: 2.1cqi;
+  text-decoration: none;
+}
+.modernContact > span {
+  font-size: 3cqi;
+  line-height: 1;
+}
+.flower {
+  position: absolute;
+  top: 22%;
+  right: -3cqi;
+  width: 31cqi;
+  color: #284bec;
+  transform: rotate(-12deg);
+}
+.flower svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.flower > span {
+  display: block;
+  margin-top: 4cqi;
+  color: #343e5a;
+  font-size: 1.6cqi;
+  font-weight: bold;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-align: center;
+  transform: rotate(12deg);
+}
+.modernFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.2cqi 5cqi;
+  background: #dfff80;
+  font-size: 2.15cqi;
+}
+.modernFooter > span:last-child {
+  font-size: 4cqi;
+  line-height: 1;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  margin-top: 25px;
+  text-align: center;
+}
+.upgrade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 12px 23px;
+  border: 1px solid #b9d3ff;
+  border-radius: 0;
+  background: #d7e5ff;
+  color: #0b1020;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+.upgrade:hover {
+  background: #fff;
+}
+.upgrade > span {
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 1;
+}
+.actions p {
+  margin: 0;
+  color: #a7b5d1;
+  font-size: 10px;
+  letter-spacing: 0.035em;
+}
+.upgrade:focus-visible,
+.browser a:focus-visible {
+  outline: 3px solid #658eff;
+  outline-offset: 4px;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 899px) {
+  .preview {
+    max-width: 550px;
+    align-self: center;
+  }
+}
+@media (max-width: 390px) {
+  .browser {
+    aspect-ratio: 1;
+  }
+  .caption {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+  .eras {
+    font-size: 10px;
+  }
+  .actions {
+    margin-top: 21px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .browser,
+  .upgrade {
+    transition: none;
+  }
+  .modernPage {
+    animation: none;
+  }
+}

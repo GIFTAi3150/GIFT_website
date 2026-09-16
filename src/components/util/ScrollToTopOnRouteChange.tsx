@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 // Snap the viewport to the very top. Different browsers treat either
@@ -20,6 +20,8 @@ function resetScroll() {
 // header, back/forward), so we reset unconditionally on pathname change.
 export default function ScrollToTopOnRouteChange() {
   const pathname = usePathname();
+  const previousPath = useRef<string | null>(null);
+  const shouldReset = useRef(false);
 
   // Disable the browser's automatic scroll restoration so it doesn't override
   // our programmatic reset. With history.scrollRestoration = 'auto' (default)
@@ -34,7 +36,11 @@ export default function ScrollToTopOnRouteChange() {
   // Reset synchronously after DOM mutations and BEFORE paint, so the new page
   // is never visibly drawn at the wrong position.
   useLayoutEffect(() => {
-    resetScroll();
+    // A reader can scroll the server-rendered page before hydration. Preserve
+    // that position on first mount; actual client-side navigation still resets.
+    shouldReset.current = previousPath.current !== null && previousPath.current !== pathname;
+    previousPath.current = pathname;
+    if (shouldReset.current) resetScroll();
   }, [pathname]);
 
   // Belt-and-suspenders against LATE re-positioning that runs after our layout
@@ -44,6 +50,7 @@ export default function ScrollToTopOnRouteChange() {
   // Re-assert the top across the next few frames so a late writer can't win.
   // Every reset is instant and lands at 0, so there is no visible motion.
   useEffect(() => {
+    if (!shouldReset.current) return;
     let frame = 0;
     let raf = requestAnimationFrame(function tick() {
       resetScroll();

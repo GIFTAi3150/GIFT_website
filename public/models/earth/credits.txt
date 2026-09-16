@@ -1,0 +1,8 @@
+Earth model: original globe built in Blender for GIFT.
+Earth day, night and cloud imagery: Solar System Scope / INOVE.
+Source: https://www.solarsystemscope.com/textures/
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Changes: resized, compressed, cloud alpha extracted; custom lighting and atmosphere.
+Visual reference only: https://sketchfab.com/3d-models/earth-5f9c35be31a047928eace8b415a8ee3a
+The Sketchfab model itself is not included.
