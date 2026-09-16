@@ -31,10 +31,8 @@ const DIRECTION: 'forward' | 'reverse' | 'pingpong' = 'forward';
 const OPACITY = 1.0;
 const MAX_DPR = 1.5;
 const ORIGINAL_QUALITY = 60;
-// The raymarch is framed off the viewport's SHORT axis, so a phone sees a
-// narrow slice — a couple of huge lights. Zoom out there (uScale < 1 samples a
-// wider region) so the same structure reads at phone width, and let more of it
-// through the veil.
+// The camera covers a 16:9 desktop frame without stretching on wider displays.
+// Phones sample a wider region (uScale < 1) and let more light through the veil.
 const SCALE_DESKTOP = 1.0;
 const SCALE_PHONE = 0.6;
 const VEIL_MAX_DESKTOP = 0.8; // below the hero the writing is the focus, the plasma a visible pulse
@@ -78,11 +76,17 @@ void mainImage(out vec4 o, vec2 C) {
   vec2 center = iResolution.xy * 0.5;
   C = (C - center) / uScale + center;
 
-  float i, d, z, T = iTime * uSpeed * uDirection;
-  vec3 O, p, S;
+  // Explicit accumulators keep the raymarch consistent across GPU drivers.
+  float d = 0.0, z = 0.0, T = iTime * uSpeed * uDirection;
+  vec3 O = vec3(0.0), p, S;
+  vec2 r = iResolution.xy, Q;
+  // Cover a 16:9 composition: wide/short windows crop vertically instead
+  // of shrinking the plasma into a narrow column in the middle.
+  float focalLength = max(r.y, r.x / (16.0 / 9.0));
 
-  for (vec2 r = iResolution.xy, Q; ++i < 60.0; O += o.w/d*o.xyz) {
-    p = z*normalize(vec3(C-.5*r,r.y));
+  for (int i = 0; i < 60; i++) {
+    if (float(i) >= uQuality) break;
+    p = z*normalize(vec3(C-.5*r,focalLength));
     p.z -= 4.;
     S = p;
     d = p.y-T;
@@ -91,7 +95,7 @@ void mainImage(out vec4 o, vec2 C) {
     Q = p.xz *= mat2(cos(p.y+vec4(0,11,33,0)-T));
     z += d = (abs(sqrt(length(Q*Q)) - .25*(5.+S.y))/3.+8e-4) * uStepScale;
     o = 1.+sin(S.y+p.z*.5+S.z-length(S-p)+vec4(2,1,0,8));
-    if (i >= uQuality) break;
+    O += o.w/d*o.xyz;
   }
 
   o.xyz = tanh(O/1e4);
@@ -133,8 +137,8 @@ export default function AtPlasma() {
     if (!canvas || !veil || !main) return;
 
     const isPhone = window.matchMedia('(max-width: 899px)').matches;
-    const veilMax = isPhone ? VEIL_MAX_PHONE : VEIL_MAX_DESKTOP;
-    const veilCta = isPhone ? VEIL_CTA_PHONE : VEIL_CTA_DESKTOP;
+    let veilMax = isPhone ? VEIL_MAX_PHONE : VEIL_MAX_DESKTOP;
+    let veilCta = isPhone ? VEIL_CTA_PHONE : VEIL_CTA_DESKTOP;
 
     // ── the veil: scrubbed by AtScroll, lifted under the CTA
     let scrollP = 0;
@@ -236,51 +240,74 @@ export default function AtPlasma() {
       }
       const mesh = new Mesh(gl, { geometry, program });
 
-      // ── sizing: a fraction of the container, stretched by CSS.
-      // The container (.at-plasma) is fixed at 100lvh, so its box does not
-      // move when a phone's address bar collapses. The buffer is sized from
-      // it, not from window.innerHeight, and a resize is only honoured when
-      // the width changes or the height moves by more than 25% (rotation, a
-      // real window resize) — the gate ViewportFreeze uses. Without it every
-      // address-bar toggle re-allocated the buffer (one blank frame) and
-      // changed iResolution, which re-frames the raymarch (the height is its
-      // focal length): the whole plasma zoomed and popped on every
-      // scroll-direction change on mobile.
+      // Match the buffer to its displayed box on every desktop resize.
+      // Freeze the touch viewport height so browser bars/keyboard cannot
+      // stretch the CSS canvas while its drawing buffer stays unchanged.
       const box: HTMLElement = canvas.parentElement ?? canvas;
-      let cssW = 1;
-      let cssH = 1;
-      let lastW = window.innerWidth;
-      let lastH = window.innerHeight;
+      const touch = window.matchMedia('(hover: none) and (pointer: coarse)');
+      let lastW = 0;
+      let resizeRaf = 0;
       let settleTimer = 0;
+      let drawStill: (() => void) | null = null;
       const setSize = () => {
-        cssW = Math.max(1, box.clientWidth || window.innerWidth);
-        cssH = Math.max(1, box.clientHeight || window.innerHeight);
+        if (disposed || gl.isContextLost() || document.visibilityState === 'hidden') return;
+        if (window.innerWidth <= 1 || window.innerHeight <= 1) return;
+        if (touch.matches) {
+          if (lastW !== window.innerWidth || !box.style.height) {
+            box.style.removeProperty('height');
+            box.style.height = `${box.clientHeight || window.innerHeight}px`;
+          }
+        } else {
+          box.style.removeProperty('height');
+        }
         lastW = window.innerWidth;
-        lastH = window.innerHeight;
-        rend.setSize(Math.max(1, Math.floor(cssW * renderScale)), Math.max(1, Math.floor(cssH * renderScale)));
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
+        const cssW = Math.max(1, box.clientWidth || window.innerWidth);
+        const cssH = Math.max(1, box.clientHeight || window.innerHeight);
+        rend.dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+        const width = Math.max(1, Math.floor(cssW * renderScale));
+        const height = Math.max(1, Math.floor(cssH * renderScale));
+        const small = window.matchMedia('(max-width: 899px)').matches;
+        const quality = small ? 52 : ORIGINAL_QUALITY;
+        program.uniforms.uScale.value = small ? SCALE_PHONE : SCALE_DESKTOP;
+        program.uniforms.uQuality.value = quality;
+        program.uniforms.uStepScale.value = ORIGINAL_QUALITY / quality;
+        veilMax = small ? VEIL_MAX_PHONE : VEIL_MAX_DESKTOP;
+        veilCta = small ? VEIL_CTA_PHONE : VEIL_CTA_DESKTOP;
+        applyVeil();
+        if (
+          rend.width !== width ||
+          rend.height !== height ||
+          canvas.width !== Math.floor(width * rend.dpr) ||
+          canvas.height !== Math.floor(height * rend.dpr)
+        ) {
+          rend.setSize(width, height);
+          canvas.style.width = '100%';
+          canvas.style.height = '100%';
+        }
         const res = program.uniforms.iResolution.value as Float32Array;
         res[0] = gl.drawingBufferWidth;
         res[1] = gl.drawingBufferHeight;
+        drawStill?.();
       };
-      let resizePending = false;
       const onResize = () => {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        // width unchanged & a small height change = the browser's toolbar
-        if (w === lastW && Math.abs(h - lastH) <= h * 0.25) return;
-        if (resizePending) return;
-        resizePending = true;
-        requestAnimationFrame(() => {
-          resizePending = false;
-          setSize();
-        });
-        // iOS can report a stale innerHeight right after a rotation
-        window.clearTimeout(settleTimer);
-        settleTimer = window.setTimeout(setSize, 350);
+        cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(setSize);
       };
+      const onOrientation = () => {
+        lastW = 0;
+        onResize();
+        window.clearTimeout(settleTimer);
+        // iOS can report the old dimensions immediately after rotation.
+        settleTimer = window.setTimeout(() => {
+          lastW = 0;
+          onResize();
+        }, 350);
+      };
+      const observer = new ResizeObserver(onResize);
+      observer.observe(box);
       window.addEventListener('resize', onResize);
+      window.addEventListener('orientationchange', onOrientation);
+      window.addEventListener('pageshow', onResize);
       setSize();
 
       // ── loop (no pointer interaction — the plasma is a background, not a toy)
@@ -308,10 +335,18 @@ export default function AtPlasma() {
         }
         if (!reduced) raf = requestAnimationFrame(frame);
       };
+      // Resizing clears a WebGL buffer, including a reduced-motion still.
+      // Redraw that still without advancing its animation time.
+      drawStill = () => {
+        if (reduced) rend.render({ scene: mesh });
+      };
       const onVis = () => {
         tabVisible = document.visibilityState !== 'hidden';
         cancelAnimationFrame(raf);
-        if (tabVisible && !reduced) raf = requestAnimationFrame(frame);
+        if (tabVisible) {
+          setSize();
+          if (!reduced) raf = requestAnimationFrame(frame);
+        }
       };
       document.addEventListener('visibilitychange', onVis);
       raf = requestAnimationFrame(frame);
@@ -319,7 +354,12 @@ export default function AtPlasma() {
       cleanupGl = () => {
         cancelAnimationFrame(raf);
         window.clearTimeout(settleTimer);
+        cancelAnimationFrame(resizeRaf);
+        observer.disconnect();
+        box.style.removeProperty('height');
         window.removeEventListener('resize', onResize);
+        window.removeEventListener('orientationchange', onOrientation);
+        window.removeEventListener('pageshow', onResize);
         document.removeEventListener('visibilitychange', onVis);
         program.remove();
         geometry.remove();
