@@ -195,7 +195,7 @@ body:has(.wd-page) #page-cover:not([data-route-transition]) {
 .wd-h2 {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(30px, 3.3vw, 50px);
+  font-size: clamp(30px, 3.3vw, var(--wd-heading-max, 50px));
   font-weight: 800;
   line-height: 1.42;
   letter-spacing: -0.03em;
@@ -210,6 +210,15 @@ body:has(.wd-page) #page-cover:not([data-route-transition]) {
 .wd-h2__line {
   display: block;
   will-change: transform;
+}
+/* Keep the authored title lines inside these narrower desktop columns.
+   Normal Japanese line breaking keeps closing punctuation with its text. */
+.wd-prepare .wd-h2,
+.wd-pages .wd-h2 {
+  --wd-heading-max: 46px;
+  word-break: normal;
+  overflow-wrap: normal;
+  line-break: strict;
 }
 .wd-head__lead {
   margin: 22px 0 0;
