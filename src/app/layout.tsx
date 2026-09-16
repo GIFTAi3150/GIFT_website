@@ -39,12 +39,14 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  // Explicit links keep all icon formats available in Next 14 metadata.
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon.svg', type: 'image/svg+xml', sizes: 'any' },
     ],
-    apple: '/apple-icon.png',
-    shortcut: '/icon.svg',
+    apple: [{ url: '/apple-icon.png', type: 'image/png', sizes: '180x180' }],
+    shortcut: '/favicon.ico',
   },
 };
 
