@@ -19,8 +19,9 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const { id } = await params;
   let members: { id: string; name: string; role: string }[] = staticMembers;
   try {
     const notionMembers = await getPublishedMembers();
@@ -28,7 +29,7 @@ export async function generateMetadata({
   } catch {
     // use fallback
   }
-  const member = members.find((m) => m.id === params.id);
+  const member = members.find((m) => m.id === id);
   if (!member) {
     return { title: 'メンバーが見つかりません' };
   }
@@ -54,9 +55,11 @@ export default async function MemberDetailPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { from?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
+  const [{ id }, { from }] = await Promise.all([params, searchParams]);
+
   // Try Notion first, fall back to static placeholders
   let members: MemberRecord[] = [];
   try {
@@ -78,12 +81,12 @@ export default async function MemberDetailPage({
     members = staticMembers;
   }
 
-  const index = members.findIndex((m) => m.id === params.id);
+  const index = members.findIndex((m) => m.id === id);
   if (index === -1) notFound();
 
   const member = members[index];
   const memberVideo = member.video ?? PLACEHOLDER_VIDEOS[index % PLACEHOLDER_VIDEOS.length];
-  const fromFilter = searchParams.from ?? 'All';
+  const fromFilter = from ?? 'All';
   const scopedToDept = fromFilter !== 'All' && fromFilter === member.department;
 
   // Scope navigation + "other members" to either all members or the same department
