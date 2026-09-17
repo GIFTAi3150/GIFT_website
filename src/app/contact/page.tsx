@@ -7,6 +7,7 @@ import Reveal from '@/components/ui/Reveal';
 import PixelRobot from '@/components/ui/PixelRobot';
 import company from '@/data/company.json';
 import { PLANS } from '@/data/plans';
+import { CONTACT_LIMITS } from '@/lib/contact-fields';
 
 const inquiryTypes = [
   { value: 'callcenter', label: 'コールセンター事業について' },
@@ -68,6 +69,7 @@ export default function ContactPage() {
       inquiryType: (form.elements.namedItem('inquiryType') as HTMLSelectElement).value,
       message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
       privacy: (form.elements.namedItem('privacy') as HTMLInputElement).checked,
+      website: (form.elements.namedItem('website') as HTMLInputElement).value,
     };
 
     try {
@@ -162,11 +164,18 @@ export default function ContactPage() {
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                      <div aria-hidden="true" className="absolute -left-[10000px] h-0 overflow-hidden">
+                        <label>
+                          Website
+                          <input type="text" name="website" tabIndex={-1} autoComplete="off" maxLength={200} />
+                        </label>
+                      </div>
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <Field label="お名前" required>
                           <input
                             type="text"
                             name="name"
+                            maxLength={CONTACT_LIMITS.name}
                             required
                             className="contact-input"
                             placeholder="山田 太郎"
@@ -176,6 +185,7 @@ export default function ContactPage() {
                           <input
                             type="text"
                             name="company"
+                            maxLength={CONTACT_LIMITS.company}
                             className="contact-input"
                             placeholder="株式会社サンプル"
                           />
@@ -187,6 +197,7 @@ export default function ContactPage() {
                           <input
                             type="email"
                             name="email"
+                            maxLength={CONTACT_LIMITS.email}
                             required
                             className="contact-input"
                             placeholder="name@example.com"
@@ -196,6 +207,7 @@ export default function ContactPage() {
                           <input
                             type="tel"
                             name="phone"
+                            maxLength={CONTACT_LIMITS.phone}
                             className="contact-input"
                             placeholder="090-0000-0000"
                           />
@@ -224,6 +236,7 @@ export default function ContactPage() {
                       <Field label="お問い合わせ内容" required>
                         <textarea
                           name="message"
+                          maxLength={CONTACT_LIMITS.message}
                           required
                           rows={7}
                           className="contact-input resize-none"
@@ -252,7 +265,7 @@ export default function ContactPage() {
                       </label>
 
                       {error && (
-                        <p className="mt-2 rounded-lg bg-red-50 px-4 py-3 font-sans text-[14px] text-red-600">
+                        <p role="alert" className="mt-2 rounded-lg bg-red-50 px-4 py-3 font-sans text-[14px] text-red-600">
                           {error}
                         </p>
                       )}

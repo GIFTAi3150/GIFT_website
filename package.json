@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "news:draft": "node scripts/weekly-news.mjs",
     "seed:members": "node scripts/seed-members.mjs",
-    "seed:positions": "node scripts/seed-positions.mjs"
+    "seed:positions": "node scripts/seed-positions.mjs",
+    "test:security": "tsc src/lib/contact-security.ts --outDir node_modules/.cache/contact-security-tests --module commonjs --target ES2022 --skipLibCheck --esModuleInterop && node --test tests/contact-security.test.cjs"
   },
   "dependencies": {
     "@notionhq/client": "^2.3.0",
