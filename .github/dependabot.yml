@@ -13,6 +13,15 @@ updates:
     ignore:
       - dependency-name: next
         update-types: [version-update:semver-major]
+      # Fiber 9.7 requires React <19.3. Revisit when its peer range supports 19.3.
+      - dependency-name: 'react'
+        versions: ['19.3.x']
+      - dependency-name: 'react-dom'
+        versions: ['19.3.x']
+      - dependency-name: '@types/react'
+        versions: ['19.3.x']
+      - dependency-name: '@types/react-dom'
+        versions: ['19.3.x']
     groups:
       npm-minor-and-patch:
         patterns: ['*']

@@ -100,7 +100,7 @@ const parseShapes = (d: string): THREE.Shape[] => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`;
   const loader = new SVGLoader();
   const shapes: THREE.Shape[] = [];
-  loader.parse(svg).paths.forEach((p) => p.toShapes(true).forEach((s) => shapes.push(s)));
+  loader.parse(svg).paths.forEach((p) => p.toShapes().forEach((s) => shapes.push(s)));
   return shapes;
 };
 
