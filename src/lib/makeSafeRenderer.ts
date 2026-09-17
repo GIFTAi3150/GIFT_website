@@ -21,13 +21,14 @@
 // Three.js's preventDefault ALWAYS ran before our blocker.
 //
 // The fix is to register OUR listener BEFORE constructing the renderer.
-// R3F's `gl` prop accepts a `(canvas) => Renderer` factory, which gives
+// R3F's `gl` prop accepts a constructor-parameters factory, which gives
 // us a hook to addEventListener on the canvas before `new WebGLRenderer`
 // runs. Now WE are first in registration order, our
 // stopImmediatePropagation actually blocks Three.js's listener, no
 // preventDefault is called, no restoration loop, no guilty tick.
 
 import * as THREE from 'three';
+import type { GLProps } from '@react-three/fiber';
 
 export type SafeRendererOptions = THREE.WebGLRendererParameters & {
   toneMapping?: THREE.ToneMapping;
@@ -37,8 +38,10 @@ export type SafeRendererOptions = THREE.WebGLRendererParameters & {
 export function makeSafeRenderer(
   options: SafeRendererOptions,
   onContextLost: () => void,
-): (canvas: HTMLCanvasElement | OffscreenCanvas) => THREE.WebGLRenderer {
-  return (canvas) => {
+): GLProps {
+  return (defaults) => {
+    // Fiber also supports native canvases; this renderer runs only in browsers.
+    const canvas = defaults.canvas as HTMLCanvasElement | OffscreenCanvas;
     // `disposing` is flipped true by the wrapped dispose() below. When the
     // R3F Canvas unmounts (route change, Strict Mode double-invoke, HMR),
     // Three.js calls renderer.dispose() → forceContextLoss() → the browser
@@ -84,7 +87,7 @@ export function makeSafeRenderer(
     }
 
     const { toneMapping, toneMappingExposure, ...rendererParams } = options;
-    const renderer = new THREE.WebGLRenderer({ canvas, ...rendererParams });
+    const renderer = new THREE.WebGLRenderer({ ...defaults, canvas, ...rendererParams });
 
     // Wrap dispose so we know when teardown is in progress. The order is:
     // someone calls renderer.dispose() → our wrapper flips `disposing` →

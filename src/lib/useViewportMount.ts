@@ -31,7 +31,7 @@ interface Options {
  *  3. zero-margin    — tracks actual on-screen pixels for isVisible
  */
 export function useViewportMount(
-  ref: RefObject<HTMLElement>,
+  ref: RefObject<HTMLElement | null>,
   options?: Options,
 ): { shouldMount: boolean; isVisible: boolean } {
   const {

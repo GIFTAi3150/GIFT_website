@@ -1,14 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import AccessGlobe from './_components/AccessGlobeClient';
 import Footer from '@/components/layout/Footer';
 import company from '@/data/company.json';
 import CompanyLiquidBackdrop from './_components/CompanyLiquidBackdrop';
 import CompanyLiquidHero from './_components/CompanyLiquidHero';
 import CompanyScroll from './_components/CompanyScroll';
 import './company.css';
-
-const AccessGlobe = dynamic(() => import('./_components/AccessGlobe'), { ssr: false });
 
 export const metadata: Metadata = {
   title: '会社概要',

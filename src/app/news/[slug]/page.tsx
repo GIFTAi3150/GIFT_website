@@ -10,9 +10,10 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const article = await getArticleBySlug(params.slug);
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
   if (!article) {
     return { title: '記事が見つかりません' };
   }
@@ -30,8 +31,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function NewsDetailPage({ params }: { params: { slug: string } }) {
-  const article = await getArticleBySlug(params.slug);
+export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
   // Get related articles (same category, exclude current)

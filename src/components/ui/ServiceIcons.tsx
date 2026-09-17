@@ -1,3 +1,5 @@
+import type { JSX } from 'react';
+
 // Hand-drawn pixel-art icons for the 3 service cards.
 // Uses integer-aligned <rect>s + shape-rendering=crispEdges for the blocky look.
 // Color comes from currentColor, so parent's text color controls the icon tint.
