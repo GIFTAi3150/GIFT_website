@@ -7,7 +7,8 @@ updates:
       day: monday
       time: '09:00'
       timezone: Asia/Tokyo
-    open-pull-requests-limit: 1
+    # Routine version PRs are disabled; security updates remain enabled.
+    open-pull-requests-limit: 0
     commit-message:
       prefix: chore
     ignore:
@@ -36,7 +37,8 @@ updates:
       day: monday
       time: '09:00'
       timezone: Asia/Tokyo
-    open-pull-requests-limit: 1
+    # Routine version PRs are disabled; security updates remain enabled.
+    open-pull-requests-limit: 0
     commit-message:
       prefix: chore
     groups:
