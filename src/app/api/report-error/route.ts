@@ -57,9 +57,15 @@ export async function POST(req: Request): Promise<NextResponse> {
       env: process.env.VERCEL_ENV || 'development',
     };
 
+    // Serialize untrusted fields together so line breaks cannot forge log entries.
     // Always land in the Vercel server logs — that's a private surface, so it
     // costs nobody anything and keeps us from going blind.
-    console.error('[client-error]', headline, JSON.stringify(detail), body.stack ?? '');
+    console.error(
+      '[client-error]',
+      JSON.stringify({ message: headline, ...detail, stack: body.stack ?? '' })
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029'),
+    );
 
     // Slack relay is OPT-IN. The channel is shared with the whole team, and a
     // browser-side bug can fire on every page load for every visitor — during

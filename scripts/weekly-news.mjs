@@ -14,6 +14,7 @@
  */
 
 import { Client } from '@notionhq/client';
+import { feedText } from './lib/feed-text.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,23 +68,15 @@ function parseFeed(xml) {
   let match;
   while ((match = itemRegex.exec(xml)) !== null) {
     const block = match[1];
-    const title = unescapeXml(firstMatch(block, /<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i));
-    const link  = unescapeXml(firstMatch(block, /<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i));
-    const desc  = unescapeXml(firstMatch(block, /<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i));
+    const title = feedText(firstMatch(block, /<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i));
+    const link  = feedText(firstMatch(block, /<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i));
+    const desc  = feedText(firstMatch(block, /<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i));
     const date  = firstMatch(block, /<(?:pubDate|dc:date)[^>]*>([\s\S]*?)<\/(?:pubDate|dc:date)>/i);
     if (title && link) items.push({ title: title.trim(), link: link.trim(), description: (desc || '').trim(), date: date?.trim() || '' });
   }
   return items;
 }
 function firstMatch(s, re) { const m = s.match(re); return m ? m[1] : ''; }
-function unescapeXml(s) {
-  return (s || '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ').trim();
-}
-
 // --- Fetch all feeds in parallel; return flat item list with category/source attached ---
 async function fetchAllItems() {
   const results = await Promise.all(
