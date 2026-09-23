@@ -78,6 +78,8 @@ h2{font-size:34px;font-weight:800;letter-spacing:-.04em}
    resizes (and blanks) the 3D canvas mid-scroll. */
 .catalog-flyer{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;z-index:4;pointer-events:none}
 .catalog-flyer canvas{display:block;width:100%;height:100%}
+/* Anchored in the pinned preview stage (top/height set by the catalog script). */
+.catalog-flyer.is-anchored{position:absolute;left:0;right:0}
 .pv-track{position:relative;height:690vh;height:690svh}
 .pv-stage{position:sticky;top:0;height:100vh;height:100svh}
 .pv-stage-inner{position:relative;display:flex;flex-direction:column;height:100%;padding:clamp(18px,3.6vh,40px) 0 clamp(8px,1.6vh,16px)}
