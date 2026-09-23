@@ -176,6 +176,9 @@ h2{font-size:34px;font-weight:800;letter-spacing:-.04em}
   .line-button{min-height:46px;font-size:15px;padding:10px 14px;border-radius:4px;box-shadow:0 4px 14px var(--line-shadow);letter-spacing:-.04em}
   .line-mark{width:24px;height:24px}
   h2{font-size:25px;letter-spacing:-.03em}
+  /* Phones: lift the pinned stage off near-black with a glow behind the book. */
+  .preview{background:#121c38}
+  .pv-stage{background:radial-gradient(ellipse 90% 55% at 50% 60%,rgba(37,99,235,.42),transparent 75%),radial-gradient(circle,rgba(96,165,250,.14) 1px,transparent 1.6px) 0 0/20px 20px}
   .pv-stage-inner{padding:24px 0 14px}
   .pv-label{font-size:11px;gap:12px}.pv-label-rule{width:40px}
   .pv-title{font-size:clamp(26px,7.6vw,36px)}
