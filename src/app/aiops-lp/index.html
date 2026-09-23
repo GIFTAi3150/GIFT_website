@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="description" content="{{DESCRIPTION}}" />
+    <meta property="og:title" content="{{TITLE}}" />
+    <meta property="og:description" content="{{DESCRIPTION}}" />
+    <meta property="og:type" content="website" />
+    <title>{{TITLE}}</title>
+    <link rel="icon" href="/aiops-lp/gift-mark.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" href="/fonts/Poppins-Bold.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/aiops-lp/campaign.css" />
+    <script id="lp-config" type="application/json">
+      {{ANALYTICS}}
+    </script>
+    <script src="/aiops-lp/app.js" defer></script>
+    <script src="/aiops-lp/motion.js" defer></script>
+    <script src="/aiops-lp/benefit-art.js" defer></script>
+    <script src="/aiops-lp/background.js" type="module"></script>
+  </head>
+  <body data-campaign="{{CAMPAIGN}}">
+    <div class="site-art" aria-hidden="true"><canvas id="flow-canvas"></canvas></div>
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-content page-width">
+          <div class="hero-copy">
+            <h1 id="hero-title">{{HEADLINE}}</h1>
+            {{PROMISE}}
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <span class="hero-wordmark">GIFT</span>
+          </div>
+          <div class="hero-conversion">
+            <div class="hero-inclusions">
+              {{HERO_OFFER}}
+              <p class="hero-guide">{{GUIDE}}</p>
+            </div>
+            <div class="hero-action">{{HERO_CTA}}</div>
+          </div>
+        </div>
+      </section>
+      <section class="lp-overview" id="overview" aria-labelledby="overview-title">
+        <div class="page-width overview-layout">
+          <div class="overview-story">
+            <p class="overview-eyebrow">{{INTRO_EYEBROW}}</p>
+            <h2 id="overview-title">{{INTRO_HEADING}}</h2>
+            <p class="overview-copy">{{INTRO_COPY}}</p>
+          </div>
+          <div class="overview-panel" data-enter>
+            <p class="overview-panel-heading" id="overview-benefits-title">
+              {{INTRO_BENEFITS_HEADING}}
+            </p>
+            <ul class="overview-benefits" role="list" aria-labelledby="overview-benefits-title">
+              {{INTRO_BENEFITS}}
+            </ul>
+          </div>
+          <div class="overview-invitation" data-enter>
+            <span class="overview-invitation-mark" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-3 3V11.5a9 9 0 0 1 18 0Z" />
+                <path d="M7 10h8M7 14h5" />
+              </svg>
+            </span>
+            <div>
+              <p class="overview-invitation-title">{{INTRO_INVITATION_TITLE}}</p>
+              <p class="overview-invitation-copy">{{INTRO_INVITATION}}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="benefits lp-benefits" id="benefits" aria-labelledby="benefits-title">
+        <div class="benefits-art" aria-hidden="true">
+          <canvas id="benefits-flow-canvas"></canvas>
+        </div>
+        <div class="page-width">
+          <div class="lp-benefits-heading">
+            <p class="eyebrow">LINE BENEFITS</p>
+            <h2 id="benefits-title">サービスに合わせた、<br /><span>LINE限定特典。</span></h2>
+          </div>
+          <ul class="line-benefit-grid" role="list" aria-labelledby="benefits-title">
+            {{BENEFIT_CARDS}}
+          </ul>
+        </div>
+      </section>
+      <section class="services lp-registration" id="line-flow" aria-labelledby="flow-title">
+        <div class="page-width flow-layout">
+          <div class="flow-heading">
+            <h2 id="flow-title">{{DELIVERY_HEADING}}</h2>
+          </div>
+          <div class="flow-offer" data-enter>
+            <p class="flow-service">{{LABEL}}</p>
+            <div class="flow-reward-copy">{{FLOW_REWARD}}</div>
+          </div>
+          <ol class="flow-path" role="list" aria-label="受け取りまでの3ステップ">
+            <li>
+              <p><span>LINEを</span><strong>友だち追加</strong></p>
+            </li>
+            <li>
+              <p><span>LINEで</span><strong>電話番号を入力</strong></p>
+            </li>
+            <li>
+              <p><span>{{FLOW_RECEIVE}}</span><strong>受け取る</strong></p>
+            </li>
+          </ol>
+          <div class="final-action">
+            <div class="final-button">{{FOOTER_CTA}}</div>
+          </div>
+          {{QR}}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
