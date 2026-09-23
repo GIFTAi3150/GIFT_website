@@ -33,6 +33,7 @@ uniform vec3 uIce;
 uniform vec3 uHot;
 uniform vec3 uGlowCol;
 uniform float uGlowAmt;
+uniform float uGlowR;
 uniform float uAmt;
 
 float hash(vec2 p){
@@ -101,7 +102,7 @@ void main(){
   col = mix(col, uHot, clamp(headGlow, 0.0, 1.0));
   float alpha = dotA * (0.42 + 0.58 * act) * fall * vy * uAmt;
 
-  float glow = exp(-dist / (uFocusR * 1.3)) * uGlowAmt;
+  float glow = exp(-dist / (uFocusR * uGlowR)) * uGlowAmt;
   vec3 outc = mix(uBg, uGlowCol, clamp(glow, 0.0, 1.0));
   outc = mix(outc, col, alpha);
   gl_FragColor = vec4(outc, 1.0);
@@ -174,7 +175,7 @@ function start(section, wrap, canvas, stage, theme) {
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
     u = {};
-    for (const name of ['uRes', 'uTime', 'uFocus', 'uFocusR', 'uCell', 'uDpr', 'uPointer']) {
+    for (const name of ['uRes', 'uTime', 'uFocus', 'uFocusR', 'uCell', 'uDpr', 'uPointer', 'uGlowAmt', 'uGlowR']) {
       u[name] = gl.getUniformLocation(prog, name);
     }
     gl.uniform3fv(gl.getUniformLocation(prog, 'uBg'), theme.bg);
@@ -182,7 +183,6 @@ function start(section, wrap, canvas, stage, theme) {
     gl.uniform3fv(gl.getUniformLocation(prog, 'uIce'), theme.ice);
     gl.uniform3fv(gl.getUniformLocation(prog, 'uHot'), theme.hot);
     gl.uniform3fv(gl.getUniformLocation(prog, 'uGlowCol'), theme.glow);
-    gl.uniform1f(gl.getUniformLocation(prog, 'uGlowAmt'), theme.glowAmt);
     gl.uniform1f(gl.getUniformLocation(prog, 'uAmt'), theme.amt);
     return true;
   }
@@ -211,6 +211,10 @@ function start(section, wrap, canvas, stage, theme) {
     gl.uniform1f(u.uCell, (small ? 20 : 24) * dpr);
     gl.uniform1f(u.uDpr, dpr);
     gl.uniform3f(u.uPointer, ptr.x, ptr.y, ptr.s);
+    // Phones: the catalog is small, so its glow is widened and lifted or the
+    // hero reads as flat black.
+    gl.uniform1f(u.uGlowAmt, small ? theme.glowAmt * 1.9 : theme.glowAmt);
+    gl.uniform1f(u.uGlowR, small ? 3.2 : 1.3);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (wrap.dataset.gl !== 'ready') wrap.dataset.gl = 'ready';
   }
