@@ -14,6 +14,22 @@ const nextConfig = {
   // 301 redirects from the old WordPress URLs to the new site structure.
   // Preserves SEO value (rankings, backlinks) after the domain cutover.
   async headers() {
+    // Precompressed catalog. The URL carries a content hash so a
+    // new export gets a fresh cache entry. Browsers decode gzip natively.
+    const catalogHeaders = {
+      source: '/ai-catalog-lp/assets/gift-catalog-web.glb.gz',
+      headers: [
+        { key: 'Content-Type', value: 'model/gltf-binary' },
+        { key: 'Content-Encoding', value: 'gzip' },
+        {
+          key: 'Cache-Control',
+          value:
+            process.env.NODE_ENV === 'production'
+              ? 'public, max-age=31536000, immutable'
+              : 'no-store',
+        },
+      ],
+    };
     // `immutable` is a prod-only optimization. In dev the same /video/*.mp4
     // path can be served with different bytes across re-encodes / dev-server
     // restarts; combined with the byte-range requests <video> issues, the
@@ -23,6 +39,7 @@ const nextConfig = {
     if (process.env.NODE_ENV !== 'production') {
       return [
         { source: '/:path*', headers: securityHeaders },
+        catalogHeaders,
         {
           source: '/videos/:path*',
           headers: [
@@ -34,6 +51,7 @@ const nextConfig = {
     }
     return [
       { source: '/:path*', headers: securityHeaders },
+      catalogHeaders,
       {
         source: '/videos/:path*',
         headers: [

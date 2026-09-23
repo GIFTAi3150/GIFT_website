@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>業種別AIスキルカタログ｜株式会社GIFT</title>
+    <meta
+      name="description"
+      content="27事業・1,987本・8テーマ。自社の仕事にAIをどう活かせるか、具体的な作業から探せる業種別AIスキルカタログ。LINE内の受取手続き後にお届けします。"
+    />
+    <meta property="og:title" content="うちの仕事、AIに何が任せられる？｜株式会社GIFT" />
+    <meta
+      property="og:description"
+      content="27事業・1,987本のAIスキルを8つのテーマで整理。業種別AIスキルカタログをLINEで受け取る。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" href="/fonts/Poppins-Bold.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/ai-catalog-lp/styles.css?rev=cue-1" />
+    <script type="module" src="/ai-catalog-lp/assets/catalog-3d.js?rev=6bd611a03a37"></script>
+    <script type="module" src="/ai-catalog-lp/assets/lp-field.js?rev=2"></script>
+    <script type="module" src="/ai-catalog-lp/assets/lp-motion.js?rev=9"></script>
+    <script>
+      // Reveal styles apply only with JS; if the motion module never runs, show everything.
+      document.documentElement.classList.add('js');
+      setTimeout(function () {
+        if (!window.__lpMotion) document.documentElement.classList.remove('js');
+        // The 3D loader never ran: show the catalog poster and theme list.
+        var slot = document.getElementById('catalog-slot');
+        if (!window.__catalog && slot) slot.setAttribute('data-fallback', 'true');
+      }, 4000);
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="lp-field" data-theme="dark" data-focus="#catalog-stage" aria-hidden="true"><canvas></canvas></div>
+        <div class="hero-grid container">
+          <div class="hero-copy">
+            <p class="eyebrow hero-eyebrow">
+              <span>業種別AIスキルカタログ</span><span class="eyebrow-rule" aria-hidden="true"></span>
+            </p>
+            <h1 id="hero-title">うちの仕事、<br /><span>AIに何が任せられる？</span></h1>
+            <div class="hero-action">
+              <a
+                class="line-button"
+                href="{{LINE_URL}}"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LINEでカタログを受け取る（LINEを開きます）"
+              >
+                <svg class="line-mark" viewBox="0 0 40 40" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M35 18c0-8-7-14-16-14S3 10 3 18c0 7 6 13 14 14 1 0 1 1 1 2l-1 3c0 1 1 1 2 0 3-1 9-5 12-9 3-3 4-6 4-10Z"
+                  />
+                  <text x="19" y="22" text-anchor="middle">LINE</text>
+                </svg>
+                <span>LINEでカタログを受け取る</span>
+              </a>
+            </div>
+          </div>
+          <figure class="catalog-visual" aria-label="業種別AIスキルカタログ">
+            <div
+              class="catalog-stage"
+              id="catalog-stage"
+              role="img"
+              aria-label="業種別AIスキルカタログ"
+            >
+              <picture>
+                <source
+                  media="(max-width: 760px)"
+                  srcset="/ai-catalog-lp/assets/catalog-poster-closed-480.webp"
+                />
+                <img
+                  class="catalog-fallback"
+                  src="/ai-catalog-lp/assets/catalog-poster-closed-960.webp"
+                  srcset="
+                    /ai-catalog-lp/assets/catalog-poster-closed-480.webp 480w,
+                    /ai-catalog-lp/assets/catalog-poster-closed-960.webp 960w
+                  "
+                  sizes="(max-width: 760px) 360px, (max-width: 1100px) 420px, 560px"
+                  width="960"
+                  height="960"
+                  fetchpriority="high"
+                  decoding="async"
+                  alt="業種別AIスキルカタログ。27事業・1,987本のAIスキルを8つのテーマで収録。"
+                />
+              </picture>
+            </div>
+            <figcaption class="catalog-controls">
+              <button class="catalog-control" id="catalog-activate" type="button" hidden>
+                立体で見る
+              </button>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="preview" aria-labelledby="preview-title">
+        <div class="pv-track" id="pv-track">
+          <div class="pv-stage">
+            <div class="container pv-stage-inner">
+              <div class="pv-head">
+                <p class="pv-label reveal">
+                  <span>CATALOG PREVIEW</span><span class="pv-label-rule" aria-hidden="true"></span>
+                </p>
+                <h2 id="preview-title" class="pv-title">
+                  <span class="mask"><span>例えば、</span></span><span class="mask"><span>こんな仕事に。</span></span>
+                </h2>
+                <ul class="pv-industries" aria-label="掲載している業種の区分">
+                  <li>建設</li>
+                  <li>工務店</li>
+                  <li>不動産</li>
+                  <li>介護</li>
+                  <li>障がい福祉</li>
+                  <li>士業</li>
+                  <li>コールセンター</li>
+                  <li class="pv-more">ほか、全27事業</li>
+                </ul>
+              </div>
+              <div class="pv-slot" id="catalog-slot" aria-hidden="true">
+                <picture>
+                  <source media="(max-width: 760px)" srcset="/ai-catalog-lp/assets/catalog-poster-480.webp" />
+                  <img
+                    class="pv-slot-poster"
+                    src="/ai-catalog-lp/assets/catalog-poster-960.webp"
+                    width="960"
+                    height="960"
+                    loading="lazy"
+                    decoding="async"
+                    alt=""
+                  />
+                </picture>
+              </div>
+              <span class="pv-hint" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+        <div class="container pv-samples" id="pv-samples">
+          <ol class="pv-fallback" id="pv-theme-data" aria-label="8つのテーマ">
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">01</span>
+              <h3>問い合わせ・電話・LINE対応</h3>
+              <p>よくある質問は、AIが一次対応。</p>
+              <ul><li>営業時間外の問い合わせに自動で返信</li><li>通話内容を要約して担当者へ共有</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">02</span>
+              <h3>連絡・案内・催促</h3>
+              <p>伝え忘れも、言いにくい連絡も。</p>
+              <ul><li>予約前日のリマインドを自動送信</li><li>未提出・未入金へのやわらかな催促文</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">03</span>
+              <h3>書類・記録・報告書づくり</h3>
+              <p>書く時間を、確かめる時間に。</p>
+              <ul><li>写真とメモから報告書のたたき台</li><li>会議の録音から議事録を作成</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">04</span>
+              <h3>見積・提案・契約まわり</h3>
+              <p>初稿づくりを、数分で。</p>
+              <ul><li>過去の案件から見積のたたき台</li><li>契約書の確認ポイントを抜き出し</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">05</span>
+              <h3>点検・法令・加算チェック</h3>
+              <p>見落としを、先に見つける。</p>
+              <ul><li>記録の抜け漏れを自動でチェック</li><li>加算・届出の要件と照らし合わせ</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">06</span>
+              <h3>数字の集計・見える化・先読み</h3>
+              <p>数字を、判断に使える形へ。</p>
+              <ul><li>売上や稼働をまとめて自動集計</li><li>来月の見込みをグラフで予測</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">07</span>
+              <h3>予定・期限・段取り</h3>
+              <p>期限を、忘れない仕組みに。</p>
+              <ul><li>工程表・シフトの下書きを作成</li><li>期限の一覧化と事前のお知らせ</li></ul>
+            </li>
+            <li>
+              <span class="pv-fb-n" aria-hidden="true">08</span>
+              <h3>集客・求人・教育</h3>
+              <p>人を集め、育てるところまで。</p>
+              <ul><li>求人票やSNS投稿の文案づくり</li><li>新人向けマニュアルをまとめて作成</li></ul>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="receive" aria-labelledby="receive-title">
+        <div class="container receive-grid">
+          <div class="receive-head">
+            <p class="pv-label receive-label">
+              <span>HOW TO RECEIVE</span><span class="pv-label-rule" aria-hidden="true"></span>
+            </p>
+            <h2 id="receive-title">受け取りは、<br />3ステップ。</h2>
+            <p class="consultation">気になる作業があれば、無料の個別相談も。</p>
+          </div>
+          <ol class="steps" id="steps">
+            <li style="--i: 0">
+              <span class="step-number" aria-hidden="true">01</span
+              ><span class="step-body"><strong>LINE登録</strong><span>友だち追加するだけ。</span></span>
+            </li>
+            <li style="--i: 1">
+              <span class="step-number" aria-hidden="true">02</span
+              ><span class="step-body"><strong>受取手続き</strong><span>LINE内で受取手続き。</span></span>
+            </li>
+            <li style="--i: 2">
+              <span class="step-number" aria-hidden="true">03</span
+              ><span class="step-body"><strong>カタログを読む</strong><span>手続き後、LINEで届きます。</span></span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="closing" id="closing" aria-labelledby="closing-title">
+        <p class="closing-mark" aria-hidden="true">1,987</p>
+        <div class="closing-grid container">
+          <div class="closing-copy">
+            <p class="pv-label closing-label">
+              <span>GET THE CATALOG</span><span class="pv-label-rule" aria-hidden="true"></span>
+            </p>
+            <h2 id="closing-title">まずは、<br /><span>カタログから。</span></h2>
+            <p class="closing-sub">27事業・1,987本のAIスキルを、<wbr />LINEでお届けします。</p>
+          </div>
+          <div class="closing-action">
+            <a
+              class="line-button"
+              href="{{LINE_URL}}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LINEでカタログを受け取る（LINEを開きます）"
+            >
+              <svg class="line-mark" viewBox="0 0 40 40" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M35 18c0-8-7-14-16-14S3 10 3 18c0 7 6 13 14 14 1 0 1 1 1 2l-1 3c0 1 1 1 2 0 3-1 9-5 12-9 3-3 4-6 4-10Z"
+                />
+                <text x="19" y="22" text-anchor="middle">LINE</text>
+              </svg>
+              <span>LINEでカタログを受け取る</span>
+            </a>
+          </div>
+          <div class="line-qr">
+            <div class="qr-square" role="img" aria-label="LINEでカタログを受け取るQRコード">
+              <span class="qr-corner qr-bl" aria-hidden="true"></span><span class="qr-corner qr-br" aria-hidden="true"></span>
+              {{LINE_QR}}
+            </div>
+            <p>スマホで読み取る</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
