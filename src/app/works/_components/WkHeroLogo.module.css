@@ -1,0 +1,80 @@
+.visual {
+  position: relative;
+  flex: none;
+  width: min(44vw, 46svh, 620px);
+  aspect-ratio: 600 / 420;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.ribbon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 9px #2347b825);
+}
+
+.ribbonBack,
+.ribbonFront {
+  transform-origin: 300px 210px;
+  animation: ribbon-drift 12s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.ribbonFront {
+  animation-name: ribbon-counter-drift;
+  animation-duration: 15s;
+}
+
+.visual[data-moving='true'] .ribbonBack,
+.visual[data-moving='true'] .ribbonFront {
+  animation-play-state: running;
+}
+
+.visualWord {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 1.973em;
+  height: 0.715em;
+  color: #2347b8;
+  font-size: clamp(42px, min(6vw, 8svh), 88px);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes ribbon-drift {
+  from {
+    transform: rotate(-7deg) translateY(3px);
+  }
+  to {
+    transform: rotate(7deg) translateY(-5px);
+  }
+}
+
+@keyframes ribbon-counter-drift {
+  from {
+    transform: rotate(5deg) scale(0.97);
+  }
+  to {
+    transform: rotate(-9deg) scale(1.03);
+  }
+}
+
+@media (max-width: 767px) {
+  .visual {
+    width: min(90vw, 48svh);
+  }
+
+  .visualWord {
+    font-size: clamp(38px, 11vw, 68px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ribbonBack,
+  .ribbonFront {
+    animation: none;
+  }
+}

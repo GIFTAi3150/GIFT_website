@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
 import WkHero from './_components/WkHero';
+import WkIntro from './_components/WkIntro';
 import WkLogoWall from './_components/WkLogoWall';
 import WkPickup from './_components/WkPickup';
 import WkCta from './_components/WkCta';
+import WkPageVisual from './_components/WkPageVisual';
 
 const OG_TITLE = '取引実績｜株式会社GIFT';
-const OG_DESCRIPTION =
-  '業種も規模も異なるお客様とともに、現場に根ざした改善を積み重ねてきました。';
+const OG_DESCRIPTION = '業種も規模も異なるお客様とともに、現場に根ざした改善を積み重ねてきました。';
 
 export const metadata: Metadata = {
   title: '取引実績',
@@ -35,17 +36,15 @@ export const metadata: Metadata = {
 
 export default function WorksPage() {
   return (
-    <>
-      {/* Dark base behind the hero/CTA navy bands; the LogoWall/PickUp sections
-          in between paint their own light background, so this only closes the
-          gap on iOS overscroll. */}
-      <main className="bg-[#0C0E1A]">
+    <WkPageVisual>
+      <main>
         <WkHero />
+        <WkIntro />
         <WkLogoWall />
         <WkPickup />
         <WkCta />
       </main>
       <Footer />
-    </>
+    </WkPageVisual>
   );
 }

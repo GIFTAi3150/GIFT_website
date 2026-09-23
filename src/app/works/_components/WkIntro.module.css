@@ -1,0 +1,240 @@
+.intro {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 82% 48%, #183b80 0%, transparent 60%), #0d1b38;
+  padding-block: clamp(46px, 6vw, 88px) 28px;
+  color: #f3f6ff;
+}
+
+.container {
+  padding-inline: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 30px;
+  color: #a4bce8;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.24em;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.story {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  margin: 0;
+  color: #f3f6ff;
+  font-weight: 700;
+  letter-spacing: -0.055em;
+}
+
+.titleLead {
+  display: block;
+  margin-bottom: 10px;
+  color: #c1d1ee;
+  font-size: clamp(18px, 5.3vw, 23px);
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: -0.025em;
+}
+
+.titleMain {
+  display: block;
+  font-size: clamp(35px, 10vw, 48px);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.description {
+  max-width: 34em;
+  margin: 24px 0 0;
+  color: #aebed8;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 2.1;
+  text-wrap: pretty;
+}
+
+.areas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 16px 0 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #91b4ec40;
+  border-radius: 12px;
+  background: #8bb4ff06;
+  list-style: none;
+}
+
+.areas > li {
+  min-width: 0;
+}
+
+.areas > li + li {
+  border-top: 1px solid #91b4ec30;
+}
+
+.area {
+  display: flex;
+  min-height: 82px;
+  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 18px;
+  color: #f0f5ff;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color 200ms ease;
+}
+
+.areaCopy {
+  min-width: 0;
+}
+
+.category {
+  display: block;
+  margin-bottom: 4px;
+  color: #a7bfe6;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+}
+
+.areaTitle {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.areaArrow {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border: 1px solid #abcafa4d;
+  border-radius: 50%;
+  background: #8bb4ff0a;
+  color: #d8e7ff;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.areaArrow svg {
+  transition: transform 250ms ease;
+}
+
+.area:focus-visible {
+  outline: 2px solid #b8d6ff;
+  outline-offset: -4px;
+}
+
+.area:active {
+  background-color: #7aa9ff26;
+}
+
+.area:active .areaArrow {
+  background-color: #9cbfff30;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .area:hover {
+    background-color: #7aa9ff16;
+  }
+
+  .area:hover .areaArrow {
+    border-color: #b8d5ff99;
+    background-color: #9cbfff26;
+  }
+
+  .area:hover .areaArrow svg {
+    transform: translateX(2px);
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: 32px;
+  }
+
+  .eyebrow {
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: end;
+    gap: 54px;
+  }
+
+  .titleLead {
+    font-size: clamp(20px, 2.2vw, 28px);
+    margin-bottom: 16px;
+  }
+
+  .titleMain {
+    font-size: clamp(38px, 4.1vw, 60px);
+  }
+
+  .description {
+    margin-top: 0;
+    padding-bottom: 7px;
+    font-size: 14px;
+  }
+
+  .areas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 34px;
+  }
+
+  .areas > li + li {
+    border-top: 0;
+    border-left: 1px solid #91b4ec30;
+  }
+
+  .area {
+    min-height: 100px;
+    gap: 12px;
+    padding: 20px clamp(16px, 2vw, 26px);
+  }
+
+  .areaTitle {
+    font-size: clamp(15px, 1.5vw, 18px);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .area,
+  .areaArrow,
+  .areaArrow svg {
+    transition: none;
+  }
+
+  .area:hover .areaArrow svg {
+    transform: none;
+  }
+}
