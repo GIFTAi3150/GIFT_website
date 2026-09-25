@@ -1,6 +1,8 @@
 .hero {
   position: relative;
-  height: 100svh;
+  /* px-frozen svh: in-app WebViews (Instagram, X) physically resize on every
+     toolbar toggle; a live svh would shift everything below the hero. */
+  height: var(--svh-frozen, 100svh);
   min-height: 640px;
   overflow: hidden;
   isolation: isolate;
@@ -19,7 +21,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(12px, 2svh, 24px);
+  gap: clamp(12px, calc(var(--svh-frozen, 100svh) * 0.02), 24px);
   color: #2347b8;
   pointer-events: none;
 }
@@ -31,11 +33,11 @@
 }
 
 .wordmark > span:nth-child(1) {
-  font-size: clamp(88px, min(25vw, 26svh), 400px);
+  font-size: clamp(88px, min(25vw, calc(var(--svh-frozen, 100svh) * 0.26)), 400px);
 }
 
 .wordmark > span:nth-child(3) {
-  font-size: clamp(48px, min(15vw, 16svh), 230px);
+  font-size: clamp(48px, min(15vw, calc(var(--svh-frozen, 100svh) * 0.16)), 230px);
 }
 
 .wordEntrance {
