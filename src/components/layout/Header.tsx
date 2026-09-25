@@ -98,9 +98,14 @@ export default function Header() {
     };
     const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
     const onKey = (event: KeyboardEvent) => {
+      if (!scrollKeys.has(event.key)) return;
       const target = event.target instanceof Element ? event.target : null;
-      // Space/arrows on a link, button or field keep their normal meaning.
-      if (!scrollKeys.has(event.key) || target?.closest('a, button, input, textarea, select, [contenteditable]')) return;
+      // Text fields keep every key; Space on a button/link activates it.
+      // Arrows / PageUp / PageDown / Home / End scroll the page even when a
+      // button is focused (e.g. the burger right after it was tapped), so
+      // those are always blocked.
+      if (target?.closest('input, textarea, select, [contenteditable]')) return;
+      if (event.key === ' ' && target?.closest('a, button')) return;
       block(event);
     };
     const options = { capture: true, passive: false } as const;
