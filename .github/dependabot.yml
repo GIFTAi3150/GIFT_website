@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Tokyo
+    # Routine version PRs are disabled; security updates remain enabled.
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: chore
+    ignore:
+      - dependency-name: next
+        update-types: [version-update:semver-major]
+      # Fiber 9.7 requires React <19.3. Revisit when its peer range supports 19.3.
+      - dependency-name: 'react'
+        versions: ['19.3.x']
+      - dependency-name: 'react-dom'
+        versions: ['19.3.x']
+      - dependency-name: '@types/react'
+        versions: ['19.3.x']
+      - dependency-name: '@types/react-dom'
+        versions: ['19.3.x']
+    groups:
+      npm-minor-and-patch:
+        patterns: ['*']
+        update-types: [minor, patch]
+      npm-security:
+        applies-to: security-updates
+        patterns: ['*']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Tokyo
+    # Routine version PRs are disabled; security updates remain enabled.
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: chore
+    groups:
+      github-actions:
+        patterns: ['*']

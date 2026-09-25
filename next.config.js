@@ -1,10 +1,44 @@
-// Applied to every route. No CSP for now — GSAP/three.js rely on inline
-// styles/scripts, so a strict policy would need nonce plumbing first.
+// Static Next.js hydration and animation styles require inline content.
+const production = process.env.NODE_ENV === 'production';
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  [
+    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+    !production ? "'unsafe-eval'" : '',
+    'https://www.googletagmanager.com https://*.clarity.ms https://www.gstatic.com https://vercel.live',
+  ]
+    .filter(Boolean)
+    .join(' '),
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' blob: https:",
+  [
+    "connect-src 'self' data: blob:",
+    'https://*.google-analytics.com https://www.googletagmanager.com',
+    'https://*.clarity.ms https://c.bing.com',
+    'https://raw.githack.com https://raw.githubusercontent.com',
+    'https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net',
+    'https://vercel.live wss://*.pusher.com',
+    !production ? 'ws: wss:' : '',
+  ]
+    .filter(Boolean)
+    .join(' '),
+  "worker-src 'self' blob:",
+  "frame-src 'self' https://vercel.live",
+].join('; ');
+
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+  ...(production ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000' }] : []),
 ];
 
 /** @type {import('next').NextConfig} */
@@ -53,7 +87,11 @@ const nextConfig = {
       { source: '/lsteprpa', destination: '/services/aiops', permanent: true },
       { source: '/lsteprpa/', destination: '/services/aiops', permanent: true },
       { source: '/services/dx-consulting', destination: '/services/aiops', permanent: true },
-      { source: '/services/dx-consulting/:path*', destination: '/services/aiops/:path*', permanent: true },
+      {
+        source: '/services/dx-consulting/:path*',
+        destination: '/services/aiops/:path*',
+        permanent: true,
+      },
       { source: '/privacypolicy', destination: '/privacy', permanent: true },
       { source: '/privacypolicy/', destination: '/privacy', permanent: true },
 
@@ -82,7 +120,11 @@ const nextConfig = {
       { source: '/services/callcenter/:path*', destination: '/services/aiops', permanent: true },
       { source: '/services/finance-consulting', destination: '/services/aiops', permanent: true },
       { source: '/services/finance-consulting/', destination: '/services/aiops', permanent: true },
-      { source: '/services/finance-consulting/:path*', destination: '/services/aiops', permanent: true },
+      {
+        source: '/services/finance-consulting/:path*',
+        destination: '/services/aiops',
+        permanent: true,
+      },
       { source: '/news', destination: '/', permanent: true },
       { source: '/news/', destination: '/', permanent: true },
       { source: '/news/:path*', destination: '/', permanent: true },

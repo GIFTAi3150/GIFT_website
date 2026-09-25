@@ -1,0 +1,197 @@
+.stage {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  padding: 30px 28px 42px;
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+}
+.card {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  transform: rotateX(var(--rotate-x, 0deg)) rotateY(var(--rotate-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.card::before {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(35, 71, 140, 0.12);
+  content: '';
+}
+.card[data-tilting='true'],
+.card[data-animating='true'] {
+  transition-duration: 180ms;
+  will-change: transform;
+}
+.motionControl {
+  position: absolute;
+  z-index: 1;
+  inset: 30px 28px 42px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.motionControl:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 6px;
+}
+.visual {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
+  transform-style: preserve-3d;
+}
+.logoFrame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-bottom-color: #e3ebf7;
+  border-radius: 5px 5px 0 0;
+  /* pale plate: logos are full-colour on transparent, they need a light ground */
+  background:
+    radial-gradient(ellipse at 50% 42%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+    #f1f6fe;
+}
+.logo {
+  /* contain, never cover — a cropped logo is broken branding */
+  object-fit: contain;
+  object-position: center;
+  /* padding keeps clear space around the mark and room for the label/disc overlaps */
+  padding: 22% 16% 20%;
+}
+.label {
+  position: absolute;
+  top: -16px;
+  right: -12px;
+  max-width: calc(100% - 24px);
+  border: 1px solid #e0e8f5;
+  border-radius: 3px;
+  background: #fff;
+  padding: 12px 18px;
+  box-shadow: 0 8px 20px rgba(25, 54, 111, 0.1);
+  transform: translateZ(64px);
+}
+.labelKicker {
+  display: block;
+  margin-bottom: 5px;
+  color: #6a7d9e;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+.labelIndustry {
+  display: block;
+  color: #4a5f82;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.company {
+  margin: 2px 0 0;
+  color: #173d8f;
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 700;
+  line-height: 1.5;
+  text-wrap: balance; /* JP orphan rule — no lone trailing 様 */
+}
+.disc {
+  position: absolute;
+  bottom: -22px;
+  left: -22px;
+  display: grid;
+  width: clamp(74px, 8vw, 108px);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #eef5ff;
+  color: #2347b8;
+  box-shadow: 0 10px 24px rgba(27, 63, 131, 0.12);
+  transform: translateZ(90px);
+}
+.disc > svg {
+  width: 42%;
+  height: 42%;
+}
+.signature {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  background: rgba(19, 43, 91, 0.76);
+  padding: 6px 10px;
+  color: #fff;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  transform: translateZ(42px);
+}
+.copy {
+  position: relative;
+  padding: 42px 26px 30px;
+  transform: translateZ(20px);
+}
+.copy p {
+  margin: 0;
+  color: #425574;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 2;
+  text-wrap: pretty;
+}
+@media (max-width: 767px) {
+  .stage {
+    max-width: 520px;
+    margin-inline: auto;
+    padding: 24px 20px 30px;
+  }
+  .motionControl {
+    inset: 24px 20px 30px;
+  }
+  .disc {
+    left: -14px;
+  }
+  .copy {
+    padding: 38px 22px 26px;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .label {
+    transform: translateZ(28px);
+  }
+  .disc {
+    transform: translateZ(40px);
+  }
+  .signature {
+    transform: translateZ(18px);
+  }
+  .copy {
+    transform: translateZ(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card[data-tilting='true'],
+  .card[data-animating='true'],
+  .label,
+  .disc,
+  .signature,
+  .copy {
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}

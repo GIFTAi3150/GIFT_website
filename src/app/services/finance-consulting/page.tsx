@@ -1,13 +1,9 @@
 import type { Metadata } from 'next';
 import Footer from '@/components/layout/Footer';
 import FinanceScripts from './_components/FinanceScripts';
-import dynamic from 'next/dynamic';
+import DollarSignHero from './_components/DollarSignHero';
 import { bricolage, inter, jetbrains } from './fonts';
 
-// R3F hero — dynamic-imported with ssr:false to dodge the <Canvas>
-// hydration mismatch (server emits empty <canvas>, client hydrator
-// attaches WebGL state — those differ).
-const DollarSignHero = dynamic(() => import('./_components/DollarSignHero'), { ssr: false });
 import './finance.css';
 
 export const metadata: Metadata = {
