@@ -237,7 +237,7 @@
   }
 
   .word {
-    font-size: clamp(56px, min(9vw, 17svh), 136px);
+    font-size: clamp(56px, min(9vw, calc(var(--svh-frozen, 100svh) * 0.17)), 136px);
   }
 
   .meta {

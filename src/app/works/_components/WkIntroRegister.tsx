@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { VH_FROZEN_CHANGE } from '@/components/util/ViewportFreeze';
 
 // Scrubs --mis on each [data-wk-row] inside [data-wk-intro]: 1 while the row's
 // centre is at the bottom edge of the viewport, 0 once it reaches 62% height.
@@ -15,10 +16,18 @@ export default function WkIntroRegister() {
 
     let frame = 0;
     let inView = false;
+    // Frozen viewport height (ViewportFreeze): in-app WebViews resize on every
+    // toolbar toggle, and a live innerHeight would nudge the strips each time.
+    let viewport = 0;
+    const readViewport = () => {
+      const frozen = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--svh-frozen'));
+      viewport = frozen > 0 ? frozen : window.innerHeight;
+    };
+    readViewport();
 
     const update = () => {
       frame = 0;
-      const vh = window.innerHeight;
+      const vh = viewport;
       for (const row of rows) {
         const rect = row.getBoundingClientRect();
         const centre = rect.top + rect.height / 2;
@@ -39,14 +48,18 @@ export default function WkIntroRegister() {
     );
     observer.observe(section);
     window.addEventListener('scroll', request, { passive: true });
-    window.addEventListener('resize', request);
+    const onViewportChange = () => {
+      readViewport();
+      request();
+    };
+    window.addEventListener(VH_FROZEN_CHANGE, onViewportChange);
     update();
 
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener('scroll', request);
-      window.removeEventListener('resize', request);
+      window.removeEventListener(VH_FROZEN_CHANGE, onViewportChange);
       for (const row of rows) row.style.removeProperty('--mis');
     };
   }, []);
