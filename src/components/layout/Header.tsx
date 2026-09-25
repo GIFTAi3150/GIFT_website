@@ -25,6 +25,10 @@ export default function Header() {
   const theme = useNavTheme();
   const themeStyle = navThemeVars(theme) as CSSProperties;
   const [open, setOpen] = useState(false);
+  // True when the menu closes because a link is navigating away: the route
+  // cover (RouteTransitionGuard) is already over the page, so the menu snaps
+  // shut underneath it instead of playing its close animation over the new page.
+  const [closingForRoute, setClosingForRoute] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [serviceOpen, setServiceOpen] = useState(false);
@@ -46,8 +50,14 @@ export default function Header() {
   };
   const justClicked = (href: string) => clickedHref === href;
 
-  // Mobile: flash the link green BEFORE closing the menu, otherwise the menu hides the feedback instantly
+  // Mobile: a link to another page closes the menu instantly (the route cover
+  // hides it); a link to the current page animates the menu closed instead.
   const flashThenCloseMenu = (href: string) => {
+    if (href !== pathname) {
+      setClosingForRoute(true);
+      setOpen(false);
+      return;
+    }
     flashClick(href);
     setTimeout(() => setOpen(false), 280);
   };
@@ -68,9 +78,40 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  // Scroll lock while the menu is open, done by blocking scroll INPUT rather
+  // than changing overflow. overflow:hidden on <body> turns it into a scroll
+  // container and re-anchors every position:sticky section (/company's pinned
+  // GIFT INC. hero jumped by the scroll offset under the opening curtain);
+  // overflow:hidden on <html> drops the desktop scrollbar and widens the page
+  // (scrollbar-gutter is ignored on the root once overflow is hidden).
+  // stopPropagation in the window capture phase also keeps Lenis' wheel
+  // listener from scrolling the page underneath.
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (!open) return;
+    const nav = mobileNavRef.current;
+    const scrollsInsideMenu = (target: EventTarget | null) =>
+      !!nav && target instanceof Node && nav.contains(target) && nav.scrollHeight > nav.clientHeight;
+    const block = (event: Event) => {
+      if (scrollsInsideMenu(event.target)) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      // Space/arrows on a link, button or field keep their normal meaning.
+      if (!scrollKeys.has(event.key) || target?.closest('a, button, input, textarea, select, [contenteditable]')) return;
+      block(event);
+    };
+    const options = { capture: true, passive: false } as const;
+    window.addEventListener('wheel', block, options);
+    window.addEventListener('touchmove', block, options);
+    window.addEventListener('keydown', onKey, true);
+    return () => {
+      window.removeEventListener('wheel', block, options);
+      window.removeEventListener('touchmove', block, options);
+      window.removeEventListener('keydown', onKey, true);
+    };
   }, [open]);
 
   // The mobile panel stays mounted so it can animate out; keep it out of the
@@ -233,7 +274,10 @@ export default function Header() {
         <button
           className="nav-reveal relative z-10 flex h-10 w-10 items-center justify-center rounded-md text-[var(--nav-text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-accent)] md:hidden"
           style={{ ['--reveal-delay' as string]: '150ms' }}
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => {
+            setClosingForRoute(false);
+            setOpen((v) => !v);
+          }}
           aria-expanded={open}
           aria-label={open ? 'メニューを閉じる' : 'メニューを開く'}
         >
@@ -248,8 +292,10 @@ export default function Header() {
       <nav
         ref={mobileNavRef}
         data-open={open}
+        data-instant={closingForRoute || undefined}
+        data-lenis-prevent
         aria-hidden={!open}
-        className="mnav fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto bg-[var(--nav-bg-full)] px-6 pb-10 pt-10 md:hidden"
+        className="mnav fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto overscroll-contain bg-[var(--nav-bg-full)] px-6 pb-10 pt-10 md:hidden"
         style={themeStyle}
         aria-label="モバイルナビゲーション"
       >
