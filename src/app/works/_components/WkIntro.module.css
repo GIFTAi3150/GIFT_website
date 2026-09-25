@@ -1,8 +1,8 @@
 .intro {
   position: relative;
   overflow: hidden;
-  background: radial-gradient(ellipse at 82% 48%, #183b80 0%, transparent 60%), #0d1b38;
-  padding-block: clamp(46px, 6vw, 88px) 28px;
+  background: radial-gradient(ellipse at 82% 30%, #183b80 0%, transparent 62%), #0d1b38;
+  padding-block: clamp(72px, 10vw, 140px) clamp(64px, 8vw, 120px);
   color: #f3f6ff;
 }
 
@@ -10,25 +10,39 @@
   padding-inline: 24px;
 }
 
-.eyebrow {
-  margin: 0 0 30px;
+/* ── Label rule: OUR WORK ──────── WORKING TOGETHER ── */
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.eyebrow,
+.caption {
+  margin: 0;
+  flex: none;
   color: #a4bce8;
   font-family: var(--font-poppins), sans-serif;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.5;
   letter-spacing: 0.24em;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+.caption {
+  display: none;
+  color: #6f86b3;
 }
 
-.story {
-  position: relative;
-  z-index: 1;
+.ruleLine {
+  flex: 1;
+  height: 1px;
+  background: #91b4ec40;
 }
+
+/* ── Title ── */
 
 .title {
   margin: 0;
@@ -50,122 +64,140 @@
 .titleMain {
   display: block;
   font-size: clamp(35px, 10vw, 48px);
-  line-height: 1.35;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
-.description {
-  max-width: 34em;
-  margin: 24px 0 0;
-  color: #aebed8;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 2.1;
-  text-wrap: pretty;
-}
+/* ── The register index ── */
 
 .areas {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  margin: 16px 0 0;
+  margin: clamp(44px, 7vw, 96px) 0 0;
   padding: 0;
-  overflow: hidden;
-  border: 1px solid #91b4ec40;
-  border-radius: 12px;
-  background: #8bb4ff06;
   list-style: none;
+  border-bottom: 1px solid #91b4ec38;
 }
 
-.areas > li {
-  min-width: 0;
-}
-
-.areas > li + li {
-  border-top: 1px solid #91b4ec30;
+.row {
+  /* 0 = in register. WkIntroRegister writes 1 → 0 as the row rises. */
+  --mis: 0;
+  --ink: #f3f6ff;
+  position: relative;
+  border-top: 1px solid #91b4ec38;
 }
 
 .area {
+  position: relative;
   display: flex;
-  min-height: 82px;
-  height: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 15px 18px;
-  color: #f0f5ff;
+  flex-direction: column;
+  gap: 14px;
+  padding-block: 22px 20px;
+  color: var(--ink);
   text-decoration: none;
+  isolation: isolate;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  transition: background-color 200ms ease;
 }
 
-.areaCopy {
-  min-width: 0;
+/* Pale plate that wipes in behind the row on hover. Bleeds into the gutter. */
+.wipe {
+  position: absolute;
+  z-index: -1;
+  inset: 0 -24px;
+  background: #eef3ff;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 700ms cubic-bezier(0.7, 0, 0.2, 1);
 }
 
-.category {
+.word {
+  position: relative;
   display: block;
-  margin-bottom: 4px;
-  color: #a7bfe6;
   font-family: var(--font-poppins), sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: 0.12em;
-}
-
-.areaTitle {
-  display: block;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.6;
+  font-size: 12vw;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.045em;
   white-space: nowrap;
 }
 
-.areaArrow {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  flex: none;
-  place-items: center;
-  border: 1px solid #abcafa4d;
-  border-radius: 50%;
-  background: #8bb4ff0a;
-  color: #d8e7ff;
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease;
+.wordSizer {
+  display: block;
+  visibility: hidden;
 }
 
-.areaArrow svg {
-  transition: transform 250ms ease;
+.strip {
+  position: absolute;
+  inset: 0;
+  display: block;
+  color: color-mix(in srgb, var(--tint) calc(var(--mis) * 100%), var(--ink));
+  transform: translate3d(calc(var(--mis) * var(--shift)), 0, 0);
+  transition: color 320ms ease;
+  will-change: transform;
+}
+
+/* Cap height sits at ~11%–89% of the 0.9 line box (Poppins 700), so the cuts at
+   37% / 63% give three equal slices of the capitals. Slices overlap by 0.2% so
+   no hairline seam shows once they are in register. */
+.strip[data-strip='0'] {
+  --shift: -0.5em;
+  --tint: #6f96ff;
+  clip-path: inset(0 0 62.9% 0);
+}
+
+.strip[data-strip='1'] {
+  --shift: 0.36em;
+  --tint: #c9d8ff;
+  clip-path: inset(36.9% 0 36.9% 0);
+}
+
+.strip[data-strip='2'] {
+  --shift: -0.2em;
+  --tint: #3d64d8;
+  clip-path: inset(62.9% 0 0 0);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.areaTitle {
+  color: #c1d1ee;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: color 320ms ease;
 }
 
 .area:focus-visible {
   outline: 2px solid #b8d6ff;
-  outline-offset: -4px;
+  outline-offset: 4px;
 }
 
-.area:active {
-  background-color: #7aa9ff26;
-}
-
-.area:active .areaArrow {
-  background-color: #9cbfff30;
+.area:active .wipe {
+  clip-path: inset(0 0 0 0);
+  opacity: 0.12;
+  transition: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .area:hover {
-    background-color: #7aa9ff16;
+  .row:hover {
+    --ink: #0d1b38;
   }
 
-  .area:hover .areaArrow {
-    border-color: #b8d5ff99;
-    background-color: #9cbfff26;
+  .row:hover .wipe {
+    clip-path: inset(0 0 0 0);
   }
 
-  .area:hover .areaArrow svg {
-    transform: translateX(2px);
+  .row:hover .areaTitle {
+    color: #0d1b38;
+  }
+
+  .area:active .wipe {
+    opacity: 1;
   }
 }
 
@@ -174,67 +206,59 @@
     padding-inline: 32px;
   }
 
-  .eyebrow {
-    margin-bottom: 20px;
+  .eyebrow,
+  .caption {
     font-size: 12px;
   }
 
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .story {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    align-items: end;
-    gap: 54px;
+  .caption {
+    display: block;
   }
 
   .titleLead {
     font-size: clamp(20px, 2.2vw, 28px);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   .titleMain {
-    font-size: clamp(38px, 4.1vw, 60px);
+    font-size: clamp(44px, 5.4vw, 76px);
   }
 
-  .description {
-    margin-top: 0;
-    padding-bottom: 7px;
-    font-size: 14px;
-  }
-
-  .areas {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: 34px;
-  }
-
-  .areas > li + li {
-    border-top: 0;
-    border-left: 1px solid #91b4ec30;
+  .wipe {
+    inset: 0 -32px;
   }
 
   .area {
-    min-height: 100px;
-    gap: 12px;
-    padding: 20px clamp(16px, 2vw, 26px);
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    padding-block: clamp(26px, 3.2vw, 44px);
+  }
+
+  .word {
+    font-size: clamp(56px, min(9vw, 17svh), 136px);
+  }
+
+  .meta {
+    justify-content: flex-end;
+    gap: 22px;
+    padding-bottom: 0.4em;
   }
 
   .areaTitle {
-    font-size: clamp(15px, 1.5vw, 18px);
+    font-size: clamp(15px, 1.4vw, 19px);
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .area,
-  .areaArrow,
-  .areaArrow svg {
-    transition: none;
+  .row {
+    --mis: 0 !important;
   }
 
-  .area:hover .areaArrow svg {
-    transform: none;
+  .wipe,
+  .strip,
+  .areaTitle {
+    transition: none;
   }
 }

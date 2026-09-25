@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { WorksHeroScene } from './createWorksHeroScene';
+import { createWorksHeroScene, type WorksHeroScene } from './createWorksHeroScene';
 import styles from './WkPageVisual.module.css';
 
 export default function WkPageVisual({ children }: { children: ReactNode }) {
@@ -45,20 +45,21 @@ export default function WkPageVisual({ children }: { children: ReactNode }) {
     document.addEventListener('visibilitychange', sync);
     motion.addEventListener('change', onMotionChange);
 
-    // The background can load independently; hero lettering is fixed SVG in the DOM.
-    import('./createWorksHeroScene')
-      .then(({ createWorksHeroScene }) => {
-        if (disposed) return;
-        scene = createWorksHeroScene(canvas, motion.matches, onFailure);
-        if (failed) return;
-        sync();
-        // Fade in the first background frame without replacing the hero lettering.
-        revealFrame = requestAnimationFrame(() => {
-          if (disposed || failed) return;
-          setReady(true);
-        });
-      })
-      .catch(onFailure);
+    // Raw WebGL, bundled with the page: the first frame paints in this effect
+    // instead of after a separate library download. Hero lettering is DOM SVG.
+    try {
+      scene = createWorksHeroScene(canvas, motion.matches, onFailure);
+    } catch {
+      onFailure();
+    }
+    if (!failed) {
+      sync();
+      // Fade in the first background frame without replacing the hero lettering.
+      revealFrame = requestAnimationFrame(() => {
+        if (disposed || failed) return;
+        setReady(true);
+      });
+    }
 
     return () => {
       disposed = true;

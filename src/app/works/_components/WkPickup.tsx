@@ -17,7 +17,7 @@ export default function WkPickup() {
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-8">
           {PICK_UP.cases.map((item, i) => (
-            <Reveal key={item.industry} delay={i * 80}>
+            <Reveal key={item.companyName} delay={i * 80}>
               <WkCaseCard item={item} index={i} />
             </Reveal>
           ))}

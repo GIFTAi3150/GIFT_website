@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useNavTheme, navThemeVars } from '@/lib/navTheme';
 import GiftLogo from '@/components/brand/GiftLogo';
 
@@ -30,6 +30,7 @@ export default function Header() {
   const [mobileServiceOpen, setMobileServiceOpen] = useState(false);
   const [clickedHref, setClickedHref] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Active link detection — root is exact match, others match by prefix
@@ -69,6 +70,13 @@ export default function Header() {
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  // The mobile panel stays mounted so it can animate out; keep it out of the
+  // tab order and the a11y tree while closed. (React 18 has no inert prop.)
+  useEffect(() => {
+    mobileNavRef.current?.toggleAttribute('inert', !open);
+    if (!open) setMobileServiceOpen(false);
   }, [open]);
 
   const handleMouseEnter = () => {
@@ -226,29 +234,31 @@ export default function Header() {
           style={{ ['--reveal-delay' as string]: '150ms' }}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label="メニューを開く"
+          aria-label={open ? 'メニューを閉じる' : 'メニューを開く'}
         >
-          {open ? (
-            <X size={28} strokeWidth={2.5} />
-          ) : (
-            <Menu size={28} strokeWidth={2.5} />
-          )}
+          <span aria-hidden className="burger-bar" />
+          <span aria-hidden className="burger-bar" />
+          <span aria-hidden className="burger-bar" />
         </button>
       </div>
 
     </header>
 
-    {open && (
       <nav
-        className="fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto bg-[var(--nav-bg-full)] px-6 pb-10 pt-10 md:hidden"
+        ref={mobileNavRef}
+        data-open={open}
+        aria-hidden={!open}
+        className="mnav fixed inset-0 top-20 z-40 flex flex-col gap-8 overflow-y-auto bg-[var(--nav-bg-full)] px-6 pb-10 pt-10 md:hidden"
         style={themeStyle}
         aria-label="モバイルナビゲーション"
       >
         {/* ABOUT */}
+        <div className="mnav-mask">
         <Link
           href="/company"
           onClick={() => flashThenCloseMenu('/company')}
-          className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked('/company') ? 'opacity-60' : ''}`}
+          style={{ ['--i' as string]: 0 }}
+          className={`mnav-row flex items-center gap-4 leading-none ${justClicked('/company') ? 'opacity-60' : ''}`}
           aria-current={isActive('/company') ? 'page' : undefined}
         >
           <span
@@ -263,12 +273,16 @@ export default function Header() {
             会社概要
           </span>
         </Link>
+        </div>
 
         {/* SERVICE with expandable sub-items */}
         <div>
+          <div className="mnav-mask">
           <button
+            className={`mnav-row flex items-center gap-4 leading-none ${justClicked('/services') ? 'opacity-60' : ''}`}
+            style={{ ['--i' as string]: 1 }}
+            aria-expanded={mobileServiceOpen}
             onClick={() => { flashClick('/services'); setMobileServiceOpen((v) => !v); }}
-            className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked('/services') ? 'opacity-60' : ''}`}
           >
             <span
               className={`inline-block w-[170px] text-left font-display text-[28px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
@@ -289,15 +303,19 @@ export default function Header() {
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
+          </div>
 
-          {mobileServiceOpen && (
+          <div className="mnav-sub" data-open={mobileServiceOpen}>
+            <div>
             <div className="mt-4 flex flex-col gap-3 pl-4 border-l-2 border-[var(--nav-accent)]/30">
-              {serviceItems.map((s) => (
+              {serviceItems.map((s, i) => (
                 <Link
                   key={s.href}
+                  tabIndex={mobileServiceOpen ? undefined : -1}
+                  style={{ ['--i' as string]: i }}
                   href={s.href}
                   onClick={() => flashThenCloseMenu(s.href)}
-                  className={`flex flex-col gap-0.5 transition-opacity duration-200 ${justClicked(s.href) ? 'opacity-60' : ''}`}
+                  className={`mnav-sub-item flex flex-col gap-0.5 ${justClicked(s.href) ? 'opacity-60' : ''}`}
                   aria-current={isActive(s.href) ? 'page' : undefined}
                 >
                   <span className="font-display text-[11px] font-bold uppercase tracking-widest text-[var(--nav-accent)]">
@@ -313,16 +331,18 @@ export default function Header() {
                 </Link>
               ))}
             </div>
-          )}
+            </div>
+          </div>
         </div>
 
         {/* Rest of nav items */}
-        {navItems.slice(serviceNavIndex).map((item) => (
+        {navItems.slice(serviceNavIndex).map((item, i) => (
+          <div key={item.href} className="mnav-mask">
           <Link
-            key={item.href}
             href={item.href}
             onClick={() => flashThenCloseMenu(item.href)}
-            className={`flex items-center gap-4 leading-none transition-opacity duration-200 ${justClicked(item.href) ? 'opacity-60' : ''}`}
+            style={{ ['--i' as string]: 2 + i }}
+            className={`mnav-row flex items-center gap-4 leading-none ${justClicked(item.href) ? 'opacity-60' : ''}`}
             aria-current={isActive(item.href) ? 'page' : undefined}
           >
             <span
@@ -337,9 +357,9 @@ export default function Header() {
               {item.ja}
             </span>
           </Link>
+          </div>
         ))}
       </nav>
-    )}
     </>
   );
 }

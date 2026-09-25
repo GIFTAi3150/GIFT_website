@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Headphones, Store } from 'lucide-react';
+import { Headphones, Blocks } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { PickUpCase } from './worksContent';
 import styles from './WkCaseCard.module.css';
@@ -14,7 +14,7 @@ export default function WkCaseCard({ item, index }: { item: PickUpCase; index: n
   const controlRef = useRef<HTMLButtonElement>(null);
   const [interactive, setInteractive] = useState(false);
   const number = String(index + 1).padStart(2, '0');
-  const Icon = item.icon === 'headphones' ? Headphones : Store;
+  const Icon = item.icon === 'headphones' ? Headphones : Blocks;
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -127,21 +127,20 @@ export default function WkCaseCard({ item, index }: { item: PickUpCase; index: n
     >
       <div ref={cardRef} className={styles.card} data-perspective-card>
         <div className={styles.visual}>
-          <div className={styles.photoFrame}>
-            {/* Existing service imagery is decorative, not client-project photography. */}
+          <div className={styles.logoFrame}>
             <Image
-              src={item.imageSrc}
-              alt=""
+              src={item.logoSrc}
+              alt={item.logoAlt}
               fill
-              sizes="(max-width: 767px) calc(100vw - 80px), (max-width: 1280px) 42vw, 520px"
-              className={styles.photo}
+              sizes="(max-width: 767px) calc(100vw - 160px), (max-width: 1280px) 30vw, 360px"
+              className={styles.logo}
             />
-            <div className={styles.photoShade} />
           </div>
           <div className={styles.label}>
             <span className={styles.labelKicker}>CASE {number}</span>
-            <h3 id={'works-case-' + number} className={styles.industry}>
-              {item.industry}
+            <span className={styles.labelIndustry}>{item.industry}</span>
+            <h3 id={'works-case-' + number} className={styles.company}>
+              {item.companyName}
             </h3>
           </div>
           <div className={styles.disc} aria-hidden="true">
@@ -160,7 +159,7 @@ export default function WkCaseCard({ item, index }: { item: PickUpCase; index: n
         ref={controlRef}
         type="button"
         className={styles.motionControl}
-        aria-label={item.industry + 'のカードアニメーションを再生'}
+        aria-label={item.companyName + 'のカードアニメーションを再生'}
         hidden={!interactive}
       />
     </article>

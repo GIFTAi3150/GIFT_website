@@ -51,22 +51,24 @@
   flex-shrink: 0;
   transform-style: preserve-3d;
 }
-.photoFrame {
+.logoFrame {
   position: absolute;
   inset: 0;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.95);
+  border-bottom-color: #e3ebf7;
   border-radius: 5px 5px 0 0;
-  background: #c4d7f2;
+  /* pale plate: logos are full-colour on transparent, they need a light ground */
+  background:
+    radial-gradient(ellipse at 50% 42%, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+    #f1f6fe;
 }
-.photo {
-  object-fit: cover;
+.logo {
+  /* contain, never cover — a cropped logo is broken branding */
+  object-fit: contain;
   object-position: center;
-}
-.photoShade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(12, 31, 73, 0.38));
+  /* padding keeps clear space around the mark and room for the label/disc overlaps */
+  padding: 22% 16% 20%;
 }
 .label {
   position: absolute;
@@ -89,12 +91,20 @@
   font-weight: 500;
   letter-spacing: 0.12em;
 }
-.industry {
-  margin: 0;
+.labelIndustry {
+  display: block;
+  color: #4a5f82;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.company {
+  margin: 2px 0 0;
   color: #173d8f;
   font-size: clamp(14px, 1.4vw, 18px);
   font-weight: 700;
   line-height: 1.5;
+  text-wrap: balance; /* JP orphan rule — no lone trailing 様 */
 }
 .disc {
   position: absolute;

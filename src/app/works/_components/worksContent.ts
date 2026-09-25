@@ -1,9 +1,9 @@
 // Every string shown on /works. Soft-launch draft — this page is not yet wired
 // into Header/Footer nav or sitemap.ts (see Plans.md T-WK4).
 //
-// Client logos supplied by the requester are listed first. Sample company
-// names, industry labels, and case descriptions remain placeholder content.
-// Do not treat those placeholders as confirmed facts.
+// Client logos supplied by the requester are listed first. Sample logo-wall
+// company names remain placeholder content. Do not treat those placeholders
+// as confirmed facts.
 
 export const HERO = {
   nameEn: 'WORKS',
@@ -79,29 +79,35 @@ export const LOGO_WALL: {
 };
 
 export type PickUpCase = {
-  imageSrc: string;
-  icon: 'headphones' | 'store';
+  logoSrc: string;
+  logoAlt: string;
+  icon: 'workshop' | 'headphones';
   industry: string;
+  companyName: string;
   body: string;
 };
 
-// 導入事例は会社名を出さず「業種 + 内容」で紹介する方針(2026-09-02 依頼者決定)。
-// 【要確認】事例の業種・内容は仮。実事例の文言は docs/works-facts-to-confirm.md で確定させる。
+// 導入事例: 2026-09-25 依頼者より実事例に差し替え(会社名・ロゴ掲載)。
+// 🚫 両社の掲載許可が取れるまで本番(main)に出さないこと。
 export const PICK_UP: { eyebrow: string; title: string; cases: PickUpCase[] } = {
   eyebrow: 'PICK UP',
   title: '導入事例',
   cases: [
     {
-      imageSrc: '/img/services/cc-homep.jpg',
-      icon: 'headphones',
-      industry: '通信 ［仮・業種］',
-      body: 'コールセンター業務の立ち上げから運用設計までを一貫して支援。応対品質の標準化に取り組みました。［仮テキスト］',
+      logoSrc: '/img/works/atorie-case.png',
+      logoAlt: 'あとりえ',
+      icon: 'workshop',
+      industry: '障がい福祉（就労継続支援B型）',
+      companyName: 'あとりえ 様',
+      body: 'Claude Codeに現場で必要な項目や画面を言葉で伝えながら、在庫や営業先を管理する業務アプリを開発。日々の記録や数字の確認もアプリで行えるようになり、表計算に頼っていた現場の管理業務を、自分たちの手で仕組み化しています。',
     },
     {
-      imageSrc: '/img/services/services-dx-photo.png',
-      icon: 'store',
-      industry: '小売 ［仮・業種］',
-      body: '店舗オペレーションのDX化を支援。日次報告をLINEベースのワークフローへ移行しました。［仮テキスト］',
+      logoSrc: '/img/works/gran-communications.png',
+      logoAlt: '株式会社グランコミュニケーションズ',
+      icon: 'headphones',
+      industry: '通信',
+      companyName: '株式会社グランコミュニケーションズ 様',
+      body: '取り扱う複数のサービスごとに、お客様が気軽に相談できるサポート窓口をLINEアプリで構築。LINEアプリとSalesforceを自動で連携させることで、担当者が手作業で行っていた情報の転記や確認の手間を減らしました。',
     },
   ],
 };
