@@ -1,7 +1,7 @@
 .visual {
   position: relative;
   flex: none;
-  width: min(54vw, 60svh, 760px);
+  width: min(54vw, calc(var(--svh-frozen, 100svh) * 0.6), 760px);
   aspect-ratio: 600 / 360;
   perspective: 1400px;
   pointer-events: none;
@@ -72,7 +72,7 @@
   width: 1.973em;
   height: 0.715em;
   color: #0a1650;
-  font-size: clamp(48px, min(7.5vw, 10svh), 110px);
+  font-size: clamp(48px, min(7.5vw, calc(var(--svh-frozen, 100svh) * 0.1)), 110px);
   transform: translate(-50%, -50%);
 }
 
@@ -104,7 +104,7 @@
 
 @media (max-width: 767px) {
   .visual {
-    width: min(92vw, 52svh);
+    width: min(92vw, calc(var(--svh-frozen, 100svh) * 0.52));
   }
 
   .visualWord {
