@@ -8,6 +8,7 @@ import GiftLogo from '@/components/brand/GiftLogo';
 
 const footerNav = [
   { href: '/company', en: 'ABOUT', ja: '会社概要' },
+  { href: '/works', en: 'WORKS', ja: '取引実績' },
   { href: '/contact', en: 'CONTACT', ja: 'お問い合わせ' },
 ];
 
