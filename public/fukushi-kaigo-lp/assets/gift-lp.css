@@ -119,6 +119,8 @@
   #gift-landing .gift-provisional { margin-top:6px; }
   #gift-landing .gift-examples { grid-area:examples; margin-top:28px; }
   #gift-landing .gift-example-list { gap:20px 14px; }
+  /* Mobile: the first card takes both slots of its row; the other four pair up 2 by 2 below. */
+  #gift-landing .gift-example:first-child { grid-column:span 2; }
   #gift-landing .gift-sector { font-size:14px; }
   #gift-landing .gift-example h3 { font-size:14px; }
   #gift-landing .gift-sidebar { grid-area:sidebar; position:static; gap:26px; margin-top:33px; }
@@ -253,6 +255,8 @@
 #gift-landing .gift-example-open svg { transform:rotate(0deg); transform-origin:center; transition:transform 360ms cubic-bezier(.22,1,.36,1); }
 #gift-landing .gift-example-open[aria-expanded="true"] svg { transform:rotate(90deg); }
 #gift-landing .gift-example-open:focus-visible, #gift-landing .gift-dialog-close:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+#gift-landing .gift-example-open, #gift-landing .gift-dialog-close { -webkit-tap-highlight-color:transparent; }
+#gift-landing .gift-example-open.gift-pointer-focus, #gift-landing .gift-dialog-close.gift-pointer-focus { outline:none; }
 #gift-landing .gift-example-dialog { position:fixed; inset:0; width:min(560px,calc(100vw - 32px)); max-width:none; height:fit-content; max-height:calc(100dvh - 32px); margin:auto; padding:0; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--ink); font-family:inherit; overflow:auto; overscroll-behavior:contain; box-shadow:0 20px 64px #0b102033; }
 #gift-landing .gift-example-dialog::backdrop { background:#0b102080; }
 #gift-landing .gift-example-dialog[open] { animation:gift-dialog-enter 360ms cubic-bezier(.22,1,.36,1) both; }
@@ -654,4 +658,11 @@
   #gift-landing .gift-line-card { padding:80px 0 88px; }
   #gift-landing .gift-line-card .gift-consultation { margin:4px 0 32px; font-size:min(7.4cqw,34px); line-height:1.35; }
   #gift-landing .gift-line-card .gift-line-button { min-height:60px; font-size:16px; }
+}
+
+/* Touch devices: a tapped CTA keeps focus, so drop the tap flash and the keyboard focus ring. */
+@media (hover:none) and (pointer:coarse) {
+  #gift-landing .gift-line-button, #gift-landing .gift-qr-code { -webkit-tap-highlight-color:transparent; }
+  #gift-landing .gift-line-button:focus-visible, #gift-landing .gift-qr-code:focus-visible,
+  #gift-landing .gift-hero-action .gift-line-button:focus-visible, #gift-landing .gift-line-card .gift-line-button:focus-visible, #gift-landing .gift-line-card .gift-qr-code:focus-visible { outline:none; }
 }

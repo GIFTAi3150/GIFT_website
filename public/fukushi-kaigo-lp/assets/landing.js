@@ -174,10 +174,26 @@
     const title = exampleDialog.querySelector('#gift-example-dialog-title');
     const sector = exampleDialog.querySelector('.gift-dialog-sector');
     const copy = exampleDialog.querySelector('#gift-example-dialog-copy');
+    const closeButton = exampleDialog.querySelector('[data-example-close]');
+    let openedByPointer = false;
+
+    // Dialog focus moves (open → close button, close → trigger) should only
+    // draw a focus ring for keyboard users, not after a tap or click.
+    const muteFocusRing = (el) => {
+      if (!el) return;
+      el.classList.add('gift-pointer-focus');
+      el.addEventListener('blur', () => el.classList.remove('gift-pointer-focus'), { once: true });
+    };
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      document.querySelectorAll('.gift-pointer-focus').forEach((el) => el.classList.remove('gift-pointer-focus'));
+    });
 
     document.querySelectorAll('[data-example-open]').forEach((button) => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (event) => {
         if (exampleDialog.open) return;
+        // detail is 0 for keyboard-activated clicks (Enter/Space).
+        openedByPointer = event.detail > 0;
         const card = button.closest('.gift-example');
         const sourceImage = card.querySelector('.gift-example-image');
         image.src = sourceImage.currentSrc || sourceImage.src;
@@ -189,6 +205,7 @@
         button.setAttribute('aria-expanded', 'true');
         savedScrollY = window.scrollY;
         document.documentElement.classList.add('gift-modal-open');
+        if (openedByPointer) muteFocusRing(closeButton);
         exampleDialog.showModal();
         exampleDialog.scrollTop = 0;
       });
@@ -212,7 +229,10 @@
       if (exampleDialog.open && closing) exampleDialog.close();
     };
 
-    exampleDialog.querySelector('[data-example-close]').addEventListener('click', closeDialog);
+    closeButton.addEventListener('click', (event) => {
+      if (event.detail > 0) openedByPointer = true;
+      closeDialog();
+    });
     exampleDialog.addEventListener('cancel', (event) => {
       event.preventDefault();
       closeDialog();
@@ -242,6 +262,7 @@
       exampleDialog.classList.remove('is-closing');
       activeTrigger?.setAttribute('aria-expanded', 'false');
       document.documentElement.classList.remove('gift-modal-open');
+      if (openedByPointer) muteFocusRing(activeTrigger);
       activeTrigger?.focus({ preventScroll: true });
       window.scrollTo({ top: savedScrollY, behavior: 'instant' });
       activeTrigger = null;
