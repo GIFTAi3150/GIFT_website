@@ -25,7 +25,7 @@ function start() {
   ];
 
   const view = { w: 1, h: 1, dpr: 1 };
-  const pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, active: false };
+  const pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, active: false, pull: 0 };
   let program = null;
   let buffer = null;
   let vertexCount = 0;
@@ -241,10 +241,10 @@ function start() {
       lx = view.w * 0.68;
       ly = view.h * 0.34;
     }
-    if (pointer.active) {
-      lx += (pointer.x * view.w - lx) * 0.35;
-      ly += (pointer.y * view.h - ly) * 0.35;
-    }
+    // The mouse's pull on the light fades in and out, so leaving the hero never snaps it.
+    pointer.pull += ((pointer.active ? 0.35 : 0) - pointer.pull) * (reduce ? 1 : k);
+    lx += (pointer.x * view.w - lx) * pointer.pull;
+    ly += (pointer.y * view.h - ly) * pointer.pull;
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -321,9 +321,13 @@ function start() {
     (event) => {
       if (event.pointerType !== 'mouse') return;
       const rect = bg.getBoundingClientRect();
-      pointer.tx = (event.clientX - rect.left) / view.w;
-      pointer.ty = (event.clientY - rect.top) / view.h;
-      pointer.active = pointer.ty >= 0 && pointer.ty <= 1;
+      const x = (event.clientX - rect.left) / view.w;
+      const y = (event.clientY - rect.top) / view.h;
+      pointer.active = y >= 0 && y <= 1;
+      // Outside the hero the light and parallax drift back to centre instead of chasing
+      // a cursor that is somewhere else on the page.
+      pointer.tx = pointer.active ? x : 0.5;
+      pointer.ty = pointer.active ? y : 0.5;
       if (reduce) requestDraw();
     },
     { passive: true },
