@@ -435,6 +435,7 @@
   #gift-landing .gift-catalog-figure { margin-top:32px; border-radius:4px; }
   #gift-landing .gift-wordmark { display:none; }
   #gift-landing .gift-hero-action { margin-top:24px; }
+  #gift-landing .gift-hero-action .gift-line-button { width:min(100%,400px); margin-inline:auto; }
   #gift-landing .gift-hero-action .gift-line-button, #gift-landing .gift-line-card .gift-line-button { background:var(--accent); color:#fff; }
   #gift-landing .gift-hero-action .gift-line-button:hover, #gift-landing .gift-line-card .gift-line-button:hover { background:var(--accent-hover); }
   #gift-landing .gift-hero-action .gift-line-button:focus-visible, #gift-landing .gift-line-card .gift-line-button:focus-visible { outline-color:var(--hp-periwinkle); }
