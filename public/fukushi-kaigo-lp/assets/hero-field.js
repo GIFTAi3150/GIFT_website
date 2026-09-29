@@ -8,7 +8,7 @@
 
 const bg = document.querySelector('.gift-hero-bg');
 const canvas = bg?.querySelector('.gift-wall-canvas');
-// The wall is the backdrop behind the ribbon knot, on every screen size.
+// The wall is the hero background on every screen size.
 if (bg && canvas) start();
 
 function start() {

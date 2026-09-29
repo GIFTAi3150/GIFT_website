@@ -50,12 +50,13 @@
 #gift-landing .gift-line-button:focus-visible { outline:3px solid var(--cta-focus); outline-offset:4px; }
 #gift-landing .gift-hero-bg { display:none; }
 #gift-landing .gift-hero-bg canvas { position:absolute; inset:0; display:block; width:100%; height:100%; opacity:0; transition:opacity 1.2s ease; }
-#gift-landing .gift-hero-bg.is-live .gift-wall-canvas { opacity:.5; }
-#gift-landing .gift-hero-bg.is-ribbon-live .gift-ribbon-canvas { opacity:1; transition-duration:.4s; }
-#gift-landing .gift-hero-bg .gift-ribbon-canvas { z-index:1; }
-#gift-landing .gift-hero-stage { display:none; }
-/* The ribbon knot passes behind the headline; a soft navy halo keeps the words crisp. */
-#gift-landing .gift-hero-intro h1 { text-shadow:0 2px 16px #0b1020,0 0 44px #0b1020d9; }
+#gift-landing .gift-hero-bg.is-live .gift-wall-canvas { opacity:.9; }
+/* The text wall runs behind the headline; a soft navy halo keeps the words crisp. */
+#gift-landing .gift-hero-intro h1, #gift-landing .gift-hero-lead { text-shadow:0 2px 16px #0b1020,0 0 44px #0b1020d9; }
+#gift-landing .gift-hero-lead span { display:block; text-wrap:balance; }
+/* Phrases never split, so a line only breaks between them. */
+#gift-landing .gift-hero-lead b { display:inline-block; font-weight:inherit; }
+#gift-landing .gift-hero-lead { margin-top:18px; color:#c3cee2; font-size:14px; font-weight:500; line-height:1.9; text-wrap:balance; }
 #gift-landing .gift-hero-bg::after { content:""; position:absolute; inset:0; pointer-events:none; }
 #gift-landing .gift-hero-intro { grid-column:2; grid-row:1; margin:0; }
 #gift-landing h1 { font-size:27px; font-weight:800; line-height:1.75; letter-spacing:-.03em; }
@@ -296,11 +297,10 @@
   #gift-landing .gift-layout::before { content:""; grid-column:1 / -1; grid-row:1 / 5; justify-self:center; align-self:stretch; width:100cqw; z-index:-1; background:linear-gradient(180deg,#0b1020 0%,#0e1629 100%); }
   #gift-landing .gift-hero-bg { display:block; position:relative; z-index:-1; grid-column:1 / -1; grid-row:1 / 5; justify-self:center; align-self:stretch; width:100cqw; overflow:hidden; pointer-events:none; }
   #gift-landing .gift-hero-bg::after { z-index:2; background:linear-gradient(90deg,#0b1020e6 0%,#0b1020b3 30%,#0b102040 52%,#0b102000 64%),linear-gradient(180deg,#0e162900 78%,#0e1629cc 92%,#0e1629 100%); }
-  #gift-landing .gift-hero-stage { display:block; grid-column:7 / -1; grid-row:1 / 4; align-self:stretch; min-height:clamp(560px,76vh,760px); pointer-events:none; }
   #gift-landing .gift-left-column { display:contents; }
-  /* The ribbon ball leads the hero; the headline sits beside it in the left half. */
-  #gift-landing .gift-hero-intro { grid-column:1 / 7; grid-row:1; padding-top:clamp(120px,18vh,190px); }
-  #gift-landing h1 { color:#fff; font-size:clamp(38px,min(3.9cqw,7.4vh),56px); line-height:1.3; letter-spacing:-.05em; }
+  #gift-landing .gift-hero-intro { grid-column:1 / -1; grid-row:1; padding-top:clamp(72px,11vh,112px); }
+  #gift-landing h1 { color:#fff; font-size:clamp(56px,min(5.7cqw,10.5vh),84px); line-height:1.24; letter-spacing:-.05em; }
+  #gift-landing .gift-hero-lead { max-width:50em; margin-top:32px; font-size:clamp(16px,1.35cqw,19px); }
   #gift-landing h1 span { position:relative; display:block; width:max-content; white-space:nowrap; }
   #gift-landing h1 span:last-child { color:var(--hp-periwinkle); }
   #gift-landing .gift-hero-action { grid-column:1 / 5; grid-row:2; align-self:start; width:auto; margin-top:48px; }
@@ -411,8 +411,6 @@
   #gift-landing .gift-layout::before { content:""; grid-column:1 / -1; grid-row:1 / 6; justify-self:center; align-self:stretch; width:100cqw; z-index:-1; background:linear-gradient(180deg,#0b1020 0%,#0e1629 100%); }
   #gift-landing .gift-hero-bg { display:block; position:relative; z-index:-1; grid-column:1 / -1; grid-row:1 / 6; justify-self:center; align-self:stretch; width:100cqw; overflow:hidden; pointer-events:none; }
   #gift-landing .gift-hero-bg::after { z-index:2; background:linear-gradient(180deg,#0e162900 70%,#0e1629e6 100%); }
-  #gift-landing .gift-hero-stage { display:block; grid-area:figure; aspect-ratio:1 / 0.92; width:100%; margin-top:28px; pointer-events:none; }
-  #gift-landing .gift-hero-stage.is-ribbon-off { display:none; }
   #gift-landing .gift-hero-intro { padding-top:52px; }
   #gift-landing h1 { color:#fff; font-size:min(7.1cqw,42px); line-height:1.42; letter-spacing:-.045em; }
   #gift-landing h1 span:last-child { color:var(--hp-periwinkle); }
