@@ -653,6 +653,8 @@
   #gift-landing .gift-line-card { padding:80px 0 88px; }
   #gift-landing .gift-line-card .gift-consultation { margin:4px 0 32px; font-size:min(7.4cqw,34px); line-height:1.35; }
   #gift-landing .gift-line-card .gift-line-button { min-height:60px; font-size:16px; }
+  /* CTAs hug their label instead of spanning the column. */
+  #gift-landing .gift-hero-action .gift-line-button, #gift-landing .gift-line-card .gift-line-button, #gift-landing .gift-search-more { width:fit-content; max-width:100%; padding-inline:36px; margin-inline:auto; }
 }
 
 /* Touch devices: a tapped CTA keeps focus, so drop the tap flash and the keyboard focus ring. */
