@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="/fukushi-kaigo-lp/assets/gift-lp.css" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <script src="/fukushi-kaigo-lp/assets/landing.js" defer></script>
+    <script type="module" src="/fukushi-kaigo-lp/assets/hero-field.js"></script>
+    <script type="module" src="/fukushi-kaigo-lp/assets/ribbon-hero.js?rev=963d906e5d37"></script>
   </head>
   <body>
     <div id="gift-landing">
@@ -30,6 +32,7 @@
           <p>介護・福祉・保育のためのAI活用</p>
         </header>
         <main class="gift-layout gift-width">
+          <div class="gift-hero-bg" aria-hidden="true"><canvas class="gift-wall-canvas"></canvas><canvas class="gift-ribbon-canvas"></canvas></div>
           <div class="gift-hero-intro">
             <h1 id="gift-headline">
               <span>現場の作業を、</span><span>ぜんぶ書き出して、</span
@@ -314,32 +317,7 @@
             </div>
             <div class="gift-hero-action">{{LINE_BUTTON_HERO}}</div>
           </div>
-          <figure class="gift-catalog-figure">
-            <div class="gift-wordmark" aria-label="株式会社GIFT">
-              GIFT<small>介護・福祉・保育のAI活用</small>
-            </div>
-            <img
-              class="gift-catalog-image"
-              src="/fukushi-kaigo-lp/assets/gift-welfare-care-photo.webp"
-              width="1536"
-              height="1024"
-              alt="明るい施設で、子どもたちと折り紙を楽しむ車いすの高齢者と、笑顔で寄り添う介護スタッフ。"
-              fetchpriority="high"
-            />
-          </figure>
-          <div class="gift-hero-index" aria-hidden="true">
-            <span class="gift-hero-index-tab">作業名で引く</span>
-            <div class="gift-hero-index-window">
-              <ul class="gift-hero-index-list">
-                <li><span class="gift-hero-index-sector">事業：就労支援</span><span>支援記録を話して下書き</span></li>
-                <li><span class="gift-hero-index-sector">事業：放課後等デイ</span><span>保護者のよくある質問に自動回答</span></li>
-                <li><span class="gift-hero-index-sector">事業：デイサービス</span><span>欠席連絡の電話受付</span></li>
-                <li><span class="gift-hero-index-sector">事業：訪問介護</span><span>加算ごとの要件点検表</span></li>
-                <li><span class="gift-hero-index-sector">事業：ケアマネ</span><span>翌月予定表の一斉送付</span></li>
-                <li><span class="gift-hero-index-sector">事業：就労支援</span><span>支援記録を話して下書き</span></li>
-              </ul>
-            </div>
-          </div>
+          <div class="gift-hero-stage" aria-hidden="true"></div>
           <section class="gift-catalog" id="catalog" aria-labelledby="gift-catalog-title">
             <div class="gift-section-heading">
               <span class="gift-section-kicker" lang="en" aria-hidden="true">CATALOG</span>
