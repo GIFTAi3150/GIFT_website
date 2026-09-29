@@ -25,18 +25,15 @@
       rel="stylesheet"
     />
     <link rel="preload" href="/fonts/Poppins-Bold.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="stylesheet" href="/ai-catalog-lp/styles.css?rev=cue-4" />
-    <script type="module" src="/ai-catalog-lp/assets/catalog-3d.js?rev=ca3135e9c99a"></script>
+    <link rel="stylesheet" href="/ai-catalog-lp/styles.css?rev=examples-labels-5" />
+    <script type="module" src="/ai-catalog-lp/assets/catalog-3d.js?rev=3789116b3459"></script>
     <script type="module" src="/ai-catalog-lp/assets/lp-field.js?rev=3"></script>
-    <script type="module" src="/ai-catalog-lp/assets/lp-motion.js?rev=9"></script>
+    <script type="module" src="/ai-catalog-lp/assets/lp-motion.js?rev=10"></script>
     <script>
-      // Reveal styles apply only with JS; if the motion module never runs, show everything.
+      // If the motion module does not run, show the receive steps at full contrast.
       document.documentElement.classList.add('js');
       setTimeout(function () {
         if (!window.__lpMotion) document.documentElement.classList.remove('js');
-        // The 3D loader never ran: show the catalog poster and theme list.
-        var slot = document.getElementById('catalog-slot');
-        if (!window.__catalog && slot) slot.setAttribute('data-fallback', 'true');
       }, 4000);
     </script>
   </head>
@@ -108,86 +105,121 @@
       </section>
 
       <section class="preview" aria-labelledby="preview-title">
-        <div class="pv-track" id="pv-track">
-          <div class="pv-stage">
-            <div class="container pv-stage-inner">
-              <div class="pv-head">
-                <p class="pv-label reveal">
-                  <span>CATALOG PREVIEW</span><span class="pv-label-rule" aria-hidden="true"></span>
-                </p>
-                <h2 id="preview-title" class="pv-title">
-                  <span class="mask"><span>例えば、</span></span><span class="mask"><span>こんな仕事に。</span></span>
-                </h2>
-              </div>
-              <div class="pv-slot" id="catalog-slot" aria-hidden="true">
-                <picture>
-                  <source media="(max-width: 760px)" srcset="/ai-catalog-lp/assets/catalog-poster-480.webp" />
-                  <img
-                    class="pv-slot-poster"
-                    src="/ai-catalog-lp/assets/catalog-poster-960.webp"
-                    width="960"
-                    height="960"
-                    loading="lazy"
-                    decoding="async"
-                    alt=""
-                  />
-                </picture>
-              </div>
-              <span class="pv-hint" aria-hidden="true"></span>
-            </div>
+        <div class="container">
+          <div class="pv-head">
+            <p class="pv-label">
+              <span>CATALOG PREVIEW</span><span class="pv-label-rule" aria-hidden="true"></span>
+            </p>
+            <h2 id="preview-title" class="pv-title">例えば、<span>こんな仕事に。</span></h2>
           </div>
-        </div>
-        <div class="container pv-samples" id="pv-samples">
-          <ol class="pv-fallback" id="pv-theme-data" aria-label="8つのテーマ">
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">01</span>
-              <h3>問い合わせ・電話・LINE対応</h3>
-              <p>よくある質問は、AIが一次対応。</p>
-              <ul><li>営業時間外の問い合わせに自動で返信</li><li>通話内容を要約して担当者へ共有</li></ul>
+          <ol class="pv-cards" aria-label="カタログに収録された仕事の例">
+            <li class="pv-card">
+              <div class="pv-art pv-art-chat" aria-hidden="true">
+                <svg viewBox="0 0 320 210" fill="none">
+                  <ellipse cx="163" cy="111" rx="117" ry="82" fill="#eaf1fd" />
+                  <path d="M46 97v42c0 12 8 20 20 20h31" stroke="#94b5e7" stroke-width="2" stroke-dasharray="4 5" />
+                  <g class="pv-paper">
+                    <path d="M45 28h167a12 12 0 0 1 12 12v51a12 12 0 0 1-12 12H76l-23 14v-14h-8a12 12 0 0 1-12-12V40a12 12 0 0 1 12-12Z" fill="white" stroke="#d0dced" />
+                    <circle cx="60" cy="64" r="13" fill="#edf2fa" />
+                    <circle cx="60" cy="60" r="4" fill="#8799b8" />
+                    <path d="M53 72v-2a7 7 0 0 1 14 0v2" fill="#8799b8" />
+                    <text x="83" y="68" fill="#233752" font-size="14" font-weight="500">営業時間は？</text>
+                    <path class="pv-art-mobile-line" d="M86 57h97M86 70h61" stroke="#c9d7ea" stroke-width="6" stroke-linecap="round" />
+                  </g>
+                  <g class="pv-paper">
+                    <path d="M112 110h164a13 13 0 0 1 13 13v48a13 13 0 0 1-13 13h-8v13l-23-13H112a13 13 0 0 1-13-13v-48a13 13 0 0 1 13-13Z" fill="#2563eb" />
+                    <path d="m122 126 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" fill="#b6d6ff" />
+                    <text x="143" y="141" fill="white" font-size="14" font-weight="800">AIが一次対応</text>
+                    <path d="M144 159h107" stroke="#a8caff" stroke-width="5" stroke-linecap="round" />
+                    <path class="pv-art-mobile-line" d="M144 137h94" stroke="white" stroke-width="6" stroke-linecap="round" />
+                  </g>
+                </svg>
+              </div>
+              <div class="pv-card-copy">
+                <span class="pv-card-label" aria-hidden="true">RESPONSE</span>
+                <h3>問い合わせ対応</h3>
+                <p><span>営業時間外の質問にも、</span><span>AIが自動で返信。</span></p>
+              </div>
             </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">02</span>
-              <h3>連絡・案内・催促</h3>
-              <p>伝え忘れも、言いにくい連絡も。</p>
-              <ul><li>予約前日のリマインドを自動送信</li><li>未提出・未入金へのやわらかな催促文</li></ul>
+            <li class="pv-card">
+              <div class="pv-art pv-art-report" aria-hidden="true">
+                <svg viewBox="0 0 320 210" fill="none">
+                  <ellipse cx="161" cy="111" rx="117" ry="82" fill="#eaf1fd" />
+                  <g class="pv-paper" transform="rotate(-10 83 124)">
+                    <rect x="28" y="62" width="112" height="128" rx="6" fill="white" stroke="#d0dced" />
+                    <rect x="39" y="73" width="90" height="65" rx="3" fill="#dbeafe" />
+                    <circle cx="108" cy="90" r="8" fill="#93bafb" />
+                    <path d="m39 133 27-32 21 24 12-13 30 26H39Z" fill="#83aef1" />
+                    <path d="M42 154h65M42 166h45" stroke="#c9d7ea" stroke-width="5" stroke-linecap="round" />
+                  </g>
+                  <path d="M120 104h33m-8-8 8 8-8 8" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <g class="pv-paper" transform="rotate(5 211 105)">
+                    <path d="M163 21h92l24 24v136a7 7 0 0 1-7 7H163a7 7 0 0 1-7-7V28a7 7 0 0 1 7-7Z" fill="white" stroke="#d0dced" />
+                    <path d="M255 21v24h24" fill="#e7eef9" />
+                    <rect x="172" y="42" width="6" height="25" rx="2" fill="#2563eb" />
+                    <text x="187" y="59" fill="#233752" font-size="15" font-weight="800">報告書</text>
+                    <path class="pv-art-mobile-line" d="M187 54h51" stroke="#233752" stroke-width="7" stroke-linecap="round" />
+                    <path d="M173 84h87M173 96h74M173 108h87M173 120h53" stroke="#d5dfed" stroke-width="4" stroke-linecap="round" />
+                    <rect x="170" y="139" width="91" height="30" rx="4" fill="#eaf1fd" />
+                    <path d="m182 154 4 4 8-9" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M204 154h44" stroke="#93bafb" stroke-width="4" stroke-linecap="round" />
+                  </g>
+                </svg>
+              </div>
+              <div class="pv-card-copy">
+                <span class="pv-card-label" aria-hidden="true">REPORT</span>
+                <h3>書類・報告書づくり</h3>
+                <p><span>写真とメモから、</span><span>報告書の下書きを作成。</span></p>
+              </div>
             </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">03</span>
-              <h3>書類・記録・報告書づくり</h3>
-              <p>書く時間を、確かめる時間に。</p>
-              <ul><li>写真とメモから報告書のたたき台</li><li>会議の録音から議事録を作成</li></ul>
-            </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">04</span>
-              <h3>見積・提案・契約まわり</h3>
-              <p>初稿づくりを、数分で。</p>
-              <ul><li>過去の案件から見積のたたき台</li><li>契約書の確認ポイントを抜き出し</li></ul>
-            </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">05</span>
-              <h3>点検・法令・加算チェック</h3>
-              <p>見落としを、先に見つける。</p>
-              <ul><li>記録の抜け漏れを自動でチェック</li><li>加算・届出の要件と照らし合わせ</li></ul>
-            </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">06</span>
-              <h3>数字の集計・見える化・先読み</h3>
-              <p>数字を、判断に使える形へ。</p>
-              <ul><li>売上や稼働をまとめて自動集計</li><li>来月の見込みをグラフで予測</li></ul>
-            </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">07</span>
-              <h3>予定・期限・段取り</h3>
-              <p>期限を、忘れない仕組みに。</p>
-              <ul><li>工程表・シフトの下書きを作成</li><li>期限の一覧化と事前のお知らせ</li></ul>
-            </li>
-            <li>
-              <span class="pv-fb-n" aria-hidden="true">08</span>
-              <h3>集客・求人・教育</h3>
-              <p>人を集め、育てるところまで。</p>
-              <ul><li>求人票やSNS投稿の文案づくり</li><li>新人向けマニュアルをまとめて作成</li></ul>
+            <li class="pv-card">
+              <div class="pv-art pv-art-estimate" aria-hidden="true">
+                <svg viewBox="0 0 320 210" fill="none">
+                  <ellipse cx="163" cy="111" rx="117" ry="82" fill="#eaf1fd" />
+                  <g transform="rotate(-9 77 114)">
+                    <rect x="30" y="53" width="94" height="116" rx="5" fill="#e0eafb" stroke="#baceec" />
+                    <rect x="40" y="64" width="94" height="116" rx="5" fill="white" stroke="#d0dced" />
+                    <path d="M54 84h55M54 103h48M54 115h61M54 135h43M54 147h52" stroke="#c2d1e8" stroke-width="4" stroke-linecap="round" />
+                  </g>
+                  <path d="M117 110h29m-8-8 8 8-8 8" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <g class="pv-paper" transform="rotate(4 215 106)">
+                    <rect x="153" y="22" width="131" height="171" rx="7" fill="white" stroke="#d0dced" />
+                    <path d="M160 22h117a7 7 0 0 1 7 7v34H153V29a7 7 0 0 1 7-7Z" fill="#132445" />
+                    <text x="170" y="49" fill="white" font-size="14" font-weight="800">見積書</text>
+                    <path class="pv-art-mobile-line" d="M170 44h51" stroke="white" stroke-width="6" stroke-linecap="round" />
+                    <path d="M169 83h45M250 83h17M169 105h54M249 105h18M169 127h35M248 127h19" stroke="#c9d7ea" stroke-width="4" stroke-linecap="round" />
+                    <path d="M167 94h101M167 116h101M167 138h101" stroke="#e8edf5" />
+                    <rect x="165" y="151" width="106" height="28" rx="3" fill="#2563eb" />
+                    <path d="M177 165h48" stroke="#b6d6ff" stroke-width="4" stroke-linecap="round" />
+                    <path d="m245 165 4 4 9-10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </g>
+                </svg>
+              </div>
+              <div class="pv-card-copy">
+                <span class="pv-card-label" aria-hidden="true">PROPOSAL</span>
+                <h3>見積・提案づくり</h3>
+                <p><span>過去の案件をもとに、</span><span>見積のたたき台を作成。</span></p>
+              </div>
             </li>
           </ol>
+          <div class="pv-action">
+            <a
+              class="line-button"
+              href="{{LINE_URL}}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LINEでカタログを受け取る（LINEを開きます）"
+            >
+              <svg class="line-mark" viewBox="0 0 40 40" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M35 18c0-8-7-14-16-14S3 10 3 18c0 7 6 13 14 14 1 0 1 1 1 2l-1 3c0 1 1 1 2 0 3-1 9-5 12-9 3-3 4-6 4-10Z"
+                />
+                <text x="19" y="22" text-anchor="middle">LINE</text>
+              </svg>
+              <span>LINEでカタログを受け取る</span>
+            </a>
+          </div>
         </div>
       </section>
 

@@ -1,32 +1,9 @@
-// Catalog preview motion (DOM side). The 3D book, its page turns and the
-// printed theme pages live in scripts/ai-catalog/src/ (catalog-scene.js,
-// catalog-book.js). Here: the heading reveal, and the 3 steps, whose rail fills
-// with scroll and lights each step as the fill reaches it.
+// The catalog examples are static. Only the receive steps and closing section
+// have the existing subtle scroll-linked accents.
 
 window.__lpMotion = true;
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-
-function show(el) {
-  el.classList.add('is-in');
-}
-
-const targets = document.querySelectorAll('.reveal, .pv-title');
-if (reduce.matches || !('IntersectionObserver' in window)) {
-  targets.forEach(show);
-} else {
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        io.unobserve(e.target);
-        show(e.target);
-      }
-    },
-    { rootMargin: '0px 0px -12% 0px', threshold: 0.15 },
-  );
-  targets.forEach((el) => io.observe(el));
-}
 
 // 3 steps: --s runs 0 -> 1 as the list passes the lower part of the viewport.
 const steps = document.getElementById('steps');
