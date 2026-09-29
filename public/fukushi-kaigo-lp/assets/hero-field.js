@@ -235,7 +235,8 @@ function start() {
 
     // The light wanders on its own; a mouse pulls it about a third of the way.
     const tt = (now - t0) / 1000;
-    let lx = view.w * (0.62 + 0.26 * Math.sin(tt * 0.071));
+    // The light drifts across the whole width, so neither side of the hero sits dark.
+    let lx = view.w * (0.5 + 0.38 * Math.sin(tt * 0.071));
     let ly = view.h * (0.32 + 0.16 * Math.sin(tt * 0.053 + 1.3));
     if (reduce) {
       lx = view.w * 0.68;
