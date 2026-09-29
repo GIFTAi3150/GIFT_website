@@ -634,6 +634,10 @@
   /* CTAs hug their label instead of spanning the column. */
   #gift-landing .gift-hero-action .gift-line-button, #gift-landing .gift-line-card .gift-line-button, #gift-landing .gift-search-more { width:fit-content; max-width:100%; padding-inline:36px; margin-inline:auto; }
 }
+/* The closing CTA is LINE green so it stands out on the navy band (manager feedback). */
+#gift-landing .gift-line-card .gift-line-button { background:#06c755; color:#fff; box-shadow:0 0 0 6px #06c75526,0 14px 36px #06c7554d; }
+#gift-landing .gift-line-card .gift-line-button:hover { background:#05b04b; }
+#gift-landing .gift-line-card .gift-line-button:focus-visible { outline-color:#8ef0b7; }
 
 /* Touch devices: a tapped CTA keeps focus, so drop the tap flash and the keyboard focus ring. */
 @media (hover:none) and (pointer:coarse) {
