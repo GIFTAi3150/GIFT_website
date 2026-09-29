@@ -88,9 +88,10 @@
   if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const revealGroups = [
       ['.gift-section-kicker', 'mask', 0],
-      ['.gift-examples .gift-section-heading h2', 'fade', 0],
-      ['.gift-example-image', 'wipe', 3],
-      ['.gift-example-title', 'fade', 3],
+      ['.gift-catalog .gift-section-heading h2', 'fade', 0],
+      ['.gift-tally-total', 'fade', 0],
+      ['.gift-tally-side', 'fade', 0],
+      ['.gift-search', 'fade', 0],
       ['.gift-how .gift-panel-tab', 'fade', 0],
       ['.gift-how h2', 'sweep', 0],
       ['.gift-receive-flow-card .gift-panel-tab', 'fade', 0],
@@ -119,8 +120,7 @@
       document.querySelectorAll(selector).forEach((element, index) => {
         element.setAttribute('data-reveal', kind);
         const step = perRow ? index % perRow : 0;
-        const titleLag = selector === '.gift-example-title' ? 180 : 0;
-        element.style.setProperty('--d', step * 110 + titleLag + 'ms');
+        element.style.setProperty('--d', step * 110 + 'ms');
         const target = element.parentElement;
         if (!revealTargets.has(target)) {
           revealTargets.set(target, []);
@@ -164,119 +164,170 @@
     });
   }
 
-  const exampleDialog = document.querySelector('#gift-example-dialog');
-  if (exampleDialog) {
-    let activeTrigger = null;
-    let savedScrollY = 0;
-    let backdropPointerDown = false;
-    let closing = false;
-    const image = exampleDialog.querySelector('.gift-dialog-image');
-    const title = exampleDialog.querySelector('#gift-example-dialog-title');
-    const sector = exampleDialog.querySelector('.gift-dialog-sector');
-    const copy = exampleDialog.querySelector('#gift-example-dialog-copy');
-    const closeButton = exampleDialog.querySelector('[data-example-close]');
-    let openedByPointer = false;
-
-    // Dialog focus moves (open → close button, close → trigger) should only
-    // draw a focus ring for keyboard users, not after a tap or click.
-    const muteFocusRing = (el) => {
-      if (!el) return;
-      el.classList.add('gift-pointer-focus');
-      el.addEventListener('blur', () => el.classList.remove('gift-pointer-focus'), { once: true });
-    };
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Tab') return;
-      document.querySelectorAll('.gift-pointer-focus').forEach((el) => el.classList.remove('gift-pointer-focus'));
+  // カタログ検索: JSON は初回操作（フォーカス／入力／ヒント）か、セクションが画面に近づいた
+  // タイミングで一度だけ取得してキャッシュする。
+  const catalogSection = document.querySelector('.gift-catalog');
+  if (catalogSection) {
+    const searchForm = catalogSection.querySelector('.gift-search');
+    const input = catalogSection.querySelector('#gift-q');
+    const resultsBox = catalogSection.querySelector('.gift-search-results');
+    const countLine = catalogSection.querySelector('.gift-search-count');
+    const list = catalogSection.querySelector('.gift-search-list');
+    const moreLink = catalogSection.querySelector('.gift-search-more');
+    const clearButton = catalogSection.querySelector('.gift-search-clear');
+    const syncClear = () => { clearButton.hidden = input.value === ''; };
+    clearButton.addEventListener('click', () => {
+      input.value = '';
+      syncClear();
+      runSearch('');
+      input.focus();
     });
 
-    document.querySelectorAll('[data-example-open]').forEach((button) => {
-      button.addEventListener('click', (event) => {
-        if (exampleDialog.open) return;
-        // detail is 0 for keyboard-activated clicks (Enter/Space).
-        openedByPointer = event.detail > 0;
-        const card = button.closest('.gift-example');
-        const sourceImage = card.querySelector('.gift-example-image');
-        image.src = sourceImage.currentSrc || sourceImage.src;
-        image.alt = sourceImage.alt;
-        title.innerHTML = card.querySelector('h3').innerHTML;
-        sector.textContent = card.querySelector('.gift-sector').textContent;
-        copy.innerHTML = card.querySelector('.gift-example-copy').innerHTML;
-        activeTrigger = button;
-        button.setAttribute('aria-expanded', 'true');
-        savedScrollY = window.scrollY;
-        document.documentElement.classList.add('gift-modal-open');
-        if (openedByPointer) muteFocusRing(closeButton);
-        exampleDialog.showModal();
-        exampleDialog.scrollTop = 0;
+    let skillsPromise = null;
+    const loadSkills = () => {
+      if (!skillsPromise) {
+        skillsPromise = fetch('/fukushi-kaigo-lp/assets/skills-2026-09.json')
+          .then((response) => response.json())
+          .catch(() => []);
+      }
+      return skillsPromise;
+    };
+
+    const normalize = (value) => value.normalize('NFKC').toLowerCase();
+
+    const runSearch = async (rawQuery) => {
+      const query = rawQuery.trim();
+      if (!query) {
+        resultsBox.hidden = true;
+        return;
+      }
+      const rows = await loadSkills();
+      const tokens = normalize(query).split(/\s+/).filter(Boolean);
+      const matches = [];
+      rows.forEach(([group, industry, name, does, when]) => {
+        const haystack = normalize(`${name}${does}${when}${industry}${group}`);
+        if (!tokens.every((token) => haystack.includes(token))) return;
+        const nameHaystack = normalize(name);
+        const nameMatchesAll = tokens.every((token) => nameHaystack.includes(token));
+        matches.push({ group, industry, name, does, nameMatchesAll });
+      });
+      // Array#sort is stable, so name-matches float up without losing catalogue order among ties.
+      matches.sort((a, b) => (b.nameMatchesAll ? 1 : 0) - (a.nameMatchesAll ? 1 : 0));
+
+      const total = matches.length;
+      if (total === 0) {
+        countLine.textContent = `「${query}」に合う作業は見つかりませんでした。LINEでご相談ください。`;
+      } else if (total <= 3) {
+        countLine.textContent = `「${query}」に合う作業 ${total}本`;
+      } else {
+        countLine.textContent = `「${query}」に合う作業 ${total}本（うち3本を表示）`;
+      }
+
+      list.textContent = '';
+      matches.slice(0, 3).forEach((row, index) => {
+        const item = document.createElement('li');
+        item.style.setProperty('--i', index);
+        const sector = document.createElement('p');
+        sector.className = 'gift-sector';
+        sector.textContent = `事業：${row.industry}`;
+        const heading = document.createElement('h3');
+        heading.textContent = row.name;
+        const does = document.createElement('p');
+        does.textContent = `AIがすること：${row.does}`;
+        item.append(sector, heading, does);
+        list.append(item);
+      });
+      resultsBox.hidden = false;
+    };
+
+    let debounceTimer = null;
+    const searchNow = () => {
+      clearTimeout(debounceTimer);
+      runSearch(input.value);
+    };
+    input.addEventListener('focus', loadSkills, { once: true });
+    input.addEventListener('input', () => {
+      syncClear();
+      loadSkills();
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => runSearch(input.value), 200);
+    });
+    searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      searchNow();
+    });
+    catalogSection.querySelectorAll('.gift-search-hints [data-q]').forEach((button) => {
+      button.addEventListener('click', () => {
+        input.value = button.getAttribute('data-q');
+        syncClear();
+        loadSkills();
+        searchNow();
       });
     });
 
-    const closeDialog = async () => {
-      if (!exampleDialog.open || closing) return;
-      closing = true;
-      // If dismissed during entry, fade out from the current frame without a flash.
-      const currentStyle = getComputedStyle(exampleDialog);
-      const backdropStyle = getComputedStyle(exampleDialog, '::backdrop');
-      exampleDialog.style.setProperty('--gift-close-opacity', currentStyle.opacity);
-      exampleDialog.style.setProperty('--gift-close-transform', currentStyle.transform);
-      exampleDialog.style.setProperty('--gift-backdrop-close-opacity', backdropStyle.opacity);
-      activeTrigger?.setAttribute('aria-expanded', 'false');
-      exampleDialog.classList.add('is-closing');
-      // Keep the modal and focus lock in place until the exit motion finishes.
-      await Promise.allSettled(
-        exampleDialog.getAnimations().map((animation) => animation.finished),
+    if ('IntersectionObserver' in window) {
+      const prefetchObserver = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          prefetchObserver.disconnect();
+          loadSkills();
+        },
+        { rootMargin: '600px 0px' },
       );
-      if (exampleDialog.open && closing) exampleDialog.close();
-    };
+      prefetchObserver.observe(catalogSection);
+    }
 
-    closeButton.addEventListener('click', (event) => {
-      if (event.detail > 0) openedByPointer = true;
-      closeDialog();
-    });
-    exampleDialog.addEventListener('cancel', (event) => {
+    const isRendered = (el) => !!el && !!el.getClientRects().length;
+    moreLink.addEventListener('click', (event) => {
       event.preventDefault();
-      closeDialog();
-    });
-
-    const outsideDialog = (event) => {
-      const bounds = exampleDialog.getBoundingClientRect();
-      return (
-        event.clientX < bounds.left ||
-        event.clientX > bounds.right ||
-        event.clientY < bounds.top ||
-        event.clientY > bounds.bottom
-      );
-    };
-    exampleDialog.addEventListener('pointerdown', (event) => {
-      backdropPointerDown = event.target === exampleDialog && outsideDialog(event);
-    });
-    exampleDialog.addEventListener('click', (event) => {
-      if (backdropPointerDown && event.target === exampleDialog && outsideDialog(event)) {
-        closeDialog();
-      }
-      backdropPointerDown = false;
-    });
-    exampleDialog.addEventListener('close', () => {
-      closing = false;
-      backdropPointerDown = false;
-      exampleDialog.classList.remove('is-closing');
-      activeTrigger?.setAttribute('aria-expanded', 'false');
-      document.documentElement.classList.remove('gift-modal-open');
-      if (openedByPointer) muteFocusRing(activeTrigger);
-      activeTrigger?.focus({ preventScroll: true });
-      window.scrollTo({ top: savedScrollY, behavior: 'instant' });
-      activeTrigger = null;
+      const qrSpace = document.querySelector('.gift-qr-space');
+      const target = isRendered(qrSpace) ? qrSpace : document.querySelector('.gift-line-card');
+      target?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+        block: 'center',
+      });
     });
   }
-  document.querySelectorAll('[data-line-pending]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const status = document.getElementById(button.getAttribute('aria-controls'));
-      if (status) {
-        status.hidden = false;
-        status.textContent = 'ただいま準備中です。公開までしばらくお待ちください。';
+
+  // 本数のカウントアップ: 各グループ（事業名の下・カタログの統計行）が画面に入った瞬間に 0 から実数へ増える。
+  const countGroups = document.querySelectorAll('[data-count-group]');
+  if (
+    countGroups.length &&
+    'IntersectionObserver' in window &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    const easeOutCubic = (t) => 1 - (1 - t) ** 3;
+    const animateCount = (node) => {
+      const target = Number(node.getAttribute('data-count-to'));
+      const duration = 1400;
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        node.textContent = String(Math.round(target * easeOutCubic(progress)));
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    const countObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          countObserver.unobserve(entry.target);
+          entry.target.classList.add('is-counted');
+          entry.target.querySelectorAll('.gift-count').forEach(animateCount);
+        });
+      },
+      { threshold: 0.4 },
+    );
+    countGroups.forEach((group) => {
+      // Zero only the groups that start below the fold; the first-view one counts up straight away.
+      if (group.getBoundingClientRect().top > window.innerHeight) {
+        group.setAttribute('data-count-armed', '');
+        group.querySelectorAll('.gift-count').forEach((node) => { node.textContent = '0'; });
       }
+      countObserver.observe(group);
     });
-  });
+  }
 
   document.querySelectorAll('[data-line-placement]').forEach((link) => {
     link.addEventListener('click', () => {
